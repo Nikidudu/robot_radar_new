@@ -2,6 +2,10 @@
 #define __DM4310_DRV_H__
 #include "main.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MIT_MODE 			0x000
 #define POS_MODE			0x100
 #define SPEED_MODE		0x200
@@ -99,6 +103,10 @@ void pos_force_ctrl(CAN_HandleTypeDef* hcan,uint16_t motor_id, float pos, uint16
 	
 void save_pos_zero(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id);
 void clear_err(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __DM4310_DRV_H__ */
 

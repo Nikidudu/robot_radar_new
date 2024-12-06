@@ -95,29 +95,6 @@ void motor_control_task(void *argument) {
 			CAN_send_data[6] = 0;
 			CAN_send_data[7] = 0;
 			CAN_tx_message.StdId = 0x200;
-//			CAN_send_data[0] = 0xFF;
-//			CAN_send_data[1] = 0xFF;
-//			CAN_send_data[2] = 0xFF;
-//			CAN_send_data[3] = 0xFF;
-//			CAN_send_data[4] = 0xFF;
-//			CAN_send_data[5] = 0xFF;
-//			CAN_send_data[6] = 0xFF;
-//			CAN_send_data[7] = 0xFC;
-//			CAN_tx_message.StdId = 0x91;
-//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
-//					send_mail_box);
-//			vTaskDelay(10);
-//			CAN_tx_message.StdId = 0x01;
-//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
-//					send_mail_box);
-//			vTaskDelay(10);
-//			CAN_tx_message.StdId = 0x02;
-//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
-//					send_mail_box);
-//			vTaskDelay(10);
-//			CAN_tx_message.StdId = 0x03;
-//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
-//					send_mail_box);
 			if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0){
 				empty_tx_mb1(&hcan1);
 			}

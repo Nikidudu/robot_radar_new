@@ -30,6 +30,7 @@ extern motor_data_t g_can_motors[24];
 
 extern motor_map_t lk_motor_map[65];
 extern motor_map_t dji_motor_map[25];
+extern motor_t motor[num];
 
 //#include <can_message_processor.h>
 
@@ -166,6 +167,7 @@ void ROCANDriver::start() {
 //}
 
 void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
+	int fb_id;
 //	uint8_t sender = getSenderID(can);
 	if (hcan->Instance == CAN1) {
 		uint32_t fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO0);
@@ -188,21 +190,22 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					}
 				} else if (RxHeader.StdId > 0x01 && RxHeader.StdId <= 0x04){
 //				    MF_fbdata(&MF_motor, &RxData[0]);
-//				    fb_id = (RxData[0])&0x0F;
-//				    switch(fb_id)
-//				    	{
-//				    		case 1:
-//				    			dm4310_fbdata(&motor[Motor1],&RxData[0]);
-//				    			break;
-//				    		case 2:
-//				    			dm4310_fbdata(&motor[Motor2],&RxData[0]);
-//				    			break;
-//				    		case 3:
-//				    			dm4310_fbdata(&motor[Motor3],&RxData[0]);
-//				    			break;
-//				    		case 4:
-//				    			dm4310_fbdata(&motor[Motor4],&RxData[0]);
-//				    			break;
+				    fb_id = (RxData[0])&0x0F;
+				    switch(fb_id)
+				    	{
+				    		case 1:
+				    			dm4310_fbdata(&motor[Motor1],&RxData[0]);
+				    			break;
+				    		case 2:
+				    			dm4310_fbdata(&motor[Motor2],&RxData[0]);
+				    			break;
+				    		case 3:
+				    			dm4310_fbdata(&motor[Motor3],&RxData[0]);
+				    			break;
+				    		case 4:
+				    			dm4310_fbdata(&motor[Motor4],&RxData[0]);
+				    			break;
+				    	}
 //				    	}
 				} else {
 					uint8_t sender = getSenderID(hcan);
