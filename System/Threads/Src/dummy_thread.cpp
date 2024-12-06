@@ -9,7 +9,9 @@
 #include <Telemetry.h>
 
 dummyThread* dummyInstance = nullptr;
-int count_dummy = 0;
+int count_dummy[6];
+int16_t test[6];
+float imu_test[6];
 
 dummyThread::~dummyThread(){
 }
@@ -40,9 +42,9 @@ void dummyThread::loop()
 	MAKE_RELIABLE(dummy_packet);
 	Telemetry::set_id(OTHER_NODE_ID);
 
-	CAN1_network->send(&dummy_packet);
+	//CAN1_network->send(&dummy_packet);
 
-	osDelay(10);
+	osDelay(1000);
 
 	portYIELD();
 }
@@ -52,8 +54,22 @@ void dummyThread::handle_dummy(uint8_t sender_id, dummyPacket* packet) {
 //		console.printf_error("Unreliable IMU calibration packet");
 		return;
 	}
-	count_dummy = packet->num2;
+	 count_dummy[0] = packet->num1;
+	 count_dummy[1] = packet->num2;
+	 count_dummy[2] = packet->num3;
 
-
+	 // Unpack and handle signed values
+	 test[0] = (int16_t)((packet->num1 >> 16) & 0xFFFF);// Extract MSB for first number
+	 test[1] = (int16_t)(packet->num1 & 0xFFFF);      // Extract LSB for second number
+	 test[2] = (int16_t)((packet->num2 >> 16) & 0xFFFF);// Extract MSB for first number
+	 test[3] = (int16_t)(packet->num2 & 0xFFFF);
+	 test[4] = (int16_t)((packet->num3 >> 16) & 0xFFFF);// Extract MSB for first number
+	 test[5] = (int16_t)(packet->num3 & 0xFFFF);                        // Sign-extend to 16-bit
+	 imu_test[0] = (float)test[0]/1000.0f;
+	 imu_test[1] = (float)test[1]/1000.0f;
+	 imu_test[2] = (float)test[2]/1000.0f;
+	 imu_test[3] = (float)test[3]/1000.0f;
+	 imu_test[4] = (float)test[4]/1000.0f;
+	 imu_test[5] = (float)test[5]/1000.0f;
 }
 
