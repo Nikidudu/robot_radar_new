@@ -1,0 +1,10 @@
+C:\ST\STM32CubeIDE_1.15.1\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.100.202403111256\tools\arm-none-eabi\include\c++\12.3.1\bits\std_function.h:241:5:std::_Function_base::~_Function_base()	16	static
+C:\ST\STM32CubeIDE_1.15.1\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.win32_1.0.100.202403111256\tools\arm-none-eabi\include\c++\12.3.1\bits\std_function.h:334:11:std::function<void(unsigned char, void*)>::~function()	16	static
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/MessageBus.h:27:10:MessageBus::~MessageBus()	24	static
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/MessageBus.h:27:10:virtual MessageBus::~MessageBus()	16	static
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolMacros.h:7:17:uint16_t __gen_crc16(const uint8_t*, uint16_t)	24	static
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IOBus.h:15:7:IOBus::~IOBus()	16	static
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IOBus.h:15:7:virtual IOBus::~IOBus()	16	static
+../System/BRoCo/src/CANBus.cpp:17:1:CANBus::CANBus(IODriver*)	16	static
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/CANBus.h:21:7:CANBus::~CANBus()	16	static
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/CANBus.h:21:7:virtual CANBus::~CANBus()	16	static

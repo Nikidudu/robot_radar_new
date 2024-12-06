@@ -41,11 +41,11 @@ void Telemetry::setup() {
 
 //		CAN2_driver = new ROCANDriver(&hcan2, CURRENT_NODE_ID);
 //		CAN2_network = new CANBus(CAN2_driver);
-//		dummy = new dummyThread();
-		supercap_thread = new SuperCapCommThread();
+		dummy = new dummyThread();
+//		supercap_thread = new SuperCapCommThread();
 
 
-//		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
+		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
 		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
 
 //		gimbalJointThread = new gimbalJointPubThread();

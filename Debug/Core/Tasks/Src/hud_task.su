@@ -1,0 +1,11 @@
+../Core/Tasks/Src/hud_task.c:37:6:map_robot_id	16	static
+../Core/Tasks/Src/hud_task.c:85:6:hud_task	336	static
+../Core/Tasks/Src/hud_task.c:198:10:clear_hud	24	static
+../Core/Tasks/Src/hud_task.c:216:6:ref_send	16	static
+../Core/Tasks/Src/hud_task.c:226:9:draw_char	24	static
+../Core/Tasks/Src/hud_task.c:235:10:draw_graphic_header	24	static
+../Core/Tasks/Src/hud_task.c:262:10:draw_crosshair	32	static
+../Core/Tasks/Src/hud_task.c:380:10:draw_spinspin	80	static
+../Core/Tasks/Src/hud_task.c:444:10:draw_feeder_state	80	static
+../Core/Tasks/Src/hud_task.c:587:10:draw_gearing	80	static
+../Core/Tasks/Src/hud_task.c:645:10:draw_reset	80	static

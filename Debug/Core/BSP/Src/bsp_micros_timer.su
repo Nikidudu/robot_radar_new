@@ -1,0 +1,6 @@
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:1124:22:LL_TIM_EnableCounter	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:1135:22:LL_TIM_DisableCounter	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:1419:22:LL_TIM_SetPrescaler	16	static
+../Core/BSP/Src/bsp_micros_timer.c:12:6:micros_tick	4	static
+../Core/BSP/Src/bsp_micros_timer.c:16:6:start_micros_timer	8	static
+../Core/BSP/Src/bsp_micros_timer.c:31:10:get_microseconds	16	static

@@ -40,7 +40,7 @@ void dummyThread::loop()
 	MAKE_RELIABLE(dummy_packet);
 	Telemetry::set_id(OTHER_NODE_ID);
 
-//	CAN1_network->send(&dummy_packet);
+	CAN1_network->send(&dummy_packet);
 
 	osDelay(10);
 

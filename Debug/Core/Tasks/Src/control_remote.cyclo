@@ -1,0 +1,5 @@
+../Core/Tasks/Src/control_remote.c:26:6:remote_control_input	1
+../Core/Tasks/Src/control_remote.c:31:6:remote_gear_shifter	8
+../Core/Tasks/Src/control_remote.c:64:6:remote_chassis_input	5
+../Core/Tasks/Src/control_remote.c:94:6:remote_gimbal_input	3
+../Core/Tasks/Src/control_remote.c:108:6:remote_launcher_control_input	7

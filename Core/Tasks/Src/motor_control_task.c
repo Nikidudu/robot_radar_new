@@ -12,6 +12,7 @@
 #include "motor_control_task.h"
 #include "motor_config.h"
 #include "bsp_lk_motor.h"
+#include "dm4310_drv.h"
 
 extern motor_data_t g_can_motors[24];
 extern motor_map_t dji_motor_map[25];
@@ -54,6 +55,8 @@ void empty_tx_mb2(CAN_HandleTypeDef *hcan){
 
 
 void motor_control_task(void *argument) {
+	dm4310_motor_init();
+
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
@@ -92,6 +95,29 @@ void motor_control_task(void *argument) {
 			CAN_send_data[6] = 0;
 			CAN_send_data[7] = 0;
 			CAN_tx_message.StdId = 0x200;
+//			CAN_send_data[0] = 0xFF;
+//			CAN_send_data[1] = 0xFF;
+//			CAN_send_data[2] = 0xFF;
+//			CAN_send_data[3] = 0xFF;
+//			CAN_send_data[4] = 0xFF;
+//			CAN_send_data[5] = 0xFF;
+//			CAN_send_data[6] = 0xFF;
+//			CAN_send_data[7] = 0xFC;
+//			CAN_tx_message.StdId = 0x91;
+//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
+//					send_mail_box);
+//			vTaskDelay(10);
+//			CAN_tx_message.StdId = 0x01;
+//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
+//					send_mail_box);
+//			vTaskDelay(10);
+//			CAN_tx_message.StdId = 0x02;
+//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
+//					send_mail_box);
+//			vTaskDelay(10);
+//			CAN_tx_message.StdId = 0x03;
+//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
+//					send_mail_box);
 			if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0){
 				empty_tx_mb1(&hcan1);
 			}

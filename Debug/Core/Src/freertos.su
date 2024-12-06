@@ -1,0 +1,6 @@
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolMacros.h:7:17:uint16_t __gen_crc16(const uint8_t*, uint16_t)	24	static
+../Core/Src/freertos.cpp:86:13:void configureTimerForRunTimeStats()	4	static
+../Core/Src/freertos.cpp:90:22:long unsigned int getRunTimeCounterValue()	4	static
+../Core/Src/freertos.cpp:96:13:void vApplicationStackOverflowHook(TaskHandle_t, signed char*)	16	static
+../Core/Src/freertos.cpp:109:6:void MX_FREERTOS_Init()	16	static
+../Core/Src/freertos.cpp:177:6:void StartDefaultTask(void*)	16	static

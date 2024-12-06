@@ -39,6 +39,7 @@
 "./Core/Tasks/Src/control_keyboard.o"
 "./Core/Tasks/Src/control_remote.o"
 "./Core/Tasks/Src/control_sbc.o"
+"./Core/Tasks/Src/dm4310_drv.o"
 "./Core/Tasks/Src/error_handler.o"
 "./Core/Tasks/Src/gimbal_control_task.o"
 "./Core/Tasks/Src/hud_task.o"

@@ -71,34 +71,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := standard_bot_v5C
+BUILD_ARTIFACT_NAME := robot_firmware_new
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-standard_bot_v5C.elf \
+robot_firmware_new.elf \
 
 MAP_FILES += \
-standard_bot_v5C.map \
+robot_firmware_new.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-standard_bot_v5C.list \
+robot_firmware_new.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: standard_bot_v5C.elf secondary-outputs
+main-build: robot_firmware_new.elf secondary-outputs
 
 # Tool invocations
-standard_bot_v5C.elf standard_bot_v5C.map: $(OBJS) $(USER_OBJS) C:\Users\ybakk\OneDrive\Documents\Robomaster_EL\standard_bot_v5C\STM32F407IGHX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "standard_bot_v5C.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\ybakk\OneDrive\Documents\Robomaster_EL\standard_bot_v5C\STM32F407IGHX_FLASH.ld" -Wl,-Map="standard_bot_v5C.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+robot_firmware_new.elf robot_firmware_new.map: $(OBJS) $(USER_OBJS) C:\Users\YI\ MING\Desktop\MAPLE\robot_firmware_new\STM32F407IGHX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "robot_firmware_new.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\YI MING\Desktop\MAPLE\robot_firmware_new\STM32F407IGHX_FLASH.ld" -Wl,-Map="robot_firmware_new.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -107,14 +107,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-standard_bot_v5C.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "standard_bot_v5C.list"
+robot_firmware_new.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "robot_firmware_new.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) default.size.stdout standard_bot_v5C.elf standard_bot_v5C.list standard_bot_v5C.map
+	-$(RM) default.size.stdout robot_firmware_new.elf robot_firmware_new.list robot_firmware_new.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

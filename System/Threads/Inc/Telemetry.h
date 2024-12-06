@@ -13,8 +13,9 @@
 //#include "motor_control.h"
 #include "crc.h"
 
-#define CAP1_NODE_ID       (0x003)
-#define CAP2_NODE_ID       (0x008)
+#define CAP1_NODE_ID       (0x027)
+#define CAP2_NODE_ID       (0x026)
+
 #define CURRENT_NODE_ID     CAP2_NODE_ID
 #define OTHER_NODE_ID		CAP1_NODE_ID
 

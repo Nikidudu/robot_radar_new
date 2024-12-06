@@ -106,7 +106,8 @@ void master_task(void* argument){
 		xTaskCreate(usb_task, "usb_task",
 		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &usb_task_handle);
 	}
-
+	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
+			(UBaseType_t) 3, &motor_control_task_handle);
 //	xTaskCreate(telemetry_task, "telemetry_task", 700, (void*) 1,
 //			(UBaseType_t) 5, &telemetry_task_handle);
 	xTaskCreate(hud_task, "hud_task", 512, (void*) 3,

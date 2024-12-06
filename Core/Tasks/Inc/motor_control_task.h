@@ -9,4 +9,6 @@
 #define TASKS_INC_MOTOR_CONTROL_TASK_H_
 
 void motor_control_task(void *argument);
+
+
 #endif /* TASKS_INC_MOTOR_CONTROL_TASK_H_ */

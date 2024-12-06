@@ -31,11 +31,13 @@
 #include "buzzing_task.h"
 #include <can_msg_processor.h>
 
+
 void startup_task() {
 	//todo: shift all to an actual task, reimplement motor not connected errors
 	led_on();
 	buzzer_init();
 //	imu_init();
+
 	led_green_off();
 	start_micros_timer();
 	led_toggle();
