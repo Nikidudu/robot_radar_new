@@ -191,6 +191,15 @@ typedef struct
 	float pit;
 	float rol;
 	float yaw;
+	float pit_speed;
+	float rol_speed;
+	float yaw_speed;
+	float pit_deg;
+	float rol_deg;
+	float yaw_deg;
+	float pit_speed_deg;
+	float rol_speed_deg;
+	float yaw_speed_deg;
 } orientation_data_t;
 
 typedef struct

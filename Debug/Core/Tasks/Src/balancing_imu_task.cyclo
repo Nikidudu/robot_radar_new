@@ -1,0 +1,7 @@
+../Core/Tasks/Src/balancing_imu_task.c:33:13:normalize_quaternion	3
+../Core/Tasks/Src/balancing_imu_task.c:40:13:quaternion_from_gyro	1
+../Core/Tasks/Src/balancing_imu_task.c:52:13:predict	3
+../Core/Tasks/Src/balancing_imu_task.c:66:13:get_gravity_vector	1
+../Core/Tasks/Src/balancing_imu_task.c:91:13:update	1
+../Core/Tasks/Src/balancing_imu_task.c:133:13:sensor_fusion	1
+../Core/Tasks/Src/balancing_imu_task.c:184:6:balancing_imu_task	1

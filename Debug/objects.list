@@ -32,6 +32,7 @@
 "./Core/Src/tim.o"
 "./Core/Src/usart.o"
 "./Core/Startup/startup_stm32f407ighx.o"
+"./Core/Tasks/Src/balancing_imu_task.o"
 "./Core/Tasks/Src/buzzing_task.o"
 "./Core/Tasks/Src/can_msg_processor.o"
 "./Core/Tasks/Src/can_relay_task.o"

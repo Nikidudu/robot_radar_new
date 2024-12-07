@@ -65,11 +65,11 @@ void dummyThread::handle_dummy(uint8_t sender_id, dummyPacket* packet) {
 	 test[3] = (int16_t)(packet->num2 & 0xFFFF);
 	 test[4] = (int16_t)((packet->num3 >> 16) & 0xFFFF);// Extract MSB for first number
 	 test[5] = (int16_t)(packet->num3 & 0xFFFF);                        // Sign-extend to 16-bit
-	 imu_test[0] = (float)test[0]/1000.0f;
-	 imu_test[1] = (float)test[1]/1000.0f;
-	 imu_test[2] = (float)test[2]/1000.0f;
-	 imu_test[3] = (float)test[3]/1000.0f;
-	 imu_test[4] = (float)test[4]/1000.0f;
-	 imu_test[5] = (float)test[5]/1000.0f;
+	 imu_test[0] = (float)test[0]/1000.0f; //ax
+	 imu_test[1] = (float)test[1]/1000.0f; //ay
+	 imu_test[2] = (float)test[2]/1000.0f; //az
+	 imu_test[3] = (float)test[3]/1000.0f; //gx
+	 imu_test[4] = (float)test[4]/1000.0f; //gy
+	 imu_test[5] = (float)test[5]/1000.0f; //gz
 }
 
