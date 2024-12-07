@@ -249,16 +249,16 @@
 //CAN ids for the motors, for motors on the CAN2 bus, add 12
 //ADD 4 TO GM6020 IDS i.e. flashing 5 times = ID 9
 //#define CHASSIS_MCU
-#ifndef CHASSIS_MCU
-#define FR_MOTOR_ID 		16
-#define FR_MOTOR_CAN_PTR	&hcan2
-#define FL_MOTOR_ID 		15
-#define FL_MOTOR_CAN_PTR	&hcan2
-#define BL_MOTOR_ID 		14
-#define BL_MOTOR_CAN_PTR	&hcan2
-#define BR_MOTOR_ID 		13
-#define BR_MOTOR_CAN_PTR	&hcan2
-#endif
+//#ifndef CHASSIS_MCU
+//#define FR_MOTOR_ID 		16
+//#define FR_MOTOR_CAN_PTR	&hcan2
+//#define FL_MOTOR_ID 		15
+//#define FL_MOTOR_CAN_PTR	&hcan2
+//#define BL_MOTOR_ID 		14
+//#define BL_MOTOR_CAN_PTR	&hcan2
+//#define BR_MOTOR_ID 		13
+//#define BR_MOTOR_CAN_PTR	&hcan2
+//#endif
 #define FEEDER_MOTOR_ID		6
 #define FEEDER_MOTOR_CAN_PTR	&hcan1
 #define LFRICTION_MOTOR_ID	1

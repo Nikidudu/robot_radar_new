@@ -34,6 +34,7 @@
 "./Core/Startup/startup_stm32f407ighx.o"
 "./Core/Tasks/Src/buzzing_task.o"
 "./Core/Tasks/Src/can_msg_processor.o"
+"./Core/Tasks/Src/can_relay_task.o"
 "./Core/Tasks/Src/control_input_task.o"
 "./Core/Tasks/Src/control_keyboard.o"
 "./Core/Tasks/Src/control_remote.o"

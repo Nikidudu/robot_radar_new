@@ -80,10 +80,10 @@ void gimbal_control_task(void *argument) {
 		portMAX_DELAY);
 		start_time = xTaskGetTickCount();
 		if (gimbal_ctrl_data.enabled) {
-			calc_chassis_rot(&g_can_motors[FL_MOTOR_ID - 1],
-					&g_can_motors[FR_MOTOR_ID - 1],
-					&g_can_motors[BR_MOTOR_ID - 1],
-					&g_can_motors[BL_MOTOR_ID - 1]);
+//			calc_chassis_rot(&g_can_motors[FL_MOTOR_ID - 1],
+//					&g_can_motors[FR_MOTOR_ID - 1],
+//					&g_can_motors[BR_MOTOR_ID - 1],
+//					&g_can_motors[BL_MOTOR_ID - 1]);
 #ifdef HALL_ZERO
 			if (check_yaw()){
 				g_gimbal_state = 1;

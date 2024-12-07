@@ -102,10 +102,10 @@ void movement_control_task(void *argument) {
 				} else {
 
 #endif
-					chassis_motion_control(g_can_motors + FR_MOTOR_ID - 1,
-							g_can_motors + FL_MOTOR_ID - 1,
-							g_can_motors + BL_MOTOR_ID - 1,
-							g_can_motors + BR_MOTOR_ID - 1);
+//					chassis_motion_control(g_can_motors + FR_MOTOR_ID - 1,
+//							g_can_motors + FL_MOTOR_ID - 1,
+//							g_can_motors + BL_MOTOR_ID - 1,
+//							g_can_motors + BR_MOTOR_ID - 1);
 
 #ifdef HALL_ZERO
 				}
@@ -113,10 +113,10 @@ void movement_control_task(void *argument) {
 #endif
 
 			} else {
-				g_can_motors[FR_MOTOR_ID - 1].output = 0;
-				g_can_motors[FL_MOTOR_ID - 1].output = 0;
-				g_can_motors[BL_MOTOR_ID - 1].output = 0;
-				g_can_motors[BR_MOTOR_ID - 1].output = 0;
+//				g_can_motors[FR_MOTOR_ID - 1].output = 0;
+//				g_can_motors[FL_MOTOR_ID - 1].output = 0;
+//				g_can_motors[BL_MOTOR_ID - 1].output = 0;
+//				g_can_motors[BR_MOTOR_ID - 1].output = 0;
 
 			}
 #else
@@ -125,10 +125,10 @@ void movement_control_task(void *argument) {
 			status_led(3, off_led);
 		} else {
 			//motor timed out
-			g_can_motors[FR_MOTOR_ID - 1].output = 0;
-			g_can_motors[FL_MOTOR_ID - 1].output = 0;
-			g_can_motors[BL_MOTOR_ID - 1].output = 0;
-			g_can_motors[BR_MOTOR_ID - 1].output = 0;
+//			g_can_motors[FR_MOTOR_ID - 1].output = 0;
+//			g_can_motors[FL_MOTOR_ID - 1].output = 0;
+//			g_can_motors[BL_MOTOR_ID - 1].output = 0;
+//			g_can_motors[BR_MOTOR_ID - 1].output = 0;
 		}
 		//clear bits if it's not already cleared
 		xEventGroupClearBits(chassis_event_group, 0b1111);
