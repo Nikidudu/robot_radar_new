@@ -86,7 +86,8 @@ Core/Tasks/Src/balancing_imu_task.o: \
  ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_imu.h \
  ../Core/robot_config/robot_config.h \
  ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
- ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/balancing_imu_task.h
+ ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/balancing_imu_task.h \
+ ../Core/Tasks/Inc/dm4310_drv.h
 ../Core/BSP/Inc/board_lib.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
@@ -191,3 +192,4 @@ Core/Tasks/Src/balancing_imu_task.o: \
 ../Core/robot_config/hud_bl.h:
 ../Core/BSP/Inc/hud_constants.h:
 ../Core/Tasks/Inc/balancing_imu_task.h:
+../Core/Tasks/Inc/dm4310_drv.h:

@@ -3,6 +3,7 @@
 #include "bsp_imu.h"
 #include "robot_config.h"
 #include "balancing_imu_task.h"
+#include "dm4310_drv.h"
 
 extern float imu_test[6];
 orientation_data_t balancing_imu;
@@ -142,5 +143,7 @@ void balancing_imu_task(void *argument) {
     while (1) {
         sensor_fusion(imu_test, &balancing_imu);
         vTaskDelay(5);
+        MFtorque_command(&hcan2, 0x141, -20);
+        MFtorque_command(&hcan2, 0x142, 20);
     }
 }

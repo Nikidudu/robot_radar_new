@@ -31,6 +31,7 @@ extern motor_data_t g_can_motors[24];
 extern motor_map_t lk_motor_map[65];
 extern motor_map_t dji_motor_map[25];
 extern motor_t motor[num];
+extern motor_t MF_motor[2];
 
 //#include <can_message_processor.h>
 
@@ -181,13 +182,8 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 			}else {
 				//handle LK motor or other data
 				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
-					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
-						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
-						BaseType_t xHigherPriorityTaskWoken, xResult;
-						xHigherPriorityTaskWoken = pdFALSE;
-						xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
-								&xHigherPriorityTaskWoken);
-					}
+
+
 				} else if (RxHeader.StdId > 0x01 && RxHeader.StdId <= 0x04){
 //				    MF_fbdata(&MF_motor, &RxData[0]);
 				    fb_id = (RxData[0])&0x0F;
@@ -234,12 +230,11 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 			} else{
 				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
 			//handle LK motor or other data
-					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
-						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
-						BaseType_t xHigherPriorityTaskWoken, xResult;
-						xHigherPriorityTaskWoken = pdFALSE;
-						xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
-								&xHigherPriorityTaskWoken);
+					if (RxHeader.StdId == 0x141){
+						MF_fbdata(&MF_motor[0], &RxData[0]);
+					}
+					if (RxHeader.StdId == 0x142){
+						MF_fbdata(&MF_motor[1], &RxData[0]);
 					}
 			} else {
 				uint8_t sender = getSenderID(hcan);
