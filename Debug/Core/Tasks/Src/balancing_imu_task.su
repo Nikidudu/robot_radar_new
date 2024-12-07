@@ -1,7 +1,4 @@
-../Core/Tasks/Src/balancing_imu_task.c:33:13:normalize_quaternion	24	static
-../Core/Tasks/Src/balancing_imu_task.c:40:13:quaternion_from_gyro	56	static
-../Core/Tasks/Src/balancing_imu_task.c:52:13:predict	32	static
-../Core/Tasks/Src/balancing_imu_task.c:66:13:get_gravity_vector	72	static
-../Core/Tasks/Src/balancing_imu_task.c:91:13:update	96	static
-../Core/Tasks/Src/balancing_imu_task.c:133:13:sensor_fusion	88	static
-../Core/Tasks/Src/balancing_imu_task.c:184:6:balancing_imu_task	16	static
+../Core/Tasks/Src/balancing_imu_task.c:29:13:init_filter	16	static
+../Core/Tasks/Src/balancing_imu_task.c:41:14:butterworth_filter	24	static
+../Core/Tasks/Src/balancing_imu_task.c:47:13:sensor_fusion	96	static
+../Core/Tasks/Src/balancing_imu_task.c:139:6:balancing_imu_task	16	static
