@@ -73,9 +73,9 @@ uint8_t check_yaw(){
 void gimbal_control_task(void *argument) {
 	TickType_t start_time;
 	while (1) {
-#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
-		lk_read_motor_sang(&g_pitch_motor);
-#endif
+//#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
+//		lk_read_motor_sang(&g_pitch_motor);
+//#endif
 		xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE,
 		portMAX_DELAY);
 		start_time = xTaskGetTickCount();

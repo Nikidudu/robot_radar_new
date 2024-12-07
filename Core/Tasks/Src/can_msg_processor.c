@@ -28,12 +28,12 @@ motor_data_t g_can_motors[12];
 #endif
 
 
-void map_lk_motor(uint16_t motor_id, motor_data_t* motor_data){
-	if (motor_id > 0x140 && motor_id <= 0x160){
-		lk_motor_map[motor_id-0x140].motor_data = motor_data;
-		lk_motor_map[motor_id-0x140].motor_id = motor_id;
-	}
-}
+//void map_lk_motor(uint16_t motor_id, motor_data_t* motor_data){
+//	if (motor_id > 0x140 && motor_id <= 0x160){
+//		lk_motor_map[motor_id-0x140].motor_data = motor_data;
+//		lk_motor_map[motor_id-0x140].motor_id = motor_id;
+//	}
+//}
 
 void map_dji_motor(uint16_t motor_id, motor_data_t* motor_data){
 	if (motor_id <= 24){
@@ -194,24 +194,24 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 		//set event group bits so that the tasks and PIDs only trigger upon updated data
 		//also checks if the respective tasks are set to ready
 		switch (idnum) {
-#ifndef CHASSIS_MCU
-		case FR_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b1000,
-					&xHigherPriorityTaskWoken);
-			break;
-		case FL_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b0100,
-					&xHigherPriorityTaskWoken);
-			break;
-		case BL_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b0010,
-					&xHigherPriorityTaskWoken);
-			break;
-		case BR_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b0001,
-					&xHigherPriorityTaskWoken);
-			break;
-#endif
+//#ifndef CHASSIS_MCU
+//		case FR_MOTOR_ID:
+//			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b1000,
+//					&xHigherPriorityTaskWoken);
+//			break;
+//		case FL_MOTOR_ID:
+//			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b0100,
+//					&xHigherPriorityTaskWoken);
+//			break;
+//		case BL_MOTOR_ID:
+//			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b0010,
+//					&xHigherPriorityTaskWoken);
+//			break;
+//		case BR_MOTOR_ID:
+//			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b0001,
+//					&xHigherPriorityTaskWoken);
+//			break;
+//#endif
 		case LFRICTION_MOTOR_ID:
 			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b010,
 					&xHigherPriorityTaskWoken);
@@ -250,9 +250,9 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 	}
 }
 
-void process_chassis_can_msg(uint16_t msg_id, uint8_t rx_buffer[]) {
-	//for future use
-}
+//void process_chassis_can_msg(uint16_t msg_id, uint8_t rx_buffer[]) {
+//	//for future use
+//}
 
 /**
  * Centers the raw motor angle to between -Pi to +Pi

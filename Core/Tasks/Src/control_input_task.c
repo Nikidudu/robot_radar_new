@@ -56,13 +56,13 @@ void ramp(float *curr_val, float target_val, float max_ramp){
 void control_input_task(void *argument) {
 	TickType_t start_time;
 	control_reset();
-	chassis_yaw_pid_init();
+	//chassis_yaw_pid_init();
 	gimbal_ctrl_data.imu_mode = GIMBAL_MODE;
 	aimbot_pid_init();
 	dbus_remote_start();
-	gear_speed.curr_gear = GEAR_DEFAULT;
-	set_gear();
-	g_safety_toggle = 1;
+	//gear_speed.curr_gear = GEAR_DEFAULT;
+	//set_gear();
+	//g_safety_toggle = 1;
 	vTaskDelay(100);
 	uint8_t rc_check;
 
@@ -156,15 +156,15 @@ void control_input_task(void *argument) {
 	osThreadTerminate(NULL);
 }
 
-float chassis_center_yaw() {
-	speed_pid(0, g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang,
-			&yaw_pid_data);
-	if (fabs(yaw_pid_data.output) < CHASSIS_YAW_MIN){
-		return 0;
-	}
-	return yaw_pid_data.output;
+//float chassis_center_yaw() {
+//	speed_pid(0, g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang,
+//			&yaw_pid_data);
+//	if (fabs(yaw_pid_data.output) < CHASSIS_YAW_MIN){
+//		return 0;
+//	}
+//	return yaw_pid_data.output;
 //	return 0;
-}
+//}
 
 void chassis_set_ctrl(float forward, float horizontal, float yaw){
 	chassis_ctrl_data.enabled = 1;

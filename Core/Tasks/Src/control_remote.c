@@ -78,11 +78,11 @@ void remote_chassis_input() {
 				yaw_input = (float)g_remote_cmd.side_dial * CHASSIS_SPINSPIN_MAX/660;
 				}
 				else {
-				yaw_input = chassis_center_yaw();
+				//yaw_input = chassis_center_yaw();
 				}
 			}
 			else {
-			yaw_input = chassis_center_yaw();
+			//yaw_input = chassis_center_yaw();
 			}
 			//min value
 
