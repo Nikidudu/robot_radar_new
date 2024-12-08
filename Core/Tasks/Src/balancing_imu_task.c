@@ -143,7 +143,7 @@ void balancing_imu_task(void *argument) {
     while (1) {
         sensor_fusion(imu_test, &balancing_imu);
         vTaskDelay(5);
-        MFtorque_command(&hcan2, 0x141, -20);
-        MFtorque_command(&hcan2, 0x142, 20);
+//        MFtorque_command(&hcan2, 0x141, -20);
+//        MFtorque_command(&hcan2, 0x142, 20);
     }
 }
