@@ -26,6 +26,7 @@
 #include "bsp_micros_timer.h"
 #include "bsp_hall.h"
 #include "bsp_microswitch.h"
+#include "robot_config.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

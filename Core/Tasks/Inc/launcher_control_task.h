@@ -16,4 +16,8 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel);
 void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
 void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
 
+void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel);
+void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel,
+		motor_data_t *g_flywheel, motor_data_t *feeder);
+
 #endif /* TASKS_INC_LAUNCHER_CONTROL_TASK_H_ */

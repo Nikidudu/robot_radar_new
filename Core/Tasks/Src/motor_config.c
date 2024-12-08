@@ -161,6 +161,14 @@ void motor_calib_task(void *argument) {
 						delay+=600;
 					}
 				}
+#ifdef ACTIVE_GUIDANCE
+				for (uint8_t i = 9; i < 11; i++) {
+					if (error & (1 << (i))) {
+						bz_buzzer(2, (i - 5));
+						delay+=600;
+					}
+				}
+#endif
 
 				//cos lk motor :<
 #if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
@@ -414,7 +422,6 @@ void config_motors() {
 #endif
 
 #ifdef BR_MOTOR_ID
-
 	motor_id = BR_MOTOR_ID - 1;
 	g_can_motors[motor_id].id = motor_id+1;
 	g_can_motors[motor_id].motor_type = TYPE_M3508;
@@ -455,6 +462,36 @@ void config_motors() {
 
 #ifdef RFRICTION_MOTOR_ID
 	motor_id = RFRICTION_MOTOR_ID - 1;
+	g_can_motors[motor_id].id = motor_id+1;
+	g_can_motors[motor_id].motor_type = TYPE_M3508_NGEARBOX;
+	g_can_motors[motor_id].can = RFRICTION_MOTOR_CAN_PTR;
+	g_can_motors[motor_id].angle_pid.physical_max = M3508_MAX_RPM;
+	g_can_motors[motor_id].rpm_pid.kp = FRICTION_KP;
+	g_can_motors[motor_id].rpm_pid.ki = FRICTION_KI;
+	g_can_motors[motor_id].rpm_pid.kd = FRICTION_KD;
+	g_can_motors[motor_id].rpm_pid.int_max = FRICTION_MAX_INT;
+	g_can_motors[motor_id].rpm_pid.max_out = FRICTION_MAX_CURRENT;
+	g_can_motors[motor_id].rpm_pid.physical_max = M3508_MAX_OUTPUT;
+	set_motor_config(&g_can_motors[motor_id]);
+#endif
+
+#ifdef BFRICTION_MOTOR_ID
+	motor_id = BFRICTION_MOTOR_ID - 1;
+	g_can_motors[motor_id].id = motor_id+1;
+	g_can_motors[motor_id].motor_type = TYPE_M3508_NGEARBOX;
+	g_can_motors[motor_id].can = RFRICTION_MOTOR_CAN_PTR;
+	g_can_motors[motor_id].angle_pid.physical_max = M3508_MAX_RPM;
+	g_can_motors[motor_id].rpm_pid.kp = FRICTION_KP;
+	g_can_motors[motor_id].rpm_pid.ki = FRICTION_KI;
+	g_can_motors[motor_id].rpm_pid.kd = FRICTION_KD;
+	g_can_motors[motor_id].rpm_pid.int_max = FRICTION_MAX_INT;
+	g_can_motors[motor_id].rpm_pid.max_out = FRICTION_MAX_CURRENT;
+	g_can_motors[motor_id].rpm_pid.physical_max = M3508_MAX_OUTPUT;
+	set_motor_config(&g_can_motors[motor_id]);
+#endif
+
+#ifdef GFRICTION_MOTOR_ID
+	motor_id = GFRICTION_MOTOR_ID - 1;
 	g_can_motors[motor_id].id = motor_id+1;
 	g_can_motors[motor_id].motor_type = TYPE_M3508_NGEARBOX;
 	g_can_motors[motor_id].can = RFRICTION_MOTOR_CAN_PTR;
@@ -653,6 +690,28 @@ uint16_t check_motors() {
 			motor_temp_bz(2, 3);
 		}
 	}
+
+#ifdef ACTIVE_GUIDANCE
+	if (curr_time
+			- g_can_motors[BFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
+		error |= 1 << 9;
+
+	} else {
+		if (g_can_motors[BFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+			motor_temp_bz(2, 4);
+		}
+	}
+
+	if (curr_time
+			- g_can_motors[GFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
+		error |= 1 << 10;
+
+	} else {
+		if (g_can_motors[GFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+			motor_temp_bz(2, 5);
+		}
+	}
+#endif
 
 	if (curr_time
 			- g_pitch_motor.last_time[0] > MOTOR_TIMEOUT_MAX) {
