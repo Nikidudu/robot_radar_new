@@ -7,7 +7,8 @@
 //#include "robot_config_6_6.h"
 //#include "robot_config_ALI.h"
 //#include "robot_config_TALI_LK.h"
-#include "robot_config_roburt.h"
+#include "robot_config_HERO_GIMBAL.h"
+//#include "robot_config_roburt.h"
 //#include "robot_config_CF.h"
 //#include "robot_config_DS4.h"
 

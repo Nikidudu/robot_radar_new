@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "bsp_micros_timer.h"
 #include "bsp_hall.h"
+#include "bsp_microswitch.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -340,12 +341,22 @@ void USART3_IRQHandler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-
+  // Check which pin triggered the interrupt and handle the functions
+  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_11) != RESET) {
+#ifdef HALL_ZERO
+	 hall_int();
+#endif
+  }
+  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET) {
+#ifdef ACTIVE_GUIDANCE
+	 microswitch_int();
+#endif
+  }
   /* USER CODE END EXTI15_10_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
-  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
-  hall_int();
 
+  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 

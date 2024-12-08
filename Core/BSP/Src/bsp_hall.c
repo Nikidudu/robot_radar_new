@@ -16,12 +16,12 @@ uint8_t hall_state = HALL_OFF;
 
 void hall_enable(){
 	hall_state = HALL_ON;
-	  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+//	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
 void hall_disable(){
 	hall_state = HALL_OFF;
-	HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
+//	HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
 }
 
 
