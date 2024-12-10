@@ -21,27 +21,60 @@ uint32_t dm_mailbox[3];
 CAN_TxHeaderTypeDef dm_TxHeader;
 CAN_RxHeaderTypeDef dm_RxHeader;
 uint8_t RxData[8];
-motor_t MF_motor;
+motor_t MF_motor[2];
 motor_t motor[num];
 Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
+float dm_set_tor[4];
 int fb_id;
 
 void dm_motor_control_task(void *argument) {
+	dm_set_tor[0] = 0.0f;
+	dm_set_tor[1] = 0.0f;
+	dm_set_tor[2] = 0.0f;
+	dm_set_tor[3] = 0.0f;
+	osDelay(1500);
 	dm4310_motor_init();
+	osDelay(100);
+	if (motor[Motor1].para.id == 0 || motor[Motor2].para.id == 0 || motor[Motor3].para.id == 0 ||motor[Motor4].para.id == 0){
+		dm4310_motor_init();
+	}
+	if (motor[Motor1].para.id == 0 || motor[Motor2].para.id == 0 || motor[Motor3].para.id == 0 ||motor[Motor4].para.id == 0){
+		while(1){
+		}
+	}
     while (1) {
 //    	motor[Motor1].ctrl.tor_set = 0.1f;
 //    	motor[Motor2].ctrl.tor_set = 0.2f;
 //    	motor[Motor3].ctrl.tor_set = -0.1f;
 //    	motor[Motor4].ctrl.tor_set = -0.2f;
+    	motor[Motor1].ctrl.tor_set = dm_set_tor[0];
+    	motor[Motor2].ctrl.tor_set = dm_set_tor[1];
+    	motor[Motor3].ctrl.tor_set = dm_set_tor[2];
+    	motor[Motor4].ctrl.tor_set = dm_set_tor[3];
     	leftJoint[0].angle = motor[Motor4].para.pos;
     	leftJoint[1].angle = motor[Motor1].para.pos;
     	rightJoint[0].angle = motor[Motor2].para.pos;
     	rightJoint[1].angle = motor[Motor3].para.pos;
+    	leftJoint[0].speed = motor[Motor4].para.vel;
+    	leftJoint[1].speed = motor[Motor1].para.vel;
+    	rightJoint[0].speed = motor[Motor2].para.vel;
+    	rightJoint[1].speed = motor[Motor3].para.vel;
+    	leftWheel.angle = MF_motor[0].para.encoder_angle;
+    	rightWheel.angle = MF_motor[1].para.encoder_angle;
+    	leftWheel.speed = MF_motor[0].para.speed;
+    	rightWheel.speed = MF_motor[1].para.speed;
+    	leftWheel.torque = MF_motor[0].para.torque;
+    	rightWheel.torque = MF_motor[1].para.torque;
+
     	dm4310_ctrl_send(&hcan2, &motor[Motor1]);
     	dm4310_ctrl_send(&hcan2, &motor[Motor2]);
     	vTaskDelay(1);
     	dm4310_ctrl_send(&hcan2, &motor[Motor3]);
     	dm4310_ctrl_send(&hcan2, &motor[Motor4]);
+        vTaskDelay(1);
+        MFtorque_command(&hcan2, 0x141, MF_motor[0].ctrl.tor_set);
+        vTaskDelay(1);
+        MFtorque_command(&hcan2, 0x142, -MF_motor[1].ctrl.tor_set);
         vTaskDelay(1);
     }
 }
@@ -90,6 +123,8 @@ void dm4310_motor_init(void)
 //  	motor[Motor6].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
 //  	motor[Motor6].ctrl.vel_set = 1.0f;
 //  	motor[Motor6].ctrl.kd_set = 1.0f;
+  	MF_motor[0].ctrl.tor_set = 0.0f;
+  	MF_motor[1].ctrl.tor_set = 0.0f;
   	dm4310_enable(&hcan2, &motor[Motor1]);
   	vTaskDelay(10);
   	dm4310_enable(&hcan2, &motor[Motor2]);
@@ -100,6 +135,8 @@ void dm4310_motor_init(void)
   	vTaskDelay(10);
   	enableMFMotor(&hcan2, 0x141);
   	enableMFMotor(&hcan2, 0x142);
+  	MF_motor[0].initialized = 1;
+  	MF_motor[1].initialized = 1;
 
 //  	save_pos_zero(&hcan2, 0x81, 0);
 //  	save_pos_zero(&hcan2, 0x82, 0);
@@ -326,33 +363,60 @@ void dm4310_fbdata(motor_t *motor, uint8_t *rx_data)
 	motor->para.v_int=(rx_data[3]<<4)|(rx_data[4]>>4);
 	motor->para.t_int=((rx_data[4]&0xF)<<8)|rx_data[5];
 	motor->para.pos = uint_to_float(motor->para.p_int, P_MIN, P_MAX, 16); // (-12.5,12.5)
-	if (motor->para.id == 2 || motor->para.id == 3){
-			motor->para.pos *= -1.0f ;
-		}
-	if (motor->para.id == 2 || motor->para.id == 4){
-		motor->para.pos += 3.142f;
-	}
 	motor->para.vel = uint_to_float(motor->para.v_int, V_MIN, V_MAX, 12); // (-45.0,45.0)
 	motor->para.tor = uint_to_float(motor->para.t_int, T_MIN, T_MAX, 12);  // (-18.0,18.0)
 	motor->para.Tmos = (float)(rx_data[6]);
 	motor->para.Tcoil = (float)(rx_data[7]);
+	if (motor->para.id == 2 || motor->para.id == 3){
+		motor->para.pos *= -1.0f ;
+		motor->para.vel *= -1.0f ;
+	}
+	if (motor->para.id == 2 || motor->para.id == 4){
+		motor->para.pos += 3.142f;
+	}
 }
 void MF_fbdata(motor_t *motor, uint8_t *rx_data)
 {
-	// Parse motor temperature directly from DATA[1]
-	    motor->para.temperature = (int8_t)rx_data[1];
+    // Parse motor temperature directly from DATA[1]
+    motor->para.temperature = (int8_t)rx_data[1];
 
-	    // Parse torque current (iq) from DATA[2] and DATA[3] as a 16-bit signed integer
-	    int16_t iq_raw = (int16_t)((rx_data[2]) | (rx_data[3] << 8));
-	    motor->para.torque = iq_raw * (16.5f / 2048.0f);
+    // Parse torque current (iq) from DATA[2] and DATA[3] as a 16-bit signed integer
+    int16_t iq_raw = (int16_t)((rx_data[2]) | (rx_data[3] << 8));
+    motor->para.torque = iq_raw * (4.5f / 2048.0f);
 
-	    // Parse motor speed from DATA[4] and DATA[5] as a 16-bit signed integer
-	    motor->para.speed = (int16_t)((rx_data[4]) | (rx_data[5] << 8));
+    // Parse motor speed from DATA[4] and DATA[5] as a 16-bit signed integer
+    motor->para.speed = ((int16_t)((rx_data[4]) | (rx_data[5] << 8))) * (73.303f / 2820.0f);
 
-	    // Parse encoder position from DATA[6] and DATA[7] as a 16-bit unsigned integer
-	    uint16_t encoder_raw = (uint16_t)((rx_data[6]) | (rx_data[7] << 8));
-	    motor->para.encoder_angle = encoder_raw * (360.0f / 65535.0f);
+    // Parse encoder position from DATA[6] and DATA[7] as a 16-bit unsigned integer
+    uint16_t encoder_raw = (uint16_t)((rx_data[6]) | (rx_data[7] << 8));
+
+    if (motor->initialized == 1 && encoder_raw != 0){
+    	motor->initial_angle_offset = encoder_raw;
+    	motor->initialized = 0;
+    }
+    encoder_raw = encoder_raw - motor->initial_angle_offset;
+    // Convert raw encoder value to radians
+    float current_angle = encoder_raw * (2.0f * M_PI / 65535.0f); // Map 0 to 65535 -> 0 to 2π radians
+
+    // Calculate the angle difference to detect wrapping
+    float delta_angle = current_angle - motor->para.previous_angle;
+
+    // Handle positive and negative wrapping
+    if (delta_angle > M_PI) {
+        motor->para.rotations--; // Crossed the 0 -> 2π boundary
+    } else if (delta_angle < -M_PI) {
+        motor->para.rotations++; // Crossed the 2π -> 0 boundary
+    }
+
+    // Calculate the continuous angle in radians
+    motor->para.encoder_angle = current_angle + (motor->para.rotations * 2.0f * M_PI);
+
+    // Update the previous angle for the next iteration
+    motor->para.previous_angle = current_angle;
 }
+
+
+
 /**
 ************************************************************************
 * @brief:      	float_to_uint: ������ת��Ϊ�޷�����������
@@ -656,7 +720,7 @@ void MFtorque_command(CAN_HandleTypeDef* hcan, uint16_t motor_id, float desired_
     data[0] = 0xA1;
 
     // Convert desired torque (A) to iqControl value
-    int16_t iqControl = (int16_t)(desired_torque * (2048.0f / 16.5f));
+    int16_t iqControl = (int16_t)(desired_torque * (2048.0f / 4.5f));
 
     // Set the iqControl value into data[4] and data[5]
     data[4] = (uint8_t)(iqControl & 0xFF);        // Low byte
@@ -666,7 +730,7 @@ void MFtorque_command(CAN_HandleTypeDef* hcan, uint16_t motor_id, float desired_
     uint32_t mailbox;
     if (HAL_CAN_AddTxMessage(hcan, &txHeader, data, &mailbox) != HAL_OK) {
         // Transmission error handling
-        Error_Handler();
+//        Error_Handler();
     }
 }
 /**

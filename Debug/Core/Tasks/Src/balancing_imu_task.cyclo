@@ -1,4 +1,2 @@
-../Core/Tasks/Src/balancing_imu_task.c:30:13:init_filter	2
-../Core/Tasks/Src/balancing_imu_task.c:42:14:butterworth_filter	1
-../Core/Tasks/Src/balancing_imu_task.c:48:13:sensor_fusion	2
-../Core/Tasks/Src/balancing_imu_task.c:140:6:balancing_imu_task	1
+../Core/Tasks/Src/balancing_imu_task.c:15:13:sensor_fusion	2
+../Core/Tasks/Src/balancing_imu_task.c:79:6:balancing_imu_task	1

@@ -235,6 +235,9 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					}
 					if (RxHeader.StdId == 0x142){
 						MF_fbdata(&MF_motor[1], &RxData[0]);
+						MF_motor[1].para.encoder_angle = -MF_motor[1].para.encoder_angle;
+						MF_motor[1].para.speed = -MF_motor[1].para.speed;
+						MF_motor[1].para.torque = -MF_motor[1].para.torque;
 					}
 				} else if(RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74){
 					fb_id = (RxData[0])&0x0F;

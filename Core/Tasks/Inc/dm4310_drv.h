@@ -55,6 +55,8 @@ typedef struct
 	float torque;
 	float speed;
 	float encoder_angle;
+	float previous_angle; // Store the last encoder angle for this motor
+	int rotations;
 }motor_fbpara_t;
 
 // ����������ýṹ��
@@ -75,6 +77,8 @@ typedef struct
 	motor_fbpara_t para;
 	motor_ctrl_t ctrl;
 	motor_ctrl_t cmd;
+	int initialized;
+	int16_t initial_angle_offset;
 }motor_t;
 
 float uint_to_float(int x_int, float x_min, float x_max, int bits);

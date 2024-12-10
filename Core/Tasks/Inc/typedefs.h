@@ -59,6 +59,42 @@ typedef struct
 
 typedef struct
 {
+	float position;	 // m
+	float speedCmd;	 // m/s
+	float speed;    // m/s
+	float yawSpeedCmd; // rad/s
+	float yawAngle;	 // rad
+	float rollAngle; // rad
+	float legLength; // m
+} Target;
+
+typedef struct
+{
+	float theta, dTheta;
+	float x, dx;
+	float phi, dPhi;
+} StateVar;
+
+typedef struct {
+    float kp;        // Proportional gain
+    float ki;        // Integral gain
+    float kd;        // Derivative gain
+    float prev_error; // Previous error
+    float integral;  // Integral of the error
+    float max_output; // Maximum control signal
+    float min_output; // Minimum control signal
+    float output;
+} PID;
+
+typedef struct
+{
+	PID inner;
+	PID outer;
+	float output;
+}CascadePID;
+
+typedef struct
+{
 	float speed;			   // rad/s
 	float angle, offsetAngle;  // rad
 	float voltage, maxVoltage; // V
