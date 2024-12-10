@@ -1,0 +1,4 @@
+../Core/Tasks/Src/rt_nonfinite.c:40:11:rtIsInf	3
+../Core/Tasks/Src/rt_nonfinite.c:50:11:rtIsInfF	4
+../Core/Tasks/Src/rt_nonfinite.c:60:11:rtIsNaN	2
+../Core/Tasks/Src/rt_nonfinite.c:70:11:rtIsNaNF	2

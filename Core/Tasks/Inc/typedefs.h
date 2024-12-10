@@ -50,6 +50,23 @@ typedef struct
 	uint32_t last_time[2];
 }pid_data_t;
 
+typedef struct
+{
+	float angle, length;   // rad, m
+	float dAngle, dLength; // rad/s, m/s
+	float ddLength;		   // m/s^2
+} LegPos;
+
+typedef struct
+{
+	float speed;			   // rad/s
+	float angle, offsetAngle;  // rad
+	float voltage, maxVoltage; // V
+	float torque, torqueRatio; // Nm, voltage = torque / torqueRatio
+	float dir;				   // 1 or -1
+	float (*calcRevVolt)(float speed); // 指向反电动势计算函数
+} Motor; //六个电机对象
+
 typedef struct	{
 	int32_t ticks;
 	int32_t center_ang;

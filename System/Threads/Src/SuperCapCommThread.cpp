@@ -42,7 +42,7 @@ void SuperCapCommThread::loop()
 	MAKE_RELIABLE(chassis_power_packet);
 	Telemetry::set_id(OTHER_NODE_ID);
 
-	CAN1_network->send(&chassis_power_packet);
+//	CAN1_network->send(&chassis_power_packet);
 
 	osDelay(100);
 

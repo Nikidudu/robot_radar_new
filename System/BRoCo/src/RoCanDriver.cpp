@@ -236,10 +236,27 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					if (RxHeader.StdId == 0x142){
 						MF_fbdata(&MF_motor[1], &RxData[0]);
 					}
-			} else {
-				uint8_t sender = getSenderID(hcan);
-				uint32_t length = RxHeader.DLC;
-				receiveCAN(sender, RxData, length);
+				} else if(RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74){
+					fb_id = (RxData[0])&0x0F;
+					switch(fb_id)
+					{
+					case 1:
+						dm4310_fbdata(&motor[Motor1],&RxData[0]);
+						break;
+					case 2:
+						dm4310_fbdata(&motor[Motor2],&RxData[0]);
+						break;
+					case 3:
+						dm4310_fbdata(&motor[Motor3],&RxData[0]);
+						break;
+					case 4:
+						dm4310_fbdata(&motor[Motor4],&RxData[0]);
+						break;
+					}
+				} else {
+					uint8_t sender = getSenderID(hcan);
+					uint32_t length = RxHeader.DLC;
+					receiveCAN(sender, RxData, length);
 			}
 			}
 		//		HAL_CAN_ActivateNotification(hcan,

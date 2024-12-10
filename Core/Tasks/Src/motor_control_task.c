@@ -55,7 +55,6 @@ void empty_tx_mb2(CAN_HandleTypeDef *hcan){
 
 
 void motor_control_task(void *argument) {
-	dm4310_motor_init();
 
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];

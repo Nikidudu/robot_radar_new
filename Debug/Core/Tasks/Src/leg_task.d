@@ -1,4 +1,4 @@
-Core/Tasks/Src/master_task.o: ../Core/Tasks/Src/master_task.c \
+Core/Tasks/Src/leg_task.o: ../Core/Tasks/Src/leg_task.c \
  ../Core/BSP/Inc/board_lib.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h \
@@ -83,20 +83,13 @@ Core/Tasks/Src/master_task.o: ../Core/Tasks/Src/master_task.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/Tasks/Inc/gimbal_control_task.h \
- ../Core/Tasks/Inc/movement_control_task.h \
- ../Core/Tasks/Inc/referee_processing_task.h \
- ../Core/Tasks/Inc/control_input_task.h \
- ../Core/Tasks/Inc/launcher_control_task.h \
- ../Core/Tasks/Inc/imu_processing_task.h \
+ ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_imu.h \
  ../Core/robot_config/robot_config.h \
  ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
- ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/buzzing_task.h \
- ../Core/Tasks/Inc/motor_config.h ../Core/Tasks/Inc/usb_task.h \
- ../Core/Tasks/Inc/telemetry_task.h \
- ../Core/Tasks/Inc/motor_control_task.h ../Core/Tasks/Inc/hud_task.h \
- ../Core/Tasks/Inc/balancing_imu_task.h ../Core/Tasks/Inc/dm4310_drv.h \
- ../Core/Tasks/Inc/leg_task.h
+ ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/balancing_imu_task.h \
+ ../Core/Tasks/Inc/dm4310_drv.h ../Core/Tasks/Inc/leg_task.h \
+ ../Core/Tasks/Inc/rt_nonfinite.h ../Core/Tasks/Inc/rtwtypes.h \
+ ../Core/Tasks/Inc/rt_defines.h
 ../Core/BSP/Inc/board_lib.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
@@ -195,22 +188,14 @@ Core/Tasks/Src/master_task.o: ../Core/Tasks/Src/master_task.c \
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
-../Core/Tasks/Inc/gimbal_control_task.h:
-../Core/Tasks/Inc/movement_control_task.h:
-../Core/Tasks/Inc/referee_processing_task.h:
-../Core/Tasks/Inc/control_input_task.h:
-../Core/Tasks/Inc/launcher_control_task.h:
-../Core/Tasks/Inc/imu_processing_task.h:
+../Core/BSP/Inc/bsp_imu.h:
 ../Core/robot_config/robot_config.h:
 ../Core/robot_config/robot_config_BL.h:
 ../Core/robot_config/hud_bl.h:
 ../Core/BSP/Inc/hud_constants.h:
-../Core/Tasks/Inc/buzzing_task.h:
-../Core/Tasks/Inc/motor_config.h:
-../Core/Tasks/Inc/usb_task.h:
-../Core/Tasks/Inc/telemetry_task.h:
-../Core/Tasks/Inc/motor_control_task.h:
-../Core/Tasks/Inc/hud_task.h:
 ../Core/Tasks/Inc/balancing_imu_task.h:
 ../Core/Tasks/Inc/dm4310_drv.h:
 ../Core/Tasks/Inc/leg_task.h:
+../Core/Tasks/Inc/rt_nonfinite.h:
+../Core/Tasks/Inc/rtwtypes.h:
+../Core/Tasks/Inc/rt_defines.h:

@@ -23,7 +23,28 @@ CAN_RxHeaderTypeDef dm_RxHeader;
 uint8_t RxData[8];
 motor_t MF_motor;
 motor_t motor[num];
+Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 int fb_id;
+
+void dm_motor_control_task(void *argument) {
+	dm4310_motor_init();
+    while (1) {
+//    	motor[Motor1].ctrl.tor_set = 0.1f;
+//    	motor[Motor2].ctrl.tor_set = 0.2f;
+//    	motor[Motor3].ctrl.tor_set = -0.1f;
+//    	motor[Motor4].ctrl.tor_set = -0.2f;
+    	leftJoint[0].angle = motor[Motor4].para.pos;
+    	leftJoint[1].angle = motor[Motor1].para.pos;
+    	rightJoint[0].angle = motor[Motor2].para.pos;
+    	rightJoint[1].angle = motor[Motor3].para.pos;
+    	dm4310_ctrl_send(&hcan2, &motor[Motor1]);
+    	dm4310_ctrl_send(&hcan2, &motor[Motor2]);
+    	vTaskDelay(1);
+    	dm4310_ctrl_send(&hcan2, &motor[Motor3]);
+    	dm4310_ctrl_send(&hcan2, &motor[Motor4]);
+        vTaskDelay(1);
+    }
+}
 
 void dm4310_motor_init(void)
   {
@@ -36,23 +57,27 @@ void dm4310_motor_init(void)
 //  	memset(&motor[Motor6], 0, sizeof(motor[Motor6]));
 
   	// ����Motor1�ĵ����Ϣ
-  	motor[Motor1].id = 0x01;
+  	motor[Motor1].id = 0x81;
   	motor[Motor1].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+  	motor[Motor1].ctrl.tor_set = 0.0f;
 //  	motor[Motor1].ctrl.vel_set = 3.0f;
 //  	motor[Motor1].ctrl.pos_set = 0.0f;
 
-  	motor[Motor2].id = 0x02;
+  	motor[Motor2].id = 0x82;
   	motor[Motor2].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+  	motor[Motor2].ctrl.tor_set = 0.0f;
 //  	motor[Motor2].ctrl.vel_set = 3.0f;
 //  	motor[Motor2].ctrl.pos_set = 0.0f;
 //
-  	motor[Motor3].id = 0x03;
+  	motor[Motor3].id = 0x83;
   	motor[Motor3].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+  	motor[Motor3].ctrl.tor_set = 0.0f;
 //  	motor[Motor3].ctrl.vel_set = 3.0f;
 //  	motor[Motor3].ctrl.pos_set = 0.0f;
 
-  	motor[Motor4].id = 0x04;
+  	motor[Motor4].id = 0x84;
   	motor[Motor4].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+  	motor[Motor4].ctrl.tor_set = 0.0f;
 //  	motor[Motor4].ctrl.vel_set = 3.0f;
 //  	motor[Motor4].ctrl.pos_set = 0.0f;
 //
@@ -75,6 +100,11 @@ void dm4310_motor_init(void)
   	vTaskDelay(10);
   	enableMFMotor(&hcan2, 0x141);
   	enableMFMotor(&hcan2, 0x142);
+
+//  	save_pos_zero(&hcan2, 0x81, 0);
+//  	save_pos_zero(&hcan2, 0x82, 0);
+//  	save_pos_zero(&hcan2, 0x83, 0);
+//  	save_pos_zero(&hcan2, 0x84, 0);
   }
 
 // Callback function to handle CAN receive interrupt
@@ -296,6 +326,12 @@ void dm4310_fbdata(motor_t *motor, uint8_t *rx_data)
 	motor->para.v_int=(rx_data[3]<<4)|(rx_data[4]>>4);
 	motor->para.t_int=((rx_data[4]&0xF)<<8)|rx_data[5];
 	motor->para.pos = uint_to_float(motor->para.p_int, P_MIN, P_MAX, 16); // (-12.5,12.5)
+	if (motor->para.id == 2 || motor->para.id == 3){
+			motor->para.pos *= -1.0f ;
+		}
+	if (motor->para.id == 2 || motor->para.id == 4){
+		motor->para.pos += 3.142f;
+	}
 	motor->para.vel = uint_to_float(motor->para.v_int, V_MIN, V_MAX, 12); // (-45.0,45.0)
 	motor->para.tor = uint_to_float(motor->para.t_int, T_MIN, T_MAX, 12);  // (-18.0,18.0)
 	motor->para.Tmos = (float)(rx_data[6]);
