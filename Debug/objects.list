@@ -49,6 +49,7 @@
 "./Core/Tasks/Src/imu_processing_task.o"
 "./Core/Tasks/Src/launcher_control_task.o"
 "./Core/Tasks/Src/leg_task.o"
+"./Core/Tasks/Src/lqr_k.o"
 "./Core/Tasks/Src/master_task.o"
 "./Core/Tasks/Src/motor_config.o"
 "./Core/Tasks/Src/motor_control.o"

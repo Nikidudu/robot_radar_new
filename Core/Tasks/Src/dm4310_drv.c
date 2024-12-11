@@ -25,6 +25,7 @@ motor_t MF_motor[2];
 motor_t motor[num];
 Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 float dm_set_tor[4];
+float mf_set_tor[2];
 int fb_id;
 
 void dm_motor_control_task(void *argument) {
@@ -38,6 +39,9 @@ void dm_motor_control_task(void *argument) {
 	if (motor[Motor1].para.id == 0 || motor[Motor2].para.id == 0 || motor[Motor3].para.id == 0 ||motor[Motor4].para.id == 0){
 		dm4310_motor_init();
 	}
+	osDelay(500);
+	dm4310_motor_init();
+	osDelay(500);
 	if (motor[Motor1].para.id == 0 || motor[Motor2].para.id == 0 || motor[Motor3].para.id == 0 ||motor[Motor4].para.id == 0){
 		while(1){
 		}
@@ -51,6 +55,8 @@ void dm_motor_control_task(void *argument) {
     	motor[Motor2].ctrl.tor_set = dm_set_tor[1];
     	motor[Motor3].ctrl.tor_set = dm_set_tor[2];
     	motor[Motor4].ctrl.tor_set = dm_set_tor[3];
+    	MF_motor[0].ctrl.tor_set = mf_set_tor[0];
+    	MF_motor[1].ctrl.tor_set = mf_set_tor[1];
     	leftJoint[0].angle = motor[Motor4].para.pos;
     	leftJoint[1].angle = motor[Motor1].para.pos;
     	rightJoint[0].angle = motor[Motor2].para.pos;
@@ -86,6 +92,9 @@ void dm4310_motor_init(void)
   	memset(&motor[Motor2], 0, sizeof(motor[Motor2]));
   	memset(&motor[Motor3], 0, sizeof(motor[Motor3]));
   	memset(&motor[Motor4], 0, sizeof(motor[Motor4]));
+  	memset(&MF_motor[0], 0, sizeof(MF_motor[0]));
+  	memset(&MF_motor[1], 0, sizeof(MF_motor[1]));
+
 //  	memset(&motor[Motor5], 0, sizeof(motor[Motor5]));
 //  	memset(&motor[Motor6], 0, sizeof(motor[Motor6]));
 
@@ -375,7 +384,7 @@ void dm4310_fbdata(motor_t *motor, uint8_t *rx_data)
 		motor->para.pos += 3.142f;
 	}
 }
-void MF_fbdata(motor_t *motor, uint8_t *rx_data)
+void MF_fbdata(motor_t *motor, uint8_t *rx_data, uint32_t id)
 {
     // Parse motor temperature directly from DATA[1]
     motor->para.temperature = (int8_t)rx_data[1];
@@ -390,11 +399,11 @@ void MF_fbdata(motor_t *motor, uint8_t *rx_data)
     // Parse encoder position from DATA[6] and DATA[7] as a 16-bit unsigned integer
     uint16_t encoder_raw = (uint16_t)((rx_data[6]) | (rx_data[7] << 8));
 
-    if (motor->initialized == 1 && encoder_raw != 0){
-    	motor->initial_angle_offset = encoder_raw;
-    	motor->initialized = 0;
-    }
-    encoder_raw = encoder_raw - motor->initial_angle_offset;
+//    if (motor->initialized == 1 && encoder_raw != 0){
+//    	motor->initial_angle_offset = encoder_raw;
+//    	motor->initialized = 0;
+//    }
+//    encoder_raw = encoder_raw - motor->initial_angle_offset;
     // Convert raw encoder value to radians
     float current_angle = encoder_raw * (2.0f * M_PI / 65535.0f); // Map 0 to 65535 -> 0 to 2π radians
 
@@ -413,6 +422,11 @@ void MF_fbdata(motor_t *motor, uint8_t *rx_data)
 
     // Update the previous angle for the next iteration
     motor->para.previous_angle = current_angle;
+    if (id == 0x142){
+    	motor->para.encoder_angle = -motor->para.encoder_angle;
+    	motor->para.speed = -motor->para.speed;
+    	motor->para.torque = -motor->para.torque;
+    }
 }
 
 

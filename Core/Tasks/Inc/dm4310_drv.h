@@ -94,7 +94,7 @@ void dm4310_motor_init(void);
 void enableMFMotor(CAN_HandleTypeDef* hcan,int id);
 void disableMFMotor(CAN_HandleTypeDef* hcan,int id);
 void MFspeed_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float vel);
-void MF_fbdata(motor_t *motor, uint8_t *rx_data);
+void MF_fbdata(motor_t *motor, uint8_t *rx_data , uint32_t id);
 void MFtorque_command(CAN_HandleTypeDef* hcan, uint16_t motor_id, float desired_torque);
 
 void enable_motor_mode(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id);
