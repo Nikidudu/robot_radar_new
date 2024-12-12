@@ -1,2 +1,2 @@
-../Core/Tasks/Src/balancing_chassis_task.c:47:6:Ctrl_Init	1
-../Core/Tasks/Src/balancing_chassis_task.c:59:6:balancing_chassis_task	20
+../Core/Tasks/Src/balancing_chassis_task.c:50:6:Ctrl_Init	1
+../Core/Tasks/Src/balancing_chassis_task.c:62:6:balancing_chassis_task	20

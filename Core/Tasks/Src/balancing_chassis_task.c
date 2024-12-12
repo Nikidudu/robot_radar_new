@@ -43,29 +43,32 @@ double l1;
 double l4;
 double r1;
 double r4;
+float BODY_MASS = 20.0f;
+float n = 0.5f;
+float LEG_MASS = 0.8f;
 
 void Ctrl_Init()
 {
 	//初始化各个PID参数
 //	PID_SetErrLpfRatio(&rollPID.inner, 0.1f);
-	PID_Init(&legLengthPID, 50, 0.0, 0.0, -50.0, 50.0);
+	PID_Init(&legLengthPID, 500, 0.0, 0.0, -50.0, 50.0);
 //	PID_SetErrLpfRatio(&legLengthPID.inner, 0.5f);
-	PID_Init(&legAnglePID, 3, 0.0, 0.0, -2.0, 2.0);
+	PID_Init(&legAnglePID, 10, 0.0, 0.0, -10.0, 10.0);
 //	PID_SetErrLpfRatio(&legAnglePID.outer, 0.5f);
-	PID_Init(&rollPID, 55, 0.0, 0.0, -50.0, 50.0);
+	PID_Init(&rollPID, 100, 0.0, 0.001, -30.0, 30.0);
 	PID_Init(&yawPID, 0.5f, 0.0, 0.0, -1, 1);
 }
 
 void balancing_chassis_task(void *argument) {
-	const float wheelRadius = 0.09f; //m，车轮半径
+	const float wheelRadius = 0.0925f; //m，车轮半径
 	//手动为反馈矩阵和输出叠加一个系数，用于手动优化控制效果
 	float kRatio[2][6] = {{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
 			{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}};
 	float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
-	const float legMass = 0.01f; //kg，腿部质量
+	const float legMass = 0.8f; //kg，腿部质量
 	//设定初始目标值
 	target.rollAngle = 0.0f;
-	target.legLength = 0.2f;
+	target.legLength = 0.18f;
 	target.speed = 0.0f;
 	target.position = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
 	float dt = 0.005f;
@@ -98,6 +101,7 @@ void balancing_chassis_task(void *argument) {
     	           	mf_set_tor[0] = 0;
     	           	mf_set_tor[1] = 0;
     	        	chassis_state = 1;
+    	        	target.position = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
     	            break;
 
     	        case 1: // leg positioning
@@ -137,6 +141,7 @@ void balancing_chassis_task(void *argument) {
     	        		dm_set_tor[2] = 0;
     	        		mf_set_tor[0] = 0;
         	           	mf_set_tor[1] = 0;
+        	           	target.position = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
     	        	}
     	            break;
 
@@ -180,8 +185,9 @@ void balancing_chassis_task(void *argument) {
     	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,0.005,0.01);
 //    	        	double leftForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? +rollPID.output : 0) + 13;
 //    	        	double rightForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? -rollPID.output : 0) + 13;
-    	        	float leftForce = legLengthPID.output + 10.0f;
-    	        	float rightForce = legLengthPID.output + 10.0f;
+    	        	float F_gravity = 7.0f * 9.81f;
+    	        	float leftForce = legLengthPID.output + F_gravity +rollPID.output;
+    	        	float rightForce = legLengthPID.output + F_gravity -rollPID.output;
     	        	if(leftLegPos.length > 0.35f) //保护腿部不能伸太长
     	        		leftForce -= (leftLegPos.length - 0.2f) * 2.0f;
     	        	if(rightLegPos.length > 0.35f)
@@ -190,6 +196,7 @@ void balancing_chassis_task(void *argument) {
     	        	float rightTp = -lqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
 //    	        	float leftTp = legAnglePID.output + (leftLegPos.length);
 //    	        	float rightTp = -(legAnglePID.output + (rightLegPos.length));
+
     	        	float leftJointTorque[2]={0};
     	        	leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
     	        	float rightJointTorque[2]={0};
@@ -202,10 +209,10 @@ void balancing_chassis_task(void *argument) {
     	        	l4 = leftJointTorque[1];
     	        	r1 = rightJointTorque[0];
     	        	r4 = rightJointTorque[1];
-    	        	dm_set_tor[3] = leftJointTorque[0];
-    	        	dm_set_tor[0] = leftJointTorque[1];
-    	        	dm_set_tor[1] = -rightJointTorque[0];
-    	        	dm_set_tor[2] = -rightJointTorque[1];
+//    	        	dm_set_tor[3] = leftJointTorque[0];
+//    	        	dm_set_tor[0] = leftJointTorque[1];
+//    	        	dm_set_tor[1] = -rightJointTorque[0];
+//    	        	dm_set_tor[2] = -rightJointTorque[1];
     	            break;
     	        case 3: // floating
     	        	memset(k, 0, sizeof(k));

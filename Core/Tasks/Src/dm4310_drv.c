@@ -373,6 +373,7 @@ void dm4310_fbdata(motor_t *motor, uint8_t *rx_data)
 	motor->para.t_int=((rx_data[4]&0xF)<<8)|rx_data[5];
 	motor->para.pos = uint_to_float(motor->para.p_int, P_MIN, P_MAX, 16); // (-12.5,12.5)
 	motor->para.vel = uint_to_float(motor->para.v_int, V_MIN, V_MAX, 12); // (-45.0,45.0)
+	motor->para.vel = (motor->para.vel / 9.0f);
 	motor->para.tor = uint_to_float(motor->para.t_int, T_MIN, T_MAX, 12);  // (-18.0,18.0)
 	motor->para.Tmos = (float)(rx_data[6]);
 	motor->para.Tcoil = (float)(rx_data[7]);
