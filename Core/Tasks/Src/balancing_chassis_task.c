@@ -59,6 +59,45 @@ void Ctrl_Init()
 	PID_Init(&yawPID, 0.5f, 0.0, 0.0, -1, 1);
 }
 
+void Ctrl_TargetUpdateTask()
+{
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+	float speedSlopeStep = 0.005f;
+	while(1){
+		//根据当前腿长计算速度斜坡步长(腿越短越稳定，加减速斜率越大)
+			float legLength = (leftLegPos.length + rightLegPos.length) / 2;
+			speedSlopeStep = -(legLength - 0.12f) * 0.03f + 0.005f;
+
+			//计算速度斜坡，斜坡值更新到target.speed
+			if(fabs(target.speedCmd - target.speed) < speedSlopeStep)
+				target.speed = target.speedCmd;
+			else
+			{
+				if(target.speedCmd - target.speed > 0)
+					target.speed += speedSlopeStep;
+				else
+					target.speed -= speedSlopeStep;
+			}
+
+			//计算位置目标，并限制在当前位置的±0.1m内
+			target.position += target.speed * 0.004f;
+			if(target.position - stateVar.x > 0.5f)
+				target.position = stateVar.x + 0.5f;
+			else if(target.position - stateVar.x < -0.5f)
+				target.position = stateVar.x - 0.5f;
+
+			//限制速度目标在当前速度的±0.3m/s内
+			if(target.speed - stateVar.dx > 1.0f)
+				target.speed = stateVar.dx + 1.0f;
+			else if(target.speed - stateVar.dx < -1.0f)
+				target.speed = stateVar.dx - 1.0f;
+
+			//计算yaw方位角目标
+			target.yawAngle += target.yawSpeedCmd * 0.004f;
+			vTaskDelayUntil(&xLastWakeTime, 4); //每4ms更新一次
+	}
+}
+
 void balancing_chassis_task(void *argument) {
 	const float wheelRadius = 0.0925f; //m，车轮半径
 	//手动为反馈矩阵和输出叠加一个系数，用于手动优化控制效果

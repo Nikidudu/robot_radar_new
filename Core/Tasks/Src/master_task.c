@@ -45,6 +45,7 @@ TaskHandle_t balancing_imu_task_handle;
 TaskHandle_t dm_motor_control_task_handle;
 TaskHandle_t leg_task_handle;
 TaskHandle_t balancing_chassis_task_handle;
+TaskHandle_t Ctrl_TargetUpdateTask_handle;
 
 EventGroupHandle_t gimbal_event_group;
 EventGroupHandle_t chassis_event_group;
@@ -93,6 +94,10 @@ void master_task(void* argument){
 	/* add threads, ... */
 	//todo: adjust priorities
 	//Threads creation
+	xTaskCreate(Ctrl_TargetUpdateTask, "Ctrl_TargetUpdateTask",
+			configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+			&Ctrl_TargetUpdateTask_handle);
+
 	xTaskCreate(balancing_chassis_task, "balancing_chassis_task",
 			512, (void*) 1, (UBaseType_t) 4,
 			&balancing_chassis_task_handle);

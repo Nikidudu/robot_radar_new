@@ -10,7 +10,7 @@
 
 void balancing_chassis_task(void *argument);
 void Ctrl_Init();
-
+void Ctrl_TargetUpdateTask();
 
 
 #endif /* TASKS_INC_BALANCING_CHASSIS_TASK_H_ */
