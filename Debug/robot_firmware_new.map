@@ -28270,24 +28270,25 @@ LOAD C:/ST/STM32CubeIDE_1.15.1/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.ext
                 0x080079b4       0xf4 ./Core/Tasks/Src/dm4310_drv.o
                 0x080079b4                dm4310_ctrl_send
  .text.dm4310_fbdata
-                0x08007aa8      0x168 ./Core/Tasks/Src/dm4310_drv.o
+                0x08007aa8      0x15c ./Core/Tasks/Src/dm4310_drv.o
                 0x08007aa8                dm4310_fbdata
+ *fill*         0x08007c04        0x4 
  .text.MF_fbdata
-                0x08007c10      0x1c0 ./Core/Tasks/Src/dm4310_drv.o
-                0x08007c10                MF_fbdata
+                0x08007c08      0x1c0 ./Core/Tasks/Src/dm4310_drv.o
+                0x08007c08                MF_fbdata
  .text.float_to_uint
-                0x08007dd0       0x66 ./Core/Tasks/Src/dm4310_drv.o
-                0x08007dd0                float_to_uint
+                0x08007dc8       0x66 ./Core/Tasks/Src/dm4310_drv.o
+                0x08007dc8                float_to_uint
  .text.uint_to_float
-                0x08007e36       0x64 ./Core/Tasks/Src/dm4310_drv.o
-                0x08007e36                uint_to_float
- *fill*         0x08007e9a        0x2 
+                0x08007e2e       0x64 ./Core/Tasks/Src/dm4310_drv.o
+                0x08007e2e                uint_to_float
+ *fill*         0x08007e92        0x2 
  .text.enable_motor_mode
-                0x08007e9c       0x80 ./Core/Tasks/Src/dm4310_drv.o
-                0x08007e9c                enable_motor_mode
+                0x08007e94       0x80 ./Core/Tasks/Src/dm4310_drv.o
+                0x08007e94                enable_motor_mode
  .text.mit_ctrl
-                0x08007f1c      0x140 ./Core/Tasks/Src/dm4310_drv.o
-                0x08007f1c                mit_ctrl
+                0x08007f14      0x148 ./Core/Tasks/Src/dm4310_drv.o
+                0x08007f14                mit_ctrl
  .text.pos_speed_ctrl
                 0x0800805c       0x88 ./Core/Tasks/Src/dm4310_drv.o
                 0x0800805c                pos_speed_ctrl
@@ -33863,7 +33864,7 @@ LOAD C:/ST/STM32CubeIDE_1.15.1/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_macro   0x0004368b       0x58 ./System/utils/Src/Thread.o
  .debug_macro   0x000436e3      0x45e ./USB_DEVICE/Target/usbd_conf.o
 
-.debug_line     0x00000000    0x71589
+.debug_line     0x00000000    0x71580
  .debug_line    0x00000000     0x1050 ./Core/BSP/Src/CRC8_CRC16.o
  .debug_line    0x00001050      0xf2e ./Core/BSP/Src/bsp_buzzer.o
  .debug_line    0x00001f7e     0x1165 ./Core/BSP/Src/bsp_dbus_input.o
@@ -33903,60 +33904,60 @@ LOAD C:/ST/STM32CubeIDE_1.15.1/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_line    0x0001e749     0x1196 ./Core/Tasks/Src/control_keyboard.o
  .debug_line    0x0001f8df     0x116c ./Core/Tasks/Src/control_remote.o
  .debug_line    0x00020a4b     0x139e ./Core/Tasks/Src/control_sbc.o
- .debug_line    0x00021de9     0x1781 ./Core/Tasks/Src/dm4310_drv.o
- .debug_line    0x0002356a     0x1223 ./Core/Tasks/Src/gimbal_control_task.o
- .debug_line    0x0002478d     0x153c ./Core/Tasks/Src/hud_task.o
- .debug_line    0x00025cc9     0x16e4 ./Core/Tasks/Src/imu_processing_task.o
- .debug_line    0x000273ad     0x129e ./Core/Tasks/Src/launcher_control_task.o
- .debug_line    0x0002864b     0x16f4 ./Core/Tasks/Src/leg_task.o
- .debug_line    0x00029d3f      0x74b ./Core/Tasks/Src/lqr_k.o
- .debug_line    0x0002a48a     0x1109 ./Core/Tasks/Src/master_task.o
- .debug_line    0x0002b593     0x151f ./Core/Tasks/Src/motor_config.o
- .debug_line    0x0002cab2     0x15b2 ./Core/Tasks/Src/motor_control.o
- .debug_line    0x0002e064     0x13b3 ./Core/Tasks/Src/motor_control_task.o
- .debug_line    0x0002f417     0x1287 ./Core/Tasks/Src/movement_control_task.o
- .debug_line    0x0003069e     0x110b ./Core/Tasks/Src/referee_processing_task.o
- .debug_line    0x000317a9      0x5f4 ./Core/Tasks/Src/rt_nonfinite.o
- .debug_line    0x00031d9d      0xfc9 ./Core/Tasks/Src/startup_task.o
- .debug_line    0x00032d66     0x111c ./Core/Tasks/Src/usb_task.o
- .debug_line    0x00033e82      0xb57 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
- .debug_line    0x000349d9     0x13c9 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o
- .debug_line    0x00035da2     0x12fe ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_can.o
- .debug_line    0x000370a0      0xe04 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
- .debug_line    0x00037ea4      0x9b0 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_crc.o
- .debug_line    0x00038854     0x10c7 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.o
- .debug_line    0x0003991b      0xce3 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
- .debug_line    0x0003a5fe     0x3bfd ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.o
- .debug_line    0x0003e1fb     0x1656 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd.o
- .debug_line    0x0003f851      0x934 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.o
- .debug_line    0x00040185      0xec8 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
- .debug_line    0x0004104d      0xae0 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.o
- .debug_line    0x00041b2d     0x1e0c ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
- .debug_line    0x00043939     0x385b ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
- .debug_line    0x00047194     0x1b4e ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.o
- .debug_line    0x00048ce2     0x2c0e ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.o
- .debug_line    0x0004b8f0      0xeb3 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_tim.o
- .debug_line    0x0004c7a3     0x1e3c ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.o
- .debug_line    0x0004e5df     0x114d ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.o
- .debug_line    0x0004f72c     0x1323 ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.o
- .debug_line    0x00050a4f      0xc69 ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.o
- .debug_line    0x000516b8     0x24ed ./Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.o
- .debug_line    0x00053ba5      0xb9c ./Middlewares/Third_Party/FreeRTOS/Source/event_groups.o
- .debug_line    0x00054741      0x7a1 ./Middlewares/Third_Party/FreeRTOS/Source/list.o
- .debug_line    0x00054ee2     0x176b ./Middlewares/Third_Party/FreeRTOS/Source/queue.o
- .debug_line    0x0005664d     0x2059 ./Middlewares/Third_Party/FreeRTOS/Source/tasks.o
- .debug_line    0x000586a6      0xe29 ./Middlewares/Third_Party/FreeRTOS/Source/timers.o
- .debug_line    0x000594cf      0x96a ./Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
- .debug_line    0x00059e39      0x9cc ./Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
- .debug_line    0x0005a805     0x1212 ./System/BRoCo/src/CANBus.o
- .debug_line    0x0005ba17     0x1860 ./System/BRoCo/src/IOBus.o
- .debug_line    0x0005d277     0x9b51 ./System/BRoCo/src/MessageBus.o
- .debug_line    0x00066dc8     0x3099 ./System/BRoCo/src/RoCanDriver.o
- .debug_line    0x00069e61     0x1b9a ./System/Threads/Src/SuperCapCommThread.o
- .debug_line    0x0006b9fb     0x21e2 ./System/Threads/Src/Telemetry.o
- .debug_line    0x0006dbdd     0x1c04 ./System/Threads/Src/dummy_thread.o
- .debug_line    0x0006f7e1      0xd9a ./System/utils/Src/Thread.o
- .debug_line    0x0007057b     0x100e ./USB_DEVICE/Target/usbd_conf.o
+ .debug_line    0x00021de9     0x1778 ./Core/Tasks/Src/dm4310_drv.o
+ .debug_line    0x00023561     0x1223 ./Core/Tasks/Src/gimbal_control_task.o
+ .debug_line    0x00024784     0x153c ./Core/Tasks/Src/hud_task.o
+ .debug_line    0x00025cc0     0x16e4 ./Core/Tasks/Src/imu_processing_task.o
+ .debug_line    0x000273a4     0x129e ./Core/Tasks/Src/launcher_control_task.o
+ .debug_line    0x00028642     0x16f4 ./Core/Tasks/Src/leg_task.o
+ .debug_line    0x00029d36      0x74b ./Core/Tasks/Src/lqr_k.o
+ .debug_line    0x0002a481     0x1109 ./Core/Tasks/Src/master_task.o
+ .debug_line    0x0002b58a     0x151f ./Core/Tasks/Src/motor_config.o
+ .debug_line    0x0002caa9     0x15b2 ./Core/Tasks/Src/motor_control.o
+ .debug_line    0x0002e05b     0x13b3 ./Core/Tasks/Src/motor_control_task.o
+ .debug_line    0x0002f40e     0x1287 ./Core/Tasks/Src/movement_control_task.o
+ .debug_line    0x00030695     0x110b ./Core/Tasks/Src/referee_processing_task.o
+ .debug_line    0x000317a0      0x5f4 ./Core/Tasks/Src/rt_nonfinite.o
+ .debug_line    0x00031d94      0xfc9 ./Core/Tasks/Src/startup_task.o
+ .debug_line    0x00032d5d     0x111c ./Core/Tasks/Src/usb_task.o
+ .debug_line    0x00033e79      0xb57 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
+ .debug_line    0x000349d0     0x13c9 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o
+ .debug_line    0x00035d99     0x12fe ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_can.o
+ .debug_line    0x00037097      0xe04 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
+ .debug_line    0x00037e9b      0x9b0 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_crc.o
+ .debug_line    0x0003884b     0x10c7 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.o
+ .debug_line    0x00039912      0xce3 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
+ .debug_line    0x0003a5f5     0x3bfd ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.o
+ .debug_line    0x0003e1f2     0x1656 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd.o
+ .debug_line    0x0003f848      0x934 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.o
+ .debug_line    0x0004017c      0xec8 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
+ .debug_line    0x00041044      0xae0 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.o
+ .debug_line    0x00041b24     0x1e0c ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
+ .debug_line    0x00043930     0x385b ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
+ .debug_line    0x0004718b     0x1b4e ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.o
+ .debug_line    0x00048cd9     0x2c0e ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.o
+ .debug_line    0x0004b8e7      0xeb3 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_tim.o
+ .debug_line    0x0004c79a     0x1e3c ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.o
+ .debug_line    0x0004e5d6     0x114d ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.o
+ .debug_line    0x0004f723     0x1323 ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.o
+ .debug_line    0x00050a46      0xc69 ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.o
+ .debug_line    0x000516af     0x24ed ./Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.o
+ .debug_line    0x00053b9c      0xb9c ./Middlewares/Third_Party/FreeRTOS/Source/event_groups.o
+ .debug_line    0x00054738      0x7a1 ./Middlewares/Third_Party/FreeRTOS/Source/list.o
+ .debug_line    0x00054ed9     0x176b ./Middlewares/Third_Party/FreeRTOS/Source/queue.o
+ .debug_line    0x00056644     0x2059 ./Middlewares/Third_Party/FreeRTOS/Source/tasks.o
+ .debug_line    0x0005869d      0xe29 ./Middlewares/Third_Party/FreeRTOS/Source/timers.o
+ .debug_line    0x000594c6      0x96a ./Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
+ .debug_line    0x00059e30      0x9cc ./Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
+ .debug_line    0x0005a7fc     0x1212 ./System/BRoCo/src/CANBus.o
+ .debug_line    0x0005ba0e     0x1860 ./System/BRoCo/src/IOBus.o
+ .debug_line    0x0005d26e     0x9b51 ./System/BRoCo/src/MessageBus.o
+ .debug_line    0x00066dbf     0x3099 ./System/BRoCo/src/RoCanDriver.o
+ .debug_line    0x00069e58     0x1b9a ./System/Threads/Src/SuperCapCommThread.o
+ .debug_line    0x0006b9f2     0x21e2 ./System/Threads/Src/Telemetry.o
+ .debug_line    0x0006dbd4     0x1c04 ./System/Threads/Src/dummy_thread.o
+ .debug_line    0x0006f7d8      0xd9a ./System/utils/Src/Thread.o
+ .debug_line    0x00070572     0x100e ./USB_DEVICE/Target/usbd_conf.o
 
 .debug_str      0x00000000   0x14ccbb
  .debug_str     0x00000000    0xedee1 ./Core/BSP/Src/CRC8_CRC16.o
