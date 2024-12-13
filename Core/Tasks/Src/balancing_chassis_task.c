@@ -53,7 +53,7 @@ void Ctrl_Init()
 //	PID_SetErrLpfRatio(&rollPID.inner, 0.1f);
 	PID_Init(&legLengthPID, 600, 0.0, 0.0, -50.0, 50.0);
 //	PID_SetErrLpfRatio(&legLengthPID.inner, 0.5f);
-	PID_Init(&legAnglePID, 20, 0.0, 0.0, -10.0, 10.0);
+	PID_Init(&legAnglePID, 15, 0.0, 0.0, -10.0, 10.0);
 //	PID_SetErrLpfRatio(&legAnglePID.outer, 0.5f);
 	PID_Init(&rollPID, 150, 0.0, 0.001, -30.0, 30.0);
 	PID_Init(&yawPID, 0.5f, 0.0, 0.0, -1, 1);
@@ -79,12 +79,12 @@ void Ctrl_TargetUpdateTask()
 					target.speed -= speedSlopeStep;
 			}
 
-			//计算位置目标，并限制在当前位置的±0.1m内
+			//计算位置目标，并限制在当前位置的±1m内
 			target.position += target.speed * 0.004f;
-			if(target.position - stateVar.x > 0.5f)
-				target.position = stateVar.x + 0.5f;
-			else if(target.position - stateVar.x < -0.5f)
-				target.position = stateVar.x - 0.5f;
+			if(target.position - stateVar.x > 1.0f)
+				target.position = stateVar.x + 1.0f;
+			else if(target.position - stateVar.x < -1.0f)
+				target.position = stateVar.x - 1.0f;
 
 			//限制速度目标在当前速度的±0.3m/s内
 			if(target.speed - stateVar.dx > 1.0f)
@@ -107,7 +107,7 @@ void balancing_chassis_task(void *argument) {
 	const float legMass = 0.8f; //kg，腿部质量
 	//设定初始目标值
 	target.rollAngle = 0.0f;
-	target.legLength = 0.17f;
+	target.legLength = 0.16f;
 	target.speed = 0.0f;
 	target.position = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
 	float dt = 0.005f;
