@@ -87,10 +87,10 @@ void Ctrl_TargetUpdateTask()
 				target.position = stateVar.x - 1.0f;
 
 			//限制速度目标在当前速度的±0.3m/s内
-			if(target.speed - stateVar.dx > 2.0f)
-				target.speed = stateVar.dx + 2.0f;
-			else if(target.speed - stateVar.dx < -2.0f)
-				target.speed = stateVar.dx - 2.0f;
+			if(target.speed - stateVar.dx > 5.0f)
+				target.speed = stateVar.dx + 5.0f;
+			else if(target.speed - stateVar.dx < -5.0f)
+				target.speed = stateVar.dx - 5.0f;
 
 			//计算yaw方位角目标
 			target.yawAngle += target.yawSpeedCmd * 0.004f;
@@ -107,7 +107,7 @@ void balancing_chassis_task(void *argument) {
 	const float legMass = 0.8f; //kg，腿部质量
 	//设定初始目标值
 	target.rollAngle = 0.0f;
-	target.legLength = 0.16f;
+	target.legLength = 0.14f;
 	target.speed = 0.0f;
 	target.position = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
 	float dt = 0.005f;
