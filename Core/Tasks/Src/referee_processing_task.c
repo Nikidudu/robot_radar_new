@@ -53,7 +53,6 @@ void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart){
 		HAL_UART_DMAStop(&DBUS_UART);
 		dbus_remote_start();
 	} else if (huart == &REFEREE_UART){
-
 	    __HAL_DMA_DISABLE(&hdma_usart6_rx);
 		ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
 	}
@@ -85,10 +84,10 @@ void referee_processing_task(void *argument) {
 						ref_shoot_data_txno++;
 						break;
 					case REF_GAME_STATE_CMD_ID:
-							memcpy(&ref_game_state, &g_ref_msg_buffer.data,
-									sizeof(ref_game_state_t));
-							ref_game_state_txno++;
-							break;
+						memcpy(&ref_game_state, &g_ref_msg_buffer.data,
+								sizeof(ref_game_state_t));
+						ref_game_state_txno++;
+						break;
 					case REF_ROBOT_DATA_CMD_ID:
 						memcpy(&ref_robot_data, &g_ref_msg_buffer.data,
 								sizeof(ref_game_robot_data2_t));

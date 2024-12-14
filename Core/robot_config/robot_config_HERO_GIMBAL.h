@@ -1,67 +1,80 @@
 /*
- * robot_config.h
+ * robot_config_HERO_GIMBAL.h
  *
- *  Created on: 19 Jan 2021
- *      Author: Hans Kurnia
+ *  Created on: Dec 8, 2024
+ *      Author: cw
  */
 
-#ifndef TASKS_INC_ROBOT_CONFIG_CF_H_
-#define TASKS_INC_ROBOT_CONFIG_CF_H_
+#ifndef ROBOT_CONFIG_ROBOT_CONFIG_HERO_GIMBAL_H_
+#define ROBOT_CONFIG_ROBOT_CONFIG_HERO_GIMBAL_H_
 
-#define BULLET_17
-
-#define OVERHEAT_PROTECTION
+#include "motor_config.h"
+#include "hud_tali.h"
 //#define BOARD_DOWN
+
+//#define OVERHEAT_PROTECTION
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
-#define IMU_ORIENTATION	2
+#define IMU_ORIENTATION	1
+
+#define BULLET_42
+#define PITCH_ARM		// uses 4 bar linkage for pitch control
+
 //doesn't do anything, todo: implement pid for heater
 #define IMU_TARGET_TEMP	50
 
-#define CONTROL_DEFAULT 		REMOTE_CTRL_MODE
 //flip until motor angle and yaw angle matches
 #define IMU_YAW_INVERT		-1
-#define IMU_PITCH_INVERT	-1
+#define IMU_PITCH_INVERT	1
 //nothing uses roll.....yet
 #define IMU_ROLL_INVERT		1
 //#define IST8310
+#define REF_POWER_LIM
+#define G_X_OFFSET		6
+#define G_Y_OFFSET 		-4
+#define G_Z_OFFSET	 	0
 
+//#define G_OFFSET_CALI
 
 /********************* CONTROL SENSITIVITIES ***********/
-#define REMOTE_YAW_SPEED 	 			0.05 			//Speed of gimbal yaw turning
-#define REMOTE_PITCH_SPEED 	 		0.05//0.005		//Speed of gimbal pitch turning
+#define REMOTE_YAW_SPEED 	 			0.1 			//Speed of gimbal yaw turning
+#define REMOTE_PITCH_SPEED 	 			-0.1//0.005		//Speed of gimbal pitch turning
 
-#define MOUSE_X_SENSITIVITY		(400 * REMOTE_YAW_SPEED)				//Speed of yaw turning with mouse, dependent on above speed
+#define MOUSE_X_SENSITIVITY		(300 * REMOTE_YAW_SPEED)				//Speed of yaw turning with mouse, dependent on above speed
 #define MOUSE_Y_SENSITIVITY 	(200 * REMOTE_PITCH_SPEED)				//Speed of pitch turning with mouse,  dependent on above speed
 
 
+#define OVERHEAT_MARGIN 0
+#define OVERHEAT_EXCESS 1
+#define OVERHEAT_OFFSET	40
 
 /*********************** REFEREE SYSTEM CONFIGURATION *******************/
-#define FRICTION_SB_SPIN		1000
 #define OVERHEAT_TIME			100
-#define LV1_FEEDER				840//480//480
-#define	LV1_PROJECTILE			13.7//`b0//18//20//12
-#define LV1_POWER				60
-#define LV1_MAX_SPEED			4500
-#define LV1_MAX_CURRENT			4000
 
-#define LV2_FEEDER				840
-#define	LV2_PROJECTILE			13.7//12
-#define LV2_POWER				80
-#define LV2_MAX_SPEED			6000
-#define LV2_MAX_CURRENT			5000
+// Feeder speed is LVL_FEEDER / FEEDER_SPEED_RATIO rpm
+#define LV1_FEEDER				100//800//480//480
+#define	LV1_PROJECTILE			16.5
+#define LV1_MAX_SPEED			M3508_MAX_RPM
+#define LV1_MAX_CURRENT			16384
 
-#define LV3_FEEDER				840
-#define	LV3_PROJECTILE			13.7//12
-#define LV3_POWER				100
-#define LV3_MAX_SPEED			8000
-#define LV3_MAX_CURRENT			5500
+#define LV2_FEEDER				100//840
+#define	LV2_PROJECTILE			16.5
+#define LV2_MAX_SPEED			M3508_MAX_RPM
+#define LV2_MAX_CURRENT			16384
 
-#define GEAR1_YAW_MULT			1
-#define GEAR1_SPEED_MULT		0.4
+#define LV3_FEEDER				100//840
+#define	LV3_PROJECTILE			16.5
+#define LV3_MAX_SPEED			M3508_MAX_RPM
+#define LV3_MAX_CURRENT			16384
+
+
+#define GEAR_DEFAULT			3
+
+#define GEAR1_YAW_MULT			0.3
+#define GEAR1_SPEED_MULT		0.3
 #define GEAR1_ACCEL_MULT		1
 
-#define GEAR2_YAW_MULT			1
-#define GEAR2_SPEED_MULT		0.7
+#define GEAR2_YAW_MULT			0.6
+#define GEAR2_SPEED_MULT		0.6
 #define GEAR2_ACCEL_MULT		1
 
 #define GEAR3_YAW_MULT			1
@@ -82,16 +95,20 @@
 #define GEAR6_ACCEL_MULT		10
 
 
-#define CHASSIS_POWER_MULT		1
-//todo: implement power settings lol
-//#define MOTOR_CURRENT_RATIO		(CHASSIS_MAX_CURRENT / 10000) 	// 10000 mA at max current
+#define CHASSIS_POWER_KP 0.2
+#define CHASSIS_POWER_MARGIN 0
+#define CHASSIS_POWER_MIN	0.5
+#define CHASSIS_POWER_BUFFER_LIMITER
+#define CHASSIS_POWER_LPF 0.02
+#define CHASSIS_POWER_DELTA_LIM 0.1
+
 #define PROJECTILE_SPEED_RATIO	360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
-#define FEEDER_SPEED_RATIO		8								//projectiles per round of the feeder
+#define FEEDER_SPEED_RATIO		5								//projectiles per round of the feeder
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
 #define YAW_INVERT  			-1				//1 to invert control -1 to disable
-#define PITCH_INVERT  			1				//1 to invert control -1 to disable
+#define PITCH_INVERT  			-1				//1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
 #define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
@@ -139,56 +156,79 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_KP 			7			// |
-#define FEEDER_KI  			0.02				// | - FEEDER PID VALUES
-#define FEEDER_KD  			3			// |
+#define FEEDER_KP 			5			// |
+#define FEEDER_KI  			0.01				// | - FEEDER PID VALUES
+#define FEEDER_KD  			0			// |
 #define FEEDER_MAX_INT		10000
 
-#define FEEDER_ANGLE_KP 			1			// |
+#define FEEDER_ANGLE_KP 			200			// |
 #define FEEDER_ANGLE_KD  			0			// | - FEEDER_ANGLE PID VALUES
 #define FEEDER_ANGLE_KI  			0			// |
 #define FEEDER_ANGLE_INT_MAX  		0			// |
-#define FEEDER_MAX_RPM				100			// |
-#define FEEDER_JAM_TORQUE  		9800			//Before feeder deemed to be jammed
-#define FEEDER_UNJAM_SPD  		-60				//Reverse unjam
-#define FEEDER_UNJAM_TIME		110
-#define FEEDER_MAX_CURRENT		10000
+#define FEEDER_MAX_RPM				200			// |
+#define FEEDER_JAM_TORQUE  		15000			//Before feeder deemed to be jammed
+#define FEEDER_JAM_RPM			50				// if feeeder is below this rpm, it is jammed
+#define FEEDER_UNJAM_SPD  		-500				//Reverse unjam
+#define FEEDER_UNJAM_TIME		50
+#define FEEDER_MAX_CURRENT		16000
 #define FEEDER_INVERT			1
 #define FEEDER_CUTOFF_TEMP  	60
+
+
+//#define ANGLE_FEEDER
+#define ANGLE_FEEDER_MARGIN		0.87 //0.174 //margin in radians
+#define ANGLE_FEEDER_SPD_MARGIN 20 //rpm after gearbox margin
+#define ANGLE_FEEDER_TIMEOUT    800 //if stuck in angle feeder for more than 2s, timeout
+#define ANGLE_FEEDER_DELAY		100 //time between each shots, in ms
+
+
 #define STEPPER_ANGLE			1.8
-#define FRICTION_KP  			4//3				// |
-#define FRICTION_KI  			0.002//0.02			// | - FRICTION WHEELS PID VALUES
+#define FRICTION_SB_SPIN		(LV1_PROJECTILE * PROJECTILE_SPEED_RATIO)
+#define FRICTION_KP  			5				// |
+#define FRICTION_KI  			0.0001			// | - FRICTION WHEELS PID VALUES
 #define FRICTION_KD  			0//10				// |
 #define FRICTION_MAX_CURRENT 	16384
 #define FRICTION_MAX_INT		10000
-#define FRICTION_INVERT			-1
-#define LAUNCHER_MARGIN			100
-#define LAUNCHER_DIFF_MARGIN	100
-#define FRICTION_OFFSET			100
+#define FRICTION_INVERT			1
+#define LAUNCHER_MARGIN			50
+#define LAUNCHER_DIFF_MARGIN	50
+#define FRICTION_OFFSET			40//100
+
 
 #define CLEAR_DELAY				1000
 
 /*********************** CHASSIS CONFIGURATION ***********************/
-#define CHASSIS_KP  		10				// |
-#define CHASSIS_KI  		0.1				// | - CHASSIS WHEELS PID VALUES
-#define CHASSIS_KD  		5				// |
+#define CHASSIS_KP  		4				// |
+#define CHASSIS_KI  		0.05				// | - CHASSIS WHEELS PID VALUES
+#define CHASSIS_KD  		1				// |
 #define CHASSIS_INT_MAX  	10000				// |
-#define CHASSIS_MAX_CURRENT 4000
+#define CHASSIS_MAX_CURRENT 9000
 #define CHASSIS_MIN_CURRENT 0
+#define BUFFER_MIN			0.1
 
-#define CHASSIS_MAX_ACCEL	0.4				// s to top speed TO BE REPLACED WITH ACTUAL PHYSICAL VALUES
-#define CHASSIS_MAX_YAW_ACCEL 0.1			// s to max yaw
+#define CHASSIS_MAX_ACCEL	0.3				// s to top speed TO BE REPLACED WITH ACTUAL PHYSICAL VALUES
+#define CHASSIS_MAX_YAW_ACCEL 0.15			// s to max yaw
 
 #define CHASSIS_CAN_SPINSPIN
-#define CHASSIS_SPINSPIN_MAX 0.9
-#define CHASSIS_YAW_MAX_RPM	1.0					//max RPM for chassis centering
-#define CHASSIS_YAW_KP 		0.5//0.7//0.4
+#define CHASSIS_SPINSPIN_MIN 0.4
+#define CHASSIS_SPINSPIN_MAX 1
+#define CHASSIS_SPINSPIN_ANNOY_STEPS 50
+#define CHASSIS_SPINSPIN_MULT 0.03
+#define CHASSIS_SPINSPIN_RANGE (CHASSIS_SPINSPIN_MAX - CHASSIS_SPINSPIN_MIN)
+#define CHASSIS_SPINSPIN_MIN_RAMP 0.002
+
+#define CHASSIS_YAW_MAX_RPM	0.5					//max RPM for chassis centering
+#define CHASSIS_YAW_KP 		0.7//0.7//0.4
 #define CHASSIS_YAW_KI		0
 #define CHASSIS_YAW_KD 		0//0
+#define CHASSIS_YAW_MIN		0.1
+
 #define CHASSIS_TRANS_PRIO		0.5			//% of chassis speed to be prioritised for translation
 #define CHASSIS_YAW_PRIO		(1-CHASSIS_TRANS_PRIO)
 
-#define MAX_SPEED 			3000 				//Max speed of robot
+#define CHASSIS_MAX_POWER 		400
+#define MIN_SPEED			2000
+#define MAX_SPEED 			9000//M3508_MAX_RPM 				//Max speed of robot
 
 /* To configure centers, start the boards in debug mode with all motors
  * powered *but in safe mode* (i.e. remotes off)
@@ -197,63 +237,103 @@
  * from their raw_data structs
  * The centers should be from 0 to 8192, it should be the value directly from
  * the motors
- */
-/*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_ANGLE_KP	  		100//200
-#define PITCH_ANGLE_KD  		00
-#define PITCH_ANGLE_KI  		0
-#define PITCH_ANGLE_INT_MAX		1000
+ *//*********************** GIMBAL CONFIGURATION ***********************/
+#define LK_PITCH
+#define PITCH_ANGLE_KP	  		10
+#define PITCH_ANGLE_KI  		1
+#define PITCH_ANGLE_KD  		0
+#define PITCH_ANGLE_INT_MAX		50
+#define PITCH_MAX_RPM			30000
 
-#define PITCHRPM_KP				200//700
-#define PITCHRPM_KI				0.1
+#define PITCHRPM_KP				40
+#define PITCHRPM_KI				14
 #define PITCHRPM_KD				0
 #define PITCHRPM_INT_MAX		10000
-#define PITCH_MAX_RPM			200
 #define PITCH_MAX_CURRENT		20000
 
-#define PITCH_CENTER			7700//3590
-#define PITCH_MAX_ANG			0.6
-#define PITCH_MIN_ANG			-0.4
+#define PITCH_MOTOR_TYPE		TYPE_LK_MG5010E_MULTI_ANG
+#define PITCH_CENTER			91000
+#define PITCH_MAX_ANG			1
+#define PITCH_MIN_ANG			-0.9
+#define PITCH_CONST				8000
 
-#define YAW_ANGLE_KP			200//200
+#define YAW_M3508
+#define YAW_BELT
+#define YAW_BELT_GEAR_RATIO 	1
+
+#define YAW_ANGLE_KP			80//200
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			0
-#define YAW_ANGLE_INT_MAX		100
+#define YAW_ANGLE_INT_MAX		10
+#define YAW_MAX_RPM				200
 
-#define YAWRPM_KP				400//600//400
-#define YAWRPM_KI				0.005
+#define YAWRPM_KP				600
+#define YAWRPM_KI				5
 #define YAWRPM_KD				100
-#define YAWRPM_INT_MAX			5000
-#define YAW_MAX_RPM				400
-#define YAW_MAX_CURRENT			20000
+#define YAWRPM_INT_MAX			8000
+#define YAW_MAX_CURRENT			16384
+#define YAW_SPINSPIN_CONSTANT	4000
 
-#define YAW_CENTER 				5200//2790
+#define YAW_CENTER 				65000
 #define YAW_MAX_ANG				4*PI
 #define YAW_MIN_ANG				4*-PI
+
+//#define YAW_FEEDFORWARD
+#define YAW_FF_SPD_KP			500
+#define YAW_FF_SPD_KI			0
+#define YAW_FF_SPD_KD			5
+#define YAW_FF_MAX_OUTPUT		10000
+#define YAW_FF_INT_MAX			5
+
+
 
 /*********************** MOTOR CONFIGURATION *******************/
 //CAN ids for the motors, for motors on the CAN2 bus, add 12
 //ADD 4 TO GM6020 IDS i.e. flashing 5 times = ID 9
 //#define CHASSIS_MCU
+
 #ifndef CHASSIS_MCU
-#define FR_MOTOR_ID 		1
-#define FL_MOTOR_ID 		2
-#define BL_MOTOR_ID 		3
-#define BR_MOTOR_ID 		4
+#define FR_MOTOR_ID 		13
+#define FR_MOTOR_CAN_PTR	&hcan2
+#define FL_MOTOR_ID 		14
+#define FL_MOTOR_CAN_PTR	&hcan2
+#define BL_MOTOR_ID 		15
+#define BL_MOTOR_CAN_PTR	&hcan2
+#define BR_MOTOR_ID 		16
+#define BR_MOTOR_CAN_PTR	&hcan2
 #endif
+
 #define FEEDER_MOTOR_ID		7
-#define LFRICTION_MOTOR_ID	5
-#define RFRICTION_MOTOR_ID	6
+#define FEEDER_MOTOR_CAN_PTR	&hcan1
+#define LFRICTION_MOTOR_ID	1
+#define LFRICTION_MOTOR_CAN_PTR	&hcan1
+#define RFRICTION_MOTOR_ID	2
+#define RFRICTION_MOTOR_CAN_PTR	&hcan1
+
+#define ACTIVE_GUIDANCE
+#ifdef ACTIVE_GUIDANCE
+// Bottom flywheel
+#define BFRICTION_MOTOR_ID  3
+#define BFRICTION_MOTOR_CAN_PTR	&hcan1
+// Active guidance flywheel
+#define GFRICTION_MOTOR_ID  4
+#define GFRICTION_MOTOR_CAN_PTR	&hcan1
+#endif
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
-#define PITCH_MOTOR_ID 		9
+#define PITCH_MOTOR_ID 		0x141
+#define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
-#define YAW_MOTOR_ID 		22
+#define YAW_MOTOR_ID 		17
+#define YAW_MOTOR_CAN_PTR	&hcan2
 #endif
+
 
 /* MECANUM WHEEL PROPERTIES */
 #define WHEEL_CIRC			7.625	//in CM
+#define WHEEL_RADIUS		76.0f
+#define CHASSIS_RADIUS		280.0f
 
 #define FR_ANG_X			-PI/4
 #define FR_ANG_Y 			-PI/2
@@ -289,10 +369,13 @@
 
 /*********************** OTHERS ***********************/
 
-#define CONTROL_DELAY 			2
-#define GIMBAL_DELAY			5
-#define CHASSIS_DELAY 			10
+#define CONTROL_DELAY 			5
+#define GIMBAL_DELAY			4
+#define CHASSIS_DELAY 			5
+//#define SPIN_WHEN_DAMAGED
 
 //microsecond timer used for PIDs
-#define TIMER_FREQ			10000 //Cannot be too high if not the ISRs overload the CPU
-#endif /* TASKS_INC_ROBOT_CONFIG_H_ */
+#define TIMER_FREQ			1000000 //Cannot be too high if not the ISRs overload the CPU
+#define TIMER_FREQ_MULT		10 //1000000/100000
+
+#endif /* ROBOT_CONFIG_ROBOT_CONFIG_HERO_GIMBAL_H_ */

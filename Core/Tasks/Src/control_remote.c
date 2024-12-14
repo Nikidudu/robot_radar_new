@@ -112,8 +112,8 @@ void remote_launcher_control_input() {
 			launcher_safety_toggle = 0;
 		}
 		if (g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
-							launcher_ctrl_data.enabled = 0;
-				}
+			launcher_ctrl_data.enabled = 0;
+		}
 //		launcher_ctrl_data.enabled = 0;
 		launcher_ctrl_data.firing = 0;
 		launcher_ctrl_data.projectile_speed = 0;

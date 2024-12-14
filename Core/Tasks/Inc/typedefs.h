@@ -387,6 +387,11 @@ typedef enum {
 }buzzing_type;
 
 
+enum launcher_state_e {
+	WHEEL_FIRING,
+	WHEEL_STANDBY,
+	WHEEL_CLEARING
+};
 
 enum feeder_state_e {
 	FEEDER_STANDBY,
@@ -395,7 +400,8 @@ enum feeder_state_e {
 	FEEDER_JAM,
 	FEEDER_OVERHEAT,
 	FEEDER_FIRING,
-	FEEDER_FREE
+	FEEDER_FREE,
+	FEEDER_LOADED
 };
 
 /*

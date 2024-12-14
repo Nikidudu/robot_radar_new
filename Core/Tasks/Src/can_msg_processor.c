@@ -213,17 +213,27 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 			break;
 #endif
 		case LFRICTION_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b010,
+			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b00010,
 					&xHigherPriorityTaskWoken);
 			break;
 		case RFRICTION_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b001,
+			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b00001,
 					&xHigherPriorityTaskWoken);
 			break;
 		case FEEDER_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b100,
+			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b00100,
 					&xHigherPriorityTaskWoken);
 			break;
+#ifdef ACTIVE_GUIDANCE
+		case BFRICTION_MOTOR_ID:
+			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b01000,
+					&xHigherPriorityTaskWoken);
+			break;
+		case GFRICTION_MOTOR_ID:
+			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b10000,
+					&xHigherPriorityTaskWoken);
+			break;
+#endif
 		case PITCH_MOTOR_ID:
 			xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
 					&xHigherPriorityTaskWoken);
