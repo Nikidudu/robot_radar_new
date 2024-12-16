@@ -301,11 +301,11 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 		}
 		break;
 	case FEEDER_SPINUP:
-//		if (abs(avg_rpm - friction_wheel_speed) < LAUNCHER_MARGIN) {
-//			if (rpm_diff < LAUNCHER_DIFF_MARGIN) {
+		if (abs(avg_rpm - friction_wheel_speed) < LAUNCHER_MARGIN) {
+			if (rpm_diff < LAUNCHER_DIFF_MARGIN) {
 				feeder_state = FEEDER_FIRING;
-//			}
-//		}
+			}
+		}
 		break;
 
 	case FEEDER_FIRING:
@@ -636,8 +636,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 
 	static uint32_t jam_start_time = 0;
 
-	int16_t feeder_speed = launcher_ctrl_data.firing
-			* g_referee_limiters.feeding_speed * FEEDER_INVERT
+	int16_t feeder_speed = g_referee_limiters.feeding_speed * FEEDER_INVERT
 			/ FEEDER_SPEED_RATIO;
 	int16_t friction_wheel_speed = g_referee_limiters.projectile_speed
 			* PROJECTILE_SPEED_RATIO;
