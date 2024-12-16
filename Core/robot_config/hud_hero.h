@@ -1,17 +1,17 @@
 /*
- * hud_roburt.h
+ * hud_hero.h
  *
- *  Created on: May 26, 2024
- *      Author: wx
+ *  Created on: Dec 16, 2024
+ *      Author: cw
  */
 
-#ifndef ROBOT_CONFIG_HUD_ROBURT_H_
-#define ROBOT_CONFIG_HUD_ROBURT_H_
+#ifndef ROBOT_CONFIG_HUD_HERO_H_
+#define ROBOT_CONFIG_HUD_HERO_H_
+
 #include "hud_constants.h"
 
 // GRAPHICS SELECTION
 // Comment out any unwanted graphics
-#define HUD
 #define SPINSPIN
 #define GEARING
 #define SUPERCAP
@@ -83,7 +83,7 @@
 #define PITCH_ANG_WIDTH		6
 #define REF_DELAY			150
 
-#define MOTOR_FAULT_START 	750
-#define MOTOR_FAULT_GAP		50
+#define MOTOR_FAULT_START 	850
+#define MOTOR_FAULT_GAP		10
 
-#endif /* ROBOT_CONFIG_HUD_ROBURT_H_ */
+#endif /* ROBOT_CONFIG_HUD_HERO_H_ */
