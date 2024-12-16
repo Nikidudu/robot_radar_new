@@ -20,6 +20,7 @@ StateVar stateVar;
 extern orientation_data_t balancing_imu;
 extern motor_t motor[num];
 extern remote_cmd_t g_remote_cmd;
+extern motor_data_t g_can_motors[24];
 //extern motor_t MF_motor[2];;
 float left_F_control;
 float left_Tp_control;
@@ -46,24 +47,28 @@ double r4;
 float BODY_MASS = 20.0f;
 float n = 0.5f;
 float LEG_MASS = 0.8f;
+float yaw_angle_offset = 2.14f;
+float max_Tp = 5.0f;
 
 void Ctrl_Init()
 {
 	//初始化各个PID参数
 //	PID_SetErrLpfRatio(&rollPID.inner, 0.1f);
-	PID_Init(&legLengthPID, 600, 0.0, 0.0, -50.0, 50.0);
+	PID_Init(&legLengthPID, 1200, 0.0, 5.0, -30.0, 30.0);
 //	PID_SetErrLpfRatio(&legLengthPID.inner, 0.5f);
-	PID_Init(&legAnglePID, 15, 0.0, 0.0, -10.0, 10.0);
+	PID_Init(&legAnglePID, 25, 0.5, 0.5, -5.0, 5.0);
 //	PID_SetErrLpfRatio(&legAnglePID.outer, 0.5f);
-	PID_Init(&rollPID, 150, 0.0, 0.001, -30.0, 30.0);
-	PID_Init(&yawPID, 0.5f, 0.0, 0.0, -1, 1);
+	PID_Init(&rollPID, 150, 0.0, 5.0, -20.0, 20.0);
+	PID_Init(&yawPID, 3.0, 0.1, 0.8, -0.8, 0.8);
 }
 
 void Ctrl_TargetUpdateTask()
 {
 	TickType_t xLastWakeTime = xTaskGetTickCount();
-	float speedSlopeStep = 0.005f;
+	float speedSlopeStep = 1.0f;
 	while(1){
+			target.speedCmd = ((float)g_remote_cmd.left_y/660)*1.5f;
+			//target.yawAngle = g_can_motors[19].angle_data.adj_ang;
 		//根据当前腿长计算速度斜坡步长(腿越短越稳定，加减速斜率越大)
 			float legLength = (leftLegPos.length + rightLegPos.length) / 2;
 			speedSlopeStep = -(legLength - 0.12f) * 0.03f + 0.005f;
@@ -107,7 +112,7 @@ void balancing_chassis_task(void *argument) {
 	const float legMass = 0.8f; //kg，腿部质量
 	//设定初始目标值
 	target.rollAngle = 0.0f;
-	target.legLength = 0.14f;
+	target.legLength = 0.15f;
 	target.speed = 0.0f;
 	target.position = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
 	float dt = 0.005f;
@@ -201,7 +206,13 @@ void balancing_chassis_task(void *argument) {
     	        	float lqrOutTp = k[1][0] * x[0] + k[1][1] * x[1] + k[1][2] * x[2] + k[1][3] * x[3] + k[1][4] * x[4] + k[1][5] * x[5];
     	        	check_T = lqrOutT;
     	        	check_Tp = lqrOutTp;
-    	        	PID_Compute(&yawPID, target.yawAngle, balancing_imu.yaw,0.005,0);
+
+    	        	if (lqrOutTp > max_Tp){
+    	        		lqrOutTp = max_Tp;
+    	        	}else if(lqrOutTp < -max_Tp){
+    	        		lqrOutTp = -max_Tp;
+    	        	}
+    	        	PID_Compute(&yawPID, target.yawAngle, g_can_motors[19].angle_data.adj_ang,0.005,0);
     	        	//if robot not floating output motor else change state to 3
 
     	        	if (robot_ground == 1){
@@ -209,8 +220,8 @@ void balancing_chassis_task(void *argument) {
     	        		{
 //    	        			g_can_motors[14].torque = -lqrOutT * lqrTRatio + yawPID.output;
 //    	        			g_can_motors[12].torque = -lqrOutT * lqrTRatio - yawPID.output;
-    	        			mf_set_tor[0] = -lqrOutT * lqrTRatio;
-    	        			mf_set_tor[1] = -lqrOutT * lqrTRatio;
+    	        			mf_set_tor[0] = -lqrOutT * lqrTRatio + yawPID.output;
+    	        			mf_set_tor[1] = -lqrOutT * lqrTRatio - yawPID.output;
 //    	        			MF_motor[0].ctrl.tor_set = 0;
 //    	        			MF_motor[1].ctrl.tor_set = 0;
     	        		}else{
@@ -224,7 +235,7 @@ void balancing_chassis_task(void *argument) {
     	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,0.005,0.01);
 //    	        	double leftForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? +rollPID.output : 0) + 13;
 //    	        	double rightForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? -rollPID.output : 0) + 13;
-    	        	float F_gravity = 8.0f * 9.81f;
+    	        	float F_gravity = 7.0f * 9.81f;
     	        	float leftForce = legLengthPID.output + F_gravity +rollPID.output;
     	        	float rightForce = legLengthPID.output + F_gravity -rollPID.output;
     	        	if(leftLegPos.length > 0.35f) //保护腿部不能伸太长
