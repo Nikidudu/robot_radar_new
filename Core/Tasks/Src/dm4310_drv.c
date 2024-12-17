@@ -391,7 +391,7 @@ void MF_fbdata(motor_t *motor, uint8_t *rx_data, uint32_t id)
 
     // Parse torque current (iq) from DATA[2] and DATA[3] as a 16-bit signed integer
     int16_t iq_raw = (int16_t)((rx_data[2]) | (rx_data[3] << 8));
-    motor->para.torque = iq_raw * (4.5f / 2048.0f);
+    motor->para.torque = iq_raw * (5.28f / 2048.0f);
 
     // Parse motor speed from DATA[4] and DATA[5] as a 16-bit signed integer
     motor->para.speed = ((int16_t)((rx_data[4]) | (rx_data[5] << 8))) * (73.303f / 2820.0f);
@@ -734,7 +734,7 @@ void MFtorque_command(CAN_HandleTypeDef* hcan, uint16_t motor_id, float desired_
     data[0] = 0xA1;
 
     // Convert desired torque (A) to iqControl value
-    int16_t iqControl = (int16_t)(desired_torque * (2048.0f / 4.5f));
+    int16_t iqControl = (int16_t)(desired_torque * (2048.0f / 5.28f));
 
     // Set the iqControl value into data[4] and data[5]
     data[4] = (uint8_t)(iqControl & 0xFF);        // Low byte

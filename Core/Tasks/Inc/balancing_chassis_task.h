@@ -11,6 +11,7 @@
 void balancing_chassis_task(void *argument);
 void Ctrl_Init();
 void Ctrl_TargetUpdateTask();
-
+float shortest_angle_diff(float target_angle, float current_angle);
+float normalize_angle(float angle);
 
 #endif /* TASKS_INC_BALANCING_CHASSIS_TASK_H_ */
