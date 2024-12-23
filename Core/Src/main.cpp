@@ -31,6 +31,7 @@
 #include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
+#include "arm_math.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */

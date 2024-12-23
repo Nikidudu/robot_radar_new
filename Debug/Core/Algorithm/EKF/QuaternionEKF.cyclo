@@ -1,0 +1,7 @@
+../Core/Algorithm/EKF/QuaternionEKF.c:49:6:IMU_QuaternionEKF_Init	2
+../Core/Algorithm/EKF/QuaternionEKF.c:96:6:IMU_QuaternionEKF_Update	9
+../Core/Algorithm/EKF/QuaternionEKF.c:228:13:IMU_QuaternionEKF_F_Linearization_P_Fading	4
+../Core/Algorithm/EKF/QuaternionEKF.c:285:13:IMU_QuaternionEKF_SetH	1
+../Core/Algorithm/EKF/QuaternionEKF.c:325:13:IMU_QuaternionEKF_xhatUpdate	16
+../Core/Algorithm/EKF/QuaternionEKF.c:470:13:IMU_QuaternionEKF_Observe	1
+../Core/Algorithm/EKF/QuaternionEKF.c:483:14:invSqrt	1

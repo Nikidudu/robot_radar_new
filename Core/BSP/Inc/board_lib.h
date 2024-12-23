@@ -10,7 +10,6 @@ extern "C" {
 #include "cmsis_os.h"
 #include "FreeRTOS.h"
 #include "usart.h"
-#define ARM_MATH_CM4
 #include "arm_math.h"
 #include "bsp_queue.h"
 #include "board_settings.h"

@@ -1,13 +1,13 @@
-../Drivers/CMSIS/Include/core_cm4.h:1939:34:__NVIC_SystemReset	4	static,ignoring_inline_asm
-../Core/Tasks/Src/control_input_task.c:45:6:ramp	24	static
-../Core/Tasks/Src/control_input_task.c:56:6:control_input_task	64	static
-../Core/Tasks/Src/control_input_task.c:169:6:chassis_set_ctrl	24	static
-../Core/Tasks/Src/control_input_task.c:179:6:chassis_kill_ctrl	4	static
-../Core/Tasks/Src/control_input_task.c:185:9:gimbal_aim_at_damaged_plate	16	static
-../Core/Tasks/Src/control_input_task.c:223:6:control_reset	8	static
-../Core/Tasks/Src/control_input_task.c:238:6:control_mode_change	24	static
-../Core/Tasks/Src/control_input_task.c:313:6:gimbal_turn_ang	16	static
-../Core/Tasks/Src/control_input_task.c:328:6:gimbal_set_ang	16	static
-../Core/Tasks/Src/control_input_task.c:339:6:set_gear	4	static
-../Core/Tasks/Src/control_input_task.c:380:6:chassis_yaw_pid_init	4	static
-../Core/Tasks/Src/control_input_task.c:389:6:dbus_reset	4	static
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h:1939:34:__NVIC_SystemReset	4	static,ignoring_inline_asm
+../Core/Tasks/Src/control_input_task.c:46:6:ramp	24	static
+../Core/Tasks/Src/control_input_task.c:57:6:control_input_task	64	static
+../Core/Tasks/Src/control_input_task.c:170:6:chassis_set_ctrl	24	static
+../Core/Tasks/Src/control_input_task.c:180:6:chassis_kill_ctrl	4	static
+../Core/Tasks/Src/control_input_task.c:186:9:gimbal_aim_at_damaged_plate	16	static
+../Core/Tasks/Src/control_input_task.c:224:6:control_reset	8	static
+../Core/Tasks/Src/control_input_task.c:239:6:control_mode_change	24	static
+../Core/Tasks/Src/control_input_task.c:314:6:gimbal_turn_ang	16	static
+../Core/Tasks/Src/control_input_task.c:329:6:gimbal_set_ang	16	static
+../Core/Tasks/Src/control_input_task.c:340:6:set_gear	4	static
+../Core/Tasks/Src/control_input_task.c:381:6:chassis_yaw_pid_init	4	static
+../Core/Tasks/Src/control_input_task.c:390:6:dbus_reset	4	static

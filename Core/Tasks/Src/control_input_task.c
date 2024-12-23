@@ -12,6 +12,7 @@
 #include "control_keyboard.h"
 #include "control_remote.h"
 #include "control_sbc.h"
+#include "math.h"
 
 //extern TaskHandle_t buzzing_task_handle;
 //extern TaskHandle_t gimbal_control_task_handle;

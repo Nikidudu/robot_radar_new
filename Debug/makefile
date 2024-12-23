@@ -21,10 +21,24 @@ RM := rm -rf
 -include Middlewares/ST/STM32_USB_Device_Library/Core/Src/subdir.mk
 -include Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
+-include Drivers/CMSIS/DSP/Source/TransformFunctions/subdir.mk
+-include Drivers/CMSIS/DSP/Source/SupportFunctions/subdir.mk
+-include Drivers/CMSIS/DSP/Source/StatisticsFunctions/subdir.mk
+-include Drivers/CMSIS/DSP/Source/MatrixFunctions/subdir.mk
+-include Drivers/CMSIS/DSP/Source/FilteringFunctions/subdir.mk
+-include Drivers/CMSIS/DSP/Source/FastMathFunctions/subdir.mk
+-include Drivers/CMSIS/DSP/Source/ControllerFunctions/subdir.mk
+-include Drivers/CMSIS/DSP/Source/ComplexMathFunctions/subdir.mk
+-include Drivers/CMSIS/DSP/Source/CommonTables/subdir.mk
+-include Drivers/CMSIS/DSP/Source/BasicMathFunctions/subdir.mk
 -include Core/Tasks/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
 -include Core/BSP/Src/subdir.mk
+-include Core/Algorithm/mahony/subdir.mk
+-include Core/Algorithm/kalman/subdir.mk
+-include Core/Algorithm/PID/subdir.mk
+-include Core/Algorithm/EKF/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -98,7 +112,7 @@ main-build: robot_firmware_new.elf secondary-outputs
 
 # Tool invocations
 robot_firmware_new.elf robot_firmware_new.map: $(OBJS) $(USER_OBJS) C:\Users\YI\ MING\Desktop\MAPLE\robot_firmware_new\STM32F407IGHX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "robot_firmware_new.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\YI MING\Desktop\MAPLE\robot_firmware_new\STM32F407IGHX_FLASH.ld" -Wl,-Map="robot_firmware_new.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+	arm-none-eabi-g++ -o "robot_firmware_new.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\YI MING\Desktop\MAPLE\robot_firmware_new\STM32F407IGHX_FLASH.ld" -Wl,-Map="robot_firmware_new.map" -Wl,--gc-sections -static -L"C:\Users\YI MING\Desktop\MAPLE\robot_firmware_new\Drivers\CMSIS\DSP\Lib\GCC" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
