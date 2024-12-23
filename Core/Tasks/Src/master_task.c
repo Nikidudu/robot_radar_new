@@ -99,7 +99,7 @@ void master_task(void* argument){
 			&Ctrl_TargetUpdateTask_handle);
 
 	xTaskCreate(balancing_chassis_task, "balancing_chassis_task",
-			512, (void*) 1, (UBaseType_t) 4,
+			1024, (void*) 1, (UBaseType_t) 4,
 			&balancing_chassis_task_handle);
 //
 	xTaskCreate(leg_task, "leg_task",

@@ -70,7 +70,8 @@ typedef struct
 
 typedef struct
 {
-	float theta, dTheta;
+	float Ltheta, LdTheta;
+	float Rtheta, RdTheta;
 	float x, dx;
 	float phi, dPhi;
 } StateVar;

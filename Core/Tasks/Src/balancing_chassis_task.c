@@ -49,7 +49,6 @@ float n = 0.5f;
 float LEG_MASS = 0.8f;
 float yaw_angle_offset = 2.14f;
 float max_Tp = 5.0f;
-float position_weaken = 0.0f;
 
 void Ctrl_Init()
 {
@@ -59,8 +58,8 @@ void Ctrl_Init()
 //	PID_SetErrLpfRatio(&legLengthPID.inner, 0.5f);
 	PID_Init(&legAnglePID, 25, 0.5, 0.5, -5.0, 5.0);
 //	PID_SetErrLpfRatio(&legAnglePID.outer, 0.5f);
-	PID_Init(&rollPID, 150, 0.0, 5.0, -20.0, 20.0);
-	PID_Init(&yawPID, 5.0, 0.1, 0.8, -1.0, 1.0);
+	PID_Init(&rollPID, 300, 0.0, 10.0, -60.0, 60.0);
+	PID_Init(&yawPID, 8.0, 0.1, 1.0, -1.1, 1.1);
 }
 
 void Ctrl_TargetUpdateTask()
@@ -90,7 +89,7 @@ void Ctrl_TargetUpdateTask()
 					target.speed -= speedSlopeStep;
 			}
 
-			//计算位置目标，并限制在当前位置的±1m内
+			//计算位置目标，并限制在当前位置的±0.2m内
 			target.position += target.speed * 0.005f;
 			if(target.position - stateVar.x > 0.2f)
 				target.position = stateVar.x + 0.2f;
@@ -98,10 +97,10 @@ void Ctrl_TargetUpdateTask()
 				target.position = stateVar.x - 0.2f;
 
 			//限制速度目标在当前速度的±0.3m/s内
-			if(target.speed - stateVar.dx > 1.2f)
-				target.speed = stateVar.dx + 1.2f;
-			else if(target.speed - stateVar.dx < -1.2f)
-				target.speed = stateVar.dx - 1.2f;
+			if(target.speed - stateVar.dx > 0.7f)
+				target.speed = stateVar.dx + 0.7f;
+			else if(target.speed - stateVar.dx < -0.7f)
+				target.speed = stateVar.dx - 0.7f;
 
 			//计算yaw方位角目标
 			vTaskDelayUntil(&xLastWakeTime, 5); //每4ms更新一次
@@ -132,8 +131,10 @@ void balancing_chassis_task(void *argument) {
     	stateVar.dPhi = balancing_imu.pit_speed;
     	stateVar.x = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
     	stateVar.dx = (leftWheel.speed + rightWheel.speed) / 2 * wheelRadius;
-    	stateVar.theta = (leftLegPos.angle + rightLegPos.angle) / 2 - M_PI_2 - balancing_imu.pit;
-    	stateVar.dTheta = (leftLegPos.dAngle + rightLegPos.dAngle) / 2 - balancing_imu.pit_speed;
+    	stateVar.Ltheta = leftLegPos.angle - M_PI_2 - balancing_imu.pit;
+    	stateVar.LdTheta = leftLegPos.dAngle - balancing_imu.pit_speed;
+    	stateVar.Rtheta = rightLegPos.angle - M_PI_2 - balancing_imu.pit;
+    	stateVar.RdTheta = rightLegPos.dAngle - balancing_imu.pit_speed;
     	double legLength = (leftLegPos.length + rightLegPos.length) / 2;
     	double dLegLength = (leftLegPos.dLength + rightLegPos.dLength) / 2;
 
@@ -201,27 +202,25 @@ void balancing_chassis_task(void *argument) {
     	        			k[j][i] = kRes[i * 2 + j] * kRatio[j][i];
     	        	}
     	        	//准备状态变量
-    	        	float x[6] = {stateVar.theta, stateVar.dTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
+    	        	float Lx[6] = {stateVar.Ltheta, stateVar.LdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
+    	        	float Rx[6] = {stateVar.Rtheta, stateVar.RdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
     	        	//与给定量作差
-    	        	x[2] -= target.position;
-    	        	x[3] -= target.speed;
+    	        	Lx[2] -= target.position;
+    	        	Lx[3] -= target.speed;
+    	        	Rx[2] -= target.position;
+    	        	Rx[3] -= target.speed;
 
-    	        	position_weaken = (1.0f - fabs(stateVar.theta))/(1.0f);
-    	        	if (position_weaken < 0){
-    	        		position_weaken = 0;
-    	        	}
+
     	        	//check_x = x[2];
     	        	//矩阵相乘，计算LQR输出
-    	        	float lqrOutT = k[0][0] * x[0] + k[0][1] * x[1] + k[0][2] * x[2]*position_weaken + k[0][3] * x[3]*position_weaken + k[0][4] * x[4] + k[0][5] * x[5];
-    	        	float lqrOutTp = k[1][0] * x[0] + k[1][1] * x[1] + k[1][2] * x[2]*position_weaken + k[1][3] * x[3]*position_weaken + k[1][4] * x[4] + k[1][5] * x[5];
-    	        	check_T = lqrOutT;
-    	        	check_Tp = lqrOutTp;
+    	        	float LlqrOutT = k[0][0] * Lx[0] + k[0][1] * Lx[1] + k[0][2] * Lx[2] + k[0][3] * Lx[3] + k[0][4] * Lx[4] + k[0][5] * Lx[5];
+    	        	float LlqrOutTp = k[1][0] * Lx[0] + k[1][1] * Lx[1] + k[1][2] * Lx[2] + k[1][3] * Lx[3] + k[1][4] * Lx[4] + k[1][5] * Lx[5];
+    	        	float RlqrOutT = k[0][0] * Rx[0] + k[0][1] * Rx[1] + k[0][2] * Rx[2] + k[0][3] * Rx[3] + k[0][4] * Rx[4] + k[0][5] * Rx[5];
+    	        	float RlqrOutTp = k[1][0] * Rx[0] + k[1][1] * Rx[1] + k[1][2] * Rx[2] + k[1][3] * Rx[3] + k[1][4] * Rx[4] + k[1][5] * Rx[5];
+    	        	check_T = LlqrOutT;
+    	        	check_Tp = LlqrOutTp;
 
-    	        	if (lqrOutTp > max_Tp){
-    	        		lqrOutTp = max_Tp;
-    	        	}else if(lqrOutTp < -max_Tp){
-    	        		lqrOutTp = -max_Tp;
-    	        	}
+
 
     	        	if(g_can_motors[19].angle_data.adj_ang > M_PI_2){
     	        		target.yawAngle = M_PI;
@@ -239,8 +238,8 @@ void balancing_chassis_task(void *argument) {
     	        		{
 //    	        			g_can_motors[14].torque = -lqrOutT * lqrTRatio + yawPID.output;
 //    	        			g_can_motors[12].torque = -lqrOutT * lqrTRatio - yawPID.output;
-    	        			mf_set_tor[0] = -lqrOutT * lqrTRatio + yawPID.output;
-    	        			mf_set_tor[1] = -lqrOutT * lqrTRatio - yawPID.output;
+    	        			mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
+    	        			mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
 //    	        			MF_motor[0].ctrl.tor_set = 0;
 //    	        			MF_motor[1].ctrl.tor_set = 0;
     	        		}else{
@@ -261,8 +260,8 @@ void balancing_chassis_task(void *argument) {
     	        		leftForce -= (leftLegPos.length - 0.25f) * 10.0f;
     	        	if(rightLegPos.length > 0.25f)
     	        		rightForce -= (rightLegPos.length - 0.25f) * 10.0f;
-    	        	float leftTp = -lqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-    	        	float rightTp = -lqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+    	        	float leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
+    	        	float rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
 //    	        	float leftTp = legAnglePID.output + (leftLegPos.length);
 //    	        	float rightTp = -(legAnglePID.output + (rightLegPos.length));
 //    	        	leftForce = leftForce/9.0f; //motor gear ratio
