@@ -34,6 +34,7 @@ extern float dm_set_tor[4];
 extern float mf_set_tor[2];
 PID yawPID, rollPID;
 PID legAnglePID, legLengthPID;
+PID spinPID;
 int chassis_state = 0;
 int robot_ground = 0; //0 unknown 1 touching ground 2 flying
 float check_T;
@@ -52,6 +53,7 @@ float LEG_MASS = 0.8f;
 float yaw_angle_offset = 2.14f;
 float max_Tp = 5.0f;
 extern INS_t INS;
+float spin_speed = 0.0f;
 
 void Ctrl_Init()
 {
@@ -63,6 +65,7 @@ void Ctrl_Init()
 //	PID_SetErrLpfRatio(&legAnglePID.outer, 0.5f);
 	PID_Init(&rollPID, 300, 0.0, 10.0, -60.0, 60.0);
 	PID_Init(&yawPID, 8.0, 0.1, 1.0, -1.1, 1.1);
+	PID_Init(&spinPID, 1.0, 0.0, 0.1, -2.0, 2.0);
 }
 
 void Ctrl_TargetUpdateTask()
@@ -75,6 +78,7 @@ void Ctrl_TargetUpdateTask()
 			}else{
 				target.speedCmd = ((float)g_remote_cmd.left_y/660)*1.5f;
 			}
+			spin_speed = ((float)g_remote_cmd.side_dial/660)*100.0f;
 
 			//target.yawAngle = g_can_motors[19].angle_data.adj_ang;
 		//根据当前腿长计算速度斜坡步长(腿越短越稳定，加减速斜率越大)
@@ -234,15 +238,22 @@ void balancing_chassis_task(void *argument) {
     	        	}
 
     	        	PID_Compute(&yawPID, target.yawAngle, g_can_motors[19].angle_data.adj_ang,0.005,0);
+    	        	PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
     	        	//if robot not floating output motor else change state to 3
 
     	        	if (robot_ground == 1){
     	        		if (g_remote_cmd.right_switch == 3)
     	        		{
+    	        			if (fabs(spin_speed)>0){
+    	        				mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
+    	        				mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
+    	        			}else{
+    	        				mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
+    	        				mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
+    	        			}
 //    	        			g_can_motors[14].torque = -lqrOutT * lqrTRatio + yawPID.output;
 //    	        			g_can_motors[12].torque = -lqrOutT * lqrTRatio - yawPID.output;
-    	        			mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
-    	        			mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
+
 //    	        			MF_motor[0].ctrl.tor_set = 0;
 //    	        			MF_motor[1].ctrl.tor_set = 0;
     	        		}else{
