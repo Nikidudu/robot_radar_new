@@ -84,7 +84,7 @@ static float kalman_filter_update(kalman_filter_t *kf, float new_angle_measure, 
     return kf->angle;
 }
 
-static void sensor_fusion(const float imu_data[6], orientation_data_t *orientation) {
+void sensor_fusion(const float imu_data[6], orientation_data_t *orientation) {
     static float accX_filtered = 0.0f, accY_filtered = 0.0f, accZ_filtered = 0.0f;
     const float alpha = 0.8f;
 

@@ -1,11 +1,16 @@
-Core/Tasks/Src/master_task.o: ../Core/Tasks/Src/master_task.c \
- ../Core/BSP/Inc/board_lib.h \
+Core/Tasks/Src/INS_task.o: ../Core/Tasks/Src/INS_task.c \
+ ../Core/Tasks/Inc/ins_task.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/mahony/mahony_filter.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
@@ -40,6 +45,7 @@ Core/Tasks/Src/master_task.o: ../Core/Tasks/Src/master_task.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h \
+ ../Core/BSP/Inc/board_lib.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
  ../Core/Inc/FreeRTOSConfig.h \
@@ -62,8 +68,6 @@ Core/Tasks/Src/master_task.o: ../Core/Tasks/Src/master_task.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
  ../Core/BSP/Inc/bsp_queue.h ../Core/BSP/Inc/board_settings.h \
  ../Core/Tasks/Inc/typedefs.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
@@ -85,30 +89,19 @@ Core/Tasks/Src/master_task.o: ../Core/Tasks/Src/master_task.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/Tasks/Inc/gimbal_control_task.h \
- ../Core/Tasks/Inc/movement_control_task.h \
- ../Core/Tasks/Inc/referee_processing_task.h \
- ../Core/Tasks/Inc/control_input_task.h \
- ../Core/Tasks/Inc/launcher_control_task.h \
- ../Core/Tasks/Inc/imu_processing_task.h \
- ../Core/robot_config/robot_config.h \
- ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
- ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/buzzing_task.h \
- ../Core/Tasks/Inc/motor_config.h ../Core/Tasks/Inc/usb_task.h \
- ../Core/Tasks/Inc/telemetry_task.h \
- ../Core/Tasks/Inc/motor_control_task.h ../Core/Tasks/Inc/hud_task.h \
- ../Core/Tasks/Inc/balancing_imu_task.h ../Core/Tasks/Inc/dm4310_drv.h \
- ../Core/Tasks/Inc/leg_task.h ../Core/Tasks/Inc/balancing_chassis_task.h \
- ../Core/Tasks/Inc/INS_task.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h
-../Core/BSP/Inc/board_lib.h:
+ ../Core/BSP/Inc/CRC8_CRC16.h
+../Core/Tasks/Inc/ins_task.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/mahony/mahony_filter.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -143,6 +136,7 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h:
+../Core/BSP/Inc/board_lib.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
@@ -166,8 +160,6 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
 ../Core/BSP/Inc/bsp_queue.h:
 ../Core/BSP/Inc/board_settings.h:
 ../Core/Tasks/Inc/typedefs.h:
@@ -201,26 +193,3 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compile
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
-../Core/Tasks/Inc/gimbal_control_task.h:
-../Core/Tasks/Inc/movement_control_task.h:
-../Core/Tasks/Inc/referee_processing_task.h:
-../Core/Tasks/Inc/control_input_task.h:
-../Core/Tasks/Inc/launcher_control_task.h:
-../Core/Tasks/Inc/imu_processing_task.h:
-../Core/robot_config/robot_config.h:
-../Core/robot_config/robot_config_BL.h:
-../Core/robot_config/hud_bl.h:
-../Core/BSP/Inc/hud_constants.h:
-../Core/Tasks/Inc/buzzing_task.h:
-../Core/Tasks/Inc/motor_config.h:
-../Core/Tasks/Inc/usb_task.h:
-../Core/Tasks/Inc/telemetry_task.h:
-../Core/Tasks/Inc/motor_control_task.h:
-../Core/Tasks/Inc/hud_task.h:
-../Core/Tasks/Inc/balancing_imu_task.h:
-../Core/Tasks/Inc/dm4310_drv.h:
-../Core/Tasks/Inc/leg_task.h:
-../Core/Tasks/Inc/balancing_chassis_task.h:
-../Core/Tasks/Inc/INS_task.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h:

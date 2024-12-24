@@ -12,12 +12,14 @@
 #include "dm4310_drv.h"
 #include "PID.h"
 #include "leg_task.h"
+#include "INS_task.h"
+#include "lqr_k.h"
 
 Target target = {0, 0, 0, 0, 0, 0, 0.15f};
 extern LegPos leftLegPos, rightLegPos;
 extern Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 StateVar stateVar;
-extern orientation_data_t balancing_imu;
+//extern orientation_data_t balancing_imu;
 extern motor_t motor[num];
 extern remote_cmd_t g_remote_cmd;
 extern motor_data_t g_can_motors[24];
@@ -49,6 +51,7 @@ float n = 0.5f;
 float LEG_MASS = 0.8f;
 float yaw_angle_offset = 2.14f;
 float max_Tp = 5.0f;
+extern INS_t INS;
 
 void Ctrl_Init()
 {
@@ -127,14 +130,14 @@ void balancing_chassis_task(void *argument) {
 	PID right_Tp;
 	osDelay(2000);
     while (1) {
-    	stateVar.phi = balancing_imu.pit;
-    	stateVar.dPhi = balancing_imu.pit_speed;
+    	stateVar.phi = INS.Pitch;
+    	stateVar.dPhi = -INS.Gyro[1];
     	stateVar.x = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
     	stateVar.dx = (leftWheel.speed + rightWheel.speed) / 2 * wheelRadius;
-    	stateVar.Ltheta = leftLegPos.angle - M_PI_2 - balancing_imu.pit;
-    	stateVar.LdTheta = leftLegPos.dAngle - balancing_imu.pit_speed;
-    	stateVar.Rtheta = rightLegPos.angle - M_PI_2 - balancing_imu.pit;
-    	stateVar.RdTheta = rightLegPos.dAngle - balancing_imu.pit_speed;
+    	stateVar.Ltheta = leftLegPos.angle - M_PI_2 - INS.Pitch;
+    	stateVar.LdTheta = leftLegPos.dAngle - (-INS.Gyro[1]);
+    	stateVar.Rtheta = rightLegPos.angle - M_PI_2 - INS.Pitch;
+    	stateVar.RdTheta = rightLegPos.dAngle - (-INS.Gyro[1]);
     	double legLength = (leftLegPos.length + rightLegPos.length) / 2;
     	double dLegLength = (leftLegPos.dLength + rightLegPos.dLength) / 2;
 
@@ -249,7 +252,7 @@ void balancing_chassis_task(void *argument) {
     	        		}
     	        	}
     	        	PID_Compute(&legLengthPID, target.legLength, legLength,0.005,0);
-    	        	PID_Compute(&rollPID, target.rollAngle, balancing_imu.rol,0.005,0);
+    	        	PID_Compute(&rollPID, target.rollAngle, INS.Roll,0.005,0);
     	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,0.005,0.01);
 //    	        	double leftForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? +rollPID.output : 0) + 13;
 //    	        	double rightForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? -rollPID.output : 0) + 13;

@@ -9,7 +9,7 @@
 #define TASKS_INC_BALANCING_IMU_TASK_H_
 
 void balancing_imu_task(void *argument) ;
-static void sensor_fusion(const float imu_data[6], orientation_data_t *orientation);
+void sensor_fusion(const float imu_data[6], orientation_data_t *orientation);
 
 
 

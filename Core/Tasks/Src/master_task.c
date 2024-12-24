@@ -24,6 +24,7 @@
 #include "dm4310_drv.h"
 #include "leg_task.h"
 #include "balancing_chassis_task.h"
+#include "INS_task.h"
 
 #define ISR_SEMAPHORE_COUNT 1
 #define QUEUE_SIZE 1
@@ -46,6 +47,7 @@ TaskHandle_t dm_motor_control_task_handle;
 TaskHandle_t leg_task_handle;
 TaskHandle_t balancing_chassis_task_handle;
 TaskHandle_t Ctrl_TargetUpdateTask_handle;
+TaskHandle_t INS_task_handle;
 
 EventGroupHandle_t gimbal_event_group;
 EventGroupHandle_t chassis_event_group;
@@ -94,6 +96,10 @@ void master_task(void* argument){
 	/* add threads, ... */
 	//todo: adjust priorities
 	//Threads creation
+	xTaskCreate(INS_task, "INS_task",
+				configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,
+				&INS_task_handle);
+
 	xTaskCreate(Ctrl_TargetUpdateTask, "Ctrl_TargetUpdateTask",
 			configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 			&Ctrl_TargetUpdateTask_handle);

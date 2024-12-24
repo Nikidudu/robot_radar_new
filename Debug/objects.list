@@ -36,6 +36,7 @@
 "./Core/Src/tim.o"
 "./Core/Src/usart.o"
 "./Core/Startup/startup_stm32f407ighx.o"
+"./Core/Tasks/Src/INS_task.o"
 "./Core/Tasks/Src/PID.o"
 "./Core/Tasks/Src/balancing_chassis_task.o"
 "./Core/Tasks/Src/balancing_imu_task.o"
