@@ -74,9 +74,9 @@ void Ctrl_TargetUpdateTask()
 	float speedSlopeStep = 1.0f;
 	while(1){
 			if (target.yawAngle > 3.14 || target.yawAngle < -3.14){
-				target.speedCmd = ((float)g_remote_cmd.left_y/660)*-1.5f;
+				target.speedCmd = ((float)g_remote_cmd.left_y/660)*-2.5f;
 			}else{
-				target.speedCmd = ((float)g_remote_cmd.left_y/660)*1.5f;
+				target.speedCmd = ((float)g_remote_cmd.left_y/660)*2.5f;
 			}
 			spin_speed = ((float)g_remote_cmd.side_dial/660)*100.0f;
 
@@ -104,10 +104,10 @@ void Ctrl_TargetUpdateTask()
 				target.position = stateVar.x - 0.2f;
 
 			//限制速度目标在当前速度的±0.3m/s内
-			if(target.speed - stateVar.dx > 0.7f)
-				target.speed = stateVar.dx + 0.7f;
-			else if(target.speed - stateVar.dx < -0.7f)
-				target.speed = stateVar.dx - 0.7f;
+			if(target.speed - stateVar.dx > 1.5f)
+				target.speed = stateVar.dx + 1.5f;
+			else if(target.speed - stateVar.dx < -1.5f)
+				target.speed = stateVar.dx - 1.5f;
 
 			//计算yaw方位角目标
 			vTaskDelayUntil(&xLastWakeTime, 5); //每4ms更新一次

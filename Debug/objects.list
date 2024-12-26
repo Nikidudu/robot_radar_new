@@ -60,6 +60,7 @@
 "./Core/Tasks/Src/motor_control.o"
 "./Core/Tasks/Src/motor_control_task.o"
 "./Core/Tasks/Src/movement_control_task.o"
+"./Core/Tasks/Src/observe_task.o"
 "./Core/Tasks/Src/referee_processing_task.o"
 "./Core/Tasks/Src/rt_nonfinite.o"
 "./Core/Tasks/Src/startup_task.o"
