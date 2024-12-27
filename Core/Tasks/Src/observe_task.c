@@ -17,8 +17,10 @@
 #include "kalman_filter.h"
 #include "board_lib.h"
 //#include "cmsis_os.h"
-
+extern StateVar stateVar;
+extern LegPos leftLegPos, rightLegPos;
 KalmanFilter_t vaEstimateKF;	   // �������˲����ṹ��
+extern Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 
 float vaEstimateKF_F[4] = {1.0f, 0.003f, 
                            0.0f, 1.0f};	   // ״̬ת�ƾ��󣬿�������Ϊ0.001s
@@ -42,35 +44,38 @@ extern INS_t INS;
 																 
 //extern vmc_leg_t right;
 //extern vmc_leg_t left;
+float wr,wl=0.0f;
+float vrb,vlb=0.0f;
+float aver_v=0.0f;
+float filtered_v;
+float filtered_x;
 
 float vel_acc[2]; 
 uint32_t OBSERVE_TIME=5;//����������3ms
-void 	Observe_task(void)
+void 	Observe_task(void *argument)
 {
 	while(INS.ins_flag==0)
 	{//�ȴ����ٶ�����
-	  osDelay(1);	
+	  osDelay(5);
 	}
-	static float wr,wl=0.0f;
-	static float vrb,vlb=0.0f;
-	static float aver_v=0.0f;
+
 		
 	xvEstimateKF_Init(&vaEstimateKF);
 	
   while(1)
 	{  
-		wr= -chassis_move.wheel_motor[0].para.vel-INS.Gyro[0]+right.d_alpha;//�ұ�������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
-		vrb=wr*0.0603f+right.L0*right.d_theta*arm_cos_f32(right.theta)+right.d_L0*arm_sin_f32(right.theta);//����bϵ���ٶ�
+		wr= rightWheel.speed+stateVar.RdTheta;//�ұ�������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
+		vrb=wr*0.0925f+rightLegPos.length*stateVar.RdTheta+rightLegPos.dLength*arm_sin_f32(stateVar.Rtheta);//����bϵ���ٶ�
 		
-		wl= -chassis_move.wheel_motor[1].para.vel+INS.Gyro[0]+left.d_alpha;//���������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
-		vlb=wl*0.0603f+left.L0*left.d_theta*arm_cos_f32(left.theta)+left.d_L0*arm_sin_f32(left.theta);//����bϵ���ٶ�
+		wl= leftWheel.speed+stateVar.LdTheta;//���������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
+		vlb=wl*0.0925f+leftLegPos.length*stateVar.LdTheta+leftLegPos.dLength*arm_sin_f32(stateVar.Ltheta);//����bϵ���ٶ�
 		
-		aver_v=(vrb-vlb)/2.0f;//ȡƽ��
-    xvEstimateKF_Update(&vaEstimateKF,INS.MotionAccel_n[1],aver_v);
+		aver_v=(vrb+vlb)/2.0f;//ȡƽ��
+    xvEstimateKF_Update(&vaEstimateKF,INS.MotionAccel_n[0],aver_v);
 		
 		//ԭ����ת�Ĺ�����v_filter��x_filterӦ�ö���Ϊ0
-		chassis_move.v_filter=vel_acc[0];//�õ��������˲�����ٶ�
-		chassis_move.x_filter=chassis_move.x_filter+chassis_move.v_filter*((float)OBSERVE_TIME/1000.0f);
+    filtered_v=vel_acc[0];//�õ��������˲�����ٶ�
+    filtered_x=filtered_x+filtered_v*((float)OBSERVE_TIME/1000.0f);
 		
 	//�����ֱ���������ٶȣ������ںϵĻ���������
 	//chassis_move.v_filter=(chassis_move.wheel_motor[0].para.vel-chassis_move.wheel_motor[1].para.vel)*(-0.0603f)/2.0f;//0.0603�����Ӱ뾶������������ǽ��ٶȣ��˰뾶��õ����ٶȣ���ѧģ���ж����������˳ʱ��Ϊ��������Ҫ�˸�����

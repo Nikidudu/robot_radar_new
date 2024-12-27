@@ -54,6 +54,8 @@ float yaw_angle_offset = 2.14f;
 float max_Tp = 5.0f;
 extern INS_t INS;
 float spin_speed = 0.0f;
+extern float filtered_v;
+extern float filtered_x;
 
 void Ctrl_Init()
 {
@@ -125,7 +127,7 @@ void balancing_chassis_task(void *argument) {
 	target.rollAngle = 0.0f;
 	target.legLength = 0.15f;
 	target.speed = 0.0f;
-	target.position = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
+	target.position = stateVar.x;
 	float dt = 0.005f;
 	Ctrl_Init();
 	PID left_F;
@@ -136,8 +138,8 @@ void balancing_chassis_task(void *argument) {
     while (1) {
     	stateVar.phi = INS.Pitch;
     	stateVar.dPhi = -INS.Gyro[1];
-    	stateVar.x = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
-    	stateVar.dx = (leftWheel.speed + rightWheel.speed) / 2 * wheelRadius;
+    	stateVar.x = filtered_x;
+    	stateVar.dx = filtered_v;
     	stateVar.Ltheta = leftLegPos.angle - M_PI_2 - INS.Pitch;
     	stateVar.LdTheta = leftLegPos.dAngle - (-INS.Gyro[1]);
     	stateVar.Rtheta = rightLegPos.angle - M_PI_2 - INS.Pitch;
@@ -158,7 +160,7 @@ void balancing_chassis_task(void *argument) {
     	           	mf_set_tor[0] = 0;
     	           	mf_set_tor[1] = 0;
     	        	chassis_state = 1;
-    	        	target.position = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
+    	        	target.position = stateVar.x;
     	            break;
 
     	        case 1: // leg positioning
@@ -198,7 +200,7 @@ void balancing_chassis_task(void *argument) {
     	        		dm_set_tor[2] = 0;
     	        		mf_set_tor[0] = 0;
         	           	mf_set_tor[1] = 0;
-        	           	target.position = (leftWheel.angle + rightWheel.angle) / 2 * wheelRadius;
+        	           	target.position = stateVar.x;
     	        	}
     	            break;
 
