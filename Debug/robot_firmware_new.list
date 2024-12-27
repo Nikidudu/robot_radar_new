@@ -33612,7 +33612,7 @@ void config_motors() {
  8010d3e:	015b      	lsls	r3, r3, #5
  8010d40:	440b      	add	r3, r1
  8010d42:	338c      	adds	r3, #140	@ 0x8c
- 8010d44:	f640 22b1 	movw	r2, #2737	@ 0xab1
+ 8010d44:	f241 0228 	movw	r2, #4136	@ 0x1028
  8010d48:	601a      	str	r2, [r3, #0]
 	g_can_motors[motor_id].angle_data.phy_max_ang = YAW_MAX_ANG;
  8010d4a:	79ba      	ldrb	r2, [r7, #6]
