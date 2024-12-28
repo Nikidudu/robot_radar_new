@@ -73,49 +73,86 @@ void Ctrl_Init()
 
 void Ctrl_TargetUpdateTask()
 {
-	TickType_t xLastWakeTime = xTaskGetTickCount();
-	float speedSlopeStep = 1.0f;
-	while(1){
-			if (target.yawAngle > 3.14 || target.yawAngle < -3.14){
-				target.speedCmd = ((float)g_remote_cmd.left_y/660)*-2.5f;
-			}else{
-				target.speedCmd = ((float)g_remote_cmd.left_y/660)*2.5f;
-			}
-			spin_speed = ((float)g_remote_cmd.side_dial/660)*100.0f;
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    float speedSlopeStep = 1.0f; // Existing parameter for speed slope
+    float speedCmdSlope = 0.01f; // New parameter for speed command slope limit
 
-			//target.yawAngle = g_can_motors[19].angle_data.adj_ang;
-		//根据当前腿长计算速度斜坡步长(腿越短越稳定，加减速斜率越大)
-			float legLength = (leftLegPos.length + rightLegPos.length) / 2;
-			speedSlopeStep = -(legLength - 0.15f) * 0.03f + 1.0f;
+    while (1)
+    {
+        // Calculate desired speed command based on yaw angle
+        float desiredSpeedCmd;
+        if (target.yawAngle > 3.14 || target.yawAngle < -3.14)
+        {
+            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -2.5f;
+        }
+        else
+        {
+            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 2.5f;
+        }
 
-			//计算速度斜坡，斜坡值更新到target.speed
-			if(fabs(target.speedCmd - target.speed) < speedSlopeStep)
-				target.speed = target.speedCmd;
-			else
-			{
-				if(target.speedCmd - target.speed > 0)
-					target.speed += speedSlopeStep;
-				else
-					target.speed -= speedSlopeStep;
-			}
+        // Limit the rate of change for the speed command
+        if (desiredSpeedCmd == 0.0f)
+        {
+            // If desired command is zero, reset immediately
+            target.speedCmd = 0.0f;
+        }
+        else if ((desiredSpeedCmd > 0 && target.speedCmd < 0) ||
+                 (desiredSpeedCmd < 0 && target.speedCmd > 0))
+        {
+            // If the signs differ, directly set target.speedCmd to desiredSpeedCmd
+            target.speedCmd = 0.0f;
+        }
+        else if (fabs(desiredSpeedCmd - target.speedCmd) < speedCmdSlope)
+        {
+            target.speedCmd = desiredSpeedCmd;
+        }
+        else
+        {
+            if (desiredSpeedCmd > target.speedCmd)
+                target.speedCmd += speedCmdSlope;
+            else
+                target.speedCmd -= speedCmdSlope;
+        }
 
-			//计算位置目标，并限制在当前位置的±0.2m内
-			target.position += target.speed * 0.005f;
-			if(target.position - stateVar.x > 0.2f)
-				target.position = stateVar.x + 0.2f;
-			else if(target.position - stateVar.x < -0.2f)
-				target.position = stateVar.x - 0.2f;
+        // Existing speed calculation logic
+        spin_speed = ((float)g_remote_cmd.side_dial / 660) * 100.0f;
 
-			//限制速度目标在当前速度的±0.3m/s内
-			if(target.speed - stateVar.dx > 1.5f)
-				target.speed = stateVar.dx + 1.5f;
-			else if(target.speed - stateVar.dx < -1.5f)
-				target.speed = stateVar.dx - 1.5f;
+        // Calculate speed slope step based on leg length
+        float legLength = (leftLegPos.length + rightLegPos.length) / 2;
+        speedSlopeStep = -(legLength - 0.15f) * 0.03f + 1.0f;
 
-			//计算yaw方位角目标
-			vTaskDelayUntil(&xLastWakeTime, 5); //每4ms更新一次
-	}
+        // Apply slope limitation to speed
+        if (fabs(target.speedCmd - target.speed) < speedSlopeStep)
+        {
+            target.speed = target.speedCmd;
+        }
+        else
+        {
+            if (target.speedCmd - target.speed > 0)
+                target.speed += speedSlopeStep;
+            else
+                target.speed -= speedSlopeStep;
+        }
+
+        // Calculate position target and limit to ±0.1m of current position
+        target.position += target.speed * 0.005f;
+        if (target.position - stateVar.x > 0.1f)
+            target.position = stateVar.x + 0.1f;
+        else if (target.position - stateVar.x < -0.1f)
+            target.position = stateVar.x - 0.1f;
+
+        // Limit speed target to ±1.5m/s of current speed
+        if (target.speed - stateVar.dx > 1.5f)
+            target.speed = stateVar.dx + 1.5f;
+        else if (target.speed - stateVar.dx < -1.5f)
+            target.speed = stateVar.dx - 1.5f;
+
+        // Calculate yaw angle target
+        vTaskDelayUntil(&xLastWakeTime, 5); // Update every 5ms
+    }
 }
+
+
 
 void balancing_chassis_task(void *argument) {
 	const float wheelRadius = 0.0925f; //m，车轮半径
