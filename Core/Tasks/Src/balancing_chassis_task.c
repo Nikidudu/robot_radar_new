@@ -33,7 +33,7 @@ float rightTorque[2];
 extern float dm_set_tor[4];
 extern float mf_set_tor[2];
 PID yawPID, rollPID;
-PID legAnglePID, legLengthPID;
+PID legAnglePID, LlegLengthPID,RlegLengthPID;
 PID spinPID;
 int chassis_state = 0;
 int robot_ground = 0; //0 unknown 1 touching ground 2 flying
@@ -61,12 +61,13 @@ void Ctrl_Init()
 {
 	//初始化各个PID参数
 //	PID_SetErrLpfRatio(&rollPID.inner, 0.1f);
-	PID_Init(&legLengthPID, 1200, 0.0, 5.0, -30.0, 30.0);
+	PID_Init(&LlegLengthPID, 500, 0.0, 10.0, -100.0, 100.0);
+	PID_Init(&RlegLengthPID, 500, 0.0, 10.0, -100.0, 100.0);
 //	PID_SetErrLpfRatio(&legLengthPID.inner, 0.5f);
 	PID_Init(&legAnglePID, 25, 0.5, 0.5, -5.0, 5.0);
 //	PID_SetErrLpfRatio(&legAnglePID.outer, 0.5f);
-	PID_Init(&rollPID, 300, 0.0, 10.0, -60.0, 60.0);
-	PID_Init(&yawPID, 8.0, 0.1, 1.0, -1.1, 1.1);
+	PID_Init(&rollPID, 250, 0.0, 1.0, -100.0, 100.0);
+	PID_Init(&yawPID, 15.0, 1.0, 3.0, -2.5, 2.5);
 	PID_Init(&spinPID, 1.0, 0.0, 0.1, -2.0, 2.0);
 }
 
@@ -125,7 +126,7 @@ void balancing_chassis_task(void *argument) {
 	const float legMass = 0.8f; //kg，腿部质量
 	//设定初始目标值
 	target.rollAngle = 0.0f;
-	target.legLength = 0.15f;
+	target.legLength = 0.17f;
 	target.speed = 0.0f;
 	target.position = stateVar.x;
 	float dt = 0.005f;
@@ -264,14 +265,15 @@ void balancing_chassis_task(void *argument) {
     	        			chassis_state = 1;
     	        		}
     	        	}
-    	        	PID_Compute(&legLengthPID, target.legLength, legLength,0.005,0);
+    	        	PID_Compute(&LlegLengthPID, target.legLength, leftLegPos.length,0.005,0);
+    	        	PID_Compute(&RlegLengthPID, target.legLength, rightLegPos.length,0.005,0);
     	        	PID_Compute(&rollPID, target.rollAngle, INS.Roll,0.005,0);
     	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,0.005,0.01);
 //    	        	double leftForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? +rollPID.output : 0) + 13;
 //    	        	double rightForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? -rollPID.output : 0) + 13;
     	        	float F_gravity = 7.0f * 9.81f;
-    	        	float leftForce = legLengthPID.output + F_gravity +rollPID.output;
-    	        	float rightForce = legLengthPID.output + F_gravity -rollPID.output;
+    	        	float leftForce = LlegLengthPID.output + F_gravity +rollPID.output;
+    	        	float rightForce = RlegLengthPID.output + F_gravity -rollPID.output;
     	        	if(leftLegPos.length > 0.25f) //保护腿部不能伸太长
     	        		leftForce -= (leftLegPos.length - 0.25f) * 10.0f;
     	        	if(rightLegPos.length > 0.25f)

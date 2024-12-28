@@ -1,3 +1,3 @@
 ../Core/Tasks/Src/balancing_chassis_task.c:60:6:Ctrl_Init	8	static
-../Core/Tasks/Src/balancing_chassis_task.c:73:6:Ctrl_TargetUpdateTask	24	static
-../Core/Tasks/Src/balancing_chassis_task.c:119:6:balancing_chassis_task	560	static
+../Core/Tasks/Src/balancing_chassis_task.c:74:6:Ctrl_TargetUpdateTask	24	static
+../Core/Tasks/Src/balancing_chassis_task.c:120:6:balancing_chassis_task	552	static
