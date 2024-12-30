@@ -1,3 +1,4 @@
-../Core/Tasks/Src/balancing_chassis_task.c:60:6:Ctrl_Init	1
-../Core/Tasks/Src/balancing_chassis_task.c:74:6:Ctrl_TargetUpdateTask	16
-../Core/Tasks/Src/balancing_chassis_task.c:157:6:balancing_chassis_task	23
+../Core/Tasks/Src/balancing_chassis_task.c:64:6:Ctrl_Init	1
+../Core/Tasks/Src/balancing_chassis_task.c:78:6:Ctrl_TargetUpdateTask	16
+../Core/Tasks/Src/balancing_chassis_task.c:158:5:ground_detect	3
+../Core/Tasks/Src/balancing_chassis_task.c:169:6:balancing_chassis_task	24

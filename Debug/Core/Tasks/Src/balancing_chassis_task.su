@@ -1,3 +1,4 @@
-../Core/Tasks/Src/balancing_chassis_task.c:60:6:Ctrl_Init	8	static
-../Core/Tasks/Src/balancing_chassis_task.c:74:6:Ctrl_TargetUpdateTask	32	static
-../Core/Tasks/Src/balancing_chassis_task.c:157:6:balancing_chassis_task	552	static
+../Core/Tasks/Src/balancing_chassis_task.c:64:6:Ctrl_Init	8	static
+../Core/Tasks/Src/balancing_chassis_task.c:78:6:Ctrl_TargetUpdateTask	32	static
+../Core/Tasks/Src/balancing_chassis_task.c:158:5:ground_detect	48	static
+../Core/Tasks/Src/balancing_chassis_task.c:169:6:balancing_chassis_task	552	static

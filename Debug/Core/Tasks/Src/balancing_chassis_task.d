@@ -94,7 +94,8 @@ Core/Tasks/Src/balancing_chassis_task.o: \
  ../Core/Tasks/Inc/INS_task.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h \
- ../Core/Tasks/Inc/lqr_k.h ../Core/Tasks/Inc/rtwtypes.h
+ ../Core/Tasks/Inc/lqr_k.h ../Core/Tasks/Inc/rtwtypes.h \
+ ../Core/Tasks/Inc/balancing_chassis_task.h
 ../Core/BSP/Inc/board_lib.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
@@ -209,3 +210,4 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/Quaternion
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h:
 ../Core/Tasks/Inc/lqr_k.h:
 ../Core/Tasks/Inc/rtwtypes.h:
+../Core/Tasks/Inc/balancing_chassis_task.h:

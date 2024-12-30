@@ -14,6 +14,7 @@
 #include "leg_task.h"
 #include "INS_task.h"
 #include "lqr_k.h"
+#include "balancing_chassis_task.h"
 
 Target target = {0, 0, 0, 0, 0, 0, 0.15f};
 extern LegPos leftLegPos, rightLegPos;
@@ -37,6 +38,7 @@ PID legAnglePID, LlegLengthPID,RlegLengthPID;
 PID spinPID;
 int chassis_state = 0;
 int robot_ground = 0; //0 unknown 1 touching ground 2 flying
+int ground_state = 0;
 float check_T;
 float check_Tp;
 double leftF_check;
@@ -56,6 +58,8 @@ extern INS_t INS;
 float spin_speed = 0.0f;
 extern float filtered_v;
 extern float filtered_x;
+float LFN;
+float RFN;
 
 void Ctrl_Init()
 {
@@ -151,7 +155,15 @@ void Ctrl_TargetUpdateTask()
         vTaskDelayUntil(&xLastWakeTime, 5); // Update every 5ms
     }
 }
-
+int ground_detect(float LF, float LTP,float Ltheta,float LL0, float RF, float RTP,float Rtheta,float RL0) {
+	LFN = LF*arm_cos_f32(Ltheta)+LTP*arm_sin_f32(Ltheta)/LL0;
+	RFN = RF*arm_cos_f32(Rtheta)+RTP*arm_sin_f32(Rtheta)/RL0;
+	if (LFN < 30.0f && RFN <30.0f){
+		return 1;
+	}else{
+		return 0;
+	}
+}
 
 
 void balancing_chassis_task(void *argument) {
@@ -243,11 +255,25 @@ void balancing_chassis_task(void *argument) {
     	            break;
 
     	        case 2: // standing
-    	        	for (int i = 0; i < 6; i++)
+    	        	if(ground_state == 0) //正常触地状态
     	        	{
-    	        		for (int j = 0; j < 2; j++)
-    	        			k[j][i] = kRes[i * 2 + j] * kRatio[j][i];
+    	        		for (int i = 0; i < 6; i++)
+    	        		{
+    	        			for (int j = 0; j < 2; j++)
+    	        				k[j][i] = kRes[i * 2 + j] * kRatio[j][i];
+    	        		}
     	        	}
+    	        	else //腿部离地状态，手动修改反馈矩阵，仅保持腿部竖直
+    	        	{
+    	        		memset(k, 0, sizeof(k));
+//    	        		k[1][0] = kRes[1] * -2;
+//    	        		k[1][1] = kRes[3] * -10;
+    	        	}
+//    	        	for (int i = 0; i < 6; i++)
+//    	        	{
+//    	        		for (int j = 0; j < 2; j++)
+//    	        			k[j][i] = kRes[i * 2 + j] * kRatio[j][i];
+//    	        	}
     	        	//准备状态变量
     	        	float Lx[6] = {stateVar.Ltheta, stateVar.LdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
     	        	float Rx[6] = {stateVar.Rtheta, stateVar.RdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
@@ -281,7 +307,7 @@ void balancing_chassis_task(void *argument) {
     	        	PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
     	        	//if robot not floating output motor else change state to 3
 
-    	        	if (robot_ground == 1){
+    	        	if (ground_state == 0){
     	        		if (g_remote_cmd.right_switch == 3)
     	        		{
     	        			if (fabs(spin_speed)>0){
@@ -301,6 +327,9 @@ void balancing_chassis_task(void *argument) {
     	    	           	mf_set_tor[1] = 0;
     	        			chassis_state = 1;
     	        		}
+    	        	}else{
+    	        		mf_set_tor[0] = 0;
+    	        		mf_set_tor[1] = 0;
     	        	}
     	        	PID_Compute(&LlegLengthPID, target.legLength, leftLegPos.length,0.005,0);
     	        	PID_Compute(&RlegLengthPID, target.legLength, rightLegPos.length,0.005,0);
@@ -327,6 +356,8 @@ void balancing_chassis_task(void *argument) {
     	        	leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
     	        	float rightJointTorque[2]={0};
     	        	leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
+    	        	ground_state = ground_detect(leftForce,leftTp,stateVar.Ltheta,leftLegPos.length
+    	        			,rightForce,rightTp,stateVar.Rtheta,rightLegPos.length);
     	        	leftF_check = leftForce;
     	        	leftTp_check = leftTp;
     	        	rightF_check = rightForce;

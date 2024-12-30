@@ -13,5 +13,6 @@ void Ctrl_Init();
 void Ctrl_TargetUpdateTask();
 float shortest_angle_diff(float target_angle, float current_angle);
 float normalize_angle(float angle);
+int ground_detect(float LF, float LTP,float Ltheta,float LL0, float RF, float RTP,float Rtheta,float RL0);
 
 #endif /* TASKS_INC_BALANCING_CHASSIS_TASK_H_ */
