@@ -66,6 +66,8 @@ typedef struct
 	float yawAngle;	 // rad
 	float rollAngle; // rad
 	float legLength; // m
+	float floating_legLength;
+	float min_legLength;
 } Target;
 
 typedef struct
@@ -74,6 +76,8 @@ typedef struct
 	float Rtheta, RdTheta;
 	float x, dx;
 	float phi, dPhi;
+	float legLength;
+	float dLegLength;
 } StateVar;
 
 typedef struct {

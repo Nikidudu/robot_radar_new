@@ -16,7 +16,7 @@
 #include "lqr_k.h"
 #include "balancing_chassis_task.h"
 
-Target target = {0, 0, 0, 0, 0, 0, 0.15f};
+Target target = {0};
 extern LegPos leftLegPos, rightLegPos;
 extern Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 StateVar stateVar;
@@ -25,19 +25,14 @@ extern motor_t motor[num];
 extern remote_cmd_t g_remote_cmd;
 extern motor_data_t g_can_motors[24];
 //extern motor_t MF_motor[2];;
-float left_F_control;
-float left_Tp_control;
-float right_F_control;
-float right_Tp_control;
-float leftTorque[2];
-float rightTorque[2];
+
+
 extern float dm_set_tor[4];
 extern float mf_set_tor[2];
 PID yawPID, rollPID;
 PID legAnglePID, LlegLengthPID,RlegLengthPID;
 PID spinPID;
 int chassis_state = 0;
-int robot_ground = 0; //0 unknown 1 touching ground 2 flying
 int ground_state = 0;
 float check_T;
 float check_Tp;
@@ -60,16 +55,24 @@ extern float filtered_v;
 extern float filtered_x;
 float LFN;
 float RFN;
+int robot_ready = 0;//1 ready 0 not ready
+PID manual_left_F,manual_left_Tp,manual_right_F,manual_right_Tp;
+float kRatio[2][6] = {{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
+			{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}};
+float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
+double kRes[12] = {0}, k[2][6] = {0};
+float LlqrOutT;
+float LlqrOutTp;
+float RlqrOutT;
+float RlqrOutTp;
+float F_gravity = 7.0f * 9.81f;
 
 void Ctrl_Init()
 {
-	//初始化各个PID参数
-//	PID_SetErrLpfRatio(&rollPID.inner, 0.1f);
+	//robot main pid init
 	PID_Init(&LlegLengthPID, 500, 0.0, 10.0, -100.0, 100.0);
 	PID_Init(&RlegLengthPID, 500, 0.0, 10.0, -100.0, 100.0);
-//	PID_SetErrLpfRatio(&legLengthPID.inner, 0.5f);
 	PID_Init(&legAnglePID, 25, 0.5, 0.5, -5.0, 5.0);
-//	PID_SetErrLpfRatio(&legAnglePID.outer, 0.5f);
 	PID_Init(&rollPID, 250, 0.0, 1.0, -100.0, 100.0);
 	PID_Init(&yawPID, 15.0, 1.0, 3.0, -2.5, 2.5);
 	PID_Init(&spinPID, 1.0, 0.0, 0.1, -2.0, 2.0);
@@ -164,220 +167,281 @@ int ground_detect(float LF, float LTP,float Ltheta,float LL0, float RF, float RT
 		return 0;
 	}
 }
+int robot_check(){
+	//
 
+}
+void state_update(){
+	stateVar.phi = INS.Pitch;
+	stateVar.dPhi = -INS.Gyro[1];
+	stateVar.x = filtered_x;
+	stateVar.dx = filtered_v;
+	stateVar.Ltheta = leftLegPos.angle - M_PI_2 - INS.Pitch;
+	stateVar.LdTheta = leftLegPos.dAngle - (-INS.Gyro[1]);
+	stateVar.Rtheta = rightLegPos.angle - M_PI_2 - INS.Pitch;
+	stateVar.RdTheta = rightLegPos.dAngle - (-INS.Gyro[1]);
+	stateVar.legLength = (leftLegPos.length + rightLegPos.length) / 2;
+	stateVar.dLegLength = (leftLegPos.dLength + rightLegPos.dLength) / 2;
+}
+void kill_chassis(){
+	dm_set_tor[3] = 0;
+	dm_set_tor[0] = 0;
+	dm_set_tor[1] = 0;
+	dm_set_tor[2] = 0;
+	mf_set_tor[0] = 0;
+	mf_set_tor[1] = 0;
+	target.speed = 0.0f;
+	target.position = stateVar.x;
+}
+void manual_set_PidInit(){
+	PID_Init(&manual_left_F, 100, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_left_Tp, 0.05, 0.001, 0, -2, 2); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_right_F, 100, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_right_Tp, 0.05, 0.001, 0, -2, 2);
+}
+void manual_set_legPos(float angle, float legLength){
+	float dt = 0.005f;
+	float left_F_control;
+	float left_Tp_control;
+	float right_F_control;
+	float right_Tp_control;
+	float leftTorque[2];
+	float rightTorque[2];
+	PID_Compute(&manual_left_F, legLength, leftLegPos.length, dt, 0);
+	PID_Compute(&manual_left_Tp, M_PI/2.0f + angle, leftLegPos.angle, dt , 0);
+	PID_Compute(&manual_right_F, legLength, rightLegPos.length, dt, 0);
+	PID_Compute(&manual_right_Tp, M_PI/2.0f + angle, rightLegPos.angle, dt, 0);
+	left_F_control = manual_left_F.output;
+	left_Tp_control = manual_left_Tp.output;
+	right_F_control = -manual_right_F.output;
+	right_Tp_control = -manual_right_Tp.output;
+	leg_conv(left_F_control,left_Tp_control,leftJoint[0].angle,leftJoint[1].angle ,leftTorque);
+	leg_conv(right_F_control,right_Tp_control,rightJoint[0].angle,rightJoint[1].angle,rightTorque);
+	if (robot_ready == 1){
+		dm_set_tor[3] = leftTorque[0];
+		dm_set_tor[0] = leftTorque[1];
+		dm_set_tor[1] = rightTorque[0];
+		dm_set_tor[2] = rightTorque[1];
+	}else{
+		kill_chassis();
+	}
+}
+void calculate_T_TP(int touching_ground){
+	if (touching_ground == 1){
+		for (int i = 0; i < 6; i++)
+		{
+			for (int j = 0; j < 2; j++)
+				k[j][i] = kRes[i * 2 + j] * kRatio[j][i];
+		}
+	}else{
+		memset(k, 0, sizeof(k));
+		//    	        		k[1][0] = kRes[1] * -2;
+		//    	        		k[1][1] = kRes[3] * -10;
+	}
 
+	float Lx[6] = {stateVar.Ltheta, stateVar.LdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
+	float Rx[6] = {stateVar.Rtheta, stateVar.RdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
+	Lx[2] -= target.position;
+	Lx[3] -= target.speed;
+	Rx[2] -= target.position;
+	Rx[3] -= target.speed;
+	LlqrOutT = k[0][0] * Lx[0] + k[0][1] * Lx[1] + k[0][2] * Lx[2] + k[0][3] * Lx[3] + k[0][4] * Lx[4] + k[0][5] * Lx[5];
+	LlqrOutTp = k[1][0] * Lx[0] + k[1][1] * Lx[1] + k[1][2] * Lx[2] + k[1][3] * Lx[3] + k[1][4] * Lx[4] + k[1][5] * Lx[5];
+	RlqrOutT = k[0][0] * Rx[0] + k[0][1] * Rx[1] + k[0][2] * Rx[2] + k[0][3] * Rx[3] + k[0][4] * Rx[4] + k[0][5] * Rx[5];
+	RlqrOutTp = k[1][0] * Rx[0] + k[1][1] * Rx[1] + k[1][2] * Rx[2] + k[1][3] * Rx[3] + k[1][4] * Rx[4] + k[1][5] * Rx[5];
+}
+void gimbal_auto_front(){ //find shortest distance to align robot gimbal and body
+	if(g_can_motors[19].angle_data.adj_ang > M_PI_2){
+		target.yawAngle = M_PI;
+	}else if(g_can_motors[19].angle_data.adj_ang < -M_PI_2){
+		target.yawAngle = -M_PI;
+	}else{
+		target.yawAngle=0;
+	}
+}
 void balancing_chassis_task(void *argument) {
 	const float wheelRadius = 0.0925f; //m，车轮半径
 	//手动为反馈矩阵和输出叠加一个系数，用于手动优化控制效果
-	float kRatio[2][6] = {{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
-			{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}};
-	float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
+	float leftForce;
+	float rightForce;
+	float leftTp;
+	float rightTp;
+	float leftJointTorque[2]={0};
+	float rightJointTorque[2]={0};
 	const float legMass = 0.8f; //kg，腿部质量
 	//设定初始目标值
 	target.rollAngle = 0.0f;
 	target.legLength = 0.17f;
 	target.speed = 0.0f;
 	target.position = stateVar.x;
+	target.floating_legLength = 0.22f;
+	target.min_legLength = 0.12f;
 	float dt = 0.005f;
 	Ctrl_Init();
-	PID left_F;
-	PID left_Tp;
-	PID right_F;
-	PID right_Tp;
+	manual_set_PidInit();
 	osDelay(2000);
     while (1) {
-    	stateVar.phi = INS.Pitch;
-    	stateVar.dPhi = -INS.Gyro[1];
-    	stateVar.x = filtered_x;
-    	stateVar.dx = filtered_v;
-    	stateVar.Ltheta = leftLegPos.angle - M_PI_2 - INS.Pitch;
-    	stateVar.LdTheta = leftLegPos.dAngle - (-INS.Gyro[1]);
-    	stateVar.Rtheta = rightLegPos.angle - M_PI_2 - INS.Pitch;
-    	stateVar.RdTheta = rightLegPos.dAngle - (-INS.Gyro[1]);
-    	double legLength = (leftLegPos.length + rightLegPos.length) / 2;
-    	double dLegLength = (leftLegPos.dLength + rightLegPos.dLength) / 2;
-
-    	double kRes[12] = {0}, k[2][6] = {0};
-    	lqr_k(legLength, kRes);
-
+    	robot_ready = robot_check();
+    	state_update();
+    	lqr_k(stateVar.legLength, kRes);
+    	if (g_remote_cmd.right_switch != 3){
+    		chassis_state = 0;
+    	}
+    	gimbal_auto_front(); //align gimbal 0 or 180
     	switch (chassis_state) {
-    	        case 0: // leg move to position
+    	        case 0: // robot die
     	        	//do robot checking
-    	        	dm_set_tor[3] = 0;
-    	        	dm_set_tor[0] = 0;
-    	        	dm_set_tor[1] = 0;
-    	        	dm_set_tor[2] = 0;
-    	           	mf_set_tor[0] = 0;
-    	           	mf_set_tor[1] = 0;
-    	        	chassis_state = 1;
-    	        	target.position = stateVar.x;
+    	        	kill_chassis();
+    	           	target.position = stateVar.x;//reset target pos
+    	           	ground_state = 0; //on ground
+    	           	if (robot_ready == 1){
+    	           		chassis_state = 1;
+    	           		break;
+    	           	}else{// try to reconnect
+
+    	           		chassis_state = 0;
+    	           		break;
+    	           	}
     	            break;
 
     	        case 1: // leg positioning
-    	        	if (g_remote_cmd.right_switch == 3){
-    	        		PID_Init(&left_F, 100, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-    	        		PID_Init(&left_Tp, 0.05, 0.001, 0, -2, 2); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-    	        		PID_Init(&right_F, 100, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-    	        		PID_Init(&right_Tp, 0.05, 0.001, 0, -2, 2);
-    	        		PID_Compute(&left_F, 0.15, leftLegPos.length, dt, 0);
-    	        		PID_Compute(&left_Tp, M_PI/2.0f, leftLegPos.angle, dt , 0);
-    	        		PID_Compute(&right_F, 0.15, rightLegPos.length, dt, 0);
-    	        		PID_Compute(&right_Tp, M_PI/2.0f, rightLegPos.angle, dt, 0);
-    	        		left_F_control = left_F.output;
-    	        		//    	left_F_control = 0;
-    	        		left_Tp_control = left_Tp.output;
-    	        		right_F_control = -right_F.output;
-    	        		//		right_F_control = 0;
-    	        		right_Tp_control = -right_Tp.output;
-    	        		leg_conv(left_F_control,left_Tp_control,leftJoint[0].angle,leftJoint[1].angle ,leftTorque);
-    	        		leg_conv(right_F_control,right_Tp_control,rightJoint[0].angle,rightJoint[1].angle,rightTorque);
-
-    	        		dm_set_tor[3] = leftTorque[0];
-    	        		dm_set_tor[0] = leftTorque[1];
-    	        		dm_set_tor[1] = rightTorque[0];
-    	        		dm_set_tor[2] = rightTorque[1];
-    	        		if ((leftLegPos.angle >1.3 && leftLegPos.angle < 1.7) &&
-    	        				(leftLegPos.length >0.1 && leftLegPos.length < 0.15)&&
-								(rightLegPos.angle >1.3 && rightLegPos.angle < 1.7)&&
-								(rightLegPos.length >0.1 && rightLegPos.length < 0.15)){
-    	        			chassis_state = 2;
-    	        			robot_ground = 1;
-    	        		}
-    	        	}else{
-    	        		dm_set_tor[3] = 0;
-    	        		dm_set_tor[0] = 0;
-    	        		dm_set_tor[1] = 0;
-    	        		dm_set_tor[2] = 0;
-    	        		mf_set_tor[0] = 0;
-        	           	mf_set_tor[1] = 0;
-        	           	target.position = stateVar.x;
+    	        	manual_set_legPos(0,0.12);
+    	        	if ((leftLegPos.angle >1.3 && leftLegPos.angle < 1.7) &&
+    	        			(leftLegPos.length >0.1 && leftLegPos.length < 0.15)&&
+							(rightLegPos.angle >1.3 && rightLegPos.angle < 1.7)&&
+							(rightLegPos.length >0.1 && rightLegPos.length < 0.15)){
+    	        		chassis_state = 2;
+    	        		break;
     	        	}
     	            break;
 
-    	        case 2: // standing
-    	        	if(ground_state == 0) //正常触地状态
-    	        	{
-    	        		for (int i = 0; i < 6; i++)
-    	        		{
-    	        			for (int j = 0; j < 2; j++)
-    	        				k[j][i] = kRes[i * 2 + j] * kRatio[j][i];
-    	        		}
-    	        	}
-    	        	else //腿部离地状态，手动修改反馈矩阵，仅保持腿部竖直
-    	        	{
-    	        		memset(k, 0, sizeof(k));
-//    	        		k[1][0] = kRes[1] * -2;
-//    	        		k[1][1] = kRes[3] * -10;
-    	        	}
-//    	        	for (int i = 0; i < 6; i++)
-//    	        	{
-//    	        		for (int j = 0; j < 2; j++)
-//    	        			k[j][i] = kRes[i * 2 + j] * kRatio[j][i];
+    	        case 2: // standing with min leglength
+    	        	target.speed = 0.0f;
+    	        	target.position = stateVar.x;
+    	        	calculate_T_TP(1);// 1 touching ground 0 not touching ground
+
+    	        	//PID_Compute(&yawPID, target.yawAngle, g_can_motors[19].angle_data.adj_ang,0.005,0);
+    	        	//PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
+    	        	mf_set_tor[0] = -LlqrOutT * lqrTRatio;
+    	        	mf_set_tor[1] = -RlqrOutT * lqrTRatio;
+//    	        	if (fabs(spin_speed)>0){
+//    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
+//    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
+//    	        	}else{
+//    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
+//    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
 //    	        	}
-    	        	//准备状态变量
-    	        	float Lx[6] = {stateVar.Ltheta, stateVar.LdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
-    	        	float Rx[6] = {stateVar.Rtheta, stateVar.RdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
-    	        	//与给定量作差
-    	        	Lx[2] -= target.position;
-    	        	Lx[3] -= target.speed;
-    	        	Rx[2] -= target.position;
-    	        	Rx[3] -= target.speed;
 
-
-    	        	//check_x = x[2];
-    	        	//矩阵相乘，计算LQR输出
-    	        	float LlqrOutT = k[0][0] * Lx[0] + k[0][1] * Lx[1] + k[0][2] * Lx[2] + k[0][3] * Lx[3] + k[0][4] * Lx[4] + k[0][5] * Lx[5];
-    	        	float LlqrOutTp = k[1][0] * Lx[0] + k[1][1] * Lx[1] + k[1][2] * Lx[2] + k[1][3] * Lx[3] + k[1][4] * Lx[4] + k[1][5] * Lx[5];
-    	        	float RlqrOutT = k[0][0] * Rx[0] + k[0][1] * Rx[1] + k[0][2] * Rx[2] + k[0][3] * Rx[3] + k[0][4] * Rx[4] + k[0][5] * Rx[5];
-    	        	float RlqrOutTp = k[1][0] * Rx[0] + k[1][1] * Rx[1] + k[1][2] * Rx[2] + k[1][3] * Rx[3] + k[1][4] * Rx[4] + k[1][5] * Rx[5];
-    	        	check_T = LlqrOutT;
-    	        	check_Tp = LlqrOutTp;
-
-
-
-    	        	if(g_can_motors[19].angle_data.adj_ang > M_PI_2){
-    	        		target.yawAngle = M_PI;
-    	        	}else if(g_can_motors[19].angle_data.adj_ang < -M_PI_2){
-    	        		target.yawAngle = -M_PI;
-    	        	}else{
-    	        		target.yawAngle=0;
-    	        	}
-
-    	        	PID_Compute(&yawPID, target.yawAngle, g_can_motors[19].angle_data.adj_ang,0.005,0);
-    	        	PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
-    	        	//if robot not floating output motor else change state to 3
-
-    	        	if (ground_state == 0){
-    	        		if (g_remote_cmd.right_switch == 3)
-    	        		{
-    	        			if (fabs(spin_speed)>0){
-    	        				mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
-    	        				mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
-    	        			}else{
-    	        				mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
-    	        				mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
-    	        			}
-//    	        			g_can_motors[14].torque = -lqrOutT * lqrTRatio + yawPID.output;
-//    	        			g_can_motors[12].torque = -lqrOutT * lqrTRatio - yawPID.output;
-
-//    	        			MF_motor[0].ctrl.tor_set = 0;
-//    	        			MF_motor[1].ctrl.tor_set = 0;
-    	        		}else{
-    	        			mf_set_tor[0] = 0;
-    	    	           	mf_set_tor[1] = 0;
-    	        			chassis_state = 1;
-    	        		}
-    	        	}else{
-    	        		mf_set_tor[0] = 0;
-    	        		mf_set_tor[1] = 0;
-    	        	}
-    	        	PID_Compute(&LlegLengthPID, target.legLength, leftLegPos.length,0.005,0);
-    	        	PID_Compute(&RlegLengthPID, target.legLength, rightLegPos.length,0.005,0);
-    	        	PID_Compute(&rollPID, target.rollAngle, INS.Roll,0.005,0);
-    	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,0.005,0.01);
+    	        	PID_Compute(&LlegLengthPID, target.min_legLength, leftLegPos.length,dt,0);
+    	        	PID_Compute(&RlegLengthPID, target.min_legLength, rightLegPos.length,dt,0);
+    	        	PID_Compute(&rollPID, target.rollAngle, INS.Roll,dt,0);
+    	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,dt,0.01);
 //    	        	double leftForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? +rollPID.output : 0) + 13;
 //    	        	double rightForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? -rollPID.output : 0) + 13;
-    	        	float F_gravity = 7.0f * 9.81f;
-    	        	float leftForce = LlegLengthPID.output + F_gravity +rollPID.output;
-    	        	float rightForce = RlegLengthPID.output + F_gravity -rollPID.output;
+
+    	        	leftForce = LlegLengthPID.output + F_gravity +rollPID.output;
+    	        	rightForce = RlegLengthPID.output + F_gravity -rollPID.output;
     	        	if(leftLegPos.length > 0.25f) //保护腿部不能伸太长
-    	        		leftForce -= (leftLegPos.length - 0.25f) * 10.0f;
+    	        		leftForce -= (leftLegPos.length - 0.25f) * 100.0f;
     	        	if(rightLegPos.length > 0.25f)
-    	        		rightForce -= (rightLegPos.length - 0.25f) * 10.0f;
-    	        	float leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-    	        	float rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
-//    	        	float leftTp = legAnglePID.output + (leftLegPos.length);
-//    	        	float rightTp = -(legAnglePID.output + (rightLegPos.length));
-//    	        	leftForce = leftForce/9.0f; //motor gear ratio
-//    	        	rightForce = rightForce/9.0f;
-//    	        	leftTp = leftTp/9.0f;
-//    	        	rightTp = rightTp/9.0f;
-    	        	float leftJointTorque[2]={0};
+    	        		rightForce -= (rightLegPos.length - 0.25f) * 100.0f;
+    	        	leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
+    	        	rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+
     	        	leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
-    	        	float rightJointTorque[2]={0};
     	        	leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
-    	        	ground_state = ground_detect(leftForce,leftTp,stateVar.Ltheta,leftLegPos.length
-    	        			,rightForce,rightTp,stateVar.Rtheta,rightLegPos.length);
-    	        	leftF_check = leftForce;
-    	        	leftTp_check = leftTp;
-    	        	rightF_check = rightForce;
-    	        	rightTp_check = rightTp;
-    	        	l1 = leftJointTorque[0];
-    	        	l4 = leftJointTorque[1];
-    	        	r1 = rightJointTorque[0];
-    	        	r4 = rightJointTorque[1];
+
+//    	        	leftF_check = leftForce;
+//    	        	leftTp_check = leftTp;
+//    	        	rightF_check = rightForce;
+//    	        	rightTp_check = rightTp;
+//    	        	l1 = leftJointTorque[0];
+//    	        	l4 = leftJointTorque[1];
+//    	        	r1 = rightJointTorque[0];
+//    	        	r4 = rightJointTorque[1];
     	        	dm_set_tor[3] = leftJointTorque[0];
     	        	dm_set_tor[0] = leftJointTorque[1];
     	        	dm_set_tor[1] = -rightJointTorque[0];
     	        	dm_set_tor[2] = -rightJointTorque[1];
+
+    	        	if(){// if robot in steady state > 0.5 sec
+    	        		chassis_state = 3;
+    	        		break;
+    	        	}
     	            break;
-    	        case 3: // floating
-    	        	memset(k, 0, sizeof(k));
-    	        	k[1][0] = kRes[1] * -2;
-    	        	k[1][1] = kRes[3] * -10;
+    	        case 3: // robot standing with target leglength
+
+    	        	calculate_T_TP(1);// 1 touching ground 0 not touching ground
+    	        	if(ground_state != 0) //if robot not touching ground
+    	        	{
+    	        		chassis_state = 4;
+    	        		break;
+    	        	}
+
+    	        	PID_Compute(&yawPID, target.yawAngle, g_can_motors[19].angle_data.adj_ang,0.005,0);
+    	        	PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
+
+    	        	if (fabs(spin_speed)>0){
+    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
+    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
+    	        	}else{
+    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
+    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
+    	        	}
+
+
+    	        	PID_Compute(&LlegLengthPID, target.legLength, leftLegPos.length,dt,0);
+    	        	PID_Compute(&RlegLengthPID, target.legLength, rightLegPos.length,dt,0);
+    	        	PID_Compute(&rollPID, target.rollAngle, INS.Roll,dt,0);
+    	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,dt,0.01);
+    	        	//    	        	double leftForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? +rollPID.output : 0) + 13;
+    	        	//    	        	double rightForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? -rollPID.output : 0) + 13;
+
+    	        	leftForce = LlegLengthPID.output + F_gravity +rollPID.output;
+    	        	rightForce = RlegLengthPID.output + F_gravity -rollPID.output;
+    	        	if(leftLegPos.length > 0.25f) //保护腿部不能伸太长
+    	        		leftForce -= (leftLegPos.length - 0.25f) * 100.0f;
+    	        	if(rightLegPos.length > 0.25f)
+    	        		rightForce -= (rightLegPos.length - 0.25f) * 100.0f;
+    	        	leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
+    	        	rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+
+    	        	leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
+    	        	leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
+
+    	        	//    	        	leftF_check = leftForce;
+    	        	//    	        	leftTp_check = leftTp;
+    	        	//    	        	rightF_check = rightForce;
+    	        	//    	        	rightTp_check = rightTp;
+    	        	//    	        	l1 = leftJointTorque[0];
+    	        	//    	        	l4 = leftJointTorque[1];
+    	        	//    	        	r1 = rightJointTorque[0];
+    	        	//    	        	r4 = rightJointTorque[1];
+    	        	dm_set_tor[3] = leftJointTorque[0];
+    	        	dm_set_tor[0] = leftJointTorque[1];
+    	        	dm_set_tor[1] = -rightJointTorque[0];
+    	        	dm_set_tor[2] = -rightJointTorque[1];
+
+    	        	ground_state = ground_detect(leftForce,leftTp,stateVar.Ltheta,leftLegPos.length
+    	        			,rightForce,rightTp,stateVar.Rtheta,rightLegPos.length);
 
     	            break;
+    	        case 4: //robot floating
+    	        	calculate_T_TP(0);// not touching ground
+    	        	//    	        		k[1][0] = kRes[1] * -2;
+    	        	//    	        		k[1][1] = kRes[3] * -10;
+    	        	mf_set_tor[0] = 0;
+    	        	mf_set_tor[1] = 0;
+    	        	dm_set_tor[3] = leftJointTorque[0];
+    	        	dm_set_tor[0] = leftJointTorque[1];
+    	        	dm_set_tor[1] = -rightJointTorque[0];
+    	        	dm_set_tor[2] = -rightJointTorque[1];
 
+    	        	break;
+    	        case 5: //cushioning
+
+
+    	        	break;
     	        default: // Default case for invalid input
     	}
         vTaskDelay(5);
