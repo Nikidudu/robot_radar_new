@@ -65,13 +65,13 @@ float LlqrOutT;
 float LlqrOutTp;
 float RlqrOutT;
 float RlqrOutTp;
-float F_gravity = 7.0f * 9.81f;
+float F_gravity = 8.0f * 9.81f;
 
 void Ctrl_Init()
 {
 	//robot main pid init
-	PID_Init(&LlegLengthPID, 500, 0.0, 10.0, -100.0, 100.0);
-	PID_Init(&RlegLengthPID, 500, 0.0, 10.0, -100.0, 100.0);
+	PID_Init(&LlegLengthPID, 1100, 0.0, 150.0, -120.0, 120.0);
+	PID_Init(&RlegLengthPID, 1100, 0.0, 150.0, -120.0, 120.0);
 	PID_Init(&legAnglePID, 25, 0.5, 0.5, -5.0, 5.0);
 	PID_Init(&rollPID, 250, 0.0, 1.0, -100.0, 100.0);
 	PID_Init(&yawPID, 15.0, 1.0, 3.0, -2.5, 2.5);
@@ -169,7 +169,7 @@ int ground_detect(float LF, float LTP,float Ltheta,float LL0, float RF, float RT
 }
 int robot_check(){
 	//
-
+	return 1;
 }
 void state_update(){
 	stateVar.phi = INS.Pitch;
@@ -271,11 +271,11 @@ void balancing_chassis_task(void *argument) {
 	const float legMass = 0.8f; //kg，腿部质量
 	//设定初始目标值
 	target.rollAngle = 0.0f;
-	target.legLength = 0.17f;
+	target.legLength = 0.19f;
 	target.speed = 0.0f;
 	target.position = stateVar.x;
 	target.floating_legLength = 0.22f;
-	target.min_legLength = 0.12f;
+	target.min_legLength = 0.1f;
 	float dt = 0.005f;
 	Ctrl_Init();
 	manual_set_PidInit();
@@ -341,10 +341,10 @@ void balancing_chassis_task(void *argument) {
 
     	        	leftForce = LlegLengthPID.output + F_gravity +rollPID.output;
     	        	rightForce = RlegLengthPID.output + F_gravity -rollPID.output;
-    	        	if(leftLegPos.length > 0.25f) //保护腿部不能伸太长
-    	        		leftForce -= (leftLegPos.length - 0.25f) * 100.0f;
-    	        	if(rightLegPos.length > 0.25f)
-    	        		rightForce -= (rightLegPos.length - 0.25f) * 100.0f;
+//    	        	if(leftLegPos.length > 0.25f) //保护腿部不能伸太长
+//    	        		leftForce -= (leftLegPos.length - 0.25f) * 100.0f;
+//    	        	if(rightLegPos.length > 0.25f)
+//    	        		rightForce -= (rightLegPos.length - 0.25f) * 100.0f;
     	        	leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
     	        	rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
 
@@ -364,9 +364,27 @@ void balancing_chassis_task(void *argument) {
     	        	dm_set_tor[1] = -rightJointTorque[0];
     	        	dm_set_tor[2] = -rightJointTorque[1];
 
-    	        	if(){// if robot in steady state > 0.5 sec
-    	        		chassis_state = 3;
-    	        		break;
+    	        	static TickType_t steadyStateStartTime = 0; // To store when steady state starts
+    	        	static int isSteadyStateTimerActive = 0;   // 0 means inactive, 1 means active
+
+    	        	// Define the range checks for steady state
+    	        	int isSteadyState = (fabs(stateVar.phi) < 0.1) &&
+    	        	                    (fabs(stateVar.Ltheta) < 0.1) &&
+    	        	                    (fabs(stateVar.Rtheta) < 0.1);
+
+    	        	if (isSteadyState) {
+    	        	    if (!isSteadyStateTimerActive) {
+    	        	        // Start the timer when the steady state condition is first met
+    	        	        steadyStateStartTime = xTaskGetTickCount();
+    	        	        isSteadyStateTimerActive = 1;
+    	        	    } else if ((xTaskGetTickCount() - steadyStateStartTime) * portTICK_PERIOD_MS >= 500) {
+    	        	        // If the steady state condition persists for 500 ms
+    	        	        chassis_state = 3;
+    	        	        break;
+    	        	    }
+    	        	} else {
+    	        	    // Reset the timer if steady state condition is broken
+    	        	    isSteadyStateTimerActive = 0;
     	        	}
     	            break;
     	        case 3: // robot standing with target leglength
@@ -399,10 +417,10 @@ void balancing_chassis_task(void *argument) {
 
     	        	leftForce = LlegLengthPID.output + F_gravity +rollPID.output;
     	        	rightForce = RlegLengthPID.output + F_gravity -rollPID.output;
-    	        	if(leftLegPos.length > 0.25f) //保护腿部不能伸太长
-    	        		leftForce -= (leftLegPos.length - 0.25f) * 100.0f;
-    	        	if(rightLegPos.length > 0.25f)
-    	        		rightForce -= (rightLegPos.length - 0.25f) * 100.0f;
+//    	        	if(leftLegPos.length > 0.25f) //保护腿部不能伸太长
+//    	        		leftForce -= (leftLegPos.length - 0.25f) * 100.0f;
+//    	        	if(rightLegPos.length > 0.25f)
+//    	        		rightForce -= (rightLegPos.length - 0.25f) * 100.0f;
     	        	leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
     	        	rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
 
@@ -430,6 +448,17 @@ void balancing_chassis_task(void *argument) {
     	        	calculate_T_TP(0);// not touching ground
     	        	//    	        		k[1][0] = kRes[1] * -2;
     	        	//    	        		k[1][1] = kRes[3] * -10;
+    	        	PID_Compute(&LlegLengthPID, target.legLength, leftLegPos.length,dt,0);
+    	        	PID_Compute(&RlegLengthPID, target.legLength, rightLegPos.length,dt,0);
+    	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,dt,0.01);
+
+    	        	leftForce = LlegLengthPID.output + F_gravity;
+    	        	rightForce = RlegLengthPID.output + F_gravity;
+    	        	leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
+    	        	rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+    	        	leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
+    	        	leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
+
     	        	mf_set_tor[0] = 0;
     	        	mf_set_tor[1] = 0;
     	        	dm_set_tor[3] = leftJointTorque[0];
@@ -437,6 +466,13 @@ void balancing_chassis_task(void *argument) {
     	        	dm_set_tor[1] = -rightJointTorque[0];
     	        	dm_set_tor[2] = -rightJointTorque[1];
 
+    	        	ground_state = ground_detect(leftForce,leftTp,stateVar.Ltheta,leftLegPos.length
+    	        			,rightForce,rightTp,stateVar.Rtheta,rightLegPos.length);
+    	        	if(ground_state == 0) //if robot not touching ground
+    	        	{
+    	        		chassis_state = 3;
+    	        		break;
+    	        	}
     	        	break;
     	        case 5: //cushioning
 

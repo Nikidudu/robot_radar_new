@@ -14,11 +14,11 @@ Core/Src/freertos.o: ../Core/Src/freertos.cpp \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/core_cm4.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_version.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/mpu_armv7.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h \
@@ -61,23 +61,23 @@ Core/Src/freertos.o: ../Core/Src/freertos.cpp \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h \
  ../Core/Inc/can.h ../Core/Inc/main.h ../Core/Tasks/Inc/master_task.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/Threads/Inc/Telemetry.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/RoCo.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Protocol/Protocol.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Protocol/../Build/Build.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolNUS24.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolMacros.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/IOBus.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/MessageBus.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/NetworkBus.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Build/Build.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/CANBus.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/UDevDriver.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCo.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/Protocol.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/../Build/Build.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolNUS24.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolMacros.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IOBus.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/MessageBus.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/NetworkBus.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Build/Build.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/CANBus.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/UDevDriver.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h \
  ../Core/Inc/usart.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/RoCanDriver.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/utils/Inc/Thread.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCanDriver.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/utils/Inc/Thread.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h \
@@ -98,11 +98,11 @@ Core/Src/freertos.o: ../Core/Src/freertos.cpp \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/core_cm4.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_version.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/mpu_armv7.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h:
@@ -147,23 +147,23 @@ C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCIN
 ../Core/Inc/can.h:
 ../Core/Inc/main.h:
 ../Core/Tasks/Inc/master_task.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/Threads/Inc/Telemetry.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/RoCo.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Protocol/Protocol.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Protocol/../Build/Build.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolNUS24.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolMacros.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/IOBus.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/MessageBus.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/NetworkBus.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/Build/Build.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/CANBus.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/UDevDriver.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCo.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/Protocol.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/../Build/Build.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolNUS24.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolMacros.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IOBus.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/MessageBus.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/NetworkBus.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Build/Build.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/CANBus.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/UDevDriver.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h:
 ../Core/Inc/usart.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/BRoCo/include/BRoCo/RoCanDriver.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/System/utils/Inc/Thread.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCanDriver.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/utils/Inc/Thread.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h:

@@ -2,11 +2,11 @@ Core/Tasks/Src/balancing_chassis_task.o: \
  ../Core/Tasks/Src/balancing_chassis_task.c ../Core/BSP/Inc/board_lib.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/core_cm4.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_version.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/mpu_armv7.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
@@ -62,8 +62,8 @@ Core/Tasks/Src/balancing_chassis_task.o: \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
  ../Core/BSP/Inc/bsp_queue.h ../Core/BSP/Inc/board_settings.h \
  ../Core/Tasks/Inc/typedefs.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
@@ -92,18 +92,18 @@ Core/Tasks/Src/balancing_chassis_task.o: \
  ../Core/Tasks/Inc/dm4310_drv.h ../Core/Tasks/Inc/PID.h \
  ../Core/Tasks/Inc/typedefs.h ../Core/Tasks/Inc/leg_task.h \
  ../Core/Tasks/Inc/INS_task.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h \
- C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h \
  ../Core/Tasks/Inc/lqr_k.h ../Core/Tasks/Inc/rtwtypes.h \
  ../Core/Tasks/Inc/balancing_chassis_task.h
 ../Core/BSP/Inc/board_lib.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/core_cm4.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_version.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/mpu_armv7.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -160,8 +160,8 @@ C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCIN
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
 ../Core/BSP/Inc/bsp_queue.h:
 ../Core/BSP/Inc/board_settings.h:
 ../Core/Tasks/Inc/typedefs.h:
@@ -206,8 +206,8 @@ C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCIN
 ../Core/Tasks/Inc/typedefs.h:
 ../Core/Tasks/Inc/leg_task.h:
 ../Core/Tasks/Inc/INS_task.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h:
-C:/Users/dota2/OneDrive\ -\ National\ University\ of\ Singapore/Desktop/BALANCINF/Maple/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h:
 ../Core/Tasks/Inc/lqr_k.h:
 ../Core/Tasks/Inc/rtwtypes.h:
 ../Core/Tasks/Inc/balancing_chassis_task.h:
