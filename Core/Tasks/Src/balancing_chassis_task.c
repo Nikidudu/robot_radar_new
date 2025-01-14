@@ -194,9 +194,9 @@ void kill_chassis(){
 	target.position = stateVar.x;
 }
 void manual_set_PidInit(){
-	PID_Init(&manual_left_F, 100, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_left_F, 500, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
 	PID_Init(&manual_left_Tp, 0.05, 0.001, 0, -2, 2); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-	PID_Init(&manual_right_F, 100, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_right_F, 500, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
 	PID_Init(&manual_right_Tp, 0.05, 0.001, 0, -2, 2);
 }
 void manual_set_legPos(float angle, float legLength){
