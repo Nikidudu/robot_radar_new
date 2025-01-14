@@ -70,8 +70,8 @@ float F_gravity = 8.0f * 9.81f;
 void Ctrl_Init()
 {
 	//robot main pid init
-	PID_Init(&LlegLengthPID, 1100, 0.0, 150.0, -120.0, 120.0);
-	PID_Init(&RlegLengthPID, 1100, 0.0, 150.0, -120.0, 120.0);
+	PID_Init(&LlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
+	PID_Init(&RlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
 	PID_Init(&legAnglePID, 25, 0.5, 0.5, -5.0, 5.0);
 	PID_Init(&rollPID, 250, 0.0, 1.0, -100.0, 100.0);
 	PID_Init(&yawPID, 15.0, 1.0, 3.0, -2.5, 2.5);
@@ -153,7 +153,7 @@ void Ctrl_TargetUpdateTask()
             target.speed = stateVar.dx + 1.5f;
         else if (target.speed - stateVar.dx < -1.5f)
             target.speed = stateVar.dx - 1.5f;
-
+        target.legLength = 0.19f + ((float)g_remote_cmd.left_x / 660)*0.07f;
         // Calculate yaw angle target
         vTaskDelayUntil(&xLastWakeTime, 5); // Update every 5ms
     }
@@ -161,7 +161,7 @@ void Ctrl_TargetUpdateTask()
 int ground_detect(float LF, float LTP,float Ltheta,float LL0, float RF, float RTP,float Rtheta,float RL0) {
 	LFN = LF*arm_cos_f32(Ltheta)+LTP*arm_sin_f32(Ltheta)/LL0;
 	RFN = RF*arm_cos_f32(Rtheta)+RTP*arm_sin_f32(Rtheta)/RL0;
-	if (LFN < 30.0f && RFN <30.0f){
+	if (LFN < 0.0f && RFN <0.0f){
 		return 1;
 	}else{
 		return 0;
@@ -235,8 +235,8 @@ void calculate_T_TP(int touching_ground){
 		}
 	}else{
 		memset(k, 0, sizeof(k));
-		//    	        		k[1][0] = kRes[1] * -2;
-		//    	        		k[1][1] = kRes[3] * -10;
+		k[1][0] = kRes[1];
+		k[1][1] = kRes[3];
 	}
 
 	float Lx[6] = {stateVar.Ltheta, stateVar.LdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
@@ -445,6 +445,7 @@ void balancing_chassis_task(void *argument) {
 
     	            break;
     	        case 4: //robot floating
+    	        	target.position = stateVar.x;//reset target pos
     	        	calculate_T_TP(0);// not touching ground
     	        	//    	        		k[1][0] = kRes[1] * -2;
     	        	//    	        		k[1][1] = kRes[3] * -10;
