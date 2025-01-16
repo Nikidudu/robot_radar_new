@@ -55,6 +55,8 @@ extern float filtered_v;
 extern float filtered_x;
 float LFN;
 float RFN;
+float LFTP;
+float RFTP;
 int robot_ready = 0;//1 ready 0 not ready
 PID manual_left_F,manual_left_Tp,manual_right_F,manual_right_Tp;
 float kRatio[2][6] = {{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
@@ -66,6 +68,10 @@ float LlqrOutTp;
 float RlqrOutT;
 float RlqrOutTp;
 float F_gravity = 8.0f * 9.81f;
+float LFN_filtered = 0.0f;
+float RFN_filtered = 0.0f;
+const float alpha = 0.1f; // Smoothing factor (adjust as needed)
+
 
 void Ctrl_Init()
 {
@@ -73,9 +79,9 @@ void Ctrl_Init()
 	PID_Init(&LlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
 	PID_Init(&RlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
 	PID_Init(&legAnglePID, 25, 0.1, 1.0, -5.0, 5.0);
-	PID_Init(&rollPID, 600, 0.0, 1.0, -200.0, 200.0);
+	PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
 	PID_Init(&yawPID, 15.0, 1.0, 3.0, -2.5, 2.5);
-	PID_Init(&spinPID, 1.0, 0.0, 0.1, -2.0, 2.0);
+	PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
 }
 
 void Ctrl_TargetUpdateTask()
@@ -122,7 +128,7 @@ void Ctrl_TargetUpdateTask()
         }
 
         // Existing speed calculation logic
-        spin_speed = ((float)g_remote_cmd.side_dial / 660) * 100.0f;
+        spin_speed = ((float)g_remote_cmd.side_dial / 660) * 90.0f;
 
         // Calculate speed slope step based on leg length
         float legLength = (leftLegPos.length + rightLegPos.length) / 2;
@@ -143,10 +149,10 @@ void Ctrl_TargetUpdateTask()
 
         // Calculate position target and limit to ±0.1m of current position
         target.position += target.speed * 0.005f;
-        if (target.position - stateVar.x > 0.1f)
-            target.position = stateVar.x + 0.1f;
-        else if (target.position - stateVar.x < -0.1f)
-            target.position = stateVar.x - 0.1f;
+        if (target.position - stateVar.x > 0.15f)
+            target.position = stateVar.x + 0.15f;
+        else if (target.position - stateVar.x < -0.15f)
+            target.position = stateVar.x - 0.15f;
 
         // Limit speed target to ±1.5m/s of current speed
         if (target.speed - stateVar.dx > 1.5f)
@@ -158,15 +164,23 @@ void Ctrl_TargetUpdateTask()
         vTaskDelayUntil(&xLastWakeTime, 5); // Update every 5ms
     }
 }
-int ground_detect(float LF, float LTP,float Ltheta,float LL0, float RF, float RTP,float Rtheta,float RL0) {
-	LFN = LF*arm_cos_f32(Ltheta)+LTP*arm_sin_f32(Ltheta)/LL0;
-	RFN = RF*arm_cos_f32(Rtheta)+RTP*arm_sin_f32(Rtheta)/RL0;
-	if (LFN < 0.0f && RFN <0.0f){
-		return 1;
-	}else{
-		return 0;
-	}
+int ground_detect(float LF, float LTP, float Ltheta, float LL0, float RF, float RTP, float Rtheta, float RL0) {
+    // Calculate LFN and RFN
+    LFN = LF * arm_cos_f32(Ltheta) + LTP * arm_sin_f32(Ltheta) / LL0;
+    RFN = RF * arm_cos_f32(Rtheta) + RTP * arm_sin_f32(Rtheta) / RL0;
+
+    // Apply low-pass filter
+    LFN_filtered = alpha * LFN + (1.0f - alpha) * LFN_filtered;
+    RFN_filtered = alpha * RFN + (1.0f - alpha) * RFN_filtered;
+
+    // Use filtered values for ground detection
+    if (LFN_filtered < 0.0f && RFN_filtered < 0.0f) {
+        return 1; // Both legs are in contact with the ground
+    } else {
+        return 0; // At least one leg is not in contact with the ground
+    }
 }
+
 int robot_check(){
 	//
 	return 1;
