@@ -72,8 +72,8 @@ void Ctrl_Init()
 	//robot main pid init
 	PID_Init(&LlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
 	PID_Init(&RlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
-	PID_Init(&legAnglePID, 25, 0.5, 0.5, -5.0, 5.0);
-	PID_Init(&rollPID, 250, 0.0, 1.0, -100.0, 100.0);
+	PID_Init(&legAnglePID, 25, 0.1, 1.0, -5.0, 5.0);
+	PID_Init(&rollPID, 600, 0.0, 1.0, -200.0, 200.0);
 	PID_Init(&yawPID, 15.0, 1.0, 3.0, -2.5, 2.5);
 	PID_Init(&spinPID, 1.0, 0.0, 0.1, -2.0, 2.0);
 }
