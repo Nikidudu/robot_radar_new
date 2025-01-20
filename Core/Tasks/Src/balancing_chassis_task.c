@@ -32,6 +32,7 @@ extern float mf_set_tor[2];
 PID yawPID, rollPID;
 PID legAnglePID, LlegLengthPID,RlegLengthPID;
 PID spinPID;
+PID LcushionPID,RcushionPID;
 int chassis_state = 0;
 int ground_state = 0;
 float check_T;
@@ -71,6 +72,7 @@ float F_gravity = 8.0f * 9.81f;
 float LFN_filtered = 0.0f;
 float RFN_filtered = 0.0f;
 const float alpha = 0.1f; // Smoothing factor (adjust as needed)
+float check_speed;
 
 
 void Ctrl_Init()
@@ -78,10 +80,13 @@ void Ctrl_Init()
 	//robot main pid init
 	PID_Init(&LlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
 	PID_Init(&RlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
+	PID_Init(&LcushionPID, 800, 0.0, 10.0, -220.0, 220.0);
+	PID_Init(&RcushionPID, 800, 0.0, 10.0, -220.0, 220.0);
 	PID_Init(&legAnglePID, 25, 0.1, 1.0, -5.0, 5.0);
 	PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
 	PID_Init(&yawPID, 15.0, 1.0, 3.0, -2.5, 2.5);
 	PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
+
 }
 
 void Ctrl_TargetUpdateTask()
@@ -155,10 +160,10 @@ void Ctrl_TargetUpdateTask()
             target.position = stateVar.x - 0.15f;
 
         // Limit speed target to ±1.5m/s of current speed
-        if (target.speed - stateVar.dx > 1.5f)
-            target.speed = stateVar.dx + 1.5f;
-        else if (target.speed - stateVar.dx < -1.5f)
-            target.speed = stateVar.dx - 1.5f;
+        if (target.speed - stateVar.dx > 2.0f)
+            target.speed = stateVar.dx + 2.0f;
+        else if (target.speed - stateVar.dx < -2.0f)
+            target.speed = stateVar.dx - 2.0f;
         target.legLength = 0.19f + ((float)g_remote_cmd.left_x / 660)*0.07f;
         // Calculate yaw angle target
         vTaskDelayUntil(&xLastWakeTime, 5); // Update every 5ms
@@ -208,10 +213,10 @@ void kill_chassis(){
 	target.position = stateVar.x;
 }
 void manual_set_PidInit(){
-	PID_Init(&manual_left_F, 500, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-	PID_Init(&manual_left_Tp, 0.05, 0.001, 0, -2, 2); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-	PID_Init(&manual_right_F, 500, 0, 0, -30, 30); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-	PID_Init(&manual_right_Tp, 0.05, 0.001, 0, -2, 2);
+	PID_Init(&manual_left_F, 500, 0, 0, -50, 50); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_left_Tp, 0.5, 0.001, 0, -2, 2); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_right_F, 500, 0, 0, -50, 50); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_right_Tp, 0.5, 0.001, 0, -2, 2);
 }
 void manual_set_legPos(float angle, float legLength){
 	float dt = 0.005f;
@@ -288,7 +293,7 @@ void balancing_chassis_task(void *argument) {
 	target.legLength = 0.19f;
 	target.speed = 0.0f;
 	target.position = stateVar.x;
-	target.floating_legLength = 0.22f;
+	target.floating_legLength = 0.35f;
 	target.min_legLength = 0.1f;
 	float dt = 0.005f;
 	Ctrl_Init();
@@ -412,10 +417,12 @@ void balancing_chassis_task(void *argument) {
 
     	        	PID_Compute(&yawPID, target.yawAngle, g_can_motors[19].angle_data.adj_ang,0.005,0);
     	        	PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
-
+    	        	//check_speed = leftWheel.speed - rightWheel.speed;
     	        	if (fabs(spin_speed)>0){
-    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
-    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
+    	        		target.position = stateVar.x;
+    	        		//PID_Compute(&WheelspinPID, 0, leftWheel.speed - rightWheel.speed ,0.005,0);
+    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;// + WheelspinPID.output;
+    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;// - WheelspinPID.output;
     	        	}else{
     	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
     	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
@@ -458,37 +465,52 @@ void balancing_chassis_task(void *argument) {
     	        			,rightForce,rightTp,stateVar.Rtheta,rightLegPos.length);
 
     	            break;
-    	        case 4: //robot floating
-    	        	target.position = stateVar.x;//reset target pos
-    	        	calculate_T_TP(0);// not touching ground
-    	        	//    	        		k[1][0] = kRes[1] * -2;
-    	        	//    	        		k[1][1] = kRes[3] * -10;
-    	        	PID_Compute(&LlegLengthPID, target.legLength, leftLegPos.length,dt,0);
-    	        	PID_Compute(&RlegLengthPID, target.legLength, rightLegPos.length,dt,0);
-    	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,dt,0.01);
+    	        case 4: // robot floating
+    	            target.position = stateVar.x; // Reset target position
+    	            calculate_T_TP(0); // Not touching ground
 
-    	        	leftForce = LlegLengthPID.output + F_gravity;
-    	        	rightForce = RlegLengthPID.output + F_gravity;
-    	        	leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-    	        	rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
-    	        	leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
-    	        	leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
+    	            static TickType_t groundStateStartTime = 0; // Time when ground_state == 0 starts
+    	            static int isGroundStateTimerActive = 0;   // Flag to track timer status
 
-    	        	mf_set_tor[0] = 0;
-    	        	mf_set_tor[1] = 0;
-    	        	dm_set_tor[3] = leftJointTorque[0];
-    	        	dm_set_tor[0] = leftJointTorque[1];
-    	        	dm_set_tor[1] = -rightJointTorque[0];
-    	        	dm_set_tor[2] = -rightJointTorque[1];
+    	            PID_Compute(&LcushionPID, target.floating_legLength, leftLegPos.length, dt, 0);
+    	            PID_Compute(&RcushionPID, target.floating_legLength, rightLegPos.length, dt, 0);
+    	            PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
 
-    	        	ground_state = ground_detect(leftForce,leftTp,stateVar.Ltheta,leftLegPos.length
-    	        			,rightForce,rightTp,stateVar.Rtheta,rightLegPos.length);
-    	        	if(ground_state == 0) //if robot not touching ground
-    	        	{
-    	        		chassis_state = 3;
-    	        		break;
-    	        	}
-    	        	break;
+    	            leftForce = LcushionPID.output - 10.0f;
+    	            rightForce = RcushionPID.output - 10.0f;
+    	            leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
+    	            rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+    	            leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
+    	            leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
+
+    	            mf_set_tor[0] = 0;
+    	            mf_set_tor[1] = 0;
+    	            dm_set_tor[3] = leftJointTorque[0];
+    	            dm_set_tor[0] = leftJointTorque[1];
+    	            dm_set_tor[1] = -rightJointTorque[0];
+    	            dm_set_tor[2] = -rightJointTorque[1];
+
+    	            // Check ground state
+    	            ground_state = ground_detect(leftForce, leftTp, stateVar.Ltheta, leftLegPos.length,
+    	                                          rightForce, rightTp, stateVar.Rtheta, rightLegPos.length);
+
+    	            if (ground_state == 0) { // If robot is not touching the ground
+    	                if (!isGroundStateTimerActive) {
+    	                    // Start the timer
+    	                    groundStateStartTime = xTaskGetTickCount();
+    	                    isGroundStateTimerActive = 1;
+    	                } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 20) {
+    	                    // If ground_state == 0 lasts for at least 0.1 seconds, change state
+    	                    chassis_state = 3;
+    	                    isGroundStateTimerActive = 0; // Reset the timer for the next check
+    	                    break;
+    	                }
+    	            } else {
+    	                // Reset the timer if ground_state != 0
+    	                isGroundStateTimerActive = 0;
+    	            }
+    	            break;
+
     	        case 5: //cushioning
 
 
