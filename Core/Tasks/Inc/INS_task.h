@@ -21,15 +21,18 @@
 #define imuZ 2
 
 #define INS_TASK_PERIOD 1
+//Referred to https://nitinjsanket.github.io/tutorials/attitudeest/mahony.html
+
 
 typedef struct
 {
     float q[4]; // ��Ԫ������ֵ
 
-    float Gyro[3];  // ���ٶ�
+    //Gyroscope model: measured angular velocity from gyro = latent ideal angular velocity we wish to recover + b + n
+    float Gyro[3];
     float Accel[3]; // ���ٶ�
-    float MotionAccel_b[3]; // ����������ٶ�
-    float MotionAccel_n[3]; // ����ϵ���ٶ�
+    float MotionAccel_b[3]; // gyro bias which changes with time and other factors like temparature
+    float MotionAccel_n[3]; // white gaussian gyro noise
 
     float AccelLPF; // ���ٶȵ�ͨ�˲�ϵ��
 
