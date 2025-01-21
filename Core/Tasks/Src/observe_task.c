@@ -22,7 +22,7 @@ extern LegPos leftLegPos, rightLegPos;
 KalmanFilter_t vaEstimateKF;	   // �������˲����ṹ��
 extern Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 
-float vaEstimateKF_F[4] = {1.0f, 0.003f, 
+float vaEstimateKF_F[4] = {1.0f, 0.005f,
                            0.0f, 1.0f};	   // ״̬ת�ƾ��󣬿�������Ϊ0.001s
 
 float vaEstimateKF_P[4] = {1.0f, 0.0f,

@@ -73,6 +73,8 @@ float LFN_filtered = 0.0f;
 float RFN_filtered = 0.0f;
 const float alpha = 0.1f; // Smoothing factor (adjust as needed)
 float check_speed;
+float check_x;
+int spin_toggle = 0;
 
 
 void Ctrl_Init()
@@ -254,8 +256,8 @@ void calculate_T_TP(int touching_ground){
 		}
 	}else{
 		memset(k, 0, sizeof(k));
-		k[1][0] = kRes[1];
-		k[1][1] = kRes[3];
+		k[1][0] = kRes[1]*1.5f;
+		k[1][1] = kRes[3]*1.5f;
 	}
 
 	float Lx[6] = {stateVar.Ltheta, stateVar.LdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
@@ -418,12 +420,19 @@ void balancing_chassis_task(void *argument) {
     	        	PID_Compute(&yawPID, target.yawAngle, g_can_motors[19].angle_data.adj_ang,0.005,0);
     	        	PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
     	        	//check_speed = leftWheel.speed - rightWheel.speed;
+    	        	check_x = (leftWheel.angle +rightWheel.angle)/2.0f;
     	        	if (fabs(spin_speed)>0){
+    	        		if (spin_toggle == 0){
+    	        			spin_toggle = 1;
+    	        		}
     	        		target.position = stateVar.x;
     	        		//PID_Compute(&WheelspinPID, 0, leftWheel.speed - rightWheel.speed ,0.005,0);
     	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;// + WheelspinPID.output;
     	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;// - WheelspinPID.output;
     	        	}else{
+    	        		if (spin_toggle == 1){
+    	        			spin_toggle = 0;
+    	        		}
     	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
     	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
     	        	}
@@ -499,7 +508,7 @@ void balancing_chassis_task(void *argument) {
     	                    // Start the timer
     	                    groundStateStartTime = xTaskGetTickCount();
     	                    isGroundStateTimerActive = 1;
-    	                } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 20) {
+    	                } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 5) {
     	                    // If ground_state == 0 lasts for at least 0.1 seconds, change state
     	                    chassis_state = 3;
     	                    isGroundStateTimerActive = 0; // Reset the timer for the next check
