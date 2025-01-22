@@ -108,13 +108,17 @@ void remote_gimbal_input() {
 void remote_launcher_control_input() {
 	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN
 			|| g_remote_cmd.left_switch != ge_LSW_UNSAFE) {
+#ifdef ACTIVE_GUIDANCE
+		launcher_ctrl_data.enabled = 1;
+#endif
+
 		if (g_remote_cmd.left_switch != ge_LSW_UNSAFE) {
 			launcher_safety_toggle = 0;
 		}
 		if (g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
 			launcher_ctrl_data.enabled = 0;
 		}
-//		launcher_ctrl_data.enabled = 0;
+
 		launcher_ctrl_data.firing = 0;
 		launcher_ctrl_data.projectile_speed = 0;
 	} else {

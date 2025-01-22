@@ -19,7 +19,7 @@
 #include "motor_config.h"
 #include "can_msg_processor.h"
 #include "bsp_lk_motor.h"
-
+#include "SuperCapCommThread.h"
 
 extern EventGroupHandle_t gimbal_event_group;
 extern EventGroupHandle_t chassis_event_group;
@@ -186,6 +186,8 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 						xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
 								&xHigherPriorityTaskWoken);
 					}
+				} else if (RxHeader.StdId == DEVC_NODE_ID){
+					supercapISR(RxData);
 				} else {
 					uint8_t sender = getSenderID(hcan);
 					uint32_t length = RxHeader.DLC;
@@ -220,7 +222,10 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 						xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
 								&xHigherPriorityTaskWoken);
 					}
-			} else {
+			} else if (RxHeader.StdId == DEVC_NODE_ID){
+				supercapISR(RxData);
+			}
+			else{
 				uint8_t sender = getSenderID(hcan);
 				uint32_t length = RxHeader.DLC;
 				receiveCAN(sender, RxData, length);

@@ -23,6 +23,11 @@ extern uint8_t launcher_safety_toggle;
 
 extern int g_spinspin_mode;
 static float curr_spinspin = 0;
+extern int supercap_dash;
+extern int aimbot_mode;
+
+uint32_t supercap_timer = 0;
+extern float supercap_test;
 
 
 
@@ -95,6 +100,20 @@ void keyboard_chassis_input() {
 			if (g_remote_cmd.keyboard_keys & KEY_OFFSET_D) {
 				horizontal_input += KEYBD_MAX_SPD;
 			}
+
+			if (g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT) {
+				supercap_dash = 1;
+			} else {
+				supercap_dash = 0;
+			}
+
+
+			if (g_remote_cmd.mouse_right) {
+				aimbot_mode = 1;
+			} else {
+				aimbot_mode = 0;
+			}
+
 			static uint32_t rand_mult = 129581 ;
 			static float spinspin_ramp = 0.1;
 			static int16_t spin_dir = 1;

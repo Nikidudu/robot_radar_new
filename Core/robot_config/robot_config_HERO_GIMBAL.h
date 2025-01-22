@@ -9,7 +9,7 @@
 #define ROBOT_CONFIG_ROBOT_CONFIG_HERO_GIMBAL_H_
 
 #include "motor_config.h"
-#include "hud_tali.h"
+#include "hud_hero.h"
 //#define BOARD_DOWN
 
 //#define OVERHEAT_PROTECTION

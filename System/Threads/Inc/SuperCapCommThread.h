@@ -9,11 +9,26 @@
 #define THREADS_INC_SUPERCAP_COMM_THREAD_H_
 
 #include <stm32f4xx_hal.h>
+
 #include <main.h>
 #include <Thread.h>
 #include "DataStructures.h"
-
 #include "Telemetry.h"
+
+struct ref_msg_packet {
+	uint8_t enable_module;
+	uint8_t reset;
+	uint8_t pow_limit;
+	uint16_t energy_buffer;
+} __attribute__((packed));
+
+
+struct supercap_msg_packet {
+	float chassis_power;
+	uint8_t error;
+	uint8_t cap_energy;
+} __attribute__((packed));
+
 
 class SuperCapCommThread : public Thread {
 public:
@@ -32,8 +47,17 @@ private:
 	float P_chassis;
 	uint8_t charge_state;
 
+	void txHeaderConfig();
+
+	CAN_TxHeaderTypeDef TxHeader;
+	CAN_RxHeaderTypeDef RxHeader;
+
+	ref_msg_packet txMsg;
+	supercap_msg_packet rxMsg;
+
 };
 
+void supercapISR(uint8_t* rxdata);
 
 extern SuperCapCommThread* SuperCapCommInstance;
 

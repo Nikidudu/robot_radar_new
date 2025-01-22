@@ -10,52 +10,67 @@
 #include <Telemetry.h>
 #include "referee_msgs.h"
 
+uint8_t enable_supercap_module = true;
+uint8_t reset_supercap_module = false;
 
 SuperCapCommThread* SuperCapCommInstance = nullptr;
+
+uint8_t enable_module;
+uint8_t reset;
 
 float chassis_power;
 float cap_voltage;
 uint8_t charging_state;
 extern ref_game_robot_data2_t ref_robot_data;
+extern ref_game_state_t ref_game_state;
+
 SuperCapCommThread::~SuperCapCommThread(){
 }
 
 void SuperCapCommThread::init(){
-	;;
+	txHeaderConfig();
 }
-
-// Declare your data with the proper data structure defined in DataStructures.h
-static MaxChassisPowerData chassis_power_data;
-
-
-// Declare the RoCo packet with the proper data structure defined in RoCo/Src/Protocol/Protocol24
-static MaxChassisPowerPacket chassis_power_packet;
-static int i = 0;
 
 void SuperCapCommThread::loop()
 {
-	chassis_power_data.maxChassisPower = ref_robot_data.chassis_power_limit;
+	txMsg.enable_module = enable_supercap_module;
+	txMsg.reset = reset_supercap_module;
+	if (reset_supercap_module)
+		reset_supercap_module = false;
+	txMsg.pow_limit = ref_robot_data.chassis_power_limit;
+	txMsg.energy_buffer = 100;
+    uint32_t TxMailbox;  // Declare TxMailbox here
 
-	chassis_power_data.toArray((uint8_t*) &chassis_power_packet);
+    // Transmit data
+	while (HAL_CAN_GetTxMailboxesFreeLevel(&hcan2) == 0) {
+		// Optionally add a timeout here to prevent infinite loop
+	}
 
-	MAKE_IDENTIFIABLE(chassis_power_packet);
-	MAKE_RELIABLE(chassis_power_packet);
-	Telemetry::set_id(OTHER_NODE_ID);
+	if (HAL_CAN_AddTxMessage(&hcan2, &TxHeader, (uint8_t *)&txMsg, &TxMailbox) != HAL_OK)
+		int i = 1;
 
-	CAN1_network->send(&chassis_power_packet);
-
+	if(ref_robot_data.current_HP <= 0 || ref_game_state.game_progress == 5)
+		enable_supercap_module = false;
+	else
+		enable_supercap_module = true;
 	osDelay(100);
 
 	portYIELD();
 }
 
-void SuperCapCommThread::handle_supercap(uint8_t sender_id, SuperCapDataPacket* packet){
-	if(!(IS_RELIABLE(*packet))) {
-//		console.printf_error("Unreliable IMU calibration packet");
-		return;
-	}
-	cap_voltage = packet->V_cap;
-	chassis_power = packet->P_chassis;
-	charging_state = packet->charge_state;
+void SuperCapCommThread::txHeaderConfig(){
+    TxHeader.StdId = SUPERCAP_NODE_ID;
+    TxHeader.ExtId = 0;
+    TxHeader.RTR = CAN_RTR_DATA;
+    TxHeader.IDE = CAN_ID_STD;
+    TxHeader.DLC = 5;
+    TxHeader.TransmitGlobalTime = DISABLE;
+}
+
+void supercapISR(uint8_t* rxdata){
+	supercap_msg_packet *supercap_packet = (struct supercap_msg_packet*)rxdata;
+	uint8_t i = 0;
+	chassis_power = supercap_packet->chassis_power;
+	charging_state = supercap_packet->cap_energy*100/255;
 }
 

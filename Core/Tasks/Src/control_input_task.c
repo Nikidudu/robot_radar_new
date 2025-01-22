@@ -33,6 +33,8 @@ gimbal_control_t gimbal_ctrl_data;
 pid_data_t yaw_pid_data;
 speed_shift_t gear_speed;
 int g_spinspin_mode = 0;
+int supercap_dash = 0;
+int aimbot_mode = 0;
 
 uint8_t control_mode = CONTROL_DEFAULT;
 uint8_t g_safety_toggle = ARM_SWITCH;
@@ -232,6 +234,7 @@ void control_reset() {
 	launcher_ctrl_data.projectile_speed = 0;
 	launcher_ctrl_data.enabled = 0;
 	g_spinspin_mode = 0;
+	aimbot_mode = 0;
 	laser_off();
 }
 

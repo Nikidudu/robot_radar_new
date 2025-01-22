@@ -19,7 +19,8 @@
 #include "usb_task.h"
 #include "telemetry_task.h"
 #include "motor_control_task.h"
-#include "hud_task.h"
+//#include "hud_task.h"
+#include "hud_new.h"
 
 #define ISR_SEMAPHORE_COUNT 1
 #define QUEUE_SIZE 1
@@ -109,9 +110,8 @@ void master_task(void* argument){
 
 //	xTaskCreate(telemetry_task, "telemetry_task", 700, (void*) 1,
 //			(UBaseType_t) 5, &telemetry_task_handle);
-	xTaskCreate(hud_task, "hud_task", 512, (void*) 3,
+	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3,
 			(UBaseType_t) 5, &hud_task_handle);
-
 
 //	vTaskDelete(master_task_handle);
 	while(1){

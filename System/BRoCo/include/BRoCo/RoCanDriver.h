@@ -85,6 +85,8 @@ class ROCANDriver: public IODriver,  public Thread{
 #define RX_ELEMENT_SIZE         8                 // CAN supports up to 8 bytes
 #define RX_ELEMENT_NUMBER       32
 #define NB_CAN_PORTS            1                 // Number of CAN ports to handle
+#define DEVC_NODE_ID			0x077
+#define SUPERCAP_NODE_ID        0x067
 
 class ROCANDriver: public IODriver{
     public:
