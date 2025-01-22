@@ -36,7 +36,7 @@ void Telemetry::setup() {
 //		UART1_network = new NetworkBus(UART1_line);
 
 		// CANFD network initialization
-		CAN1_driver = new ROCANDriver(&hcan1, CURRENT_NODE_ID);
+		CAN1_driver = new ROCANDriver(&hcan1, DEVC_NODE_ID);
 		CAN1_network = new CANBus(CAN1_driver);
 
 //		CAN2_driver = new ROCANDriver(&hcan2, CURRENT_NODE_ID);
@@ -46,7 +46,7 @@ void Telemetry::setup() {
 
 
 //		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
-		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
+//		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
 
 //		gimbalJointThread = new gimbalJointPubThread();
 ////		imu = new imuThread();

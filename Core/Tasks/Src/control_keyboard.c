@@ -107,17 +107,6 @@ void keyboard_chassis_input() {
 				supercap_dash = 0;
 			}
 
-			if (HAL_GetTick() - supercap_timer > 100){
-				supercap_timer = HAL_GetTick();
-				if (supercap_dash) {
-					supercap_test -= 0.01;
-					supercap_test = (supercap_test < 0) ? 0 : supercap_test;
-				} else {
-					supercap_test += 0.01;
-					supercap_test = (supercap_test > 1) ? 1 : supercap_test;
-				}
-			}
-
 
 			if (g_remote_cmd.mouse_right) {
 				aimbot_mode = 1;

@@ -222,7 +222,7 @@
 
 #define CHASSIS_MAX_POWER 		400
 #define MIN_SPEED			2000
-#define MAX_SPEED 			11000//M3508_MAX_RPM 				//Max speed of robot
+#define MAX_SPEED 			9000//M3508_MAX_RPM 				//Max speed of robot
 
 /* To configure centers, start the boards in debug mode with all motors
  * powered *but in safe mode* (i.e. remotes off)

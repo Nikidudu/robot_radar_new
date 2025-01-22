@@ -30,7 +30,6 @@ extern int g_spinspin_mode;
 int prev_spinspin = 0;
 
 extern int supercap_dash;
-float supercap_test = 1;
 
 extern int aimbot_mode;
 int prev_aimbot = 0;
@@ -58,6 +57,7 @@ extern uint16_t g_motor_fault;
 int prev_motor_error = 0;
 
 extern remote_cmd_t g_remote_cmd;
+extern uint8_t charging_state;
 
 void map_robot_id(uint16_t robot_id){
 	switch (robot_id) {
@@ -482,7 +482,7 @@ void draw_gearing(uint8_t modify, uint32_t x_coords) {
 
 uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
-	graphic_data->color = (supercap_test > 0.2) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = (charging_state/100.0 > 0.2) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'S';
 	graphic_data->graphic_name[1] = 'U';
@@ -493,7 +493,7 @@ uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 
 	graphic_data->graphic_type = GRAPHIC_TYPE_ARC;
 	graphic_data->details_a = 270; // Start angle
-	int curr_lvl = (int)(supercap_test * ANGLE_LIMIT) ? (int)(supercap_test * ANGLE_LIMIT) : 1;
+	int curr_lvl = (int)(charging_state/100.0 * ANGLE_LIMIT) ? (int)(charging_state/100.0 * ANGLE_LIMIT) : 1;
 	graphic_data->details_b = 270 + curr_lvl; // End angle
 
 	graphic_data->width = 30; //line width

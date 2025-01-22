@@ -37,6 +37,7 @@ uint32_t zeroing_start_time = 0;
 float motor_yaw_mult[4];
 
 extern QueueHandle_t telem_motor_queue;
+extern int supercap_dash;
 
 #ifdef HALL_ZERO
 void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
@@ -235,10 +236,10 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 
 	uint32_t chassis_max_curr = chassis_current;
 
-	if (charging_state <= 10)
+	if (!supercap_dash)
 		chassis_rpm_max = LV1_MAX_SPEED;
-	else if (charging_state >= 60)
-		chassis_rpm_max = 11000;
+	else if (supercap_dash)
+		chassis_rpm_max = 9000;
 
 
 	chassis_rpm = (chassis_rpm_max > MAX_SPEED) ? MAX_SPEED : chassis_rpm_max; // limit chassis_rpm to max rpm of drive motors to avoid motor damage
