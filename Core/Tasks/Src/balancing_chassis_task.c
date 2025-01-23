@@ -71,7 +71,7 @@ float RlqrOutTp;
 float F_gravity = 8.0f * 9.81f;
 float LFN_filtered = 0.0f;
 float RFN_filtered = 0.0f;
-const float alpha = 0.1f; // Smoothing factor (adjust as needed)
+const float alpha = 0.5f; // Smoothing factor (adjust as needed)
 float check_speed;
 float check_x;
 int spin_toggle = 0;
@@ -80,10 +80,10 @@ int spin_toggle = 0;
 void Ctrl_Init()
 {
 	//robot main pid init
-	PID_Init(&LlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
-	PID_Init(&RlegLengthPID, 1200, 0.0, 150.0, -120.0, 120.0);
-	PID_Init(&LcushionPID, 800, 0.0, 10.0, -220.0, 220.0);
-	PID_Init(&RcushionPID, 800, 0.0, 10.0, -220.0, 220.0);
+	PID_Init(&LlegLengthPID, 800, 0.0, 150.0, -120.0, 120.0);
+	PID_Init(&RlegLengthPID, 800, 0.0, 150.0, -120.0, 120.0);
+	PID_Init(&LcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
+	PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
 	PID_Init(&legAnglePID, 25, 0.1, 1.0, -5.0, 5.0);
 	PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
 	PID_Init(&yawPID, 15.0, 1.0, 3.0, -2.5, 2.5);
@@ -103,11 +103,11 @@ void Ctrl_TargetUpdateTask()
         float desiredSpeedCmd;
         if (target.yawAngle > 3.14 || target.yawAngle < -3.14)
         {
-            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -2.5f;
+            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -3.5f;
         }
         else
         {
-            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 2.5f;
+            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 3.5f;
         }
 
         // Limit the rate of change for the speed command
@@ -162,17 +162,19 @@ void Ctrl_TargetUpdateTask()
             target.position = stateVar.x - 0.15f;
 
         // Limit speed target to ±1.5m/s of current speed
-        if (target.speed - stateVar.dx > 2.0f)
-            target.speed = stateVar.dx + 2.0f;
-        else if (target.speed - stateVar.dx < -2.0f)
-            target.speed = stateVar.dx - 2.0f;
+        if (target.speed - stateVar.dx > 1.5f)
+            target.speed = stateVar.dx + 1.5f;
+        else if (target.speed - stateVar.dx < -1.5f)
+            target.speed = stateVar.dx - 1.5f;
         target.legLength = 0.19f + ((float)g_remote_cmd.left_x / 660)*0.07f;
         // Calculate yaw angle target
         vTaskDelayUntil(&xLastWakeTime, 5); // Update every 5ms
     }
 }
+float threshold_variation;
 int ground_detect(float LF, float LTP, float Ltheta, float LL0, float RF, float RTP, float Rtheta, float RL0) {
     // Calculate LFN and RFN
+	threshold_variation = fabs(sin((stateVar.Ltheta + stateVar.Rtheta)/2)*50);
     LFN = LF * arm_cos_f32(Ltheta) + LTP * arm_sin_f32(Ltheta) / LL0;
     RFN = RF * arm_cos_f32(Rtheta) + RTP * arm_sin_f32(Rtheta) / RL0;
 
@@ -181,11 +183,20 @@ int ground_detect(float LF, float LTP, float Ltheta, float LL0, float RF, float 
     RFN_filtered = alpha * RFN + (1.0f - alpha) * RFN_filtered;
 
     // Use filtered values for ground detection
-    if (LFN_filtered < 0.0f && RFN_filtered < 0.0f) {
-        return 1; // Both legs are in contact with the ground
-    } else {
-        return 0; // At least one leg is not in contact with the ground
+    if (ground_state == 0){
+    	if (LFN_filtered < (0.0f-threshold_variation) && RFN_filtered < (0.0f-threshold_variation)) {
+    		return 1;
+    	} else {
+    		return 0;
+    	}
+    }else{
+    	if (LFN_filtered < (50.0f-threshold_variation) && RFN_filtered < (50.0f-threshold_variation)) {
+    		return 1;
+    	} else {
+    		return 0;
+    	}
     }
+
 }
 
 int robot_check(){
@@ -309,6 +320,7 @@ void balancing_chassis_task(void *argument) {
     		chassis_state = 0;
     	}
     	gimbal_auto_front(); //align gimbal 0 or 180
+    	F_gravity = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*8.0f*9.81f);
     	switch (chassis_state) {
     	        case 0: // robot die
     	        	//do robot checking
@@ -481,12 +493,12 @@ void balancing_chassis_task(void *argument) {
     	            static TickType_t groundStateStartTime = 0; // Time when ground_state == 0 starts
     	            static int isGroundStateTimerActive = 0;   // Flag to track timer status
 
-    	            PID_Compute(&LcushionPID, target.floating_legLength, leftLegPos.length, dt, 0);
-    	            PID_Compute(&RcushionPID, target.floating_legLength, rightLegPos.length, dt, 0);
+    	            PID_Compute(&LcushionPID, target.legLength, leftLegPos.length, dt, 0);
+    	            PID_Compute(&RcushionPID, target.legLength, rightLegPos.length, dt, 0);
     	            PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
 
-    	            leftForce = LcushionPID.output - 10.0f;
-    	            rightForce = RcushionPID.output - 10.0f;
+    	            leftForce = LcushionPID.output + F_gravity + 60.0f;
+    	            rightForce = RcushionPID.output + F_gravity + 60.0f;
     	            leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
     	            rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
     	            leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
@@ -508,7 +520,7 @@ void balancing_chassis_task(void *argument) {
     	                    // Start the timer
     	                    groundStateStartTime = xTaskGetTickCount();
     	                    isGroundStateTimerActive = 1;
-    	                } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 5) {
+    	                } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 50) {
     	                    // If ground_state == 0 lasts for at least 0.1 seconds, change state
     	                    chassis_state = 3;
     	                    isGroundStateTimerActive = 0; // Reset the timer for the next check
