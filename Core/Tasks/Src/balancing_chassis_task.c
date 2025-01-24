@@ -75,6 +75,12 @@ const float alpha = 0.5f; // Smoothing factor (adjust as needed)
 float check_speed;
 float check_x;
 int spin_toggle = 0;
+int last_jump_state = 0;
+int jump_state = 0;
+float jump_start_time;
+float jump_now_time;
+float k_jump_time = 0.185f;
+float k_retract_time = 0.11f;
 
 
 void Ctrl_Init()
@@ -135,7 +141,14 @@ void Ctrl_TargetUpdateTask()
         }
 
         // Existing speed calculation logic
-        spin_speed = ((float)g_remote_cmd.side_dial / 660) * 90.0f;
+        if ((float)g_remote_cmd.side_dial > 0){
+        	spin_speed = ((float)g_remote_cmd.side_dial / 660) * 90.0f;
+        }else{
+        	spin_speed = 0;
+        }
+        if (g_remote_cmd.side_dial == -660){
+        	jump_state = 1;
+        }
 
         // Calculate speed slope step based on leg length
         float legLength = (leftLegPos.length + rightLegPos.length) / 2;
@@ -325,6 +338,7 @@ void balancing_chassis_task(void *argument) {
     	        case 0: // robot die
     	        	//do robot checking
     	        	kill_chassis();
+    	        	jump_state = 0;
     	           	target.position = stateVar.x;//reset target pos
     	           	ground_state = 0; //on ground
     	           	if (robot_ready == 1){
@@ -426,6 +440,10 @@ void balancing_chassis_task(void *argument) {
     	        	if(ground_state != 0) //if robot not touching ground
     	        	{
     	        		chassis_state = 4;
+    	        		break;
+    	        	}
+    	        	if (jump_state == 1){
+    	        		chassis_state = 5;
     	        		break;
     	        	}
 
@@ -532,7 +550,71 @@ void balancing_chassis_task(void *argument) {
     	            }
     	            break;
 
-    	        case 5: //cushioning
+    	        case 5: //jumping
+    	        	calculate_T_TP(1);
+    	        	if (leftLegPos.length> 0.16f && rightLegPos.length > 0.16f &&
+    	        			last_jump_state == 0) {
+    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio;
+    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio;
+    	        		PID_Compute(&LlegLengthPID, target.min_legLength, leftLegPos.length,dt,0);
+    	        		PID_Compute(&RlegLengthPID, target.min_legLength, rightLegPos.length,dt,0);
+    	        		PID_Compute(&rollPID, target.rollAngle, INS.Roll,dt,0);
+    	        		PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,dt,0.01);
+    	        		leftForce = LlegLengthPID.output+ F_gravity-10.0f +rollPID.output;
+    	        		rightForce = RlegLengthPID.output+ F_gravity-10.0f -rollPID.output;
+    	        		leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
+    	        		rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+    	        		leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
+    	        		leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
+
+    	        		dm_set_tor[3] = leftJointTorque[0];
+    	        		dm_set_tor[0] = leftJointTorque[1];
+    	        		dm_set_tor[1] = -rightJointTorque[0];
+    	        		dm_set_tor[2] = -rightJointTorque[1];
+    	        		last_jump_state = 0;
+    	        	}else{
+    	        		if (jump_state == 1 && last_jump_state == 0) {
+    	        		      jump_start_time = HAL_GetTick() / 1000.0f;
+    	        		    }
+
+    	        		    jump_now_time = HAL_GetTick() / 1000.0f;
+
+    	        		    if (fabs(jump_now_time - jump_start_time) <= k_jump_time) {
+//    	        		      left_leg_F_ = k_jump_force;
+//    	        		      right_leg_F_ = k_jump_force;
+    	        		    	leftForce = 170.0f;
+    	        		    	rightForce = 170.0f;
+
+    	        		    }
+
+    	        		    jump_now_time = HAL_GetTick() / 1000.0f;
+    	        		    if ((jump_now_time - jump_start_time - k_jump_time) <= k_retract_time &&
+    	        		        (jump_now_time - jump_start_time) > k_jump_time) {
+    	        		    	calculate_T_TP(0);
+    	        		    	leftForce = -130.0f;
+    	        		    	rightForce = -130.0f;
+    	        		      mf_set_tor[0] = 0;
+    	        		      mf_set_tor[1] = 0;
+    	        		    }
+    	        		    if ((jump_now_time - jump_start_time - k_jump_time) > k_retract_time) {
+    	        		      jump_state = 0;
+    	        		    }
+    	        		    last_jump_state = jump_state;
+    	        		    leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
+    	        		    rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+    	        		    leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
+    	        		    leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
+
+    	        		    dm_set_tor[3] = leftJointTorque[0];
+    	        		    dm_set_tor[0] = leftJointTorque[1];
+    	        		    dm_set_tor[1] = -rightJointTorque[0];
+    	        		    dm_set_tor[2] = -rightJointTorque[1];
+    	        		    if (jump_state == 0){
+    	        		    	chassis_state = 4;
+    	        		    	break;
+    	        		  }
+    	        	}
+
 
 
     	        	break;
