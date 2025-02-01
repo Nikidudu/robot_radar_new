@@ -119,12 +119,12 @@ void master_task(void* argument){
 			&leg_task_handle);
 
 	xTaskCreate(dm_motor_control_task, "dm_motor_control_task",
-	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 11,
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,
 			&dm_motor_control_task_handle);
 
-	xTaskCreate(balancing_imu_task, "balancing_imu_task",
-	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,
-			&balancing_imu_task_handle);
+//	xTaskCreate(balancing_imu_task, "balancing_imu_task",
+//	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,
+//			&balancing_imu_task_handle);
 
 	xTaskCreate(imu_processing_task, "IMU_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,
