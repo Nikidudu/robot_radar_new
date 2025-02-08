@@ -57,6 +57,10 @@ typedef struct
 	float encoder_angle;
 	float previous_angle; // Store the last encoder angle for this motor
 	int rotations;
+	int heartbeat;
+	int8_t disconnect_time;
+	int online;
+
 }motor_fbpara_t;
 
 // ����������ýṹ��

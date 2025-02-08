@@ -85,6 +85,7 @@ uint32_t jump_time_l = 0;
 uint32_t jump_time_r = 0;
 int jump_state_l = 0;
 int jump_state_r = 0;
+extern uint8_t joint_motor_online;
 
 
 void Ctrl_Init()
@@ -333,7 +334,14 @@ void balancing_chassis_task(void *argument) {
     	robot_ready = robot_check();
     	state_update();
     	lqr_k(stateVar.legLength, kRes);
-    	if (g_remote_cmd.right_switch != 3){
+//    	if (g_remote_cmd.right_switch != 3 ||
+//    			motor[Motor1].para.online != 1||
+//				motor[Motor2].para.online != 1||
+//				motor[Motor3].para.online != 1||
+//				motor[Motor4].para.online !=1){
+//    		chassis_state = 0;
+//    	}
+    	if (g_remote_cmd.right_switch != 3 || joint_motor_online == 0){
     		chassis_state = 0;
     	}
     	gimbal_auto_front(); //align gimbal 0 or 180

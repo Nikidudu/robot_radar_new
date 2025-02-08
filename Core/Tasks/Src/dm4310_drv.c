@@ -27,6 +27,8 @@ Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 float dm_set_tor[4];
 float mf_set_tor[2];
 int fb_id;
+extern int chassis_state;
+uint8_t joint_motor_online = 0;
 
 void dm_motor_control_task(void *argument) {
 	dm_set_tor[0] = 0.0f;
@@ -72,16 +74,68 @@ void dm_motor_control_task(void *argument) {
     	leftWheel.torque = MF_motor[0].para.torque;
     	rightWheel.torque = MF_motor[1].para.torque;
 
+    	motor[Motor1].para.heartbeat =0;
+    	motor[Motor2].para.heartbeat =0;
+    	motor[Motor3].para.heartbeat =0;
+    	motor[Motor4].para.heartbeat =0;
     	dm4310_ctrl_send(&hcan2, &motor[Motor1]);
+
     	dm4310_ctrl_send(&hcan2, &motor[Motor2]);
+
     	vTaskDelay(1);
     	dm4310_ctrl_send(&hcan2, &motor[Motor3]);
+
     	dm4310_ctrl_send(&hcan2, &motor[Motor4]);
+
         vTaskDelay(1);
         MFtorque_command(&hcan2, 0x141, MF_motor[0].ctrl.tor_set);
         vTaskDelay(1);
         MFtorque_command(&hcan2, 0x142, -MF_motor[1].ctrl.tor_set);
         vTaskDelay(1);
+        if (motor[Motor1].para.heartbeat == 0 && motor[Motor1].para.disconnect_time>100){
+        	motor[Motor1].para.disconnect_time = 0;
+        	motor[Motor1].para.online = 0;
+        }else if(motor[Motor1].para.heartbeat == 0){
+        	motor[Motor1].para.disconnect_time++;
+        }else{
+        	motor[Motor1].para.disconnect_time = 0;
+        	motor[Motor1].para.online = 1;
+        }
+        if (motor[Motor2].para.heartbeat == 0 && motor[Motor2].para.disconnect_time>100){
+        	motor[Motor2].para.disconnect_time = 0;
+        	motor[Motor2].para.online = 0;
+        }else if(motor[Motor2].para.heartbeat == 0){
+        	motor[Motor2].para.disconnect_time++;
+        }else{
+        	motor[Motor2].para.disconnect_time = 0;
+        	motor[Motor2].para.online =1;
+        }
+        if (motor[Motor3].para.heartbeat == 0 && motor[Motor3].para.disconnect_time>100){
+        	motor[Motor3].para.disconnect_time = 0;
+        	motor[Motor3].para.online = 0;
+        }else if(motor[Motor3].para.heartbeat == 0){
+        	motor[Motor3].para.disconnect_time++;
+        }else{
+        	motor[Motor3].para.disconnect_time = 0;
+        	motor[Motor3].para.online =1;
+        }
+        if (motor[Motor4].para.heartbeat == 0 && motor[Motor4].para.disconnect_time>100){
+        	motor[Motor4].para.disconnect_time = 0;
+        	motor[Motor4].para.online = 0;
+        }else if(motor[Motor4].para.heartbeat == 0){
+        	motor[Motor4].para.disconnect_time++;
+        }else{
+        	motor[Motor4].para.disconnect_time = 0;
+        	motor[Motor4].para.online =1;
+        }
+        if (motor[Motor1].para.online == 1 &&
+        		motor[Motor2].para.online == 1 &&
+				motor[Motor3].para.online == 1 &&
+				motor[Motor4].para.online == 1){
+        	joint_motor_online = 1;
+        }else{
+        	joint_motor_online = 0;
+        }
     }
 }
 
