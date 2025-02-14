@@ -227,7 +227,7 @@
 #define PITCH_MIN_ANG			-0.25
 #define PITCH_CONST 			-2000
 
-#define YAW_ANGLE_KP			120
+#define YAW_ANGLE_KP			100
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			0
 #define YAW_ANGLE_INT_MAX		0.05

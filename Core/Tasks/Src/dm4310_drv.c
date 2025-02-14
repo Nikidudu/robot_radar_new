@@ -26,7 +26,6 @@ motor_t motor[num];
 Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 float dm_set_tor[4];
 float mf_set_tor[2];
-int fb_id;
 extern int chassis_state;
 uint8_t joint_motor_online = 0;
 
@@ -35,20 +34,12 @@ void dm_motor_control_task(void *argument) {
 	dm_set_tor[1] = 0.0f;
 	dm_set_tor[2] = 0.0f;
 	dm_set_tor[3] = 0.0f;
-	osDelay(1500);
+	osDelay(1000);
 	dm4310_motor_init();
 	osDelay(100);
-	if (motor[Motor1].para.id == 0 || motor[Motor2].para.id == 0 || motor[Motor3].para.id == 0 ||motor[Motor4].para.id == 0){
-		dm4310_motor_init();
-	}
-	osDelay(500);
-	dm4310_motor_init();
-	osDelay(500);
-	if (motor[Motor1].para.id == 0 || motor[Motor2].para.id == 0 || motor[Motor3].para.id == 0 ||motor[Motor4].para.id == 0){
-		while(1){
-		}
-	}
+
     while (1) {
+
 //    	motor[Motor1].ctrl.tor_set = 0.1f;
 //    	motor[Motor2].ctrl.tor_set = 0.2f;
 //    	motor[Motor3].ctrl.tor_set = -0.1f;
@@ -135,6 +126,14 @@ void dm_motor_control_task(void *argument) {
         	joint_motor_online = 1;
         }else{
         	joint_motor_online = 0;
+        	dm4310_enable(&hcan2, &motor[Motor1]);
+        	vTaskDelay(1);
+        	dm4310_enable(&hcan2, &motor[Motor2]);
+        	vTaskDelay(1);
+        	dm4310_enable(&hcan2, &motor[Motor3]);
+        	vTaskDelay(1);
+        	dm4310_enable(&hcan2, &motor[Motor4]);
+        	vTaskDelay(1);
         }
     }
 }
@@ -189,13 +188,13 @@ void dm4310_motor_init(void)
   	MF_motor[0].ctrl.tor_set = 0.0f;
   	MF_motor[1].ctrl.tor_set = 0.0f;
   	dm4310_enable(&hcan2, &motor[Motor1]);
-  	vTaskDelay(10);
+  	vTaskDelay(1);
   	dm4310_enable(&hcan2, &motor[Motor2]);
-  	vTaskDelay(10);
+  	vTaskDelay(1);
   	dm4310_enable(&hcan2, &motor[Motor3]);
-  	vTaskDelay(10);
+  	vTaskDelay(1);
   	dm4310_enable(&hcan2, &motor[Motor4]);
-  	vTaskDelay(10);
+  	vTaskDelay(1);
   	enableMFMotor(&hcan2, 0x141);
   	enableMFMotor(&hcan2, 0x142);
   	MF_motor[0].initialized = 1;

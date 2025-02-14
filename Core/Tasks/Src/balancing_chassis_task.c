@@ -97,7 +97,7 @@ void Ctrl_Init()
 	PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
 	PID_Init(&legAnglePID, 20, 0.0, 1.0, -5.0, 5.0);
 	PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
-	PID_Init(&yawPID, 15.0, 0.1, 3.0, -2.5, 2.5);
+	PID_Init(&yawPID, 8.0, 0.0, 1.0, -2.5, 2.5);
 	PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
 
 }
