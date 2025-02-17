@@ -257,37 +257,29 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 /**
  * Centers the raw motor angle to between -Pi to +Pi
  */
+#define ADJ_ANG_FILTER_ALPHA 0.3f
+
 void angle_offset(raw_data_t *motor_data, angle_data_t *angle_data) {
-	int32_t temp_ang = 0;
+    int32_t temp_ang = angle_data->ticks - angle_data->center_ang;
 
-	//if there's a gearbox, use the ticks after the gearbox.
-	//make sure center angle is properly set with respect to the zero-ing angle
-	//YOUR ROBOT MUST HAVE A WAY TO ZERO THIS ANGLE AND IMPLEMENT A ZEROING FUNCTION AT STARTUP
-	//IF NOT IT WON'T WORK 							-wx
-//	int32_t abs_angle_diff = motor_data->angle[0] - motor_data->angle[1];
-//	//generally the motor won't exceed half a turn between each feedback
-//	if (abs_angle_diff > 4096) {
-//		abs_angle_diff -= 8192;
-//	} else if (abs_angle_diff < -4096) {
-//		abs_angle_diff += 8192;
-//	}
-//	angle_data->ticks += abs_angle_diff;
-//	while (angle_data->ticks > angle_data->max_ticks) {
-//		angle_data->ticks -= angle_data->tick_range;
-//	}
-//	while (angle_data->ticks < angle_data->min_ticks) {
-//		angle_data->ticks += angle_data->tick_range;
-//	}
+    if (temp_ang > angle_data->max_ticks) {
+        temp_ang -= angle_data->tick_range;
+    } else if (temp_ang < angle_data->min_ticks) {
+        temp_ang += angle_data->tick_range;
+    }
 
-	temp_ang = angle_data->ticks - angle_data->center_ang;
-	if (temp_ang > angle_data->max_ticks) {
-		temp_ang -= angle_data->tick_range;
-	} else if (temp_ang < angle_data->min_ticks) {
-		temp_ang += angle_data->tick_range;
-	}
-//	angle_data->ticks = temp_ang;
-	angle_data->adj_ang = (float) temp_ang * angle_data->ang_range
-			/ angle_data->tick_range;
+    // Compute the new measurement for the adjusted angle.
+    float new_adj_ang = (float)temp_ang * angle_data->ang_range / angle_data->tick_range;
+
+    // If it's the first time filtering (you can add a flag in your structure), initialize the filter.
+    if (!angle_data->filter_initialized) {
+        angle_data->adj_ang = new_adj_ang;
+        angle_data->filter_initialized = 1;
+    } else {
+        // Apply exponential moving average (EMA) filter:
+        angle_data->adj_ang = ADJ_ANG_FILTER_ALPHA * new_adj_ang +
+                              (1.0f - ADJ_ANG_FILTER_ALPHA) * angle_data->adj_ang;
+    }
 }
 
 void motor_calc_odometry(raw_data_t *motor_data, angle_data_t *angle_data,

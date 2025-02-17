@@ -97,7 +97,7 @@ void Ctrl_Init()
 	PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
 	PID_Init(&legAnglePID, 20, 0.0, 1.0, -5.0, 5.0);
 	PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
-	PID_Init(&yawPID, 8.0, 0.0, 1.0, -2.5, 2.5);
+	PID_Init(&yawPID, 5.0, 0.0, 1.5, -5.0, 5.0);
 	PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
 
 }
@@ -105,7 +105,7 @@ void Ctrl_Init()
 void Ctrl_TargetUpdateTask()
 {
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    float speedSlopeStep = 1.0f; // Existing parameter for speed slope
+    float speedSlopeStep = 0.5f; // Existing parameter for speed slope
     float speedCmdSlope = 0.01f; // New parameter for speed command slope limit
 
     while (1)

@@ -129,6 +129,7 @@ typedef struct	{
 	float wheel_circ; //in cm
 	float hires_rpm;
 	uint8_t init;
+	uint8_t filter_initialized;
 } angle_data_t;
 
 typedef struct {
