@@ -235,13 +235,13 @@
 #define YAW_MAX_RPM				100
 #define YAW_SPINSPIN_CONSTANT	5000
 
-#define YAWRPM_KP				1200//600//400
-#define YAWRPM_KI				1
-#define YAWRPM_KD				100
+#define YAWRPM_KP				500//600//400
+#define YAWRPM_KI				0
+#define YAWRPM_KD				80
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
-#define YAW_CENTER 				6900
+#define YAW_CENTER 				6905
 #define YAW_MAX_ANG				(4*PI)
 #define YAW_MIN_ANG				(-4*PI)
 

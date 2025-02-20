@@ -83,37 +83,37 @@ void dm_motor_control_task(void *argument) {
         vTaskDelay(1);
         MFtorque_command(&hcan2, 0x142, -MF_motor[1].ctrl.tor_set);
         vTaskDelay(1);
-        if (motor[Motor1].para.heartbeat == 0 && motor[Motor1].para.disconnect_time>100){
+        if ((motor[Motor1].para.heartbeat == 0 || motor[Motor1].para.state != 9) && motor[Motor1].para.disconnect_time>100){
         	motor[Motor1].para.disconnect_time = 0;
         	motor[Motor1].para.online = 0;
-        }else if(motor[Motor1].para.heartbeat == 0){
+        }else if((motor[Motor1].para.heartbeat == 0 || motor[Motor1].para.state != 9)){
         	motor[Motor1].para.disconnect_time++;
         }else{
         	motor[Motor1].para.disconnect_time = 0;
         	motor[Motor1].para.online = 1;
         }
-        if (motor[Motor2].para.heartbeat == 0 && motor[Motor2].para.disconnect_time>100){
+        if ((motor[Motor2].para.heartbeat == 0 || motor[Motor2].para.state != 9) && motor[Motor2].para.disconnect_time>100){
         	motor[Motor2].para.disconnect_time = 0;
         	motor[Motor2].para.online = 0;
-        }else if(motor[Motor2].para.heartbeat == 0){
+        }else if((motor[Motor2].para.heartbeat == 0 || motor[Motor2].para.state != 9)){
         	motor[Motor2].para.disconnect_time++;
         }else{
         	motor[Motor2].para.disconnect_time = 0;
         	motor[Motor2].para.online =1;
         }
-        if (motor[Motor3].para.heartbeat == 0 && motor[Motor3].para.disconnect_time>100){
+        if ((motor[Motor3].para.heartbeat == 0 || motor[Motor3].para.state != 9) && motor[Motor3].para.disconnect_time>100){
         	motor[Motor3].para.disconnect_time = 0;
         	motor[Motor3].para.online = 0;
-        }else if(motor[Motor3].para.heartbeat == 0){
+        }else if((motor[Motor3].para.heartbeat == 0 || motor[Motor3].para.state != 9)){
         	motor[Motor3].para.disconnect_time++;
         }else{
         	motor[Motor3].para.disconnect_time = 0;
         	motor[Motor3].para.online =1;
         }
-        if (motor[Motor4].para.heartbeat == 0 && motor[Motor4].para.disconnect_time>100){
+        if ((motor[Motor4].para.heartbeat == 0 || motor[Motor4].para.state != 9) && motor[Motor4].para.disconnect_time>100){
         	motor[Motor4].para.disconnect_time = 0;
         	motor[Motor4].para.online = 0;
-        }else if(motor[Motor4].para.heartbeat == 0){
+        }else if((motor[Motor4].para.heartbeat == 0 || motor[Motor4].para.state != 9)){
         	motor[Motor4].para.disconnect_time++;
         }else{
         	motor[Motor4].para.disconnect_time = 0;

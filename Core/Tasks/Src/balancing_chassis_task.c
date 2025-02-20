@@ -71,6 +71,8 @@ float RlqrOutTp;
 float F_gravity = 8.0f * 9.81f;
 float LFN_filtered = 0.0f;
 float RFN_filtered = 0.0f;
+float Average_FN = 0.0f;
+float Average_Accel = 0.0f;
 const float alpha = 0.5f; // Smoothing factor (adjust as needed)
 float check_speed;
 float check_x;
@@ -86,20 +88,37 @@ uint32_t jump_time_r = 0;
 int jump_state_l = 0;
 int jump_state_r = 0;
 extern uint8_t joint_motor_online;
+uint8_t gimbal_direction_toggle = 0;
+float filtered_adj_ang = 0.0f;
+PID angleFilterPID;  // PID instance for filtering the angle measurement
+int error6900 = 0;
+int error2777 = 0;
+int staircase_toggle = 0;
+uint8_t staircase_state = 0;
+uint8_t staircase_detect = 0; //if 1 mean robot hit the staircase edge
 
 
 void Ctrl_Init()
 {
 	//robot main pid init
-	PID_Init(&LlegLengthPID, 800, 0.0, 150.0, -200.0, 200.0);
-	PID_Init(&RlegLengthPID, 800, 0.0, 150.0, -200.0, 200.0);
+	PID_Init(&LlegLengthPID, 500, 0.0, 150.0, -200.0, 200.0);
+	PID_Init(&RlegLengthPID, 500, 0.0, 150.0, -200.0, 200.0);
 	PID_Init(&LcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
 	PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
 	PID_Init(&legAnglePID, 20, 0.0, 1.0, -5.0, 5.0);
 	PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
-	PID_Init(&yawPID, 5.0, 0.0, 1.5, -5.0, 5.0);
+	PID_Init(&yawPID, 0.007, 0.0005, 0.0015, -5.0, 5.0);
 	PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
+	PID_Init(&angleFilterPID, 0.3f, 0.0f, 0.0f, -1.0f, 1.0f);
+	filtered_adj_ang = g_can_motors[19].angle_data.adj_ang;
 
+}
+
+#define MAX_ANGLE 8000
+#define HALF_RANGE (MAX_ANGLE / 2)
+int computeError(int current, int target) {
+    int error = ((current - target + HALF_RANGE) % MAX_ANGLE) - HALF_RANGE;
+    return error;
 }
 
 void Ctrl_TargetUpdateTask()
@@ -112,14 +131,19 @@ void Ctrl_TargetUpdateTask()
     {
         // Calculate desired speed command based on yaw angle
         float desiredSpeedCmd;
-        if (target.yawAngle > 3.14 || target.yawAngle < -3.14)
-        {
-            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -3.5f;
+        if (fabs(error6900) < fabs(error2777)){
+        	desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 2.5f;
+        }else{
+        	desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -2.5f;
         }
-        else
-        {
-            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 3.5f;
-        }
+//        if (target.yawAngle > 3.14 || target.yawAngle < -3.14)
+//        {
+//            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -3.5f;
+//        }
+//        else
+//        {
+//            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 3.5f;
+//        }
 
         // Limit the rate of change for the speed command
         if (desiredSpeedCmd == 0.0f)
@@ -151,9 +175,20 @@ void Ctrl_TargetUpdateTask()
         }else{
         	spin_speed = 0;
         }
-        if (g_remote_cmd.side_dial == -660){
-        	jump_state = 1;
+//        if (g_remote_cmd.side_dial == -660){
+//        	jump_state = 1;
+//        }
+        if (chassis_state == 3 || chassis_state == 6){
+        	if (g_remote_cmd.side_dial == -660 && staircase_toggle != -660) {
+        		// Toggle staircase_state between 0 and 1.
+        		staircase_state = !staircase_state;
+        		staircase_toggle = -660;  // Prevent further toggling until the button is released.
+        	} else if (g_remote_cmd.side_dial > -360) {
+        		// Reset the toggle flag when the dial is not at -660.
+        		staircase_toggle = 0;
+        	}
         }
+
 
         // Calculate speed slope step based on leg length
         float legLength = (leftLegPos.length + rightLegPos.length) / 2;
@@ -217,6 +252,25 @@ int ground_detect(float LF, float LTP, float Ltheta, float LL0, float RF, float 
 
 }
 
+int ground_detect_staircase(float LF, float LTP, float Ltheta, float LL0, float RF, float RTP, float Rtheta, float RL0) {
+    // Calculate LFN and RFN
+	//threshold_variation = fabs(sin((stateVar.Ltheta + stateVar.Rtheta)/2)*50);
+    LFN = LF * arm_cos_f32(Ltheta) + LTP * arm_sin_f32(Ltheta) / LL0;
+    RFN = RF * arm_cos_f32(Rtheta) + RTP * arm_sin_f32(Rtheta) / RL0;
+
+    // Apply low-pass filter
+    LFN_filtered = alpha * LFN + (1.0f - alpha) * LFN_filtered;
+    RFN_filtered = alpha * RFN + (1.0f - alpha) * RFN_filtered;
+
+    Average_FN = (LFN_filtered + RFN_filtered)/2.0f;
+
+    //if (Average_FN < (80.0f) && INS.Accel[0] < (-10.0f) && target.speedCmd > 0.1f) {
+    if (INS.Accel[0] < (-10.0f) && target.speedCmd > 0.1f) {
+    	return 1;
+    } else {
+    	return 0;
+    }
+}
 int robot_check(){
 	//
 	return 1;
@@ -244,10 +298,10 @@ void kill_chassis(){
 	target.position = stateVar.x;
 }
 void manual_set_PidInit(){
-	PID_Init(&manual_left_F, 500, 0, 0, -50, 50); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-	PID_Init(&manual_left_Tp, 0.5, 0.001, 0, -2, 2); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-	PID_Init(&manual_right_F, 500, 0, 0, -50, 50); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
-	PID_Init(&manual_right_Tp, 0.5, 0.001, 0, -2, 2);
+	PID_Init(&manual_left_F, 400, 0, 5, -70, 70); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_left_Tp, 20.0, 0, 1.0, -50, 50); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_right_F, 400, 0, 5, -70, 70); // Example gains: kp = 1.0, ki = 0.1, kd = 0.01, min_output = -10, max_output = 10
+	PID_Init(&manual_right_Tp, 20.0, 0, 1.0, -50, 50);
 }
 void manual_set_legPos(float angle, float legLength){
 	float dt = 0.005f;
@@ -301,12 +355,15 @@ void calculate_T_TP(int touching_ground){
 	RlqrOutTp = k[1][0] * Rx[0] + k[1][1] * Rx[1] + k[1][2] * Rx[2] + k[1][3] * Rx[3] + k[1][4] * Rx[4] + k[1][5] * Rx[5];
 }
 void gimbal_auto_front(){ //find shortest distance to align robot gimbal and body
-	if(g_can_motors[19].angle_data.adj_ang > M_PI_2){
-		target.yawAngle = M_PI;
-	}else if(g_can_motors[19].angle_data.adj_ang < -M_PI_2){
-		target.yawAngle = -M_PI;
+	if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 0){
+		gimbal_direction_toggle = 1;
+	}else if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 1){
+		gimbal_direction_toggle = 0;
+	}
+	if (gimbal_direction_toggle == 1){
+		g_can_motors[19].angle_data.center_ang = 2777;
 	}else{
-		target.yawAngle=0;
+		g_can_motors[19].angle_data.center_ang = 6905;
 	}
 }
 void balancing_chassis_task(void *argument) {
@@ -341,7 +398,7 @@ void balancing_chassis_task(void *argument) {
 //				motor[Motor4].para.online !=1){
 //    		chassis_state = 0;
 //    	}
-    	if (g_remote_cmd.right_switch != 3 || joint_motor_online == 0){
+    	if (g_remote_cmd.right_switch != 3){// || joint_motor_online == 0){
     		chassis_state = 0;
     	}
     	gimbal_auto_front(); //align gimbal 0 or 180
@@ -351,6 +408,7 @@ void balancing_chassis_task(void *argument) {
     	        	//do robot checking
     	        	kill_chassis();
     	        	jump_state = 0;
+    	        	staircase_state = 0;
     	           	target.position = stateVar.x;//reset target pos
     	           	ground_state = 0; //on ground
     	           	if (robot_ready == 1){
@@ -376,13 +434,23 @@ void balancing_chassis_task(void *argument) {
 
     	        case 2: // standing with min leglength
     	        	target.speed = 0.0f;
+    	        	staircase_state = 0;
     	        	target.position = stateVar.x;
     	        	calculate_T_TP(1);// 1 touching ground 0 not touching ground
+    	        	error6900 = computeError(g_can_motors[19].raw_data.angle[0], 6900);
+    	        	error2777 = computeError(g_can_motors[19].raw_data.angle[0], 2777);
 
     	        	//PID_Compute(&yawPID, target.yawAngle, g_can_motors[19].angle_data.adj_ang,0.005,0);
     	        	//PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
-    	        	mf_set_tor[0] = -LlqrOutT * lqrTRatio;
-    	        	mf_set_tor[1] = -RlqrOutT * lqrTRatio;
+//    	        	mf_set_tor[0] = -LlqrOutT * lqrTRatio;
+//    	        	mf_set_tor[1] = -RlqrOutT * lqrTRatio;
+    	        	if (fabs(error6900) < fabs(error2777)){
+    	        		PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
+    	        	}else{
+    	        		PID_Compute(&yawPID, target.yawAngle, error2777, dt, 0);
+    	        	}
+    	        	mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
+    	        	mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
 //    	        	if (fabs(spin_speed)>0){
 //    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
 //    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
@@ -447,7 +515,7 @@ void balancing_chassis_task(void *argument) {
     	        	}
     	            break;
     	        case 3: // robot standing with target leglength
-
+    	        	staircase_detect = 0;
     	        	calculate_T_TP(1);// 1 touching ground 0 not touching ground
     	        	if(ground_state != 0) //if robot not touching ground
     	        	{
@@ -458,9 +526,18 @@ void balancing_chassis_task(void *argument) {
     	        		chassis_state = 5;
     	        		break;
     	        	}
+					if (staircase_state == 1){
+						chassis_state = 6;
+						break;
+					}
+    	        	error6900 = computeError(g_can_motors[19].raw_data.angle[0], 6900);
+    	        	error2777 = computeError(g_can_motors[19].raw_data.angle[0], 2777);
+    	        	//PID_Compute(&angleFilterPID, g_can_motors[19].angle_data.adj_ang,filtered_adj_ang , dt, 0);
+    	        	//filtered_adj_ang = angleFilterPID.output;
+    	        	//PID_Compute(&yawPID, target.yawAngle, filtered_adj_ang, dt, 0.01);
 
-    	        	PID_Compute(&yawPID, target.yawAngle, g_can_motors[19].angle_data.adj_ang,0.005,0);
-    	        	PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
+    	        	//PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
+
     	        	//check_speed = leftWheel.speed - rightWheel.speed;
     	        	check_x = (leftWheel.angle +rightWheel.angle)/2.0f;
     	        	if (fabs(spin_speed)>0){
@@ -468,12 +545,18 @@ void balancing_chassis_task(void *argument) {
     	        			spin_toggle = 1;
     	        		}
     	        		target.position = stateVar.x;
+    	        		PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
     	        		//PID_Compute(&WheelspinPID, 0, leftWheel.speed - rightWheel.speed ,0.005,0);
     	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;// + WheelspinPID.output;
     	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;// - WheelspinPID.output;
     	        	}else{
     	        		if (spin_toggle == 1){
     	        			spin_toggle = 0;
+    	        		}
+    	        		if (fabs(error6900) < fabs(error2777)){
+    	        			PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
+    	        		}else{
+    	        			PID_Compute(&yawPID, target.yawAngle, error2777, dt, 0);
     	        		}
     	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
     	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
@@ -667,6 +750,121 @@ void balancing_chassis_task(void *argument) {
     	        	}
 
     	        	break;
+    	        case 6:
+    	        	calculate_T_TP(1);// 1 touching ground 0 not touching ground
+    	        	if(staircase_detect != 0) //if robot not touching ground
+    	        	{
+    	        		chassis_state = 7;
+    	        		break;
+    	        	}
+    	        	if (staircase_state == 0){
+    	        		chassis_state = 3;
+    	        		break;
+    	        	}
+    	        	error6900 = computeError(g_can_motors[19].raw_data.angle[0], 6900);
+    	        	error2777 = computeError(g_can_motors[19].raw_data.angle[0], 2777);
+    	        	//PID_Compute(&angleFilterPID, g_can_motors[19].angle_data.adj_ang,filtered_adj_ang , dt, 0);
+    	        	//filtered_adj_ang = angleFilterPID.output;
+    	        	//PID_Compute(&yawPID, target.yawAngle, filtered_adj_ang, dt, 0.01);
+
+    	        	//PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
+
+    	        	//check_speed = leftWheel.speed - rightWheel.speed;
+    	        	check_x = (leftWheel.angle +rightWheel.angle)/2.0f;
+    	        	if (fabs(spin_speed)>0){
+    	        		if (spin_toggle == 0){
+    	        			spin_toggle = 1;
+    	        		}
+    	        		target.position = stateVar.x;
+    	        		PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm,0.005,0);
+    	        		//PID_Compute(&WheelspinPID, 0, leftWheel.speed - rightWheel.speed ,0.005,0);
+    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;// + WheelspinPID.output;
+    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;// - WheelspinPID.output;
+    	        	}else{
+    	        		if (spin_toggle == 1){
+    	        			spin_toggle = 0;
+    	        		}
+    	        		if (fabs(error6900) < fabs(error2777)){
+    	        			PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
+    	        		}else{
+    	        			PID_Compute(&yawPID, target.yawAngle, error2777, dt, 0);
+    	        		}
+    	        		mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
+    	        		mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
+    	        	}
+
+
+    	        	PID_Compute(&LlegLengthPID, 0.45, leftLegPos.length,dt,0);
+    	        	PID_Compute(&RlegLengthPID, 0.45, rightLegPos.length,dt,0);
+    	        	PID_Compute(&rollPID, target.rollAngle, INS.Roll,dt,0);
+    	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,dt,0.01);
+    	        	//    	        	double leftForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? +rollPID.output : 0) + 13;
+    	        	//    	        	double rightForce = legLengthPID.output + ((groundDetector.isTouchingGround && !groundDetector.isCuchioning) ? -rollPID.output : 0) + 13;
+
+    	        	leftForce = LlegLengthPID.output + F_gravity +rollPID.output;
+    	        	rightForce = RlegLengthPID.output + F_gravity -rollPID.output;
+    	        	//    	        	if(leftLegPos.length > 0.25f) //保护腿部不能伸太长
+    	        	//    	        		leftForce -= (leftLegPos.length - 0.25f) * 100.0f;
+    	        	//    	        	if(rightLegPos.length > 0.25f)
+    	        	//    	        		rightForce -= (rightLegPos.length - 0.25f) * 100.0f;
+    	        	leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
+    	        	rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+
+    	        	leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
+    	        	leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
+
+    	        	//    	        	leftF_check = leftForce;
+    	        	//    	        	leftTp_check = leftTp;
+    	        	//    	        	rightF_check = rightForce;
+    	        	//    	        	rightTp_check = rightTp;
+    	        	//    	        	l1 = leftJointTorque[0];
+    	        	//    	        	l4 = leftJointTorque[1];
+    	        	//    	        	r1 = rightJointTorque[0];
+    	        	//    	        	r4 = rightJointTorque[1];
+    	        	dm_set_tor[3] = leftJointTorque[0];
+    	        	dm_set_tor[0] = leftJointTorque[1];
+    	        	dm_set_tor[1] = -rightJointTorque[0];
+    	        	dm_set_tor[2] = -rightJointTorque[1];
+
+    	        	staircase_detect = ground_detect_staircase(leftForce,leftTp,stateVar.Ltheta,leftLegPos.length
+    	        			,rightForce,rightTp,stateVar.Rtheta,rightLegPos.length);
+
+    	        	break;
+    	        case 7:
+//    	        	dm_set_tor[3] = 0;
+//    	        	dm_set_tor[0] = 0;
+//    	        	dm_set_tor[1] = 0;
+//    	        	dm_set_tor[2] = 0;
+    	        	manual_set_legPos(0.4,0.25);
+    	        	mf_set_tor[0] = 1;// + WheelspinPID.output;
+    	        	mf_set_tor[1] = 1;
+    	        	osDelay(250);
+    	        	chassis_state = 8;
+    	        	break;
+    	        	//chassis_state = 8;
+    	        case 8:
+    	        	target.position = stateVar.x;
+    	        	mf_set_tor[0] = 1;
+    	        	mf_set_tor[1] = 1;
+    	        	PID_Compute(&LlegLengthPID, 0.12, leftLegPos.length,dt,0);
+    	        	PID_Compute(&RlegLengthPID, 0.12, rightLegPos.length,dt,0);
+    	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,dt,0.01);
+    	        	leftForce = LlegLengthPID.output - 50.0f;
+    	        	rightForce = RlegLengthPID.output - 50.0f;
+    	        	leftTp = (legAnglePID.output + (leftLegPos.length));
+    	        	rightTp = (legAnglePID.output + (rightLegPos.length));
+    	        	leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
+    	        	leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
+
+    	        	dm_set_tor[3] = leftJointTorque[0];
+    	        	dm_set_tor[0] = leftJointTorque[1];
+    	        	dm_set_tor[1] = -rightJointTorque[0];
+    	        	dm_set_tor[2] = -rightJointTorque[1];
+    	        	if (leftLegPos.length < 0.15){
+    	        		if(rightLegPos.length < 0.15){
+    	        			chassis_state = 1;
+    	        		}
+    	        	}
     	        default: // Default case for invalid input
     	}
         vTaskDelay(5);

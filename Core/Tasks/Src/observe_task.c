@@ -31,7 +31,7 @@ float vaEstimateKF_P[4] = {1.0f, 0.0f,
 float vaEstimateKF_Q[4] = {0.5f, 0.0f, 
                            0.0f, 0.5f};    // Q�����ʼֵ
 
-float vaEstimateKF_R[4] = {100.0f, 0.0f, 
+float vaEstimateKF_R[4] = {1.0f, 0.0f,
                             0.0f,  100.0f}; 	
 														
 float vaEstimateKF_K[4];

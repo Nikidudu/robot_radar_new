@@ -1,4 +1,4 @@
-../Core/Tasks/Src/dm4310_drv.c:32:6:dm_motor_control_task	17
+../Core/Tasks/Src/dm4310_drv.c:32:6:dm_motor_control_task	25
 ../Core/Tasks/Src/dm4310_drv.c:141:6:dm4310_motor_init	1
 ../Core/Tasks/Src/dm4310_drv.c:232:6:enableMFMotor	1
 ../Core/Tasks/Src/dm4310_drv.c:252:6:disableMFMotor	1
