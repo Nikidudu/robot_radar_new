@@ -209,10 +209,10 @@ void Ctrl_TargetUpdateTask()
 
         // Calculate position target and limit to ±0.1m of current position
         target.position += target.speed * 0.005f;
-        if (target.position - stateVar.x > 0.15f)
-            target.position = stateVar.x + 0.15f;
-        else if (target.position - stateVar.x < -0.15f)
-            target.position = stateVar.x - 0.15f;
+        if (target.position - stateVar.x > 0.5f)
+            target.position = stateVar.x + 0.5f;
+        else if (target.position - stateVar.x < -0.5f)
+            target.position = stateVar.x - 0.5f;
 
         // Limit speed target to ±1.5m/s of current speed
         if (target.speed - stateVar.dx > 1.5f)
@@ -495,16 +495,16 @@ void balancing_chassis_task(void *argument) {
     	        	static int isSteadyStateTimerActive = 0;   // 0 means inactive, 1 means active
 
     	        	// Define the range checks for steady state
-    	        	int isSteadyState = (fabs(stateVar.phi) < 0.1) &&
-    	        	                    (fabs(stateVar.Ltheta) < 0.1) &&
-    	        	                    (fabs(stateVar.Rtheta) < 0.1);
+    	        	int isSteadyState = (fabs(stateVar.phi) < 0.12) &&
+    	        	                    (fabs(stateVar.Ltheta) < 0.12) &&
+    	        	                    (fabs(stateVar.Rtheta) < 0.12);
 
     	        	if (isSteadyState) {
     	        	    if (!isSteadyStateTimerActive) {
     	        	        // Start the timer when the steady state condition is first met
     	        	        steadyStateStartTime = xTaskGetTickCount();
     	        	        isSteadyStateTimerActive = 1;
-    	        	    } else if ((xTaskGetTickCount() - steadyStateStartTime) * portTICK_PERIOD_MS >= 500) {
+    	        	    } else if ((xTaskGetTickCount() - steadyStateStartTime) * portTICK_PERIOD_MS >= 300) {
     	        	        // If the steady state condition persists for 500 ms
     	        	        chassis_state = 3;
     	        	        break;
@@ -835,11 +835,12 @@ void balancing_chassis_task(void *argument) {
 //    	        	dm_set_tor[0] = 0;
 //    	        	dm_set_tor[1] = 0;
 //    	        	dm_set_tor[2] = 0;
-    	        	manual_set_legPos(0.4,0.25);
+    	        	manual_set_legPos(0.4,0.2);
     	        	mf_set_tor[0] = 1;// + WheelspinPID.output;
     	        	mf_set_tor[1] = 1;
-    	        	osDelay(250);
-    	        	chassis_state = 8;
+    	        	if(stateVar.Ltheta > 0.35 && stateVar.Rtheta > 0.35){
+    	        		chassis_state = 8;
+    	        	}
     	        	break;
     	        	//chassis_state = 8;
     	        case 8:

@@ -33,7 +33,7 @@ extern float imu_test[6];
 
 void INS_Init(void)
 { 
-	 mahony_init(&mahony,1.0f,0.0f,0.005f);
+	 mahony_init(&mahony,1.0f,0.01f,0.005f);
    INS.AccelLPF = 0.089f;
 }
 
