@@ -105,9 +105,9 @@ void Ctrl_Init()
 	PID_Init(&RlegLengthPID, 500, 0.0, 150.0, -200.0, 200.0);
 	PID_Init(&LcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
 	PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
-	PID_Init(&legAnglePID, 20, 0.0, 1.0, -5.0, 5.0);
+	PID_Init(&legAnglePID, 20, 0.1, 0.5, -50.0, 50.0);
 	PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
-	PID_Init(&yawPID, 0.007, 0.0005, 0.0015, -5.0, 5.0);
+	PID_Init(&yawPID, 0.009, 0.0001, 0.002, -5.0, 5.0);
 	PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
 	PID_Init(&angleFilterPID, 0.3f, 0.0f, 0.0f, -1.0f, 1.0f);
 	filtered_adj_ang = g_can_motors[19].angle_data.adj_ang;
@@ -265,7 +265,7 @@ int ground_detect_staircase(float LF, float LTP, float Ltheta, float LL0, float 
     Average_FN = (LFN_filtered + RFN_filtered)/2.0f;
 
     //if (Average_FN < (80.0f) && INS.Accel[0] < (-10.0f) && target.speedCmd > 0.1f) {
-    if (INS.Accel[0] < (-10.0f) && target.speedCmd > 0.1f) {
+    if ((INS.Accel[0] < (-10.0f) && target.speedCmd > 0.1f) || (INS.Accel[0] > (10.0f) && target.speedCmd < -0.1f))  {
     	return 1;
     } else {
     	return 0;
@@ -398,8 +398,11 @@ void balancing_chassis_task(void *argument) {
 //				motor[Motor4].para.online !=1){
 //    		chassis_state = 0;
 //    	}
-    	if (g_remote_cmd.right_switch != 3){// || joint_motor_online == 0){
+    	if (g_remote_cmd.right_switch == 1){// || joint_motor_online == 0){
     		chassis_state = 0;
+    	}
+    	if (g_remote_cmd.right_switch == 3){// || joint_motor_online == 0){
+    		chassis_state = 1;
     	}
     	gimbal_auto_front(); //align gimbal 0 or 180
     	F_gravity = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*8.0f*9.81f);
@@ -427,9 +430,13 @@ void balancing_chassis_task(void *argument) {
     	        			(leftLegPos.length >0.1 && leftLegPos.length < 0.15)&&
 							(rightLegPos.angle >1.3 && rightLegPos.angle < 1.7)&&
 							(rightLegPos.length >0.1 && rightLegPos.length < 0.15)){
-    	        		chassis_state = 2;
-    	        		break;
+    	        		if (g_remote_cmd.right_switch == 2){
+    	        			chassis_state = 2;
+    	        			break;
+    	        		}
     	        	}
+    	        	mf_set_tor[0] = ((float)g_remote_cmd.left_y/660.0f)*5.0f + ((float)g_remote_cmd.left_x/660.0f)*5.0f;
+    	        	mf_set_tor[1] = ((float)g_remote_cmd.left_y/660.0f)*5.0f - ((float)g_remote_cmd.left_x/660.0f)*5.0f;
     	            break;
 
     	        case 2: // standing with min leglength
@@ -770,7 +777,6 @@ void balancing_chassis_task(void *argument) {
     	        	//PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
 
     	        	//check_speed = leftWheel.speed - rightWheel.speed;
-    	        	check_x = (leftWheel.angle +rightWheel.angle)/2.0f;
     	        	if (fabs(spin_speed)>0){
     	        		if (spin_toggle == 0){
     	        			spin_toggle = 1;
@@ -835,18 +841,28 @@ void balancing_chassis_task(void *argument) {
 //    	        	dm_set_tor[0] = 0;
 //    	        	dm_set_tor[1] = 0;
 //    	        	dm_set_tor[2] = 0;
-    	        	manual_set_legPos(0.4,0.2);
-    	        	mf_set_tor[0] = 1;// + WheelspinPID.output;
-    	        	mf_set_tor[1] = 1;
-    	        	if(stateVar.Ltheta > 0.35 && stateVar.Rtheta > 0.35){
-    	        		chassis_state = 8;
+    	        	if (fabs(error6900) < fabs(error2777)){
+    	        		manual_set_legPos(0.35,0.2);
+    	        		mf_set_tor[0] = 1;// + WheelspinPID.output;
+    	        		mf_set_tor[1] = 1;
+    	        		if(stateVar.Ltheta > 0.35 && stateVar.Rtheta > 0.35){
+    	        			chassis_state = 8;
+    	        		}
+    	        		break;
+    	        	}else{
+    	        		manual_set_legPos(-0.35,0.2);
+    	        		mf_set_tor[0] = -1;// + WheelspinPID.output;
+    	        		mf_set_tor[1] = -1;
+    	        		if(stateVar.Ltheta < -0.35 && stateVar.Rtheta < -0.35){
+    	        			chassis_state = 8;
+    	        		}
+    	        		break;
     	        	}
     	        	break;
     	        	//chassis_state = 8;
     	        case 8:
     	        	target.position = stateVar.x;
-    	        	mf_set_tor[0] = 1;
-    	        	mf_set_tor[1] = 1;
+
     	        	PID_Compute(&LlegLengthPID, 0.12, leftLegPos.length,dt,0);
     	        	PID_Compute(&RlegLengthPID, 0.12, rightLegPos.length,dt,0);
     	        	PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle,dt,0.01);

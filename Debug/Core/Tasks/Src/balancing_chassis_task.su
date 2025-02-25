@@ -10,4 +10,4 @@
 ../Core/Tasks/Src/balancing_chassis_task.c:306:6:manual_set_legPos	56	static
 ../Core/Tasks/Src/balancing_chassis_task.c:333:6:calculate_T_TP	88	static
 ../Core/Tasks/Src/balancing_chassis_task.c:357:6:gimbal_auto_front	8	static
-../Core/Tasks/Src/balancing_chassis_task.c:369:6:balancing_chassis_task	112	static
+../Core/Tasks/Src/balancing_chassis_task.c:369:6:balancing_chassis_task	128	static

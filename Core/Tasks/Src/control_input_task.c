@@ -116,13 +116,10 @@ void control_input_task(void *argument) {
 				switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
 
-					keyboard_gear_shifter(&gear_speed);
-					set_gear();
+
 					keyboard_control_input();
 					break;
 				case REMOTE_CTRL_MODE:
-					remote_gear_shifter(&gear_speed);
-					set_gear();
 					remote_control_input();
 					break;
 #ifdef HAS_SBC
