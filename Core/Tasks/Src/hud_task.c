@@ -585,60 +585,60 @@ uint16_t draw_feeder_state(uint8_t modify, uint8_t* tx_buffer) {
 //
 
 uint16_t draw_gearing(uint8_t modify, uint8_t* tx_buffer) {
-	uint32_t curr_pos = 0;
-	uint8_t char_len = 0;
-	ref_frame_header_t* send_header = (ref_frame_header_t*) tx_buffer;
-	ref_inter_robot_data_t* graphic_header = (ref_inter_robot_data_t*)(tx_buffer + sizeof(ref_frame_header_t));
-	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer + sizeof(ref_frame_header_t) + sizeof(ref_inter_robot_data_t));
-	curr_pos = 0;
-	char char_buffer[30];
-	graphic_data->color = GRAPHIC_COLOUR_CYAN; //CYAN
-	char_len = snprintf((char*) char_buffer, 30, "GEAR %d", gear_speed.curr_gear);
-	send_header->start_frame = 0xA5;
-	send_header->cmd_id = REF_ROBOT_COMMS_CMD_ID;
-	send_header->seq = g_ref_tx_seq++;
-	send_header->data_length = sizeof(ref_inter_robot_data_t)
-			+ sizeof(graphic_data_struct_t) + char_len;
-	send_header->seq = g_ref_tx_seq++;
-//	memcpy(tx_buffer + curr_pos, &send_header, 7);
-	curr_pos += sizeof(ref_frame_header_t);
-	append_CRC8_check_sum(tx_buffer, 5);
-
-	//for drawing 1 graphic
-	graphic_header->cmd_ID = 0x110;
-	//send to self
-	graphic_header->send_ID = ref_robot_data.robot_id;
-	graphic_header->receiver_ID = g_client_id;
-	curr_pos += sizeof(ref_inter_robot_data_t);
-	//self set number for identification purposes only
-	graphic_data->graphic_name[0] = 0;
-	graphic_data->graphic_name[1] = 'G';
-	graphic_data->graphic_name[2] = 'R';
-	graphic_data->layer = 4;
-	//draw number
-	if (modify == 1) {
-		graphic_data->operation_type = 2; //0 = no operation, 1 = add, 2= modify, 3 = delete
-	} else {
-		graphic_data->operation_type = 1; //0 = no operation, 1 = add, 2= modify, 3 = delete
-	}
-	graphic_data->graphic_type = 7; // char
-	graphic_data->details_a = 30; // font size
-	graphic_data->details_b = char_len; //number of decimal places
-	graphic_data->width = 7; //line width
-	graphic_data->layer = 0;
-	//assuming 1920x1080? need check
-	graphic_data->start_x = 50;
-	graphic_data->start_y = 650;
-	curr_pos += sizeof(graphic_data_struct_t);
-	memcpy(tx_buffer + curr_pos, char_buffer, char_len);
-	curr_pos += char_len;
-
-	append_CRC16_check_sum(tx_buffer, curr_pos + 2);
-	while (huart6.gState != HAL_UART_STATE_READY) {
-		vTaskDelay(1);
-	}
-	HAL_UART_Transmit_DMA(&huart6, tx_buffer, curr_pos + 2);
-	return curr_pos+2;
+//	uint32_t curr_pos = 0;
+//	uint8_t char_len = 0;
+//	ref_frame_header_t* send_header = (ref_frame_header_t*) tx_buffer;
+//	ref_inter_robot_data_t* graphic_header = (ref_inter_robot_data_t*)(tx_buffer + sizeof(ref_frame_header_t));
+//	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer + sizeof(ref_frame_header_t) + sizeof(ref_inter_robot_data_t));
+//	curr_pos = 0;
+//	char char_buffer[30];
+//	graphic_data->color = GRAPHIC_COLOUR_CYAN; //CYAN
+//	char_len = snprintf((char*) char_buffer, 30, "GEAR %d", gear_speed.curr_gear);
+//	send_header->start_frame = 0xA5;
+//	send_header->cmd_id = REF_ROBOT_COMMS_CMD_ID;
+//	send_header->seq = g_ref_tx_seq++;
+//	send_header->data_length = sizeof(ref_inter_robot_data_t)
+//			+ sizeof(graphic_data_struct_t) + char_len;
+//	send_header->seq = g_ref_tx_seq++;
+////	memcpy(tx_buffer + curr_pos, &send_header, 7);
+//	curr_pos += sizeof(ref_frame_header_t);
+//	append_CRC8_check_sum(tx_buffer, 5);
+//
+//	//for drawing 1 graphic
+//	graphic_header->cmd_ID = 0x110;
+//	//send to self
+//	graphic_header->send_ID = ref_robot_data.robot_id;
+//	graphic_header->receiver_ID = g_client_id;
+//	curr_pos += sizeof(ref_inter_robot_data_t);
+//	//self set number for identification purposes only
+//	graphic_data->graphic_name[0] = 0;
+//	graphic_data->graphic_name[1] = 'G';
+//	graphic_data->graphic_name[2] = 'R';
+//	graphic_data->layer = 4;
+//	//draw number
+//	if (modify == 1) {
+//		graphic_data->operation_type = 2; //0 = no operation, 1 = add, 2= modify, 3 = delete
+//	} else {
+//		graphic_data->operation_type = 1; //0 = no operation, 1 = add, 2= modify, 3 = delete
+//	}
+//	graphic_data->graphic_type = 7; // char
+//	graphic_data->details_a = 30; // font size
+//	graphic_data->details_b = char_len; //number of decimal places
+//	graphic_data->width = 7; //line width
+//	graphic_data->layer = 0;
+//	//assuming 1920x1080? need check
+//	graphic_data->start_x = 50;
+//	graphic_data->start_y = 650;
+//	curr_pos += sizeof(graphic_data_struct_t);
+//	memcpy(tx_buffer + curr_pos, char_buffer, char_len);
+//	curr_pos += char_len;
+//
+//	append_CRC16_check_sum(tx_buffer, curr_pos + 2);
+//	while (huart6.gState != HAL_UART_STATE_READY) {
+//		vTaskDelay(1);
+//	}
+//	HAL_UART_Transmit_DMA(&huart6, tx_buffer, curr_pos + 2);
+//	return curr_pos+2;
 }
 
 

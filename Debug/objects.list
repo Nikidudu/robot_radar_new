@@ -39,7 +39,6 @@
 "./Core/Tasks/Src/INS_task.o"
 "./Core/Tasks/Src/PID.o"
 "./Core/Tasks/Src/balancing_chassis_task.o"
-"./Core/Tasks/Src/balancing_imu_task.o"
 "./Core/Tasks/Src/buzzing_task.o"
 "./Core/Tasks/Src/can_msg_processor.o"
 "./Core/Tasks/Src/can_relay_task.o"

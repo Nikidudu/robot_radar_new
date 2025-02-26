@@ -20,7 +20,6 @@
 #include "telemetry_task.h"
 #include "motor_control_task.h"
 #include "hud_task.h"
-#include "balancing_imu_task.h"
 #include "dm4310_drv.h"
 #include "leg_task.h"
 #include "balancing_chassis_task.h"

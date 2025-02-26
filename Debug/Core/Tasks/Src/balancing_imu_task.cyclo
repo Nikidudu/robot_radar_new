@@ -1,4 +1,0 @@
-../Core/Tasks/Src/balancing_imu_task.c:40:13:kalman_filter_init	1
-../Core/Tasks/Src/balancing_imu_task.c:53:14:kalman_filter_update	1
-../Core/Tasks/Src/balancing_imu_task.c:87:6:sensor_fusion	3
-../Core/Tasks/Src/balancing_imu_task.c:135:6:balancing_imu_task	1

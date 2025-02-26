@@ -126,6 +126,10 @@ void dm_motor_control_task(void *argument) {
         	joint_motor_online = 1;
         }else{
         	joint_motor_online = 0;
+        	HAL_CAN_Stop(&hcan2);
+        	osDelay(100);  // Wait for motor power stabilization
+        	HAL_CAN_Start(&hcan2);
+        	osDelay(10);
         	dm4310_enable(&hcan2, &motor[Motor1]);
         	vTaskDelay(1);
         	dm4310_enable(&hcan2, &motor[Motor2]);
@@ -134,6 +138,7 @@ void dm_motor_control_task(void *argument) {
         	vTaskDelay(1);
         	dm4310_enable(&hcan2, &motor[Motor4]);
         	vTaskDelay(1);
+//        	dm4310_motor_init();
         }
     }
 }
@@ -547,7 +552,13 @@ void enable_motor_mode(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode
 	data[5] = 0xFF;
 	data[6] = 0xFF;
 	data[7] = 0xFC;
-	
+	if (HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0)
+	{
+		// Abort any pending messages to free the mailbox
+		HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX0);
+		HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX1);
+		HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX2);
+	}
 	HAL_StatusTypeDef status = HAL_ERROR;
 	if (status == HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox))
 		status = HAL_ERROR; // HIHIHIH

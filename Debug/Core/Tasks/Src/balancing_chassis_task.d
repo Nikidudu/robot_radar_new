@@ -85,13 +85,11 @@ Core/Tasks/Src/balancing_chassis_task.o: \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_imu.h \
- ../Core/robot_config/robot_config.h \
+ ../Core/BSP/Inc/CRC8_CRC16.h ../Core/robot_config/robot_config.h \
  ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
- ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/balancing_imu_task.h \
- ../Core/Tasks/Inc/dm4310_drv.h ../Core/Tasks/Inc/PID.h \
- ../Core/Tasks/Inc/typedefs.h ../Core/Tasks/Inc/leg_task.h \
- ../Core/Tasks/Inc/INS_task.h \
+ ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/dm4310_drv.h \
+ ../Core/Tasks/Inc/PID.h ../Core/Tasks/Inc/typedefs.h \
+ ../Core/Tasks/Inc/leg_task.h ../Core/Tasks/Inc/INS_task.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h \
  ../Core/Tasks/Inc/lqr_k.h ../Core/Tasks/Inc/rtwtypes.h \
@@ -195,12 +193,10 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compile
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
-../Core/BSP/Inc/bsp_imu.h:
 ../Core/robot_config/robot_config.h:
 ../Core/robot_config/robot_config_BL.h:
 ../Core/robot_config/hud_bl.h:
 ../Core/BSP/Inc/hud_constants.h:
-../Core/Tasks/Inc/balancing_imu_task.h:
 ../Core/Tasks/Inc/dm4310_drv.h:
 ../Core/Tasks/Inc/PID.h:
 ../Core/Tasks/Inc/typedefs.h:

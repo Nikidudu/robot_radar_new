@@ -31,7 +31,6 @@ chassis_control_t chassis_ctrl_data;
 gun_control_t launcher_ctrl_data;
 gimbal_control_t gimbal_ctrl_data;
 pid_data_t yaw_pid_data;
-speed_shift_t gear_speed;
 int g_spinspin_mode = 0;
 
 uint8_t control_mode = CONTROL_DEFAULT;
@@ -115,7 +114,6 @@ void control_input_task(void *argument) {
 
 				switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
-
 
 					keyboard_control_input();
 					break;
@@ -333,46 +331,7 @@ void gimbal_set_ang(float pit_radians, float yaw_radians) {
 	gimbal_ctrl_data.yaw = yaw_radians;
 }
 
-void set_gear() {
-	switch (gear_speed.curr_gear) {
-	case 1:
-		gear_speed.spin_mult = GEAR1_YAW_MULT;
-		gear_speed.trans_mult = GEAR1_SPEED_MULT;
-		gear_speed.accel_mult = GEAR1_ACCEL_MULT;
-		break;
-	case 2:
-		gear_speed.spin_mult = GEAR2_YAW_MULT;
-		gear_speed.trans_mult = GEAR2_SPEED_MULT;
-		gear_speed.accel_mult = GEAR2_ACCEL_MULT;
-		break;
-	case 3:
-		gear_speed.spin_mult = GEAR3_YAW_MULT;
-		gear_speed.trans_mult = GEAR3_SPEED_MULT;
-		gear_speed.accel_mult = GEAR3_ACCEL_MULT;
-		break;
-	case 4:
-		gear_speed.spin_mult = GEAR4_YAW_MULT;
-		gear_speed.trans_mult = GEAR4_SPEED_MULT;
-		gear_speed.accel_mult = GEAR4_ACCEL_MULT;
-		break;
-	case 5:
-		gear_speed.spin_mult = GEAR5_YAW_MULT;
-		gear_speed.trans_mult = GEAR5_SPEED_MULT;
-		gear_speed.accel_mult = GEAR5_ACCEL_MULT;
-		break;
-	case 6:
-		gear_speed.spin_mult = GEAR6_YAW_MULT;
-		gear_speed.trans_mult = GEAR6_SPEED_MULT;
-		gear_speed.accel_mult = GEAR6_ACCEL_MULT;
-		break;
-	default:
-		gear_speed.spin_mult = GEAR3_YAW_MULT;
-		gear_speed.trans_mult = GEAR3_SPEED_MULT;
-		gear_speed.accel_mult = GEAR3_ACCEL_MULT;
-		break;
-	}
 
-}
 
 void chassis_yaw_pid_init() {
 	yaw_pid_data.kp = CHASSIS_YAW_KP;

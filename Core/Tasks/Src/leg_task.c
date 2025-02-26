@@ -8,7 +8,6 @@
 #include "board_lib.h"
 #include "bsp_imu.h"
 #include "robot_config.h"
-#include "balancing_imu_task.h"
 #include "dm4310_drv.h"
 #include "leg_task.h"
 #include "rt_nonfinite.h"

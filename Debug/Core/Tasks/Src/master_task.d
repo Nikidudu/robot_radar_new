@@ -97,9 +97,8 @@ Core/Tasks/Src/master_task.o: ../Core/Tasks/Src/master_task.c \
  ../Core/Tasks/Inc/motor_config.h ../Core/Tasks/Inc/usb_task.h \
  ../Core/Tasks/Inc/telemetry_task.h \
  ../Core/Tasks/Inc/motor_control_task.h ../Core/Tasks/Inc/hud_task.h \
- ../Core/Tasks/Inc/balancing_imu_task.h ../Core/Tasks/Inc/dm4310_drv.h \
- ../Core/Tasks/Inc/leg_task.h ../Core/Tasks/Inc/balancing_chassis_task.h \
- ../Core/Tasks/Inc/INS_task.h \
+ ../Core/Tasks/Inc/dm4310_drv.h ../Core/Tasks/Inc/leg_task.h \
+ ../Core/Tasks/Inc/balancing_chassis_task.h ../Core/Tasks/Inc/INS_task.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h \
  ../Core/Tasks/Inc/observe_task.h ../Core/Tasks/Inc/ins_task.h
@@ -218,7 +217,6 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compile
 ../Core/Tasks/Inc/telemetry_task.h:
 ../Core/Tasks/Inc/motor_control_task.h:
 ../Core/Tasks/Inc/hud_task.h:
-../Core/Tasks/Inc/balancing_imu_task.h:
 ../Core/Tasks/Inc/dm4310_drv.h:
 ../Core/Tasks/Inc/leg_task.h:
 ../Core/Tasks/Inc/balancing_chassis_task.h:

@@ -1,5 +1,0 @@
-../Core/Tasks/Src/leg_task.c:20:6:leg_task	48	static
-../Core/Tasks/Src/leg_task.c:56:15:rt_atan2d_snf	48	static
-../Core/Tasks/Src/leg_task.c:89:6:leg_pos	80	static
-../Core/Tasks/Src/leg_task.c:125:6:leg_conv	168	static
-../Core/Tasks/Src/leg_task.c:216:6:leg_spd	168	static

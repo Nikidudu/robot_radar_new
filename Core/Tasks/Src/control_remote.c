@@ -25,11 +25,40 @@ extern uint8_t launcher_safety_toggle;
 
 void remote_control_input() {
 	remote_gimbal_input();
+	remote_chassis_input();
 	remote_launcher_control_input();
 }
 
 
+void remote_chassis_input() {
+	if (g_safety_toggle || g_remote_cmd.right_switch != ge_RSW_ALL_ON) {
+//		chassis_ctrl_data.enabled = 0;
+		chassis_kill_ctrl();
+	} else {
+			chassis_ctrl_data.enabled = 1;
+			float horizontal_input = 0.0;
+			float forward_input = 0.0;
+			float yaw_input = 0.0;
 
+			forward_input = (float) g_remote_cmd.left_y / RC_LIMITS;
+			horizontal_input = (float) g_remote_cmd.left_x / RC_LIMITS;
+//			if (g_remote_cmd.left_switch == ge_LSW_STANDBY){
+//				if (abs(g_remote_cmd.side_dial) > 50 ){
+//				yaw_input = (float)g_remote_cmd.side_dial * CHASSIS_SPINSPIN_MAX/660;
+//				}
+//				else {
+//				//yaw_input = chassis_center_yaw();
+//				}
+//			}
+//			else {
+//			//yaw_input = chassis_center_yaw();
+//			}
+			//min value
+
+//yaw_input = (float) remote_cmd.right_x * CHASSIS_YAW_MAX_RPM /RC_LIMITS;
+			chassis_set_ctrl(forward_input, horizontal_input, yaw_input);
+	}
+}
 
 void remote_gimbal_input() {
 	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {

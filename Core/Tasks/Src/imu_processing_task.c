@@ -391,7 +391,7 @@ void imu_ahrs_update(void) {
 
 	gx = gyro_proc_data.gx;
 	gy = gyro_proc_data.gy;
-	gz = gyro_proc_data.gz - 0.0181f;
+	gz = gyro_proc_data.gz - 0.0175f;
 	ax = accel_proc_data.ax;
 	ay = accel_proc_data.ay;
 	az = accel_proc_data.az;
