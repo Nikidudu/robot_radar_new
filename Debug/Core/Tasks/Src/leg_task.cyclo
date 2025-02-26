@@ -1,0 +1,5 @@
+../Core/Tasks/Src/leg_task.c:19:6:leg_task	1
+../Core/Tasks/Src/leg_task.c:55:15:rt_atan2d_snf	10
+../Core/Tasks/Src/leg_task.c:88:6:leg_pos	1
+../Core/Tasks/Src/leg_task.c:124:6:leg_conv	1
+../Core/Tasks/Src/leg_task.c:215:6:leg_spd	1

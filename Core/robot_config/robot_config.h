@@ -77,6 +77,7 @@
 #define KEY_OFFSET_E        ((uint16_t)0x01<<7)
 #define KEY_OFFSET_SHIFT    ((uint16_t)0x01<<4)
 #define KEY_OFFSET_CTRL     ((uint16_t)0x01<<5)
+#define KEY_OFFSET_T        ((uint16_t)0x01<<6)
 
 #endif /* TASKS_INC_ROBOT_CONFIG_H_ */
 

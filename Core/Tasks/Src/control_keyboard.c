@@ -34,6 +34,9 @@ void keyboard_control_input() {
 
 
 void keyboard_chassis_input() {
+	float horizontal_input = 0.0;
+	float forward_input = 0.0;
+	float yaw_input = 0.0;
 	if (g_safety_toggle || g_remote_cmd.right_switch != ge_RSW_ALL_ON) {
 		chassis_ctrl_data.enabled = 0;
 		chassis_ctrl_data.horizontal = 0;
@@ -42,9 +45,7 @@ void keyboard_chassis_input() {
 	} else {
 		if (g_remote_cmd.right_switch == ge_RSW_ALL_ON) {
 			chassis_ctrl_data.enabled = 1;
-			float horizontal_input = 0.0;
-			float forward_input = 0.0;
-			float yaw_input = 0.0;
+
 
 
 #ifdef CHASSIS_CAN_SPINSPIN
@@ -69,12 +70,12 @@ void keyboard_chassis_input() {
 				horizontal_input += KEYBD_MAX_SPD;
 			}
 
-			if (g_spinspin_mode) {
-				yaw_input = g_spinspin_mode * CHASSIS_SPINSPIN_MAX;
-			} else {
+//			if (g_spinspin_mode) {
+//				yaw_input = g_spinspin_mode * CHASSIS_SPINSPIN_MAX;
+//			} else {
 				//center yaw motor such that yaw motor = 0
 				//yaw_input = chassis_center_yaw();
-			}
+//			}
 			chassis_set_ctrl(forward_input, horizontal_input, yaw_input);
 //			chassis_ctrl_data.horizontal = horizontal_input;
 //			chassis_ctrl_data.forward = forward_input;

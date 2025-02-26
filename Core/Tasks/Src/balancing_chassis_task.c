@@ -81,14 +81,17 @@ float filtered_LdTheta = 0.0f;
 float filtered_RdTheta = 0.0f;
 const float dTheta_alpha = 0.5f; // Smoothing factor for angular velocity values
 
-
 // Define state transition matrix (F), covariance (P), process noise (Q), and measurement noise (R)
 float angleKF_F[1] = {1.0f};    // Simple model where next state is the same as the current state
 float angleKF_P[1] = {1.0f};    // Initial covariance
 float angleKF_Q[1] = {0.01f};   // Process noise (small, since angle is relatively stable)
 float angleKF_R[1] = {5.0f};    // Measurement noise (adjust based on sensor noise level)
 const float angleKF_H[1] = {1.0f}; // Measurement model
-
+float forward = 0.0f;
+float backward = 0.0f;
+float left = 0.0f;
+float right = 0.0f;
+extern uint8_t control_mode;
 
 void Ctrl_Init()
 {
@@ -111,17 +114,41 @@ int computeError(int current, int target) {
 
 void Ctrl_TargetUpdateTask()
 {
+
+
     TickType_t xLastWakeTime = xTaskGetTickCount();
     float speedSlopeStep = 0.4f;
     float speedCmdSlope = 0.01f;
 
     while (1)
     {
+    	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_W) {
+    		forward = KEYBD_MAX_SPD;
+    	}else if (g_remote_cmd.keyboard_keys & KEY_OFFSET_S) {
+    		forward = -KEYBD_MAX_SPD;
+    	}else{
+    		forward = 0;
+    	}
+
+    	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_A) {
+    		left = KEYBD_MAX_SPD;
+    	}
+    	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_D) {
+    		right = -KEYBD_MAX_SPD;
+    	}
         float desiredSpeedCmd;
         if (fabs(error6900) < fabs(error2777)){
-            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 2.5f;
+        	if (control_mode == KEYBOARD_CTRL_MODE){
+        		desiredSpeedCmd = forward * 2.5f;
+        	}else{
+        		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 2.5f;
+        	}
         }else{
-            desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -2.5f;
+        	if (control_mode == KEYBOARD_CTRL_MODE){
+        		desiredSpeedCmd = forward * -2.5f;
+        	}else{
+        		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -2.5f;
+        	}
         }
 
         if (desiredSpeedCmd == 0.0f) {
