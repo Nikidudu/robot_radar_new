@@ -4,10 +4,10 @@
 ../Core/Tasks/Src/balancing_chassis_task.c:215:5:ground_detect	48	static
 ../Core/Tasks/Src/balancing_chassis_task.c:238:5:ground_detect_staircase	48	static
 ../Core/Tasks/Src/balancing_chassis_task.c:254:5:robot_check	4	static
-../Core/Tasks/Src/balancing_chassis_task.c:258:6:state_update	24	static
-../Core/Tasks/Src/balancing_chassis_task.c:281:6:kill_chassis	4	static
-../Core/Tasks/Src/balancing_chassis_task.c:292:6:manual_set_PidInit	8	static
-../Core/Tasks/Src/balancing_chassis_task.c:299:6:manual_set_legPos	56	static
-../Core/Tasks/Src/balancing_chassis_task.c:331:6:calculate_T_TP	88	static
-../Core/Tasks/Src/balancing_chassis_task.c:356:6:gimbal_auto_front	8	static
-../Core/Tasks/Src/balancing_chassis_task.c:373:6:balancing_chassis_task	120	static
+../Core/Tasks/Src/balancing_chassis_task.c:260:6:state_update	16	static
+../Core/Tasks/Src/balancing_chassis_task.c:285:6:kill_chassis	4	static
+../Core/Tasks/Src/balancing_chassis_task.c:296:6:manual_set_PidInit	8	static
+../Core/Tasks/Src/balancing_chassis_task.c:303:6:manual_set_legPos	56	static
+../Core/Tasks/Src/balancing_chassis_task.c:335:6:calculate_T_TP	88	static
+../Core/Tasks/Src/balancing_chassis_task.c:360:6:gimbal_auto_front	8	static
+../Core/Tasks/Src/balancing_chassis_task.c:377:6:balancing_chassis_task	120	static

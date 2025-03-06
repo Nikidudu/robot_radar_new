@@ -43,8 +43,8 @@ float LFTP;
 float RFTP;
 int robot_ready = 0; // 1 ready, 0 not ready
 PID manual_left_F, manual_left_Tp, manual_right_F, manual_right_Tp;
-float kRatio[2][6] = {{1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f},
-                      {1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f}};
+float kRatio[2][6] = {{1.0f, 0.6f, 1.0f, 1.0f, 1.0f, 0.8f},
+                      {1.0f, 0.6f, 1.0f, 1.0f, 1.0f, 0.8f}};
 float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
 double kRes[12] = {0}, k[2][6] = {0};
 float LlqrOutT;
@@ -79,7 +79,7 @@ float filtered_angle = 0.0f;
 const float angle_alpha = 0.15f; // Smoothing factor (0.0-1.0), lower = more filtering
 float filtered_LdTheta = 0.0f;
 float filtered_RdTheta = 0.0f;
-const float dTheta_alpha = 0.5f; // Smoothing factor for angular velocity values
+const float dTheta_alpha = 1.0f; // Smoothing factor for angular velocity values
 
 // Define state transition matrix (F), covariance (P), process noise (Q), and measurement noise (R)
 float angleKF_F[1] = {1.0f};    // Simple model where next state is the same as the current state
@@ -102,7 +102,7 @@ void Ctrl_Init()
     PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
     PID_Init(&legAnglePID, 30, 0.1, 1, -50.0, 50.0);
     PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
-    PID_Init(&yawPID, 0.004, 0.0001, 0.0026, -5.0, 5.0);
+    PID_Init(&yawPID, 0.0035, 0.0, 0.0015, -5.0, 5.0);
     PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
 }
 
@@ -118,7 +118,7 @@ void Ctrl_TargetUpdateTask()
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
     float speedSlopeStep = 0.4f;
-    float speedCmdSlope = 0.01f;
+    float speedCmdSlope = 0.013f;
 
     while (1)
     {
@@ -202,10 +202,10 @@ void Ctrl_TargetUpdateTask()
         else if (target.position - stateVar.x < -0.5f)
             target.position = stateVar.x - 0.5f;
 
-        if (target.speed - stateVar.dx > 1.5f)
-            target.speed = stateVar.dx + 1.5f;
-        else if (target.speed - stateVar.dx < -1.5f)
-            target.speed = stateVar.dx - 1.5f;
+        if (target.speed - stateVar.dx > 1.0f)
+            target.speed = stateVar.dx + 1.0f;
+        else if (target.speed - stateVar.dx < -1.0f)
+            target.speed = stateVar.dx - 1.0f;
         target.legLength = 0.19f + ((float)g_remote_cmd.left_x / 660)*0.07f;
         
         vTaskDelayUntil(&xLastWakeTime, 5);
@@ -255,25 +255,29 @@ int robot_check() {
     return 1;
 }
 
+float last_Ltheta = 0.0f;
+float last_Rtheta = 0.0f;
 void state_update() {
     stateVar.phi = INS.Pitch;
     stateVar.dPhi = -INS.Gyro[1];
     stateVar.x = filtered_x;
     stateVar.dx = filtered_v;
     stateVar.Ltheta = leftLegPos.angle - M_PI_2 - INS.Pitch;
-    
+    stateVar.LdTheta = (stateVar.Ltheta - last_Ltheta)/0.005f;
+    last_Ltheta = stateVar.Ltheta;
     // Apply low-pass filter to left leg angular velocity
-    float raw_LdTheta = leftLegPos.dAngle - (-INS.Gyro[1]);
-    filtered_LdTheta = dTheta_alpha * raw_LdTheta + (1.0f - dTheta_alpha) * filtered_LdTheta;
-    stateVar.LdTheta = filtered_LdTheta;
-    
+    //float raw_LdTheta = leftLegPos.dAngle - (-INS.Gyro[1]);
+    //filtered_LdTheta = dTheta_alpha * raw_LdTheta + (1.0f - dTheta_alpha) * filtered_LdTheta;
+    //stateVar.LdTheta = filtered_LdTheta;
+
     stateVar.Rtheta = rightLegPos.angle - M_PI_2 - INS.Pitch;
-    
+    stateVar.RdTheta = (stateVar.Rtheta - last_Rtheta)/0.005f;
+    last_Rtheta = stateVar.Rtheta;
     // Apply low-pass filter to right leg angular velocity
-    float raw_RdTheta = rightLegPos.dAngle - (-INS.Gyro[1]);
-    filtered_RdTheta = dTheta_alpha * raw_RdTheta + (1.0f - dTheta_alpha) * filtered_RdTheta;
-    stateVar.RdTheta = filtered_RdTheta;
-    
+//    float raw_RdTheta = rightLegPos.dAngle - (-INS.Gyro[1]);
+//    filtered_RdTheta = dTheta_alpha * raw_RdTheta + (1.0f - dTheta_alpha) * filtered_RdTheta;
+//    stateVar.RdTheta = filtered_RdTheta;
+
     stateVar.legLength = (leftLegPos.length + rightLegPos.length) / 2;
     stateVar.dLegLength = (leftLegPos.dLength + rightLegPos.dLength) / 2;
 }
@@ -730,8 +734,8 @@ void balancing_chassis_task(void *argument) {
                     mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
                 }
 
-                PID_Compute(&LlegLengthPID, 0.42, leftLegPos.length, dt, 0);
-                PID_Compute(&RlegLengthPID, 0.42, rightLegPos.length, dt, 0);
+                PID_Compute(&LlegLengthPID, 0.32, leftLegPos.length, dt, 0);
+                PID_Compute(&RlegLengthPID, 0.32, rightLegPos.length, dt, 0);
                 PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
                 PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
 

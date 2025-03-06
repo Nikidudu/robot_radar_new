@@ -106,6 +106,7 @@ typedef struct
 	float torque, torqueRatio; // Nm, voltage = torque / torqueRatio
 	float dir;				   // 1 or -1
 	float (*calcRevVolt)(float speed); // 指向反电动势计算函数
+	float angle_predict;
 } Motor; //六个电机对象
 
 typedef struct	{
