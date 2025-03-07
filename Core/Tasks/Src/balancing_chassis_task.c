@@ -341,8 +341,8 @@ void calculate_T_TP(int touching_ground){
         }
     }else{
         memset(k, 0, sizeof(k));
-        k[1][0] = kRes[1]*1.5f;
-        k[1][1] = kRes[3]*1.5f;
+        k[1][0] = kRes[1]*1.0f;
+        k[1][1] = kRes[3]*0.5f;
     }
 
     float Lx[6] = {stateVar.Ltheta, stateVar.LdTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
