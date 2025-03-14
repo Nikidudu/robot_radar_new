@@ -15,7 +15,7 @@
 #define OVERHEAT_PROTECTION
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
-#define IMU_ORIENTATION	0
+#define IMU_ORIENTATION	2
 //doesn't do anything, todo: implement pid for heater
 #define IMU_TARGET_TEMP	50
 
@@ -39,9 +39,9 @@
 #define MOUSE_Y_SENSITIVITY 	(200 * REMOTE_PITCH_SPEED)				//Speed of pitch turning with mouse,  dependent on above speed
 
 
-#define OVERHEAT_MARGIN 0
-#define OVERHEAT_EXCESS 1
-#define OVERHEAT_OFFSET	40
+#define OVERHEAT_MARGIN 2
+#define OVERHEAT_EXCESS 2
+#define OVERHEAT_OFFSET	20
 
 /*********************** REFEREE SYSTEM CONFIGURATION *******************/
 #define OVERHEAT_TIME			100
@@ -107,15 +107,15 @@
 
 
 #define PROJECTILE_SPEED_RATIO	360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
-#define FEEDER_SPEED_RATIO		5								//projectiles per round of the feeder
+#define FEEDER_SPEED_RATIO		8								//projectiles per round of the feeder
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
 #define YAW_INVERT  			-1				//1 to invert control -1 to disable
-#define PITCH_INVERT  			-1				//1 to invert control -1 to disable
+#define PITCH_INVERT  			1				//1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
-#define	MOUSE_Y_INVERT			1				//Set to -1 if it needs to be inverted
+#define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
 
 #define MOUSE_LIMIT 			200
 
@@ -161,41 +161,40 @@
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
 #define FEEDER_KP 			5			// |
-#define FEEDER_KI  			0.01				// | - FEEDER PID VALUES
+#define FEEDER_KI  			0.02				// | - FEEDER PID VALUES
 #define FEEDER_KD  			3			// |
 #define FEEDER_MAX_INT		10000
 
-#define FEEDER_ANGLE_KP 			200			// |
+#define FEEDER_ANGLE_KP 			1000			// |
 #define FEEDER_ANGLE_KD  			0			// | - FEEDER_ANGLE PID VALUES
 #define FEEDER_ANGLE_KI  			0			// |
 #define FEEDER_ANGLE_INT_MAX  		0			// |
-#define FEEDER_MAX_RPM				200			// |
-#define FEEDER_JAM_TORQUE  		15000			//Before feeder deemed to be jammed
-#define FEEDER_JAM_RPM			50				// if feeeder is below this rpm, it is jammed
+#define FEEDER_MAX_RPM				100			// |
+#define FEEDER_JAM_TORQUE  		9800			//Before feeder deemed to be jammed
+#define FEEDER_JAM_RPM			100				// if feeeder is below this rpm, it is jammed
 #define FEEDER_UNJAM_SPD  		-500				//Reverse unjam
 #define FEEDER_UNJAM_TIME		50
-#define FEEDER_MAX_CURRENT		16000
+#define FEEDER_MAX_CURRENT		10000
 #define FEEDER_INVERT			1
 #define FEEDER_CUTOFF_TEMP  	60
 
 //#define ANGLE_FEEDER
-#define ANGLE_FEEDER_MARGIN		0.87 //0.174 //margin in radians
-#define ANGLE_FEEDER_SPD_MARGIN 20 //rpm after gearbox margin
-#define ANGLE_FEEDER_TIMEOUT    800 //if stuck in angle feeder for more than 2s, timeout
-#define ANGLE_FEEDER_DELAY		100 //time between each shots, in ms
+//#define ANGLE_FEEDER_MARGIN		0.05 //margin in radians
+//#define ANGLE_FEEDER_SPD_MARGIN 10 //rpm after gearbox margin
+//#define ANGLE_FEEDER_TIMEOUT    2000 //if stuck in angle feeder for more than 2s, timeout
 
 
 #define STEPPER_ANGLE			1.8
-#define FRICTION_SB_SPIN		(LV1_PROJECTILE * PROJECTILE_SPEED_RATIO)
-#define FRICTION_KP  			5				// |
-#define FRICTION_KI  			0.0001			// | - FRICTION WHEELS PID VALUES
+#define FRICTION_SB_SPIN		0//LV1_PROJECTILE * PROJECTILE_SPEED_RATIO//6000
+#define FRICTION_KP  			5				    // |
+#define FRICTION_KI  			0//0.02			// | - FRICTION WHEELS PID VALUES
 #define FRICTION_KD  			0//10				// |
 #define FRICTION_MAX_CURRENT 	16384
 #define FRICTION_MAX_INT		10000
-#define FRICTION_INVERT			1
-#define LAUNCHER_MARGIN			50
-#define LAUNCHER_DIFF_MARGIN	50
-#define FRICTION_OFFSET			40//100
+#define FRICTION_INVERT			-1
+#define LAUNCHER_MARGIN			300
+#define LAUNCHER_DIFF_MARGIN	300
+#define FRICTION_OFFSET			0//100
 
 
 #define CLEAR_DELAY				1000
@@ -234,22 +233,22 @@
  * the motors
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_ANGLE_KP	  		100//200
-#define PITCH_ANGLE_KI  		0
+#define PITCH_ANGLE_KP	  		200//200
+#define PITCH_ANGLE_KI  		0.1
 #define PITCH_ANGLE_KD  		0
 #define PITCH_ANGLE_INT_MAX		0.1
-#define PITCH_MAX_RPM			400 //60
+#define PITCH_MAX_RPM			60
 
-#define PITCHRPM_KP				20//700
-#define PITCHRPM_KI				0
-#define PITCHRPM_KD				0
+#define PITCHRPM_KP				1000//700
+#define PITCHRPM_KI				1
+#define PITCHRPM_KD				100
 #define PITCHRPM_INT_MAX		4000
 #define PITCH_MAX_CURRENT		20000
 
-#define PITCH_MOTOR_TYPE		TYPE_M3508//TYPE_GM6020
-#define PITCH_CENTER			3590
-#define PITCH_MAX_ANG			2 * PI // 0.352
-#define PITCH_MIN_ANG			-2 * PI // -0.24
+#define PITCH_MOTOR_TYPE		TYPE_GM6020
+#define PITCH_CENTER			2071//3590
+#define PITCH_MAX_ANG			0.352
+#define PITCH_MIN_ANG			-0.24
 #define PITCH_CONST 			0
 
 
@@ -271,17 +270,6 @@
 #define YAW_MIN_ANG				5*-PI
 
 /*********************** MOTOR CONFIGURATION *******************/
-
-/*
- * 1-4 4x flywheels
- * 5-8
- * 9-12(6020)yaw
- *
- * 13-16 4x wheels
- * 17-20 pitch, feeder
- * 21-24(6020)
- * */
-
 //CAN ids for the motors, for motors on the CAN2 bus, add 12
 //ADD 4 TO GM6020 IDS i.e. flashing 5 times = ID 9
 //#define CHASSIS_MCU
@@ -295,31 +283,20 @@
 #define BR_MOTOR_ID 		16
 #define BR_MOTOR_CAN_PTR	&hcan2
 #endif
-#define FEEDER_MOTOR_ID		18
-#define FEEDER_MOTOR_CAN_PTR	&hcan2
-
-#define LFRICTION_MOTOR_ID	2
+#define FEEDER_MOTOR_ID		7
+#define FEEDER_MOTOR_CAN_PTR	&hcan1
+#define LFRICTION_MOTOR_ID	6
 #define LFRICTION_MOTOR_CAN_PTR	&hcan1
-#define RFRICTION_MOTOR_ID	1
+#define RFRICTION_MOTOR_ID	5
 #define RFRICTION_MOTOR_CAN_PTR	&hcan1
-
-#define ACTIVE_GUIDANCE
-#ifdef ACTIVE_GUIDANCE
-// Bottom flywheel
-#define BFRICTION_MOTOR_ID  3
-#define BFRICTION_MOTOR_CAN_PTR	&hcan1
-// Active guidance flywheel
-#define GFRICTION_MOTOR_ID  4
-#define GFRICTION_MOTOR_CAN_PTR	&hcan1
-#endif
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
-#define PITCH_MOTOR_ID 		17
-#define PITCH_MOTOR_CAN_PTR	&hcan2
+#define PITCH_MOTOR_ID 		8
+#define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
-#define YAW_MOTOR_ID 		9
-#define YAW_MOTOR_CAN_PTR	&hcan1
+#define YAW_MOTOR_ID 		20
+#define YAW_MOTOR_CAN_PTR	&hcan2
 #endif
 
 /* MECANUM WHEEL PROPERTIES */

@@ -324,7 +324,7 @@ void gimbal_turn_ang(float pit_radians, float yaw_radians) {
 	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
 	gimbal_ctrl_data.delta_yaw += yaw_radians;
 	xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
-	gimbal_ctrl_data.pitch += pit_radians / 10;
+	gimbal_ctrl_data.pitch += pit_radians;
 //	gimbal_ctrl_data.yaw = yaw_radians;
 }
 //SETs angle to gimbal ctrl

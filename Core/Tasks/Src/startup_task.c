@@ -39,5 +39,5 @@ void startup_task() {
 	led_green_off();
 	start_micros_timer();
 	led_toggle();
-	servo_init();
+
 }

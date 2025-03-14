@@ -11,7 +11,6 @@
 
 void yangle_pid(double setpoint, double curr_pt, motor_data_t *motor, float imu_data, float *prev_imu_data,uint8_t loopback);
 void yaw_pid(double setpoint, double curr_pt, pid_data_t *pid);
-void pitch_angle_pid(double setpoint, double curr_pt, motor_data_t *motor);
 void yangle_o_pid(double setpoint, double curr_pt, motor_data_t *motor, float imu_data, float *prev_imu_data, float offset);
 void oangle_pid(double setpoint, double curr_pt, motor_data_t *motor, float offset);
 void angle_pid(double setpoint, double curr_pt, motor_data_t *motor);

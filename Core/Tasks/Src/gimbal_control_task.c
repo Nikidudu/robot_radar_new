@@ -24,7 +24,6 @@ extern orientation_data_t imu_heading;
 extern QueueHandle_t telem_motor_queue;
 extern chassis_control_t chassis_ctrl_data;
 extern int32_t chassis_rpm;
-extern remote_cmd_t g_remote_cmd;
 static float rel_pitch_angle;
 uint8_t g_gimbal_state = 0;
 
@@ -129,54 +128,30 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 #ifndef PITCH_ARM			// for robots that do not have a 4 bar linkage on the pitch motor to the pitch assembly
 //	float rel_pitch_angle = pitch_motor->angle_data.adj_ang
 //			+ gimbal_ctrl_data.pitch - imu_heading.pit;
-//	rel_pitch_angle = pitch_motor->angle_data.adj_ang
-//				+ gimbal_ctrl_data.pitch - imu_heading.pit;
-//	if (rel_pitch_angle > pitch_motor->angle_data.phy_max_ang) {
-//		rel_pitch_angle = pitch_motor->angle_data.phy_max_ang;
-//		pit_lim = 1;
-//	}
-//	if (rel_pitch_angle < pitch_motor->angle_data.phy_min_ang) {
-//		rel_pitch_angle = pitch_motor->angle_data.phy_min_ang;
-//		pit_lim = 1;
-//	}
-//	if (pit_lim == 1) {
-//		gimbal_ctrl_data.pitch = rel_pitch_angle + imu_heading.pit
-//				- (pitch_motor->angle_data.adj_ang);
-//	}
-//
-//	yangle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor,
-//			imu_heading.pit, &prev_pit,1);
+	rel_pitch_angle = pitch_motor->angle_data.adj_ang
+				+ gimbal_ctrl_data.pitch - imu_heading.pit;
+	if (rel_pitch_angle > pitch_motor->angle_data.phy_max_ang) {
+		rel_pitch_angle = pitch_motor->angle_data.phy_max_ang;
+		pit_lim = 1;
+	}
+	if (rel_pitch_angle < pitch_motor->angle_data.phy_min_ang) {
+		rel_pitch_angle = pitch_motor->angle_data.phy_min_ang;
+		pit_lim = 1;
+	}
+	if (pit_lim == 1) {
+		gimbal_ctrl_data.pitch = rel_pitch_angle + imu_heading.pit
+				- (pitch_motor->angle_data.adj_ang);
+	}
+
+	yangle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor,
+			imu_heading.pit, &prev_pit,1);
 //	angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
 
-	speed_pid(g_remote_cmd.right_y * 5, pitch_motor->raw_data.rpm, &pitch_motor->rpm_pid);
-
-	if (gimbal_ctrl_data.pitch >= 0.55) {
-		gimbal_ctrl_data.pitch = 0.55;
-	}
-	if (gimbal_ctrl_data.pitch <= -0.20) {
-		gimbal_ctrl_data.pitch = -0.20;
-	}
-
-	// -0.32 to 0.65
-	//	pitch_angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
-	pitch_motor->output = pitch_motor->rpm_pid.output;
-
-	if (imu_heading.pit <= -0.20 || imu_heading.pit>= 0.55) {
-		pitch_motor->output = 0;
-	}
-	// 0 TO 155/180 * PI
-	double CONSTANT = PI / 2; // adds 90degree to pitch heading, such that pitch will not be negative
-	double pulseWidth = (500 + (((0)* (2500 - 500)) / (3 * PI / 2)));
-	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, pulseWidth / 10);
-
-	double pulseWidth2 = (500 + (((imu_heading.pit + CONSTANT)* (2500 - 500)) / (3 * PI / 2)));
-	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_3, pulseWidth2 / 10);
-
-//	int32_t temp_pit_output = pitch_motor->rpm_pid.output + PITCH_CONST;
-//	temp_pit_output = (temp_pit_output < -20000) ? -20000 :
-//						(temp_pit_output > 20000) ? 20000 : temp_pit_output;
-//	;
-//	pitch_motor->output = temp_pit_output;
+	int32_t temp_pit_output = pitch_motor->rpm_pid.output + PITCH_CONST;
+	temp_pit_output = (temp_pit_output < -20000) ? -20000 :
+						(temp_pit_output > 20000) ? 20000 : temp_pit_output;
+	;
+	pitch_motor->output = temp_pit_output;
 
 #else
 	float rel_pitch_angle = gimbal_ctrl_data.pitch; // insert function where input desired gimbal pitch angle and output corresponding motor angle
