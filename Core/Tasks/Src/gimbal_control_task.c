@@ -12,6 +12,7 @@
 #include "can_msg_processor.h"
 #include "gimbal_control_task.h"
 #include "bsp_lk_motor.h"
+#include "bsp_microswitch.h"
 
 extern uint8_t aimbot_mode;
 
@@ -27,6 +28,8 @@ extern int32_t chassis_rpm;
 extern remote_cmd_t g_remote_cmd;
 static float rel_pitch_angle;
 uint8_t g_gimbal_state = 0;
+extern uint8_t gimbal_upper_bound;
+extern uint8_t gimbal_lower_bound;
 
 static float prev_pit;
 static float prev_yaw;
@@ -148,6 +151,10 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 //			imu_heading.pit, &prev_pit,1);
 //	angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
 
+	if (gimbal_upper_bound == 0 || gimbal_lower_bound == 0){
+		pitch_motor->output =0;
+	}
+
 	speed_pid(g_remote_cmd.right_y * 5, pitch_motor->raw_data.rpm, &pitch_motor->rpm_pid);
 
 	if (gimbal_ctrl_data.pitch >= 0.55) {
@@ -161,15 +168,17 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 	//	pitch_angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
 	pitch_motor->output = pitch_motor->rpm_pid.output;
 
-	if (imu_heading.pit <= -0.20 || imu_heading.pit>= 0.55) {
-		pitch_motor->output = 0;
-	}
+//	if (imu_heading.pit <= -0.20 || imu_heading.pit>= 0.55) {
+//		pitch_motor->output = 0;
+//	}
 	// 0 TO 155/180 * PI
 	double CONSTANT = PI / 2; // adds 90degree to pitch heading, such that pitch will not be negative
-	double pulseWidth = (500 + (((0)* (2500 - 500)) / (3 * PI / 2)));
+
+	double pulseWidth = (180.0 / 270.0) * 2000 + 500;
 	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, pulseWidth / 10);
 
-	double pulseWidth2 = (500 + (((imu_heading.pit + CONSTANT)* (2500 - 500)) / (3 * PI / 2)));
+//	double pulseWidth2 = (500 + (((0.0 /*imu_heading.pit + CONSTANT*/) * (2500 - 500)) / (3 * PI / 2)));
+	double pulseWidth2 = (90.0 / 270.0) * 2000 + 500;
 	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_3, pulseWidth2 / 10);
 
 //	int32_t temp_pit_output = pitch_motor->rpm_pid.output + PITCH_CONST;

@@ -46,17 +46,17 @@
 /*********************** REFEREE SYSTEM CONFIGURATION *******************/
 #define OVERHEAT_TIME			100
 
-#define LV1_FEEDER				1200//800//480//480
+#define LV1_FEEDER				100//1200//800//480//480
 #define	LV1_PROJECTILE			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
 #define LV1_MAX_SPEED			4000//4500//M3508_MAX_RPM
 #define LV1_MAX_CURRENT			16384
 
-#define LV2_FEEDER				1200//840
+#define LV2_FEEDER				100//1200//840
 #define	LV2_PROJECTILE			20.5//12
 #define LV2_MAX_SPEED			4750//5250//8000
 #define LV2_MAX_CURRENT			16384
 
-#define LV3_FEEDER				1200//840
+#define LV3_FEEDER				100//1200//840
 #define	LV3_PROJECTILE			20.5//12
 #define LV3_MAX_SPEED			5250//6000//9000
 #define LV3_MAX_CURRENT			16384
@@ -160,12 +160,12 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_KP 			5			// |
+#define FEEDER_KP 			0//1			// |
 #define FEEDER_KI  			0.01				// | - FEEDER PID VALUES
-#define FEEDER_KD  			3			// |
+#define FEEDER_KD  			0			// |
 #define FEEDER_MAX_INT		10000
 
-#define FEEDER_ANGLE_KP 			200			// |
+#define FEEDER_ANGLE_KP 			0//2			// |
 #define FEEDER_ANGLE_KD  			0			// | - FEEDER_ANGLE PID VALUES
 #define FEEDER_ANGLE_KI  			0			// |
 #define FEEDER_ANGLE_INT_MAX  		0			// |
@@ -187,7 +187,7 @@
 
 #define STEPPER_ANGLE			1.8
 #define FRICTION_SB_SPIN		(LV1_PROJECTILE * PROJECTILE_SPEED_RATIO)
-#define FRICTION_KP  			5				// |
+#define FRICTION_KP  			0//3//5				// |
 #define FRICTION_KI  			0.0001			// | - FRICTION WHEELS PID VALUES
 #define FRICTION_KD  			0//10				// |
 #define FRICTION_MAX_CURRENT 	16384
@@ -234,13 +234,13 @@
  * the motors
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_ANGLE_KP	  		100//200
+#define PITCH_ANGLE_KP	  		0//1//200
 #define PITCH_ANGLE_KI  		0
 #define PITCH_ANGLE_KD  		0
 #define PITCH_ANGLE_INT_MAX		0.1
 #define PITCH_MAX_RPM			400 //60
 
-#define PITCHRPM_KP				20//700
+#define PITCHRPM_KP				0//2//700
 #define PITCHRPM_KI				0
 #define PITCHRPM_KD				0
 #define PITCHRPM_INT_MAX		4000
@@ -253,20 +253,20 @@
 #define PITCH_CONST 			0
 
 
-#define YAW_ANGLE_KP			120//200
+#define YAW_ANGLE_KP			0//120//200
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			0
 #define YAW_ANGLE_INT_MAX		0.05
 #define YAW_MAX_RPM				85
 #define YAW_SPINSPIN_CONSTANT	5000
 
-#define YAWRPM_KP				1200//600//400
+#define YAWRPM_KP				0//1200//600//400
 #define YAWRPM_KI				0
 #define YAWRPM_KD				0
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
-#define YAW_CENTER 				0//2790//7870//
+#define YAW_CENTER 				4721//2790//7870//
 #define YAW_MAX_ANG				5*PI
 #define YAW_MIN_ANG				5*-PI
 
@@ -274,11 +274,11 @@
 
 /*
  * 1-4 4x flywheels
- * 5-8
- * 9-12(6020)yaw
+ * 5-8 pitch
+ * 9-12(6020)
  *
  * 13-16 4x wheels
- * 17-20 pitch, feeder
+ * 17-20 feeder(18), yaw(20)
  * 21-24(6020)
  * */
 
@@ -286,13 +286,13 @@
 //ADD 4 TO GM6020 IDS i.e. flashing 5 times = ID 9
 //#define CHASSIS_MCU
 #ifndef CHASSIS_MCU
-#define FR_MOTOR_ID 		13
+#define FR_MOTOR_ID 		15
 #define FR_MOTOR_CAN_PTR	&hcan2
-#define FL_MOTOR_ID 		14
+#define FL_MOTOR_ID 		16
 #define FL_MOTOR_CAN_PTR	&hcan2
-#define BL_MOTOR_ID 		15
+#define BL_MOTOR_ID 		13
 #define BL_MOTOR_CAN_PTR	&hcan2
-#define BR_MOTOR_ID 		16
+#define BR_MOTOR_ID 		14
 #define BR_MOTOR_CAN_PTR	&hcan2
 #endif
 #define FEEDER_MOTOR_ID		18
@@ -315,11 +315,11 @@
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
-#define PITCH_MOTOR_ID 		17
-#define PITCH_MOTOR_CAN_PTR	&hcan2
+#define PITCH_MOTOR_ID 		5
+#define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
-#define YAW_MOTOR_ID 		9
-#define YAW_MOTOR_CAN_PTR	&hcan1
+#define YAW_MOTOR_ID 		20
+#define YAW_MOTOR_CAN_PTR	&hcan2
 #endif
 
 /* MECANUM WHEEL PROPERTIES */
