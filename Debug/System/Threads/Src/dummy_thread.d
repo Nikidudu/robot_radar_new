@@ -84,7 +84,29 @@ System/Threads/Src/dummy_thread.o: ../System/Threads/Src/dummy_thread.cpp \
  ../Core/Inc/usart.h ../Core/Inc/main.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCanDriver.h \
  ../Core/Inc/can.h ../Core/Inc/crc.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h \
+ ../Core/BSP/Inc/board_lib.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
+ ../Core/BSP/Inc/bsp_queue.h ../Core/BSP/Inc/board_settings.h \
+ ../Core/Tasks/Inc/typedefs.h \
+ ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
+ ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
+ ../Core/BSP/Inc/bsp_dbus_input.h ../Core/BSP/Inc/bsp_usart.h \
+ ../Core/BSP/Inc/bsp_referee.h ../Core/BSP/Inc/referee_msgs.h \
+ ../Core/BSP/Inc/bsp_can.h ../Core/BSP/Inc/bsp_led.h \
+ ../Core/BSP/Inc/bsp_oled.h ../Core/Inc/spi.h ../Core/BSP/Inc/bsp_imu.h \
+ ../Core/BSP/Inc/bsp_buzzer.h ../Core/Inc/tim.h \
+ ../Core/BSP/Inc/bsp_gpio.h ../USB_DEVICE/App/usbd_cdc_if.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h \
+ ../USB_DEVICE/Target/usbd_conf.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
+ ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
+ ../Core/BSP/Inc/CRC8_CRC16.h
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/dummy_thread.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -173,3 +195,34 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/Ro
 ../Core/Inc/can.h:
 ../Core/Inc/crc.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h:
+../Core/BSP/Inc/board_lib.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
+../Core/BSP/Inc/bsp_queue.h:
+../Core/BSP/Inc/board_settings.h:
+../Core/Tasks/Inc/typedefs.h:
+../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h:
+../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:
+../Core/BSP/Inc/bsp_dbus_input.h:
+../Core/BSP/Inc/bsp_usart.h:
+../Core/BSP/Inc/bsp_referee.h:
+../Core/BSP/Inc/referee_msgs.h:
+../Core/BSP/Inc/bsp_can.h:
+../Core/BSP/Inc/bsp_led.h:
+../Core/BSP/Inc/bsp_oled.h:
+../Core/Inc/spi.h:
+../Core/BSP/Inc/bsp_imu.h:
+../Core/BSP/Inc/bsp_buzzer.h:
+../Core/Inc/tim.h:
+../Core/BSP/Inc/bsp_gpio.h:
+../USB_DEVICE/App/usbd_cdc_if.h:
+../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h:
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h:
+../USB_DEVICE/Target/usbd_conf.h:
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h:
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
+../Core/BSP/Inc/bsp_usb_redir.h:
+../Core/BSP/Inc/bsp_micros_timer.h:
+../Core/BSP/Inc/CRC8_CRC16.h:

@@ -287,6 +287,7 @@ void ROCANDriver::transmit(uint8_t* buffer, uint32_t length) {
             // Wait for a free mailbox
             while (HAL_CAN_GetTxMailboxesFreeLevel(can) == 0) {
                 // Optionally add a timeout here to prevent infinite loop
+
             }
 
             // Transmit the current chunk

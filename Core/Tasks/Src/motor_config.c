@@ -180,12 +180,13 @@ void motor_calib_task(void *argument) {
 				error = 0;
 			}
 		}
-
+ 	if(JOINT_MOTOR_ONLINE_CHECK == 1){
 		if (joint_motor_online == 0){
 			bz_buzzer(1, 2);
 			vTaskDelay(1000);
 			continue;
 		}
+ 	}
 		vTaskDelay(1000);
 	}
 

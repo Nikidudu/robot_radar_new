@@ -1,6 +1,6 @@
-../Core/Tasks/Src/motor_config.c:48:6:motor_calib_task	7
-../Core/Tasks/Src/motor_config.c:216:6:set_motor_config	6
-../Core/Tasks/Src/motor_config.c:351:6:config_motors	2
-../Core/Tasks/Src/motor_config.c:559:6:bz_buzzer	3
-../Core/Tasks/Src/motor_config.c:572:6:motor_temp_bz	3
-../Core/Tasks/Src/motor_config.c:590:10:check_motors	11
+../Core/Tasks/Src/motor_config.c:48:6:motor_calib_task	6
+../Core/Tasks/Src/motor_config.c:217:6:set_motor_config	6
+../Core/Tasks/Src/motor_config.c:352:6:config_motors	2
+../Core/Tasks/Src/motor_config.c:560:6:bz_buzzer	3
+../Core/Tasks/Src/motor_config.c:573:6:motor_temp_bz	3
+../Core/Tasks/Src/motor_config.c:591:10:check_motors	11
