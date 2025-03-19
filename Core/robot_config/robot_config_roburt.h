@@ -10,7 +10,7 @@
 
 #include "motor_config.h"
 #include "hud_roburt.h"
-#define BULLET_17
+#define BULLET_42
 
 #define OVERHEAT_PROTECTION
 //#define BOARD_DOWN
@@ -160,12 +160,12 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_KP 			0//1			// |
-#define FEEDER_KI  			0.01				// | - FEEDER PID VALUES
+#define FEEDER_KP 			10//0			// |
+#define FEEDER_KI  			0				// | - FEEDER PID VALUES
 #define FEEDER_KD  			0			// |
 #define FEEDER_MAX_INT		10000
 
-#define FEEDER_ANGLE_KP 			0//2			// |
+#define FEEDER_ANGLE_KP 			1//5			// |
 #define FEEDER_ANGLE_KD  			0			// | - FEEDER_ANGLE PID VALUES
 #define FEEDER_ANGLE_KI  			0			// |
 #define FEEDER_ANGLE_INT_MAX  		0			// |
@@ -187,8 +187,8 @@
 
 #define STEPPER_ANGLE			1.8
 #define FRICTION_SB_SPIN		(LV1_PROJECTILE * PROJECTILE_SPEED_RATIO)
-#define FRICTION_KP  			0//3//5				// |
-#define FRICTION_KI  			0.0001			// | - FRICTION WHEELS PID VALUES
+#define FRICTION_KP  			2//5				// |
+#define FRICTION_KI  			0//0.0001			// | - FRICTION WHEELS PID VALUES
 #define FRICTION_KD  			0//10				// |
 #define FRICTION_MAX_CURRENT 	16384
 #define FRICTION_MAX_INT		10000
@@ -201,7 +201,7 @@
 #define CLEAR_DELAY				1000
 
 /*********************** CHASSIS CONFIGURATION ***********************/
-#define CHASSIS_KP  		8				// |
+#define CHASSIS_KP  		2				// |
 #define CHASSIS_KI  		0.1				// | - CHASSIS WHEELS PID VALUES
 #define CHASSIS_KD  		1				// |
 #define CHASSIS_INT_MAX  	5000				// |
@@ -234,13 +234,13 @@
  * the motors
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_ANGLE_KP	  		0//1//200
+#define PITCH_ANGLE_KP	  		1//200
 #define PITCH_ANGLE_KI  		0
 #define PITCH_ANGLE_KD  		0
 #define PITCH_ANGLE_INT_MAX		0.1
 #define PITCH_MAX_RPM			400 //60
 
-#define PITCHRPM_KP				0//2//700
+#define PITCHRPM_KP				2//700
 #define PITCHRPM_KI				0
 #define PITCHRPM_KD				0
 #define PITCHRPM_INT_MAX		4000
@@ -260,7 +260,7 @@
 #define YAW_MAX_RPM				85
 #define YAW_SPINSPIN_CONSTANT	5000
 
-#define YAWRPM_KP				0//1200//600//400
+#define YAWRPM_KP				1200//600//400
 #define YAWRPM_KI				0
 #define YAWRPM_KD				0
 #define YAWRPM_INT_MAX			5000

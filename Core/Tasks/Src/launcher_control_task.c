@@ -377,6 +377,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
 				feeder->raw_data.rpm, &feeder->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
+
 		break;
 
 	case FEEDER_JAM:
@@ -747,18 +748,23 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		break;
 
 	case FEEDER_SPINUP:
-		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
-				feeder->raw_data.rpm, &feeder->rpm_pid);
-		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-		feeder->output = feeder->rpm_pid.output;
+		if (g_flywheel->raw_data.rpm <= 10) {
+			speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
+					feeder->raw_data.rpm, &feeder->rpm_pid);
+			feeder->output = feeder->rpm_pid.output;
+		}
 		g_flywheel->output = g_flywheel->rpm_pid.output;
+		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		break;
 
 	case FEEDER_FIRING:
-		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
+//		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
 		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-		feeder->output = feeder->rpm_pid.output;
+//		feeder->output = feeder->rpm_pid.output;
 		g_flywheel->output = g_flywheel->rpm_pid.output;
+		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio / 2,
+							feeder->raw_data.rpm, &feeder->rpm_pid);
+		feeder->output = feeder->rpm_pid.output;
 		break;
 
 	case FEEDER_JAM:
