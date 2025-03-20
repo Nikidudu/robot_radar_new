@@ -1,0 +1,4 @@
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolMacros.h:7:17:uint16_t __gen_crc16(const uint8_t*, uint16_t)	24	static
+C:/Users/YI MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/ImuThread.h:34:2:ImuCommThread::ImuCommThread()	16	static
+../System/BRoCo/include/Protocol/Telemetry.cpp:35:6:static void Telemetry::setup()	16	static
+../System/BRoCo/include/Protocol/Telemetry.cpp:56:6:static void Telemetry::set_id(uint32_t)	16	static

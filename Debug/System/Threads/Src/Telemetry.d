@@ -89,7 +89,8 @@ System/Threads/Src/Telemetry.o: ../System/Threads/Src/Telemetry.cpp \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
  ../Core/Inc/tim.h ../Core/Inc/spi.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/SuperCapCommThread.h
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/SuperCapCommThread.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/ImuThread.h
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCo.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/Protocol.h:
@@ -184,3 +185,4 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.
 ../Core/Inc/tim.h:
 ../Core/Inc/spi.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/SuperCapCommThread.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/ImuThread.h:

@@ -15,6 +15,7 @@
 #include "can.h"
 
 #include "SuperCapCommThread.h"
+#include "ImuThread.h"
 
 ROCANDriver* CAN1_driver = nullptr;
 CANBus* CAN1_network = nullptr;
@@ -23,6 +24,7 @@ CANBus* CAN2_network = nullptr;
 
 dummyThread* dummy = nullptr;
 SuperCapCommThread* supercap_thread = nullptr;
+ImuCommThread* imu_thread = nullptr;
 //imuThread* imu = nullptr;
 //gimbalJointPubThread* gimbalJointThread = nullptr;
 //ChassisSpdCmdThread* speedCmdThread = nullptr;
@@ -41,25 +43,13 @@ void Telemetry::setup() {
 
 //		CAN2_driver = new ROCANDriver(&hcan2, CURRENT_NODE_ID);
 //		CAN2_network = new CANBus(CAN2_driver);
-		dummy = new dummyThread();
-		supercap_thread = new SuperCapCommThread();
+//		dummy = new dummyThread();
+//		supercap_thread = new SuperCapCommThread();
+//		imu_thread = new ImuCommThread();
 
 
 		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
-		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
-
-//		gimbalJointThread = new gimbalJointPubThread();
-////		imu = new imuThread();
-//		speedCmdThread = new ChassisSpdCmdThread();
-//		status = new statusThread();
-
-//		UART1_network->handle<chassisSpeedCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spd_commands);
-//		UART1_network->handle<gimbalAngleCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_spd_commands);
-//		UART1_network->handle<gimbalAnglePitchCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_pitch_command);
-//		UART1_network->handle<gimbalAngleYawCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_yaw_command);
-//		UART1_network->handle<FrontFiringPacket>(&ChassisSpdCmdThread::handle_launcher_front_firing_commands);
-//		UART1_network->handle<ChassisSpinCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spin_command);
-
+//		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
 
 }
 

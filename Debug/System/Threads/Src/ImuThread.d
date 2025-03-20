@@ -1,7 +1,5 @@
-System/BRoCo/src/RoCanDriver.o: ../System/BRoCo/src/RoCanDriver.cpp \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCanDriver.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Build/Build.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h \
+System/Threads/Src/ImuThread.o: ../System/Threads/Src/ImuThread.cpp \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/ImuThread.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -42,6 +40,17 @@ System/BRoCo/src/RoCanDriver.o: ../System/BRoCo/src/RoCanDriver.cpp \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h \
+ ../Core/Inc/main.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_cortex.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_rcc.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_system.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_utils.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_pwr.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h \
+ ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/utils/Inc/Thread.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
  ../Core/Inc/FreeRTOSConfig.h \
@@ -57,44 +66,6 @@ System/BRoCo/src/RoCanDriver.o: ../System/BRoCo/src/RoCanDriver.cpp \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h \
- ../Core/Inc/can.h ../Core/Inc/main.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_cortex.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_rcc.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_system.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_utils.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_pwr.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h \
- ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h \
- ../Core/Tasks/Inc/dm4310_drv.h ../Core/Inc/main.h \
- ../Core/BSP/Inc/board_lib.h ../Core/Inc/usart.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
- ../Core/BSP/Inc/bsp_queue.h ../Core/BSP/Inc/board_settings.h \
- ../Core/Tasks/Inc/typedefs.h \
- ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
- ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
- ../Core/BSP/Inc/bsp_dbus_input.h ../Core/BSP/Inc/bsp_usart.h \
- ../Core/BSP/Inc/bsp_referee.h ../Core/BSP/Inc/referee_msgs.h \
- ../Core/BSP/Inc/bsp_can.h ../Core/BSP/Inc/bsp_led.h \
- ../Core/BSP/Inc/bsp_oled.h ../Core/Inc/spi.h ../Core/BSP/Inc/bsp_imu.h \
- ../Core/BSP/Inc/bsp_buzzer.h ../Core/Inc/tim.h \
- ../Core/BSP/Inc/bsp_gpio.h ../USB_DEVICE/App/usbd_cdc_if.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h \
- ../USB_DEVICE/Target/usbd_conf.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
- ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/robot_config/robot_config.h \
- ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
- ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/motor_config.h \
- ../Core/Tasks/Inc/can_msg_processor.h ../Core/BSP/Inc/bsp_lk_motor.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/ImuThread.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/DataStructures.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCo.h \
@@ -104,15 +75,18 @@ System/BRoCo/src/RoCanDriver.o: ../System/BRoCo/src/RoCanDriver.cpp \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolMacros.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IOBus.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/MessageBus.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/NetworkBus.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Build/Build.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/CANBus.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/UDevDriver.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h \
+ ../Core/Inc/usart.h ../Core/Inc/main.h \
  C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCanDriver.h \
- ../Core/Inc/crc.h
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCanDriver.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Build/Build.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h:
+ ../Core/Inc/can.h ../Core/Inc/crc.h \
+ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h \
+ ../Core/BSP/Inc/referee_msgs.h
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/ImuThread.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:
@@ -153,6 +127,17 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h:
+../Core/Inc/main.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_cortex.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_rcc.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_system.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_utils.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_pwr.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/utils/Inc/Thread.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
@@ -168,60 +153,6 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/utils/Inc/Thread.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h:
-../Core/Inc/can.h:
-../Core/Inc/main.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_cortex.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_rcc.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_system.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_utils.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_pwr.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h:
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h:
-../Core/Tasks/Inc/dm4310_drv.h:
-../Core/Inc/main.h:
-../Core/BSP/Inc/board_lib.h:
-../Core/Inc/usart.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
-../Core/BSP/Inc/bsp_queue.h:
-../Core/BSP/Inc/board_settings.h:
-../Core/Tasks/Inc/typedefs.h:
-../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h:
-../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:
-../Core/BSP/Inc/bsp_dbus_input.h:
-../Core/BSP/Inc/bsp_usart.h:
-../Core/BSP/Inc/bsp_referee.h:
-../Core/BSP/Inc/referee_msgs.h:
-../Core/BSP/Inc/bsp_can.h:
-../Core/BSP/Inc/bsp_led.h:
-../Core/BSP/Inc/bsp_oled.h:
-../Core/Inc/spi.h:
-../Core/BSP/Inc/bsp_imu.h:
-../Core/BSP/Inc/bsp_buzzer.h:
-../Core/Inc/tim.h:
-../Core/BSP/Inc/bsp_gpio.h:
-../USB_DEVICE/App/usbd_cdc_if.h:
-../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h:
-../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
-../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h:
-../USB_DEVICE/Target/usbd_conf.h:
-../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h:
-../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
-../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
-../Core/BSP/Inc/bsp_usb_redir.h:
-../Core/BSP/Inc/bsp_micros_timer.h:
-../Core/BSP/Inc/CRC8_CRC16.h:
-../Core/robot_config/robot_config.h:
-../Core/robot_config/robot_config_BL.h:
-../Core/robot_config/hud_bl.h:
-../Core/BSP/Inc/hud_constants.h:
-../Core/Tasks/Inc/motor_config.h:
-../Core/Tasks/Inc/can_msg_processor.h:
-../Core/BSP/Inc/bsp_lk_motor.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/ImuThread.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/DataStructures.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCo.h:
@@ -231,9 +162,16 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Protocol/ProtocolMacros.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IOBus.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/MessageBus.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/NetworkBus.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Build/Build.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/CANBus.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/UDevDriver.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h:
+../Core/Inc/usart.h:
+../Core/Inc/main.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/RoCanDriver.h:
+../Core/Inc/can.h:
 ../Core/Inc/crc.h:
+C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/Threads/Inc/Telemetry.h:
+../Core/BSP/Inc/referee_msgs.h:

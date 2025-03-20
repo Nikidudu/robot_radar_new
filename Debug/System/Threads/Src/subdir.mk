@@ -5,16 +5,19 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../System/Threads/Src/ImuThread.cpp \
 ../System/Threads/Src/SuperCapCommThread.cpp \
 ../System/Threads/Src/Telemetry.cpp \
 ../System/Threads/Src/dummy_thread.cpp 
 
 OBJS += \
+./System/Threads/Src/ImuThread.o \
 ./System/Threads/Src/SuperCapCommThread.o \
 ./System/Threads/Src/Telemetry.o \
 ./System/Threads/Src/dummy_thread.o 
 
 CPP_DEPS += \
+./System/Threads/Src/ImuThread.d \
 ./System/Threads/Src/SuperCapCommThread.d \
 ./System/Threads/Src/Telemetry.d \
 ./System/Threads/Src/dummy_thread.d 
@@ -27,7 +30,7 @@ System/Threads/Src/%.o System/Threads/Src/%.su System/Threads/Src/%.cyclo: ../Sy
 clean: clean-System-2f-Threads-2f-Src
 
 clean-System-2f-Threads-2f-Src:
-	-$(RM) ./System/Threads/Src/SuperCapCommThread.cyclo ./System/Threads/Src/SuperCapCommThread.d ./System/Threads/Src/SuperCapCommThread.o ./System/Threads/Src/SuperCapCommThread.su ./System/Threads/Src/Telemetry.cyclo ./System/Threads/Src/Telemetry.d ./System/Threads/Src/Telemetry.o ./System/Threads/Src/Telemetry.su ./System/Threads/Src/dummy_thread.cyclo ./System/Threads/Src/dummy_thread.d ./System/Threads/Src/dummy_thread.o ./System/Threads/Src/dummy_thread.su
+	-$(RM) ./System/Threads/Src/ImuThread.cyclo ./System/Threads/Src/ImuThread.d ./System/Threads/Src/ImuThread.o ./System/Threads/Src/ImuThread.su ./System/Threads/Src/SuperCapCommThread.cyclo ./System/Threads/Src/SuperCapCommThread.d ./System/Threads/Src/SuperCapCommThread.o ./System/Threads/Src/SuperCapCommThread.su ./System/Threads/Src/Telemetry.cyclo ./System/Threads/Src/Telemetry.d ./System/Threads/Src/Telemetry.o ./System/Threads/Src/Telemetry.su ./System/Threads/Src/dummy_thread.cyclo ./System/Threads/Src/dummy_thread.d ./System/Threads/Src/dummy_thread.o ./System/Threads/Src/dummy_thread.su
 
 .PHONY: clean-System-2f-Threads-2f-Src
 

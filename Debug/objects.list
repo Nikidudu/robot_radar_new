@@ -394,6 +394,7 @@
 "./System/BRoCo/src/RoCanFDDriver.o"
 "./System/BRoCo/src/STMUARTDriver.o"
 "./System/BRoCo/src/UDevDriver.o"
+"./System/Threads/Src/ImuThread.o"
 "./System/Threads/Src/SuperCapCommThread.o"
 "./System/Threads/Src/Telemetry.o"
 "./System/Threads/Src/dummy_thread.o"

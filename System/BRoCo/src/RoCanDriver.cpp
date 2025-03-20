@@ -19,6 +19,7 @@
 #include "motor_config.h"
 #include "can_msg_processor.h"
 #include "bsp_lk_motor.h"
+#include "ImuThread.h"
 
 
 extern EventGroupHandle_t gimbal_event_group;
@@ -257,7 +258,7 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 						motor[Motor4].para.heartbeat = 1;
 						break;
 					}
-				} else {
+				}else {
 					uint8_t sender = getSenderID(hcan);
 					uint32_t length = RxHeader.DLC;
 					receiveCAN(sender, RxData, length);

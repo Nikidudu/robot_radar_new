@@ -20,6 +20,12 @@ float angular[3];					//[°/s]
 float orientation[3];				//[rad]
 )
 
+RELIABLE_IDENTIFIABLE_PACKET(IMUDataPacket,
+    float pitch;
+    float roll;
+    float ax;
+)
+
 RELIABLE_PACKET(MagPacket,
 float mag[3];
 float mag_raw[3];
