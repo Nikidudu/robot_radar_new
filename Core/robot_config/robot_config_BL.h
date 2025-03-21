@@ -228,14 +228,14 @@
 #define PITCH_MIN_ANG			-0.25
 #define PITCH_CONST 			-2000
 
-#define YAW_ANGLE_KP			120
+#define YAW_ANGLE_KP			150 //120
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			0
 #define YAW_ANGLE_INT_MAX		0.05
 #define YAW_MAX_RPM				100
 #define YAW_SPINSPIN_CONSTANT	5000
 
-#define YAWRPM_KP				500//600//400
+#define YAWRPM_KP				50//500//600//400
 #define YAWRPM_KI				0
 #define YAWRPM_KD				80
 #define YAWRPM_INT_MAX			5000
@@ -272,10 +272,12 @@
 #define PITCH_MOTOR_ID 		5
 #define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
-#define YAW_MOTOR_ID 		20
-#define YAW_MOTOR_CAN_PTR	&hcan2
+#define YAW_MOTOR_ID 		8
+#define YAW_MOTOR_CAN_PTR	&hcan1
 #endif
 
+//Balancing Wheel Diameter in m
+#define WHEEL_D			0.0725
 /* MECANUM WHEEL PROPERTIES */
 #define WHEEL_CIRC			7.625	//in CM
 #define WHEEL_RADIUS		76.0f

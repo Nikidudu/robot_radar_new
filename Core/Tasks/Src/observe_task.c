@@ -16,11 +16,13 @@
 #include "observe_task.h"
 #include "kalman_filter.h"
 #include "board_lib.h"
+#include "robot_config_BL.h"
 //#include "cmsis_os.h"
 extern StateVar stateVar;
 extern LegPos leftLegPos, rightLegPos;
 KalmanFilter_t vaEstimateKF;	   // �������˲����ṹ��
 extern Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
+extern float imu_test[6];
 
 float vaEstimateKF_F[4] = {1.0f, 0.005f,
                            0.0f, 1.0f};	   // ״̬ת�ƾ��󣬿�������Ϊ0.001s
@@ -65,13 +67,13 @@ void 	Observe_task(void *argument)
   while(1)
 	{  
 		wr= rightWheel.speed+stateVar.RdTheta;//�ұ�������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
-		vrb=wr*0.0925f+rightLegPos.length*stateVar.RdTheta+rightLegPos.dLength*arm_sin_f32(stateVar.Rtheta);//����bϵ���ٶ�
+		vrb=wr*WHEEL_D+rightLegPos.length*stateVar.RdTheta+rightLegPos.dLength*arm_sin_f32(stateVar.Rtheta);//����bϵ���ٶ�
 		
 		wl= leftWheel.speed+stateVar.LdTheta;//���������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
-		vlb=wl*0.0925f+leftLegPos.length*stateVar.LdTheta+leftLegPos.dLength*arm_sin_f32(stateVar.Ltheta);//����bϵ���ٶ�
+		vlb=wl*WHEEL_D+leftLegPos.length*stateVar.LdTheta+leftLegPos.dLength*arm_sin_f32(stateVar.Ltheta);//����bϵ���ٶ�
 		
 		aver_v=(vrb+vlb)/2.0f;//ȡƽ��
-    xvEstimateKF_Update(&vaEstimateKF,INS.MotionAccel_n[0],aver_v);
+    xvEstimateKF_Update(&vaEstimateKF,imu_test[4],aver_v);
 		
 		//ԭ����ת�Ĺ�����v_filter��x_filterӦ�ö���Ϊ0
     filtered_v=vel_acc[0];//�õ��������˲�����ٶ�

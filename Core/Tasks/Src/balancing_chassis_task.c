@@ -43,8 +43,8 @@ float LFTP;
 float RFTP;
 int robot_ready = 0; // 1 ready, 0 not ready
 PID manual_left_F, manual_left_Tp, manual_right_F, manual_right_Tp;
-float kRatio[2][6] = {{1.0f, 0.6f, 1.0f, 1.0f, 1.0f, 0.8f},
-                      {1.0f, 0.6f, 1.0f, 1.0f, 1.0f, 0.8f}};
+float kRatio[2][6] = {{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
+                      {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}};
 float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
 double kRes[12] = {0}, k[2][6] = {0};
 float LlqrOutT;
@@ -92,6 +92,9 @@ float backward = 0.0f;
 float left = 0.0f;
 float right = 0.0f;
 extern uint8_t control_mode;
+extern float chassis_pit_rad_and_omega[3];//[0]rad[1]omega[2]las rad
+extern float chassis_rol_rad_and_omega[3];//[0]rad[1]omega[2]las rad
+
 
 void Ctrl_Init()
 {
@@ -101,7 +104,8 @@ void Ctrl_Init()
     PID_Init(&LcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
     PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
     PID_Init(&legAnglePID, 30, 0.1, 1, -50.0, 50.0);
-    PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
+//    PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
+    PID_Init(&rollPID, 100, 0.0, 1.0, -100.0, 100.0);
     PID_Init(&yawPID, 0.0035, 0.0, 0.0015, -5.0, 5.0);
     PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
 }
@@ -258,11 +262,11 @@ int robot_check() {
 float last_Ltheta = 0.0f;
 float last_Rtheta = 0.0f;
 void state_update() {
-    stateVar.phi = INS.Pitch;
-    stateVar.dPhi = -INS.Gyro[1];
+    stateVar.phi = chassis_pit_rad_and_omega[0];
+    stateVar.dPhi = chassis_pit_rad_and_omega[1];
     stateVar.x = filtered_x;
     stateVar.dx = filtered_v;
-    stateVar.Ltheta = leftLegPos.angle - M_PI_2 - INS.Pitch;
+    stateVar.Ltheta = leftLegPos.angle - M_PI_2 - chassis_pit_rad_and_omega[0];
     stateVar.LdTheta = (stateVar.Ltheta - last_Ltheta)/0.005f;
     last_Ltheta = stateVar.Ltheta;
     // Apply low-pass filter to left leg angular velocity
@@ -270,7 +274,7 @@ void state_update() {
     //filtered_LdTheta = dTheta_alpha * raw_LdTheta + (1.0f - dTheta_alpha) * filtered_LdTheta;
     //stateVar.LdTheta = filtered_LdTheta;
 
-    stateVar.Rtheta = rightLegPos.angle - M_PI_2 - INS.Pitch;
+    stateVar.Rtheta = rightLegPos.angle - M_PI_2 - chassis_pit_rad_and_omega[0];
     stateVar.RdTheta = (stateVar.Rtheta - last_Rtheta)/0.005f;
     last_Rtheta = stateVar.Rtheta;
     // Apply low-pass filter to right leg angular velocity
@@ -359,18 +363,18 @@ void calculate_T_TP(int touching_ground){
 
 void gimbal_auto_front(){ // Find shortest distance to align robot gimbal and body
     // Apply low-pass filter to raw angle data
-    filtered_angle = angle_alpha * g_can_motors[19].raw_data.angle[0] + (1.0f - angle_alpha) * filtered_angle;
+    filtered_angle = angle_alpha * g_can_motors[7].raw_data.angle[0] + (1.0f - angle_alpha) * filtered_angle;
     
     // Use filtered angle for direction toggle logic
-    if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 0){
+    if(fabs(g_can_motors[7].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 0){
         gimbal_direction_toggle = 1;
-    }else if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 1){
+    }else if(fabs(g_can_motors[7].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 1){
         gimbal_direction_toggle = 0;
     }
     if (gimbal_direction_toggle == 1){
-        g_can_motors[19].angle_data.center_ang = 2777;
+        g_can_motors[7].angle_data.center_ang = 2777;
     }else{
-        g_can_motors[19].angle_data.center_ang = 6905;
+        g_can_motors[7].angle_data.center_ang = 6905;
     }
 }
 
@@ -442,8 +446,8 @@ void balancing_chassis_task(void *argument) {
                 staircase_state = 0;
                 target.position = stateVar.x;
                 calculate_T_TP(1); // 1 touching ground, 0 not touching ground
-                error6900 = computeError(filtered_angle, 6900);
-                error2777 = computeError(filtered_angle, 2777);
+                error6900 = computeError(filtered_angle, 735);
+                error2777 = computeError(filtered_angle, 4959);
 
                 if (fabs(error6900) < fabs(error2777)) {
                     PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
@@ -455,7 +459,7 @@ void balancing_chassis_task(void *argument) {
 
                 PID_Compute(&LlegLengthPID, target.min_legLength, leftLegPos.length, dt, 0);
                 PID_Compute(&RlegLengthPID, target.min_legLength, rightLegPos.length, dt, 0);
-                PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
+                PID_Compute(&rollPID, target.rollAngle, chassis_rol_rad_and_omega[0], dt, 0);
                 PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
 
                 leftForce = LlegLengthPID.output + F_gravity + rollPID.output;
@@ -506,15 +510,15 @@ void balancing_chassis_task(void *argument) {
                     chassis_state = 6;
                     break;
                 }
-                error6900 = computeError(filtered_angle, 6900);
-                error2777 = computeError(filtered_angle, 2777);
+                error6900 = computeError(filtered_angle, 735);
+                error2777 = computeError(filtered_angle, 4959);
 
                 if (fabs(spin_speed) > 0) {
                     if (spin_toggle == 0) {
                         spin_toggle = 1;
                     }
                     target.position = stateVar.x;
-                    PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm, 0.005, 0);
+                    PID_Compute(&spinPID, spin_speed, g_can_motors[7].raw_data.rpm, 0.005, 0);
                     mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
                     mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
                 } else {
@@ -532,7 +536,7 @@ void balancing_chassis_task(void *argument) {
 
                 PID_Compute(&LlegLengthPID, target.legLength, leftLegPos.length, dt, 0);
                 PID_Compute(&RlegLengthPID, target.legLength, rightLegPos.length, dt, 0);
-                PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
+                PID_Compute(&rollPID, target.rollAngle, chassis_rol_rad_and_omega[0], dt, 0);
                 PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
 
                 leftForce = LlegLengthPID.output + F_gravity + rollPID.output;
@@ -603,7 +607,7 @@ void balancing_chassis_task(void *argument) {
                         mf_set_tor[1] = -RlqrOutT * lqrTRatio;
                         PID_Compute(&LlegLengthPID, target.min_legLength, leftLegPos.length, dt, 0);
                         PID_Compute(&RlegLengthPID, target.min_legLength, rightLegPos.length, dt, 0);
-                        PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
+                        PID_Compute(&rollPID, target.rollAngle, chassis_rol_rad_and_omega[0], dt, 0);
                         PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
                         leftForce = LlegLengthPID.output + F_gravity - 10.0f + rollPID.output;
                         rightForce = RlegLengthPID.output + F_gravity - 10.0f - rollPID.output;
@@ -710,15 +714,15 @@ void balancing_chassis_task(void *argument) {
                     chassis_state = 3;
                     break;
                 }
-                error6900 = computeError(filtered_angle, 6900);
-                error2777 = computeError(filtered_angle, 2777);
+                error6900 = computeError(filtered_angle, 735);
+                error2777 = computeError(filtered_angle, 4959);
 
                 if (fabs(spin_speed) > 0) {
                     if (spin_toggle == 0) {
                         spin_toggle = 1;
                     }
                     target.position = stateVar.x;
-                    PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm, 0.005, 0);
+                    PID_Compute(&spinPID, spin_speed, g_can_motors[7].raw_data.rpm, 0.005, 0);
                     mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
                     mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
                 } else {
@@ -736,7 +740,7 @@ void balancing_chassis_task(void *argument) {
 
                 PID_Compute(&LlegLengthPID, 0.32, leftLegPos.length, dt, 0);
                 PID_Compute(&RlegLengthPID, 0.32, rightLegPos.length, dt, 0);
-                PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
+                PID_Compute(&rollPID, target.rollAngle, chassis_rol_rad_and_omega[0], dt, 0);
                 PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
 
                 leftForce = LlegLengthPID.output + F_gravity + rollPID.output;

@@ -181,28 +181,36 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					convert_raw_can_data(dji_motor_map[RxHeader.StdId - 0x200].motor_data, RxHeader.StdId, (uint8_t*)RxData);
 				}
 			}else {
-				//handle LK motor or other data
 				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
+					//handle LK motor or other data
+					if (RxHeader.StdId == 0x141){
+						MF_fbdata(&MF_motor[0], &RxData[0], 0x141);
+					}
+					if (RxHeader.StdId == 0x142){
+						MF_fbdata(&MF_motor[1], &RxData[0], 0x142);
 
-
-				} else if (RxHeader.StdId > 0x01 && RxHeader.StdId <= 0x04){
-//				    MF_fbdata(&MF_motor, &RxData[0]);
-				    fb_id = (RxData[0])&0x0F;
-//				    switch(fb_id)
-//				    	{
-//				    		case 1:
-//				    			dm4310_fbdata(&motor[Motor1],&RxData[0]);
-//				    			break;
-//				    		case 2:
-//				    			dm4310_fbdata(&motor[Motor2],&RxData[0]);
-//				    			break;
-//				    		case 3:
-//				    			dm4310_fbdata(&motor[Motor3],&RxData[0]);
-//				    			break;
-//				    		case 4:
-//				    			dm4310_fbdata(&motor[Motor4],&RxData[0]);
-//				    			break;
-//				    	}
+					}
+				} else if(RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74){
+					fb_id = (RxData[0])&0x0F;
+					switch(fb_id)
+					{
+					case 1:
+						dm4310_fbdata(&motor[Motor1],&RxData[0]);
+						motor[Motor1].para.heartbeat = 1;
+						break;
+					case 2:
+						dm4310_fbdata(&motor[Motor2],&RxData[0]);
+						motor[Motor2].para.heartbeat = 1;
+						break;
+					case 3:
+						dm4310_fbdata(&motor[Motor3],&RxData[0]);
+						motor[Motor3].para.heartbeat = 1;
+						break;
+					case 4:
+						dm4310_fbdata(&motor[Motor4],&RxData[0]);
+						motor[Motor4].para.heartbeat = 1;
+						break;
+					}
 				} else {
 					uint8_t sender = getSenderID(hcan);
 					uint32_t length = RxHeader.DLC;

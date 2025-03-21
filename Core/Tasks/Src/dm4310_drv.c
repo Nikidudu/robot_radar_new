@@ -69,19 +69,19 @@ void dm_motor_control_task(void *argument) {
     	motor[Motor2].para.heartbeat =0;
     	motor[Motor3].para.heartbeat =0;
     	motor[Motor4].para.heartbeat =0;
-    	dm4310_ctrl_send(&hcan2, &motor[Motor1]);
+    	dm4310_ctrl_send(&hcan1, &motor[Motor1]);
 
-    	dm4310_ctrl_send(&hcan2, &motor[Motor2]);
+    	dm4310_ctrl_send(&hcan1, &motor[Motor2]);
 
     	vTaskDelay(1);
-    	dm4310_ctrl_send(&hcan2, &motor[Motor3]);
+    	dm4310_ctrl_send(&hcan1, &motor[Motor3]);
 
-    	dm4310_ctrl_send(&hcan2, &motor[Motor4]);
+    	dm4310_ctrl_send(&hcan1, &motor[Motor4]);
 
         vTaskDelay(1);
-        MFtorque_command(&hcan2, 0x141, MF_motor[0].ctrl.tor_set);
+        MFtorque_command(&hcan1, 0x141, MF_motor[0].ctrl.tor_set);
         vTaskDelay(1);
-        MFtorque_command(&hcan2, 0x142, -MF_motor[1].ctrl.tor_set);
+        MFtorque_command(&hcan1, 0x142, -MF_motor[1].ctrl.tor_set);
         vTaskDelay(1);
         if ((motor[Motor1].para.heartbeat == 0 || motor[Motor1].para.state != 9) && motor[Motor1].para.disconnect_time>100){
         	motor[Motor1].para.disconnect_time = 0;
@@ -126,17 +126,17 @@ void dm_motor_control_task(void *argument) {
         	joint_motor_online = 1;
         }else{
         	joint_motor_online = 0;
-        	HAL_CAN_Stop(&hcan2);
+        	HAL_CAN_Stop(&hcan1);
         	osDelay(100);  // Wait for motor power stabilization
-        	HAL_CAN_Start(&hcan2);
+        	HAL_CAN_Start(&hcan1);
         	osDelay(10);
-        	dm4310_enable(&hcan2, &motor[Motor1]);
+        	dm4310_enable(&hcan1, &motor[Motor1]);
         	vTaskDelay(1);
-        	dm4310_enable(&hcan2, &motor[Motor2]);
+        	dm4310_enable(&hcan1, &motor[Motor2]);
         	vTaskDelay(1);
-        	dm4310_enable(&hcan2, &motor[Motor3]);
+        	dm4310_enable(&hcan1, &motor[Motor3]);
         	vTaskDelay(1);
-        	dm4310_enable(&hcan2, &motor[Motor4]);
+        	dm4310_enable(&hcan1, &motor[Motor4]);
         	vTaskDelay(1);
 //        	dm4310_motor_init();
         }
@@ -192,23 +192,26 @@ void dm4310_motor_init(void)
 //  	motor[Motor6].ctrl.kd_set = 1.0f;
   	MF_motor[0].ctrl.tor_set = 0.0f;
   	MF_motor[1].ctrl.tor_set = 0.0f;
-  	dm4310_enable(&hcan2, &motor[Motor1]);
+  	dm4310_enable(&hcan1, &motor[Motor1]);
   	vTaskDelay(1);
-  	dm4310_enable(&hcan2, &motor[Motor2]);
+  	dm4310_enable(&hcan1, &motor[Motor2]);
   	vTaskDelay(1);
-  	dm4310_enable(&hcan2, &motor[Motor3]);
+  	dm4310_enable(&hcan1, &motor[Motor3]);
   	vTaskDelay(1);
-  	dm4310_enable(&hcan2, &motor[Motor4]);
+  	dm4310_enable(&hcan1, &motor[Motor4]);
   	vTaskDelay(1);
-  	enableMFMotor(&hcan2, 0x141);
-  	enableMFMotor(&hcan2, 0x142);
+  	enableMFMotor(&hcan1, 0x141);
+  	enableMFMotor(&hcan1, 0x142);
   	MF_motor[0].initialized = 1;
   	MF_motor[1].initialized = 1;
 
-//  	save_pos_zero(&hcan2, 0x81, 0);
-//  	save_pos_zero(&hcan2, 0x82, 0);
-//  	save_pos_zero(&hcan2, 0x83, 0);
-//  	save_pos_zero(&hcan2, 0x84, 0);
+//  	save_pos_zero(&hcan1, 0x81, 0);
+//  	vTaskDelay(1);
+//  	save_pos_zero(&hcan1, 0x82, 0);
+//  	vTaskDelay(1);
+//  	save_pos_zero(&hcan1, 0x83, 0);
+//  	vTaskDelay(1);
+//  	save_pos_zero(&hcan1, 0x84, 0);
   }
 
 // Callback function to handle CAN receive interrupt
