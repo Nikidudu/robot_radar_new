@@ -388,8 +388,8 @@ typedef enum {
 
 
 enum launcher_state_e {
-	WHEEL_FIRING,
 	WHEEL_STANDBY,
+	WHEEL_FIRING,
 	WHEEL_CLEARING
 };
 

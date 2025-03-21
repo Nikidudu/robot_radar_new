@@ -800,7 +800,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		break;
 
 	case FEEDER_FIRING_2:
-		// spins feeder forward until 2nd projectile not loaded
+		// spins feeder forward until 2nd projectile loaded
 		// then move on to FEEDER_FIRING_2
 
 		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
@@ -809,17 +809,27 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 
 		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		g_flywheel->output = g_flywheel->rpm_pid.output;
-
 		break;
+
+		// alternative code 2 @KIM
+		// spin guidance flywheel slowly until 2nd ball is loaded
+		// change value 20 to change speed of guidance flywheel
+//		speed_pid(0 ,feeder->raw_data.rpm, &feeder->rpm_pid);
+//		feeder->output = feeder->rpm_pid.output;
+//
+//		speed_pid(-friction_wheel_speed / 20, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
+//		g_flywheel->output = g_flywheel->rpm_pid.output;
+//		break;
 
 	case FEEDER_FIRING_3:
 		// actually fires the 1st projectile
-		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
+		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid); //spin guidance wheel
 		g_flywheel->output = g_flywheel->rpm_pid.output;
 
-		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
+		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid); // stops feeder
 		feeder->output = feeder->rpm_pid.output;
 		break;
+
 
 	case FEEDER_JAM:
 		speed_pid(FEEDER_UNJAM_SPD * feeder->angle_data.gearbox_ratio * FEEDER_INVERT,
