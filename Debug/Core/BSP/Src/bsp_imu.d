@@ -85,7 +85,7 @@ Core/BSP/Src/bsp_imu.o: ../Core/BSP/Src/bsp_imu.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/Inc/i2c.h \
+ ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_dwt.h ../Core/Inc/i2c.h \
  ../Core/BSP/Inc/BMI088reg.h ../Core/BSP/Inc/ist8310_reg.h \
  ../Core/BSP/Inc/bsp_imu.h ../Core/Tasks/Inc/imu_processing_task.h \
  ../Core/robot_config/robot_config.h \
@@ -190,6 +190,7 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compile
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
+../Core/BSP/Inc/bsp_dwt.h:
 ../Core/Inc/i2c.h:
 ../Core/BSP/Inc/BMI088reg.h:
 ../Core/BSP/Inc/ist8310_reg.h:

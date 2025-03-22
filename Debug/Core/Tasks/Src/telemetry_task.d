@@ -85,7 +85,8 @@ Core/Tasks/Src/telemetry_task.o: ../Core/Tasks/Src/telemetry_task.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/robot_config/robot_config.h \
+ ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_dwt.h \
+ ../Core/robot_config/robot_config.h \
  ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
  ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/telemetry_task.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
@@ -188,6 +189,7 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compile
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
+../Core/BSP/Inc/bsp_dwt.h:
 ../Core/robot_config/robot_config.h:
 ../Core/robot_config/robot_config_BL.h:
 ../Core/robot_config/hud_bl.h:

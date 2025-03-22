@@ -37,6 +37,7 @@
 /* USER CODE BEGIN Includes */
 #include "board_lib.h"
 #include "startup_task.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -127,6 +128,7 @@ int main(void)
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
+  DWT_Init(168);
 
   /* Start scheduler */
   osKernelStart();

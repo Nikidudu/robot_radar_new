@@ -89,7 +89,7 @@ Core/Tasks/Src/INS_task.o: ../Core/Tasks/Src/INS_task.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h
+ ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_dwt.h
 ../Core/Tasks/Inc/ins_task.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h:
@@ -193,3 +193,4 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
+../Core/BSP/Inc/bsp_dwt.h:

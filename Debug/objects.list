@@ -6,6 +6,7 @@
 "./Core/BSP/Src/bsp_buzzer.o"
 "./Core/BSP/Src/bsp_can.o"
 "./Core/BSP/Src/bsp_dbus_input.o"
+"./Core/BSP/Src/bsp_dwt.o"
 "./Core/BSP/Src/bsp_gpio.o"
 "./Core/BSP/Src/bsp_hall.o"
 "./Core/BSP/Src/bsp_imu.o"

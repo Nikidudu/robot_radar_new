@@ -80,23 +80,23 @@ typedef struct
 	float dLegLength;
 } StateVar;
 
-typedef struct {
-    float kp;        // Proportional gain
-    float ki;        // Integral gain
-    float kd;        // Derivative gain
-    float prev_error; // Previous error
-    float integral;  // Integral of the error
-    float max_output; // Maximum control signal
-    float min_output; // Minimum control signal
-    float output;
-} PID;
+//typedef struct {
+//    float kp;        // Proportional gain
+//    float ki;        // Integral gain
+//    float kd;        // Derivative gain
+//    float prev_error; // Previous error
+//    float integral;  // Integral of the error
+//    float max_output; // Maximum control signal
+//    float min_output; // Minimum control signal
+//    float output;
+//} PID;
 
-typedef struct
-{
-	PID inner;
-	PID outer;
-	float output;
-}CascadePID;
+//typedef struct
+//{
+//	PID inner;
+//	PID outer;
+//	float output;
+//}CascadePID;
 
 typedef struct
 {

@@ -185,9 +185,11 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					//handle LK motor or other data
 					if (RxHeader.StdId == 0x141){
 						MF_fbdata(&MF_motor[0], &RxData[0], 0x141);
+						MF_motor[0].para.ping = 0;
 					}
 					if (RxHeader.StdId == 0x142){
 						MF_fbdata(&MF_motor[1], &RxData[0], 0x142);
+						MF_motor[1].para.ping = 0;
 
 					}
 				} else if(RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74){
@@ -196,19 +198,19 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					{
 					case 1:
 						dm4310_fbdata(&motor[Motor1],&RxData[0]);
-						motor[Motor1].para.heartbeat = 1;
+						motor[Motor1].para.ping = 0;
 						break;
 					case 2:
 						dm4310_fbdata(&motor[Motor2],&RxData[0]);
-						motor[Motor2].para.heartbeat = 1;
+						motor[Motor2].para.ping = 0;
 						break;
 					case 3:
 						dm4310_fbdata(&motor[Motor3],&RxData[0]);
-						motor[Motor3].para.heartbeat = 1;
+						motor[Motor3].para.ping = 0;
 						break;
 					case 4:
 						dm4310_fbdata(&motor[Motor4],&RxData[0]);
-						motor[Motor4].para.heartbeat = 1;
+						motor[Motor4].para.ping = 0;
 						break;
 					}
 				} else {
@@ -249,22 +251,22 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					fb_id = (RxData[0])&0x0F;
 					switch(fb_id)
 					{
-					case 1:
-						dm4310_fbdata(&motor[Motor1],&RxData[0]);
-						motor[Motor1].para.heartbeat = 1;
-						break;
-					case 2:
-						dm4310_fbdata(&motor[Motor2],&RxData[0]);
-						motor[Motor2].para.heartbeat = 1;
-						break;
-					case 3:
-						dm4310_fbdata(&motor[Motor3],&RxData[0]);
-						motor[Motor3].para.heartbeat = 1;
-						break;
-					case 4:
-						dm4310_fbdata(&motor[Motor4],&RxData[0]);
-						motor[Motor4].para.heartbeat = 1;
-						break;
+//					case 1:
+//						dm4310_fbdata(&motor[Motor1],&RxData[0]);
+//						motor[Motor1].para.heartbeat = 1;
+//						break;
+//					case 2:
+//						dm4310_fbdata(&motor[Motor2],&RxData[0]);
+//						motor[Motor2].para.heartbeat = 1;
+//						break;
+//					case 3:
+//						dm4310_fbdata(&motor[Motor3],&RxData[0]);
+//						motor[Motor3].para.heartbeat = 1;
+//						break;
+//					case 4:
+//						dm4310_fbdata(&motor[Motor4],&RxData[0]);
+//						motor[Motor4].para.heartbeat = 1;
+//						break;
 					}
 				}else {
 					uint8_t sender = getSenderID(hcan);

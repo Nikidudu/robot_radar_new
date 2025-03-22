@@ -19,6 +19,7 @@ float chassis_pitch_angle_deg;
 float chassis_pit_rad_and_omega[3] = {0};//[0]rad[1]omega[2]las rad
 float chassis_roll_angle_deg;
 float chassis_rol_rad_and_omega[3] = {0};//[0]rad[1]omega[2]las rad
+uint8_t imu_online_ping[2] = {0};
 
 dummyThread::~dummyThread(){
 }
@@ -68,6 +69,7 @@ void dummyThread::handle_dummy(uint8_t sender_id, dummyPacket* packet) {
         return;
     }
     uint32_t currentTick = HAL_GetTick();
+    imu_online_ping[1] = 0;
         // Calculate dt in seconds (since HAL_GetTick returns milliseconds)
     test_dt = (currentTick - lastTick) / 1000.0f;
     lastTick = currentTick; // update for next call

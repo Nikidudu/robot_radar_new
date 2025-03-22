@@ -16,7 +16,8 @@
 #include "observe_task.h"
 #include "kalman_filter.h"
 #include "board_lib.h"
-#include "robot_config_BL.h"
+#include "robot_config.h"
+
 //#include "cmsis_os.h"
 extern StateVar stateVar;
 extern LegPos leftLegPos, rightLegPos;
@@ -53,24 +54,24 @@ float filtered_v;
 float filtered_x;
 
 float vel_acc[2]; 
-uint32_t OBSERVE_TIME=5;//����������3ms
+uint32_t OBSERVE_TIME=3;//����������2ms
 void 	Observe_task(void *argument)
 {
-	while(INS.ins_flag==0)
-	{//�ȴ����ٶ�����
-	  osDelay(5);
-	}
+//	while(INS.ins_flag==0)
+//	{//�ȴ����ٶ�����
+//	  osDelay(5);
+//	}
 
 		
 	xvEstimateKF_Init(&vaEstimateKF);
-	
+	TickType_t xLastWakeTime = xTaskGetTickCount();
   while(1)
 	{  
 		wr= rightWheel.speed+stateVar.RdTheta;//�ұ�������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
-		vrb=wr*WHEEL_D+rightLegPos.length*stateVar.RdTheta+rightLegPos.dLength*arm_sin_f32(stateVar.Rtheta);//����bϵ���ٶ�
+		vrb=wr*WHEEL_R+rightLegPos.length*stateVar.RdTheta+rightLegPos.dLength*arm_sin_f32(stateVar.Rtheta);//����bϵ���ٶ�
 		
 		wl= leftWheel.speed+stateVar.LdTheta;//���������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
-		vlb=wl*WHEEL_D+leftLegPos.length*stateVar.LdTheta+leftLegPos.dLength*arm_sin_f32(stateVar.Ltheta);//����bϵ���ٶ�
+		vlb=wl*WHEEL_R+leftLegPos.length*stateVar.LdTheta+leftLegPos.dLength*arm_sin_f32(stateVar.Ltheta);//����bϵ���ٶ�
 		
 		aver_v=(vrb+vlb)/2.0f;//ȡƽ��
     xvEstimateKF_Update(&vaEstimateKF,imu_test[4],aver_v);
@@ -83,7 +84,7 @@ void 	Observe_task(void *argument)
 	//chassis_move.v_filter=(chassis_move.wheel_motor[0].para.vel-chassis_move.wheel_motor[1].para.vel)*(-0.0603f)/2.0f;//0.0603�����Ӱ뾶������������ǽ��ٶȣ��˰뾶��õ����ٶȣ���ѧģ���ж����������˳ʱ��Ϊ��������Ҫ�˸�����
 	//chassis_move.x_filter=chassis_move.x_filter+chassis_move.x_filter+chassis_move.v_filter*((float)OBSERVE_TIME/1000.0f);
 		
-		osDelay(OBSERVE_TIME);
+    vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3));
 	}
 }
 

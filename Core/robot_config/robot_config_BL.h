@@ -13,7 +13,7 @@
 #define OVERHEAT_PROTECTION
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
-#define IMU_ORIENTATION	5
+#define IMU_ORIENTATION	1
 //doesn't do anything, todo: implement pid for heater
 #define IMU_TARGET_TEMP	50
 
@@ -228,14 +228,14 @@
 #define PITCH_MIN_ANG			-0.25
 #define PITCH_CONST 			-2000
 
-#define YAW_ANGLE_KP			150 //120
+#define YAW_ANGLE_KP			120 //120
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			0
 #define YAW_ANGLE_INT_MAX		0.05
 #define YAW_MAX_RPM				100
 #define YAW_SPINSPIN_CONSTANT	5000
 
-#define YAWRPM_KP				50//500//600//400
+#define YAWRPM_KP				500//500//600//400
 #define YAWRPM_KI				0
 #define YAWRPM_KD				80
 #define YAWRPM_INT_MAX			5000
@@ -277,7 +277,11 @@
 #endif
 
 //Balancing Wheel Diameter in m
-#define WHEEL_D			0.0725
+#define ACTIVE_SET_TORQUE 1
+#define WHEEL_R			0.0725
+#define BODY_MASS		15 //kg
+#define LEG_MASS		0 //kg
+
 /* MECANUM WHEEL PROPERTIES */
 #define WHEEL_CIRC			7.625	//in CM
 #define WHEEL_RADIUS		76.0f
@@ -317,7 +321,7 @@
 
 /*********************** OTHERS ***********************/
 
-#define CONTROL_DELAY 			5
+#define CONTROL_DELAY 			10
 #define GIMBAL_DELAY			10
 #define CHASSIS_DELAY 			10
 

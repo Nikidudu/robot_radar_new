@@ -9,6 +9,7 @@ C_SRCS += \
 ../Core/BSP/Src/bsp_buzzer.c \
 ../Core/BSP/Src/bsp_can.c \
 ../Core/BSP/Src/bsp_dbus_input.c \
+../Core/BSP/Src/bsp_dwt.c \
 ../Core/BSP/Src/bsp_gpio.c \
 ../Core/BSP/Src/bsp_hall.c \
 ../Core/BSP/Src/bsp_imu.c \
@@ -26,6 +27,7 @@ C_DEPS += \
 ./Core/BSP/Src/bsp_buzzer.d \
 ./Core/BSP/Src/bsp_can.d \
 ./Core/BSP/Src/bsp_dbus_input.d \
+./Core/BSP/Src/bsp_dwt.d \
 ./Core/BSP/Src/bsp_gpio.d \
 ./Core/BSP/Src/bsp_hall.d \
 ./Core/BSP/Src/bsp_imu.d \
@@ -43,6 +45,7 @@ OBJS += \
 ./Core/BSP/Src/bsp_buzzer.o \
 ./Core/BSP/Src/bsp_can.o \
 ./Core/BSP/Src/bsp_dbus_input.o \
+./Core/BSP/Src/bsp_dwt.o \
 ./Core/BSP/Src/bsp_gpio.o \
 ./Core/BSP/Src/bsp_hall.o \
 ./Core/BSP/Src/bsp_imu.o \
@@ -63,7 +66,7 @@ Core/BSP/Src/%.o Core/BSP/Src/%.su Core/BSP/Src/%.cyclo: ../Core/BSP/Src/%.c Cor
 clean: clean-Core-2f-BSP-2f-Src
 
 clean-Core-2f-BSP-2f-Src:
-	-$(RM) ./Core/BSP/Src/CRC8_CRC16.cyclo ./Core/BSP/Src/CRC8_CRC16.d ./Core/BSP/Src/CRC8_CRC16.o ./Core/BSP/Src/CRC8_CRC16.su ./Core/BSP/Src/bsp_buzzer.cyclo ./Core/BSP/Src/bsp_buzzer.d ./Core/BSP/Src/bsp_buzzer.o ./Core/BSP/Src/bsp_buzzer.su ./Core/BSP/Src/bsp_can.cyclo ./Core/BSP/Src/bsp_can.d ./Core/BSP/Src/bsp_can.o ./Core/BSP/Src/bsp_can.su ./Core/BSP/Src/bsp_dbus_input.cyclo ./Core/BSP/Src/bsp_dbus_input.d ./Core/BSP/Src/bsp_dbus_input.o ./Core/BSP/Src/bsp_dbus_input.su ./Core/BSP/Src/bsp_gpio.cyclo ./Core/BSP/Src/bsp_gpio.d ./Core/BSP/Src/bsp_gpio.o ./Core/BSP/Src/bsp_gpio.su ./Core/BSP/Src/bsp_hall.cyclo ./Core/BSP/Src/bsp_hall.d ./Core/BSP/Src/bsp_hall.o ./Core/BSP/Src/bsp_hall.su ./Core/BSP/Src/bsp_imu.cyclo ./Core/BSP/Src/bsp_imu.d ./Core/BSP/Src/bsp_imu.o ./Core/BSP/Src/bsp_imu.su ./Core/BSP/Src/bsp_led.cyclo ./Core/BSP/Src/bsp_led.d ./Core/BSP/Src/bsp_led.o ./Core/BSP/Src/bsp_led.su ./Core/BSP/Src/bsp_lk_motor.cyclo ./Core/BSP/Src/bsp_lk_motor.d ./Core/BSP/Src/bsp_lk_motor.o ./Core/BSP/Src/bsp_lk_motor.su ./Core/BSP/Src/bsp_micros_timer.cyclo ./Core/BSP/Src/bsp_micros_timer.d ./Core/BSP/Src/bsp_micros_timer.o ./Core/BSP/Src/bsp_micros_timer.su ./Core/BSP/Src/bsp_oled.cyclo ./Core/BSP/Src/bsp_oled.d ./Core/BSP/Src/bsp_oled.o ./Core/BSP/Src/bsp_oled.su ./Core/BSP/Src/bsp_queue.cyclo ./Core/BSP/Src/bsp_queue.d ./Core/BSP/Src/bsp_queue.o ./Core/BSP/Src/bsp_queue.su ./Core/BSP/Src/bsp_referee.cyclo ./Core/BSP/Src/bsp_referee.d ./Core/BSP/Src/bsp_referee.o ./Core/BSP/Src/bsp_referee.su ./Core/BSP/Src/bsp_usart.cyclo ./Core/BSP/Src/bsp_usart.d ./Core/BSP/Src/bsp_usart.o ./Core/BSP/Src/bsp_usart.su ./Core/BSP/Src/bsp_usb_redir.cyclo ./Core/BSP/Src/bsp_usb_redir.d ./Core/BSP/Src/bsp_usb_redir.o ./Core/BSP/Src/bsp_usb_redir.su
+	-$(RM) ./Core/BSP/Src/CRC8_CRC16.cyclo ./Core/BSP/Src/CRC8_CRC16.d ./Core/BSP/Src/CRC8_CRC16.o ./Core/BSP/Src/CRC8_CRC16.su ./Core/BSP/Src/bsp_buzzer.cyclo ./Core/BSP/Src/bsp_buzzer.d ./Core/BSP/Src/bsp_buzzer.o ./Core/BSP/Src/bsp_buzzer.su ./Core/BSP/Src/bsp_can.cyclo ./Core/BSP/Src/bsp_can.d ./Core/BSP/Src/bsp_can.o ./Core/BSP/Src/bsp_can.su ./Core/BSP/Src/bsp_dbus_input.cyclo ./Core/BSP/Src/bsp_dbus_input.d ./Core/BSP/Src/bsp_dbus_input.o ./Core/BSP/Src/bsp_dbus_input.su ./Core/BSP/Src/bsp_dwt.cyclo ./Core/BSP/Src/bsp_dwt.d ./Core/BSP/Src/bsp_dwt.o ./Core/BSP/Src/bsp_dwt.su ./Core/BSP/Src/bsp_gpio.cyclo ./Core/BSP/Src/bsp_gpio.d ./Core/BSP/Src/bsp_gpio.o ./Core/BSP/Src/bsp_gpio.su ./Core/BSP/Src/bsp_hall.cyclo ./Core/BSP/Src/bsp_hall.d ./Core/BSP/Src/bsp_hall.o ./Core/BSP/Src/bsp_hall.su ./Core/BSP/Src/bsp_imu.cyclo ./Core/BSP/Src/bsp_imu.d ./Core/BSP/Src/bsp_imu.o ./Core/BSP/Src/bsp_imu.su ./Core/BSP/Src/bsp_led.cyclo ./Core/BSP/Src/bsp_led.d ./Core/BSP/Src/bsp_led.o ./Core/BSP/Src/bsp_led.su ./Core/BSP/Src/bsp_lk_motor.cyclo ./Core/BSP/Src/bsp_lk_motor.d ./Core/BSP/Src/bsp_lk_motor.o ./Core/BSP/Src/bsp_lk_motor.su ./Core/BSP/Src/bsp_micros_timer.cyclo ./Core/BSP/Src/bsp_micros_timer.d ./Core/BSP/Src/bsp_micros_timer.o ./Core/BSP/Src/bsp_micros_timer.su ./Core/BSP/Src/bsp_oled.cyclo ./Core/BSP/Src/bsp_oled.d ./Core/BSP/Src/bsp_oled.o ./Core/BSP/Src/bsp_oled.su ./Core/BSP/Src/bsp_queue.cyclo ./Core/BSP/Src/bsp_queue.d ./Core/BSP/Src/bsp_queue.o ./Core/BSP/Src/bsp_queue.su ./Core/BSP/Src/bsp_referee.cyclo ./Core/BSP/Src/bsp_referee.d ./Core/BSP/Src/bsp_referee.o ./Core/BSP/Src/bsp_referee.su ./Core/BSP/Src/bsp_usart.cyclo ./Core/BSP/Src/bsp_usart.d ./Core/BSP/Src/bsp_usart.o ./Core/BSP/Src/bsp_usart.su ./Core/BSP/Src/bsp_usb_redir.cyclo ./Core/BSP/Src/bsp_usb_redir.d ./Core/BSP/Src/bsp_usb_redir.o ./Core/BSP/Src/bsp_usb_redir.su
 
 .PHONY: clean-Core-2f-BSP-2f-Src
 

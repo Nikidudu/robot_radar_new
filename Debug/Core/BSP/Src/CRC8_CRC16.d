@@ -85,7 +85,8 @@ Core/BSP/Src/CRC8_CRC16.o: ../Core/BSP/Src/CRC8_CRC16.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/crc8_crc16.h
+ ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_dwt.h \
+ ../Core/BSP/Inc/crc8_crc16.h
 ../Core/BSP/Inc/board_lib.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
@@ -185,4 +186,5 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compile
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
+../Core/BSP/Inc/bsp_dwt.h:
 ../Core/BSP/Inc/crc8_crc16.h:

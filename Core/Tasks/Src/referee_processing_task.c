@@ -203,7 +203,7 @@ void referee_processing_task(void *argument) {
 			g_referee_limiters.wheel_power_limit = 1;
 
 		}
-		vTaskDelay(2);
+		vTaskDelay(5);
 	}
 }
 

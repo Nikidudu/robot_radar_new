@@ -87,8 +87,10 @@ Core/Tasks/Src/observe_task.o: ../Core/Tasks/Src/observe_task.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/robot_config/robot_config_BL.h \
- ../Core/robot_config/hud_bl.h ../Core/BSP/Inc/hud_constants.h
+ ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_dwt.h \
+ ../Core/robot_config/robot_config.h \
+ ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
+ ../Core/BSP/Inc/hud_constants.h
 ../Core/Tasks/Inc/observe_task.h:
 ../Core/Tasks/Inc/ins_task.h:
 C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h:
@@ -192,6 +194,8 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
+../Core/BSP/Inc/bsp_dwt.h:
+../Core/robot_config/robot_config.h:
 ../Core/robot_config/robot_config_BL.h:
 ../Core/robot_config/hud_bl.h:
 ../Core/BSP/Inc/hud_constants.h:

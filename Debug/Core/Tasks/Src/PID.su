@@ -1,3 +1,7 @@
-../Core/Tasks/Src/PID.c:22:6:PID_Init	32	static
-../Core/Tasks/Src/PID.c:32:7:PID_Compute	48	static
-../Core/Tasks/Src/PID.c:52:6:PID_CascadeCalc	32	static
+../Core/Tasks/Src/PID.c:6:6:PID_Init	32	static
+../Core/Tasks/Src/PID.c:18:6:PID_SingleCalc	24	static
+../Core/Tasks/Src/PID.c:41:6:PID_CascadeCalc	24	static
+../Core/Tasks/Src/PID.c:49:6:PID_Clear	16	static
+../Core/Tasks/Src/PID.c:58:6:PID_SetMaxOutput	16	static
+../Core/Tasks/Src/PID.c:64:6:PID_SetDeadzone	16	static
+../Core/Tasks/Src/PID.c:70:6:PID_SetErrLpfRatio	16	static

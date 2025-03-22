@@ -263,7 +263,7 @@ void motor_control_task(void *argument) {
 
 		delay = (delay > 2) ? 1 : delay;
 //		last_time = get_microseconds();
-		vTaskDelayUntil(&start_time, 2-(delay));
+		vTaskDelayUntil(&start_time, 10);
 //		vTaskDelay(1);
 
 

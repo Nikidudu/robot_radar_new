@@ -85,8 +85,8 @@ Core/Tasks/Src/leg_task.o: ../Core/Tasks/Src/leg_task.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_imu.h \
- ../Core/robot_config/robot_config.h \
+ ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_dwt.h \
+ ../Core/BSP/Inc/bsp_imu.h ../Core/robot_config/robot_config.h \
  ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
  ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/dm4310_drv.h \
  ../Core/Tasks/Inc/leg_task.h ../Core/Tasks/Inc/rt_nonfinite.h \
@@ -190,6 +190,7 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compile
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
+../Core/BSP/Inc/bsp_dwt.h:
 ../Core/BSP/Inc/bsp_imu.h:
 ../Core/robot_config/robot_config.h:
 ../Core/robot_config/robot_config_BL.h:

@@ -101,6 +101,10 @@ void accel_data_ready(accel_data_t accel_data) {
 		accel_proc_data.ax = accel_data.az;
 		accel_proc_data.ay = accel_data.ax;
 		accel_proc_data.az = accel_data.ay;
+#elif IMU_ORIENTATION == 6
+		accel_proc_data.ax = accel_data.ay;
+		accel_proc_data.ay = accel_data.ax;
+		accel_proc_data.az = accel_data.az;
 #else
 		accel_proc_data.ax = accel_data.ax;
 		accel_proc_data.ay = accel_data.ay;
@@ -482,9 +486,9 @@ void imu_attitude_update(void) {
 		imu_heading.yaw = -atan2(2 * q1 * q2 + 2 * q0 * q3,
 				-2 * q2 * q2 - 2 * q3 * q3 + 1) * IMU_YAW_INVERT;
 		/* pitch  -pi/2----pi/2 */
-		imu_heading.pit = -asin(-2 * q1 * q3 + 2 * q0 * q2) * IMU_PITCH_INVERT;
+		imu_heading.rol = asin(-2 * q1 * q3 + 2 * q0 * q2) * IMU_PITCH_INVERT;
 		/* roll   -pi----pi  */
-		imu_heading.rol = atan2(2 * q2 * q3 + 2 * q0 * q1,
+		imu_heading.pit = -atan2(2 * q2 * q3 + 2 * q0 * q1,
 				-2 * q1 * q1 - 2 * q2 * q2 + 1) * IMU_ROLL_INVERT;
 #endif
 //	} else {

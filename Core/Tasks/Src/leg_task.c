@@ -17,6 +17,7 @@ LegPos leftLegPos, rightLegPos;
 extern Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 
 void leg_task(void *argument) {
+	TickType_t xLastWakeTime = xTaskGetTickCount();
 	float legPos[2], legSpd[2];
 	const float lpfRatio = 0.5f; //低通滤波系数(新值的权重)
 	float lastLeftDLength = 0, lastRightDLength = 0;
@@ -38,7 +39,7 @@ void leg_task(void *argument) {
     	rightLegPos.dAngle = legSpd[1];
     	rightLegPos.ddLength = ((rightLegPos.dLength - lastRightDLength) * 1000 / 5) * lpfRatio + rightLegPos.ddLength * (1 - lpfRatio);
     	lastRightDLength = rightLegPos.dLength;
-    	vTaskDelay(5);
+    	vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3));
     }
 }
 

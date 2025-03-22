@@ -98,23 +98,23 @@ void master_task(void* argument){
 	//todo: adjust priorities
 	//Threads creation
 	xTaskCreate(Observe_task, "observe_task",
-					configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 12,
+					configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 					&observe_task_handle);
 
-	xTaskCreate(INS_task, "INS_task",
-				configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,
-				&INS_task_handle);
+//	xTaskCreate(INS_task, "INS_task",
+//				configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,
+//				&INS_task_handle);
 
 	xTaskCreate(Ctrl_TargetUpdateTask, "Ctrl_TargetUpdateTask",
 			configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 			&Ctrl_TargetUpdateTask_handle);
 
 	xTaskCreate(balancing_chassis_task, "balancing_chassis_task",
-			1024, (void*) 1, (UBaseType_t) 4,
+			1024, (void*) 1, (UBaseType_t) 10,
 			&balancing_chassis_task_handle);
 //
 	xTaskCreate(leg_task, "leg_task",
-	512, (void*) 1, (UBaseType_t) 12,
+	512, (void*) 1, (UBaseType_t) 11,
 			&leg_task_handle);
 
 	xTaskCreate(dm_motor_control_task, "dm_motor_control_task",

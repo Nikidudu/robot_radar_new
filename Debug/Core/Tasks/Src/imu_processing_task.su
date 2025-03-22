@@ -1,9 +1,9 @@
 ../Core/Tasks/Src/imu_processing_task.c:40:6:imu_proc_task_notif	16	static,ignoring_inline_asm
 ../Core/Tasks/Src/imu_processing_task.c:49:6:gyro_data_ready	32	static
 ../Core/Tasks/Src/imu_processing_task.c:84:6:accel_data_ready	32	static
-../Core/Tasks/Src/imu_processing_task.c:118:6:mag_data_ready	24	static
-../Core/Tasks/Src/imu_processing_task.c:131:6:imu_processing_task	16	static
-../Core/Tasks/Src/imu_processing_task.c:145:6:init_quaternion	48	static
-../Core/Tasks/Src/imu_processing_task.c:280:6:quat_startup	128	static
-../Core/Tasks/Src/imu_processing_task.c:374:6:imu_ahrs_update	128	static
-../Core/Tasks/Src/imu_processing_task.c:469:6:imu_attitude_update	16	static
+../Core/Tasks/Src/imu_processing_task.c:122:6:mag_data_ready	24	static
+../Core/Tasks/Src/imu_processing_task.c:135:6:imu_processing_task	16	static
+../Core/Tasks/Src/imu_processing_task.c:149:6:init_quaternion	48	static
+../Core/Tasks/Src/imu_processing_task.c:284:6:quat_startup	128	static
+../Core/Tasks/Src/imu_processing_task.c:378:6:imu_ahrs_update	128	static
+../Core/Tasks/Src/imu_processing_task.c:473:6:imu_attitude_update	16	static
