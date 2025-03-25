@@ -65,9 +65,9 @@ void master_task(void* argument){
 //	start_micros_timer();
 //	led_toggle();
 
-//	gimbal_event_group = xEventGroupCreate();
+	gimbal_event_group = xEventGroupCreate();
 	chassis_event_group = xEventGroupCreate();
-//	launcher_event_group = xEventGroupCreate();
+	launcher_event_group = xEventGroupCreate();
 
 	usb_continue_semaphore = xSemaphoreCreateBinary();
 
