@@ -151,10 +151,6 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 //			imu_heading.pit, &prev_pit,1);
 //	angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
 
-	if (gimbal_upper_bound == 0 || gimbal_lower_bound == 0){
-		pitch_motor->output =0;
-	}
-
 	speed_pid(g_remote_cmd.right_y * 5, pitch_motor->raw_data.rpm, &pitch_motor->rpm_pid);
 
 	if (gimbal_ctrl_data.pitch >= 0.55) {
@@ -167,6 +163,13 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 	// -0.32 to 0.65
 	//	pitch_angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
 	pitch_motor->output = pitch_motor->rpm_pid.output;
+
+	if (gimbal_upper_bound == 1 && pitch_motor->output > 0){
+			pitch_motor->output =0;
+		}
+	if (gimbal_lower_bound == 1 && pitch_motor->output < 20){
+			pitch_motor->output =0;
+		}
 
 //	if (imu_heading.pit <= -0.20 || imu_heading.pit>= 0.55) {
 //		pitch_motor->output = 0;

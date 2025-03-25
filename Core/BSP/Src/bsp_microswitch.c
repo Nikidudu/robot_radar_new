@@ -21,20 +21,20 @@ void microswitch_int() {
 
 void microswitch_int1() {
 	uint8_t pin_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_14);
-	// Falling edge, gimbal_upper_bound
-	if (pin_state == 0) {
-		gimbal_upper_bound = 1;
-	} else if (pin_state == 1) {
-		gimbal_upper_bound = 0;
-	}
-}
-
-void microswitch_int2() {
-	uint8_t pin_state = HAL_GPIO_ReadPin(GPIOI, GPIO_PIN_6);
 	// Falling edge, gimbal_lower_bound
 	if (pin_state == 0) {
 		gimbal_lower_bound = 1;
 	} else if (pin_state == 1) {
 		gimbal_lower_bound = 0;
+	}
+}
+
+void microswitch_int2() {
+	uint8_t pin_state = HAL_GPIO_ReadPin(GPIOI, GPIO_PIN_6);
+	// Falling edge, gimbal_upper_bound
+	if (pin_state == 0) {
+		gimbal_upper_bound = 1;
+	} else if (pin_state == 1) {
+		gimbal_upper_bound = 0;
 	}
 }
