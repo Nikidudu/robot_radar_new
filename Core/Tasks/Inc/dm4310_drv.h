@@ -61,7 +61,6 @@ typedef struct
 	int ping;
 	int8_t disconnect_time;
 	int online;
-	float pos_predict;
 
 }motor_fbpara_t;
 

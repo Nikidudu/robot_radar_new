@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ../Core/Tasks/Src/balancing_chassis_task.c:88:6:Ctrl_Init	1
 ../Core/Tasks/Src/balancing_chassis_task.c:104:5:computeError	1
 ../Core/Tasks/Src/balancing_chassis_task.c:108:6:Ctrl_TargetUpdateTask	26
@@ -11,3 +12,18 @@
 ../Core/Tasks/Src/balancing_chassis_task.c:340:6:calculate_T_TP	4
 ../Core/Tasks/Src/balancing_chassis_task.c:365:6:gimbal_auto_front	6
 ../Core/Tasks/Src/balancing_chassis_task.c:382:6:balancing_chassis_task	73
+=======
+../Core/Tasks/Src/balancing_chassis_task.c:96:6:Ctrl_Init	1
+../Core/Tasks/Src/balancing_chassis_task.c:111:5:computeError	1
+../Core/Tasks/Src/balancing_chassis_task.c:115:6:Ctrl_TargetUpdateTask	27
+../Core/Tasks/Src/balancing_chassis_task.c:215:5:ground_detect	6
+../Core/Tasks/Src/balancing_chassis_task.c:238:5:ground_detect_staircase	5
+../Core/Tasks/Src/balancing_chassis_task.c:254:5:robot_check	1
+../Core/Tasks/Src/balancing_chassis_task.c:258:6:state_update	1
+../Core/Tasks/Src/balancing_chassis_task.c:281:6:kill_chassis	1
+../Core/Tasks/Src/balancing_chassis_task.c:292:6:manual_set_PidInit	1
+../Core/Tasks/Src/balancing_chassis_task.c:299:6:manual_set_legPos	2
+../Core/Tasks/Src/balancing_chassis_task.c:331:6:calculate_T_TP	4
+../Core/Tasks/Src/balancing_chassis_task.c:356:6:gimbal_auto_front	6
+../Core/Tasks/Src/balancing_chassis_task.c:373:6:balancing_chassis_task	73
+>>>>>>> parent of 8ad4b0a (tune for open house lol)
