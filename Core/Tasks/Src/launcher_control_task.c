@@ -704,7 +704,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		break;
 	case FEEDER_FIRING:
 		if (!projectile_loaded) {
-			feeder_state = FEEDER_FIRING_2;
+			feeder_state = FEEDER_FIRING_2; //FEEDER_SPINUP
 			break;
 		}
 		if (abs(avg_rpm - friction_wheel_speed) > LAUNCHER_MARGIN) {
@@ -769,7 +769,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		break;
 
 	case FEEDER_SPINUP:
-		if (g_flywheel->raw_data.rpm <= 10) {
+		if (g_flywheel->raw_data.rpm <= 10) { // ensures that flywheel stops rotation before feeder moves
 			speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
 					feeder->raw_data.rpm, &feeder->rpm_pid);
 			feeder->output = feeder->rpm_pid.output;
@@ -786,6 +786,8 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 //		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 //		feeder->output = feeder->rpm_pid.output;
 //		g_flywheel->output = g_flywheel->rpm_pid.output;
+
+// 		//updated code to make speeder spin slowly
 //		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio / 2,
 //							feeder->raw_data.rpm, &feeder->rpm_pid);
 //		feeder->output = feeder->rpm_pid.output;
