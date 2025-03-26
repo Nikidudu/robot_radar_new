@@ -6,11 +6,11 @@ Core/Tasks/Src/dm4310_drv.o: ../Core/Tasks/Src/dm4310_drv.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/core_cm4.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_version.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/mpu_armv7.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h \
@@ -63,8 +63,8 @@ Core/Tasks/Src/dm4310_drv.o: ../Core/Tasks/Src/dm4310_drv.c \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h \
  ../Core/Inc/usart.h ../Core/Inc/main.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
  ../Core/BSP/Inc/bsp_queue.h ../Core/BSP/Inc/board_settings.h \
  ../Core/Tasks/Inc/typedefs.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
@@ -86,7 +86,8 @@ Core/Tasks/Src/dm4310_drv.o: ../Core/Tasks/Src/dm4310_drv.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  ../Core/BSP/Inc/bsp_usb_redir.h ../Core/BSP/Inc/bsp_micros_timer.h \
- ../Core/BSP/Inc/CRC8_CRC16.h ../Core/robot_config/robot_config.h \
+ ../Core/BSP/Inc/CRC8_CRC16.h ../Core/BSP/Inc/bsp_dwt.h \
+ ../Core/robot_config/robot_config.h \
  ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
  ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/can_msg_processor.h \
  ../Core/Tasks/Inc/motor_control.h ../Core/Tasks/Inc/motor_control_task.h \
@@ -99,11 +100,11 @@ Core/Tasks/Src/dm4310_drv.o: ../Core/Tasks/Src/dm4310_drv.c \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/core_cm4.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_version.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h:
@@ -157,8 +158,8 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/main.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/CMSIS/DSP/Include/arm_math.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
 ../Core/BSP/Inc/bsp_queue.h:
 ../Core/BSP/Inc/board_settings.h:
 ../Core/Tasks/Inc/typedefs.h:
@@ -191,6 +192,7 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compile
 ../Core/BSP/Inc/bsp_usb_redir.h:
 ../Core/BSP/Inc/bsp_micros_timer.h:
 ../Core/BSP/Inc/CRC8_CRC16.h:
+../Core/BSP/Inc/bsp_dwt.h:
 ../Core/robot_config/robot_config.h:
 ../Core/robot_config/robot_config_BL.h:
 ../Core/robot_config/hud_bl.h:

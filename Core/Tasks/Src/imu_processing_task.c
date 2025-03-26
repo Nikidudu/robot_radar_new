@@ -473,18 +473,18 @@ void imu_attitude_update(void) {
 	imu_heading.yaw = -atan2(2 * q1 * q2 + 2 * q0 * q3,
 			-2 * q2 * q2 - 2 * q3 * q3 + 1) * IMU_YAW_INVERT;
 	/* pitch  -pi/2----pi/2 */
-	imu_heading.rol = -asin(-2 * q1 * q3 + 2 * q0 * q2) * IMU_ROLL_INVERT;
+	imu_heading.pit = -asin(-2 * q1 * q3 + 2 * q0 * q2) * IMU_ROLL_INVERT;
 	/* roll   -pi----pi  */
-	imu_heading.pit = atan2(2 * q2 * q3 + 2 * q0 * q1,
+	imu_heading.rol = atan2(2 * q2 * q3 + 2 * q0 * q1,
 			-2 * q1 * q1 - 2 * q2 * q2 + 1) * IMU_PITCH_INVERT;
 #else
 		/* yaw    -pi----pi */
 		imu_heading.yaw = -atan2(2 * q1 * q2 + 2 * q0 * q3,
 				-2 * q2 * q2 - 2 * q3 * q3 + 1) * IMU_YAW_INVERT;
 		/* pitch  -pi/2----pi/2 */
-		imu_heading.pit = -asin(-2 * q1 * q3 + 2 * q0 * q2) * IMU_PITCH_INVERT;
+		imu_heading.rol = -asin(-2 * q1 * q3 + 2 * q0 * q2) * IMU_PITCH_INVERT;
 		/* roll   -pi----pi  */
-		imu_heading.rol = atan2(2 * q2 * q3 + 2 * q0 * q1,
+		imu_heading.pit = atan2(2 * q2 * q3 + 2 * q0 * q1,
 				-2 * q1 * q1 - 2 * q2 * q2 + 1) * IMU_ROLL_INVERT;
 #endif
 //	} else {

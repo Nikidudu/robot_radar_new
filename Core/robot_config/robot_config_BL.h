@@ -13,7 +13,7 @@
 #define OVERHEAT_PROTECTION
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
-#define IMU_ORIENTATION	5
+#define IMU_ORIENTATION	1
 //doesn't do anything, todo: implement pid for heater
 #define IMU_TARGET_TEMP	50
 
@@ -228,16 +228,16 @@
 #define PITCH_MIN_ANG			-0.25
 #define PITCH_CONST 			-2000
 
-#define YAW_ANGLE_KP			120
+#define YAW_ANGLE_KP			120 //120
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			0
 #define YAW_ANGLE_INT_MAX		0.05
-#define YAW_MAX_RPM				100
+#define YAW_MAX_RPM				80
 #define YAW_SPINSPIN_CONSTANT	5000
 
-#define YAWRPM_KP				500//600//400
+#define YAWRPM_KP				500//500//600//400
 #define YAWRPM_KI				0
-#define YAWRPM_KD				80
+#define YAWRPM_KD				120
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
@@ -273,7 +273,7 @@
 #define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
 #define YAW_MOTOR_ID 		20
-#define YAW_MOTOR_CAN_PTR	&hcan2
+#define YAW_MOTOR_CAN_PTR	&hcan1
 #endif
 
 /* MECANUM WHEEL PROPERTIES */

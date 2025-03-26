@@ -153,55 +153,55 @@ void motor_control_task(void *argument) {
 		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0){
 			empty_tx_mb1(&hcan1);
 		}
-		if (dji_enabled_motors & 0x00000F) {
-			CAN_tx_message.StdId = 0x200;
-			CAN_send_data[0] = (dji_motor_map[1].motor_data->output) >> 8;
-			CAN_send_data[1] = (dji_motor_map[1].motor_data->output);
-			CAN_send_data[2] = (dji_motor_map[2].motor_data->output) >> 8;
-			CAN_send_data[3] = (dji_motor_map[2].motor_data->output);
-			CAN_send_data[4] = (dji_motor_map[3].motor_data->output) >> 8;
-			CAN_send_data[5] = (dji_motor_map[3].motor_data->output);
-			CAN_send_data[6] = (dji_motor_map[4].motor_data->output) >> 8;
-			CAN_send_data[7] = (dji_motor_map[4].motor_data->output);
-			HAL_CAN_AddTxMessage(&hcan1, &CAN_tx_message, CAN_send_data,
-					send_mail_box);
-		}
-
-
-		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan2) == 0){
-			empty_tx_mb2(&hcan2);
-		}
-		if (dji_enabled_motors & 0x00F000) {
-			CAN_tx_message.StdId = 0x200;
-			CAN_send_data[0] = (dji_motor_map[13].motor_data->output) >> 8;
-			CAN_send_data[1] = (dji_motor_map[13].motor_data->output);
-			CAN_send_data[2] = (dji_motor_map[14].motor_data->output) >> 8;
-			CAN_send_data[3] = (dji_motor_map[14].motor_data->output);
-			CAN_send_data[4] = (dji_motor_map[15].motor_data->output) >> 8;
-			CAN_send_data[5] = (dji_motor_map[15].motor_data->output);
-			CAN_send_data[6] = (dji_motor_map[16].motor_data->output) >> 8;
-			CAN_send_data[7] = (dji_motor_map[16].motor_data->output);
-			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
-					send_mail_box);
-		}
-
-		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0){
-			empty_tx_mb1(&hcan1);
-		}
-
-		if (dji_enabled_motors & 0x0000F0) {
-			CAN_tx_message.StdId = 0x1FF;
-			CAN_send_data[0] = (dji_motor_map[5].motor_data->output) >> 8;
-			CAN_send_data[1] = (dji_motor_map[5].motor_data->output);
-			CAN_send_data[2] = (dji_motor_map[6].motor_data->output) >> 8;
-			CAN_send_data[3] = (dji_motor_map[6].motor_data->output);
-			CAN_send_data[4] = (dji_motor_map[7].motor_data->output) >> 8;
-			CAN_send_data[5] = (dji_motor_map[7].motor_data->output);
-			CAN_send_data[6] = (dji_motor_map[8].motor_data->output) >> 8;
-			CAN_send_data[7] = (dji_motor_map[8].motor_data->output);
-			HAL_CAN_AddTxMessage(&hcan1, &CAN_tx_message, CAN_send_data,
-					send_mail_box);
-		}
+//		if (dji_enabled_motors & 0x00000F) {
+//			CAN_tx_message.StdId = 0x200;
+//			CAN_send_data[0] = (dji_motor_map[1].motor_data->output) >> 8;
+//			CAN_send_data[1] = (dji_motor_map[1].motor_data->output);
+//			CAN_send_data[2] = (dji_motor_map[2].motor_data->output) >> 8;
+//			CAN_send_data[3] = (dji_motor_map[2].motor_data->output);
+//			CAN_send_data[4] = (dji_motor_map[3].motor_data->output) >> 8;
+//			CAN_send_data[5] = (dji_motor_map[3].motor_data->output);
+//			CAN_send_data[6] = (dji_motor_map[4].motor_data->output) >> 8;
+//			CAN_send_data[7] = (dji_motor_map[4].motor_data->output);
+//			HAL_CAN_AddTxMessage(&hcan1, &CAN_tx_message, CAN_send_data,
+//					send_mail_box);
+//		}
+//
+//
+//		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan2) == 0){
+//			empty_tx_mb2(&hcan2);
+//		}
+//		if (dji_enabled_motors & 0x00F000) {
+//			CAN_tx_message.StdId = 0x200;
+//			CAN_send_data[0] = (dji_motor_map[13].motor_data->output) >> 8;
+//			CAN_send_data[1] = (dji_motor_map[13].motor_data->output);
+//			CAN_send_data[2] = (dji_motor_map[14].motor_data->output) >> 8;
+//			CAN_send_data[3] = (dji_motor_map[14].motor_data->output);
+//			CAN_send_data[4] = (dji_motor_map[15].motor_data->output) >> 8;
+//			CAN_send_data[5] = (dji_motor_map[15].motor_data->output);
+//			CAN_send_data[6] = (dji_motor_map[16].motor_data->output) >> 8;
+//			CAN_send_data[7] = (dji_motor_map[16].motor_data->output);
+//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
+//					send_mail_box);
+//		}
+//
+//		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0){
+//			empty_tx_mb1(&hcan1);
+//		}
+//
+//		if (dji_enabled_motors & 0x0000F0) {
+//			CAN_tx_message.StdId = 0x1FF;
+//			CAN_send_data[0] = (dji_motor_map[5].motor_data->output) >> 8;
+//			CAN_send_data[1] = (dji_motor_map[5].motor_data->output);
+//			CAN_send_data[2] = (dji_motor_map[6].motor_data->output) >> 8;
+//			CAN_send_data[3] = (dji_motor_map[6].motor_data->output);
+//			CAN_send_data[4] = (dji_motor_map[7].motor_data->output) >> 8;
+//			CAN_send_data[5] = (dji_motor_map[7].motor_data->output);
+//			CAN_send_data[6] = (dji_motor_map[8].motor_data->output) >> 8;
+//			CAN_send_data[7] = (dji_motor_map[8].motor_data->output);
+//			HAL_CAN_AddTxMessage(&hcan1, &CAN_tx_message, CAN_send_data,
+//					send_mail_box);
+//		}
 
 		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan2) == 0){
 			empty_tx_mb2(&hcan2);
@@ -220,40 +220,40 @@ void motor_control_task(void *argument) {
 					send_mail_box);
 		}
 
-
-		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0){
-			empty_tx_mb1(&hcan1);
-		}
-		if (dji_enabled_motors & 0x000F00) {
-			CAN_tx_message.StdId = 0x2FF;
-			CAN_send_data[0] = (dji_motor_map[9].motor_data->output) >> 8;
-			CAN_send_data[1] = (dji_motor_map[9].motor_data->output);
-			CAN_send_data[2] = (dji_motor_map[10].motor_data->output) >> 8;
-			CAN_send_data[3] = (dji_motor_map[10].motor_data->output);
-			CAN_send_data[4] = (dji_motor_map[11].motor_data->output) >> 8;
-			CAN_send_data[5] = (dji_motor_map[11].motor_data->output);
-			CAN_send_data[6] = (dji_motor_map[12].motor_data->output) >> 8;
-			CAN_send_data[7] = (dji_motor_map[12].motor_data->output);
-			HAL_CAN_AddTxMessage(&hcan1, &CAN_tx_message, CAN_send_data,
-					send_mail_box);
-		}
-
-		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan2) == 0){
-			empty_tx_mb2(&hcan2);
-		}
-		if (dji_enabled_motors & 0xF00000) {
-			CAN_tx_message.StdId = 0x2FF;
-			CAN_send_data[0] = (dji_motor_map[9+12].motor_data->output) >> 8;
-			CAN_send_data[1] = (dji_motor_map[9+12].motor_data->output);
-			CAN_send_data[2] = (dji_motor_map[10+12].motor_data->output) >> 8;
-			CAN_send_data[3] = (dji_motor_map[10+12].motor_data->output);
-			CAN_send_data[4] = (dji_motor_map[11+12].motor_data->output) >> 8;
-			CAN_send_data[5] = (dji_motor_map[11+12].motor_data->output);
-			CAN_send_data[6] = (dji_motor_map[12+12].motor_data->output) >> 8;
-			CAN_send_data[7] = (dji_motor_map[12+12].motor_data->output);
-			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
-					send_mail_box);
-		}
+//
+//		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0){
+//			empty_tx_mb1(&hcan1);
+//		}
+//		if (dji_enabled_motors & 0x000F00) {
+//			CAN_tx_message.StdId = 0x2FF;
+//			CAN_send_data[0] = (dji_motor_map[9].motor_data->output) >> 8;
+//			CAN_send_data[1] = (dji_motor_map[9].motor_data->output);
+//			CAN_send_data[2] = (dji_motor_map[10].motor_data->output) >> 8;
+//			CAN_send_data[3] = (dji_motor_map[10].motor_data->output);
+//			CAN_send_data[4] = (dji_motor_map[11].motor_data->output) >> 8;
+//			CAN_send_data[5] = (dji_motor_map[11].motor_data->output);
+//			CAN_send_data[6] = (dji_motor_map[12].motor_data->output) >> 8;
+//			CAN_send_data[7] = (dji_motor_map[12].motor_data->output);
+//			HAL_CAN_AddTxMessage(&hcan1, &CAN_tx_message, CAN_send_data,
+//					send_mail_box);
+//		}
+//
+//		if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan2) == 0){
+//			empty_tx_mb2(&hcan2);
+//		}
+//		if (dji_enabled_motors & 0xF00000) {
+//			CAN_tx_message.StdId = 0x2FF;
+//			CAN_send_data[0] = (dji_motor_map[9+12].motor_data->output) >> 8;
+//			CAN_send_data[1] = (dji_motor_map[9+12].motor_data->output);
+//			CAN_send_data[2] = (dji_motor_map[10+12].motor_data->output) >> 8;
+//			CAN_send_data[3] = (dji_motor_map[10+12].motor_data->output);
+//			CAN_send_data[4] = (dji_motor_map[11+12].motor_data->output) >> 8;
+//			CAN_send_data[5] = (dji_motor_map[11+12].motor_data->output);
+//			CAN_send_data[6] = (dji_motor_map[12+12].motor_data->output) >> 8;
+//			CAN_send_data[7] = (dji_motor_map[12+12].motor_data->output);
+//			HAL_CAN_AddTxMessage(&hcan2, &CAN_tx_message, CAN_send_data,
+//					send_mail_box);
+//		}
 
 
 #if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
@@ -263,7 +263,7 @@ void motor_control_task(void *argument) {
 
 		delay = (delay > 2) ? 1 : delay;
 //		last_time = get_microseconds();
-		vTaskDelayUntil(&start_time, 2-(delay));
+		vTaskDelayUntil(&start_time, 10);
 //		vTaskDelay(1);
 
 

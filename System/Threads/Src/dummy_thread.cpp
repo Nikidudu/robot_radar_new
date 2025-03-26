@@ -12,6 +12,7 @@ dummyThread* dummyInstance = nullptr;
 int count_dummy[6];
 int16_t test[6];
 float imu_test[6];
+uint8_t imu_online_ping[2] = {0};
 
 dummyThread::~dummyThread(){
 }
@@ -48,12 +49,18 @@ void dummyThread::loop()
 
 	portYIELD();
 }
-
+float dummy_dt = 0;
+uint32_t dummy_lastTick = HAL_GetTick();
 void dummyThread::handle_dummy(uint8_t sender_id, dummyPacket* packet) {
 	if(!(IS_RELIABLE(*packet))) {
 //		console.printf_error("Unreliable IMU calibration packet");
 		return;
 	}
+	uint32_t currentTick = HAL_GetTick();
+	imu_online_ping[1] = 0;
+	// Calculate dt in seconds (since HAL_GetTick returns milliseconds)
+	dummy_dt = (currentTick - dummy_lastTick) / 1000.0f;
+	dummy_lastTick = currentTick;
 	 count_dummy[0] = packet->num1;
 	 count_dummy[1] = packet->num2;
 	 count_dummy[2] = packet->num3;

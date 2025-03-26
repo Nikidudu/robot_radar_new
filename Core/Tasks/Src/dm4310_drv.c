@@ -24,12 +24,16 @@ uint8_t RxData[8];
 motor_t MF_motor[2];
 motor_t motor[num];
 Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
-float dm_set_tor[4];
-float mf_set_tor[2];
+float dm_set_tor[4] = {0};
+float mf_set_tor[2] = {0};
 extern int chassis_state;
 uint8_t joint_motor_online = 0;
 
+float dm_task_dt = 0;
+
 void dm_motor_control_task(void *argument) {
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+	uint32_t dm_task_lastTick = HAL_GetTick();
 	dm_set_tor[0] = 0.0f;
 	dm_set_tor[1] = 0.0f;
 	dm_set_tor[2] = 0.0f;
@@ -39,7 +43,10 @@ void dm_motor_control_task(void *argument) {
 	osDelay(100);
 
     while (1) {
-
+    	uint32_t currentTick = HAL_GetTick();
+    	// Calculate dt in seconds (since HAL_GetTick returns milliseconds)
+    	dm_task_dt = (currentTick - dm_task_lastTick) / 1000.0f;
+    	dm_task_lastTick = currentTick; // update for next call
 //    	motor[Motor1].ctrl.tor_set = 0.1f;
 //    	motor[Motor2].ctrl.tor_set = 0.2f;
 //    	motor[Motor3].ctrl.tor_set = -0.1f;
@@ -65,79 +72,77 @@ void dm_motor_control_task(void *argument) {
     	leftWheel.torque = MF_motor[0].para.torque;
     	rightWheel.torque = MF_motor[1].para.torque;
 
-    	motor[Motor1].para.heartbeat =0;
-    	motor[Motor2].para.heartbeat =0;
-    	motor[Motor3].para.heartbeat =0;
-    	motor[Motor4].para.heartbeat =0;
     	dm4310_ctrl_send(&hcan2, &motor[Motor1]);
-
+    	motor[Motor1].para.ping += 1;
     	dm4310_ctrl_send(&hcan2, &motor[Motor2]);
-
-    	vTaskDelay(1);
+    	motor[Motor2].para.ping += 1;
+    	DWT_Delay(0.0005);
     	dm4310_ctrl_send(&hcan2, &motor[Motor3]);
-
+    	motor[Motor3].para.ping += 1;
     	dm4310_ctrl_send(&hcan2, &motor[Motor4]);
-
-        vTaskDelay(1);
+    	motor[Motor4].para.ping += 1;
+    	osDelay(1);
         MFtorque_command(&hcan2, 0x141, MF_motor[0].ctrl.tor_set);
-        vTaskDelay(1);
+        MF_motor[0].para.ping += 1;
+//        DWT_Delay(0.0002);
         MFtorque_command(&hcan2, 0x142, -MF_motor[1].ctrl.tor_set);
-        vTaskDelay(1);
-        if ((motor[Motor1].para.heartbeat == 0 || motor[Motor1].para.state != 9) && motor[Motor1].para.disconnect_time>100){
-        	motor[Motor1].para.disconnect_time = 0;
+        MF_motor[1].para.ping += 1;
+//        DWT_Delay(0.0002);
+
+        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3));
+        if (motor[Motor1].para.ping > 50 || motor[Motor1].para.state != 9){
         	motor[Motor1].para.online = 0;
-        }else if((motor[Motor1].para.heartbeat == 0 || motor[Motor1].para.state != 9)){
-        	motor[Motor1].para.disconnect_time++;
         }else{
-        	motor[Motor1].para.disconnect_time = 0;
         	motor[Motor1].para.online = 1;
         }
-        if ((motor[Motor2].para.heartbeat == 0 || motor[Motor2].para.state != 9) && motor[Motor2].para.disconnect_time>100){
-        	motor[Motor2].para.disconnect_time = 0;
+        if (motor[Motor2].para.ping > 50 || motor[Motor2].para.state != 9){
         	motor[Motor2].para.online = 0;
-        }else if((motor[Motor2].para.heartbeat == 0 || motor[Motor2].para.state != 9)){
-        	motor[Motor2].para.disconnect_time++;
         }else{
-        	motor[Motor2].para.disconnect_time = 0;
-        	motor[Motor2].para.online =1;
+        	motor[Motor2].para.online = 1;
         }
-        if ((motor[Motor3].para.heartbeat == 0 || motor[Motor3].para.state != 9) && motor[Motor3].para.disconnect_time>100){
-        	motor[Motor3].para.disconnect_time = 0;
+        if (motor[Motor3].para.ping > 50 || motor[Motor3].para.state != 9){
         	motor[Motor3].para.online = 0;
-        }else if((motor[Motor3].para.heartbeat == 0 || motor[Motor3].para.state != 9)){
-        	motor[Motor3].para.disconnect_time++;
         }else{
-        	motor[Motor3].para.disconnect_time = 0;
-        	motor[Motor3].para.online =1;
+        	motor[Motor3].para.online = 1;
         }
-        if ((motor[Motor4].para.heartbeat == 0 || motor[Motor4].para.state != 9) && motor[Motor4].para.disconnect_time>100){
-        	motor[Motor4].para.disconnect_time = 0;
+        if (motor[Motor4].para.ping > 50 || motor[Motor4].para.state != 9){
         	motor[Motor4].para.online = 0;
-        }else if((motor[Motor4].para.heartbeat == 0 || motor[Motor4].para.state != 9)){
-        	motor[Motor4].para.disconnect_time++;
         }else{
-        	motor[Motor4].para.disconnect_time = 0;
-        	motor[Motor4].para.online =1;
+        	motor[Motor4].para.online = 1;
+        }
+        if (MF_motor[0].para.ping > 50){
+        	MF_motor[0].para.online = 0;
+        }else{
+        	MF_motor[0].para.online = 1;
+        }
+        if (MF_motor[1].para.ping > 50){
+        	MF_motor[1].para.online = 0;
+        }else{
+        	MF_motor[1].para.online = 1;
         }
         if (motor[Motor1].para.online == 1 &&
         		motor[Motor2].para.online == 1 &&
 				motor[Motor3].para.online == 1 &&
+				MF_motor[0].para.online == 1 &&
+				MF_motor[1].para.online == 1 &&
 				motor[Motor4].para.online == 1){
         	joint_motor_online = 1;
         }else{
         	joint_motor_online = 0;
-        	HAL_CAN_Stop(&hcan2);
-        	osDelay(100);  // Wait for motor power stabilization
-        	HAL_CAN_Start(&hcan2);
-        	osDelay(10);
+//        	HAL_CAN_Stop(&hcan2);
+//        	osDelay(5);  // Wait for motor power stabilization
+//        	HAL_CAN_Start(&hcan2);
+        	osDelay(1);
         	dm4310_enable(&hcan2, &motor[Motor1]);
-        	vTaskDelay(1);
         	dm4310_enable(&hcan2, &motor[Motor2]);
-        	vTaskDelay(1);
+        	DWT_Delay(0.0002);
         	dm4310_enable(&hcan2, &motor[Motor3]);
-        	vTaskDelay(1);
         	dm4310_enable(&hcan2, &motor[Motor4]);
-        	vTaskDelay(1);
+        	DWT_Delay(0.0002);
+        	enableMFMotor(&hcan2, 0x141);
+        	DWT_Delay(0.0002);
+        	enableMFMotor(&hcan2, 0x142);
+        	DWT_Delay(0.0002);
 //        	dm4310_motor_init();
         }
     }
@@ -206,8 +211,11 @@ void dm4310_motor_init(void)
   	MF_motor[1].initialized = 1;
 
 //  	save_pos_zero(&hcan2, 0x81, 0);
+//  	vTaskDelay(1);
 //  	save_pos_zero(&hcan2, 0x82, 0);
+//  	vTaskDelay(1);
 //  	save_pos_zero(&hcan2, 0x83, 0);
+//  	vTaskDelay(1);
 //  	save_pos_zero(&hcan2, 0x84, 0);
   }
 

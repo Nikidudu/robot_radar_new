@@ -127,6 +127,7 @@ int main(void)
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
+  DWT_Init(168);
 
   /* Start scheduler */
   osKernelStart();

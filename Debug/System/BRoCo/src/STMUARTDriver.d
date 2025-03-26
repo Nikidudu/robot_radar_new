@@ -1,7 +1,7 @@
 System/BRoCo/src/STMUARTDriver.o: ../System/BRoCo/src/STMUARTDriver.cpp \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Build/Build.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/System/BRoCo/include/Build/Build.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h \
  ../Core/Inc/usart.h ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Core/Inc/stm32f4xx_hal_conf.h \
@@ -9,11 +9,11 @@ System/BRoCo/src/STMUARTDriver.o: ../System/BRoCo/src/STMUARTDriver.cpp \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
- C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/core_cm4.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_version.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_compiler.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_gcc.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/mpu_armv7.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h \
@@ -53,9 +53,9 @@ System/BRoCo/src/STMUARTDriver.o: ../System/BRoCo/src/STMUARTDriver.cpp \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_dma.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_exti.h
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/Build/Build.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/System/BRoCo/include/BRoCo/STMUARTDriver.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/System/BRoCo/include/Build/Build.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/System/BRoCo/include/BRoCo/IODriver.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -64,11 +64,11 @@ C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/System/BRoCo/include/BRoCo/IO
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/core_cm4.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_version.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
-C:/Users/YI\ MING/Desktop/MAPLE/robot_firmware_new/Drivers/Include/mpu_armv7.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/core_cm4.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_version.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_compiler.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_gcc.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/mpu_armv7.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h:

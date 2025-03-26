@@ -65,10 +65,10 @@ void 	Observe_task(void *argument)
   while(1)
 	{  
 		wr= rightWheel.speed+stateVar.RdTheta;//�ұ�������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
-		vrb=wr*0.0925f+rightLegPos.length*stateVar.RdTheta+rightLegPos.dLength*arm_sin_f32(stateVar.Rtheta);//����bϵ���ٶ�
+		vrb=wr*0.0725f+rightLegPos.length*stateVar.RdTheta+rightLegPos.dLength*arm_sin_f32(stateVar.Rtheta);//����bϵ���ٶ�
 		
 		wl= leftWheel.speed+stateVar.LdTheta;//���������ת����Դ�ؽ��ٶȣ����ﶨ�����˳ʱ��Ϊ��
-		vlb=wl*0.0925f+leftLegPos.length*stateVar.LdTheta+leftLegPos.dLength*arm_sin_f32(stateVar.Ltheta);//����bϵ���ٶ�
+		vlb=wl*0.0725f+leftLegPos.length*stateVar.LdTheta+leftLegPos.dLength*arm_sin_f32(stateVar.Ltheta);//����bϵ���ٶ�
 		
 		aver_v=(vrb+vlb)/2.0f;//ȡƽ��
     xvEstimateKF_Update(&vaEstimateKF,INS.MotionAccel_n[0],aver_v);

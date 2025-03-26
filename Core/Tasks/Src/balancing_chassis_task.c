@@ -43,8 +43,8 @@ float LFTP;
 float RFTP;
 int robot_ready = 0; // 1 ready, 0 not ready
 PID manual_left_F, manual_left_Tp, manual_right_F, manual_right_Tp;
-float kRatio[2][6] = {{1.0f, 0.6f, 1.0f, 1.0f, 1.0f, 0.8f},
-                      {1.0f, 0.6f, 1.0f, 1.0f, 1.0f, 0.8f}};
+float kRatio[2][6] = {{1.0f, 0.9f, 1.0f, 1.0f, 1.0f, 0.8f},
+                      {1.0f, 0.9f, 1.0f, 1.0f, 1.0f, 0.8f}};
 float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
 double kRes[12] = {0}, k[2][6] = {0};
 float LlqrOutT;
@@ -92,6 +92,7 @@ float backward = 0.0f;
 float left = 0.0f;
 float right = 0.0f;
 extern uint8_t control_mode;
+extern uint8_t imu_online_ping[2];
 
 void Ctrl_Init()
 {
@@ -102,7 +103,7 @@ void Ctrl_Init()
     PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
     PID_Init(&legAnglePID, 30, 0.1, 1, -50.0, 50.0);
     PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
-    PID_Init(&yawPID, 0.0035, 0.0, 0.0015, -5.0, 5.0);
+    PID_Init(&yawPID, 0.0015, 0.0, 0.0007, -3.0, 3.0);
     PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
 }
 
@@ -252,7 +253,21 @@ int ground_detect_staircase(float LF, float LTP, float Ltheta, float LL0, float 
 }
 
 int robot_check() {
-    return 1;
+	imu_online_ping[1] += 1;
+	if (imu_online_ping[1] < 50){
+		imu_online_ping[0] = 1;
+	}else{
+		imu_online_ping[0] = 0;
+	}
+
+	if (imu_online_ping[0] == 1 && joint_motor_online == 1 && g_remote_cmd.right_switch == 2){
+		return 2;
+	}else if(imu_online_ping[0] == 1 && joint_motor_online == 1 && g_remote_cmd.right_switch == 3){
+		return 1;
+	}else{
+		return 0;
+	}
+
 }
 
 float last_Ltheta = 0.0f;

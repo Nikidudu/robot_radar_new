@@ -54,7 +54,7 @@ void motor_calib_task(void *argument) {
 	//check motors
 	//start motor control tasks after initialisation of motors
 	//shift function to master task.c probably
-	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
+	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 4,
 			(UBaseType_t) 8, &motor_control_task_handle);
 
 
