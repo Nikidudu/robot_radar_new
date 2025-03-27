@@ -1,0 +1,4 @@
+../Core/Tasks/Src/INS_task.c:34:6:INS_Init	8	static
+../Core/Tasks/Src/INS_task.c:40:6:INS_task	40	static
+../Core/Tasks/Src/INS_task.c:141:6:BodyFrameToEarthFrame	24	static
+../Core/Tasks/Src/INS_task.c:162:6:EarthFrameToBodyFrame	24	static

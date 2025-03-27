@@ -35,24 +35,18 @@ void INS_Init(void)
 { 
 	 mahony_init(&mahony,1.0f,0.01f,0.005f);
    INS.AccelLPF = 0.089f;
-
 }
-float INS_dt = 0;
 
 void INS_task(void *argument)
 {
 	 INS_Init();
-	 uint32_t INS_lastTick = HAL_GetTick();
-	 TickType_t xLastWakeTime = xTaskGetTickCount();
+
 	 while(1)
 	 {  
-		ins_dt = INS_dt;
+		ins_dt = 0.005f;
     
 		mahony.dt = ins_dt;
-		uint32_t currentTick = HAL_GetTick();
-		// Calculate dt in seconds (since HAL_GetTick returns milliseconds)
-		INS_dt = (currentTick - INS_lastTick) / 1000.0f;
-		INS_lastTick = currentTick;
+
     INS.Accel[0] = imu_test[0];
     INS.Accel[1] = imu_test[1];
     INS.Accel[2] = imu_test[2];
@@ -133,7 +127,7 @@ void INS_task(void *argument)
 		 ins_time++;
 		}
 		
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3));
+    osDelay(5);
 	}
 } 
 

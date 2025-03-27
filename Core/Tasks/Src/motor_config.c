@@ -44,6 +44,7 @@ motor_data_t feeder_motor;
 motor_data_t g_pitch_motor;
 motor_data_t yaw_motor;
 extern uint8_t joint_motor_online;
+extern uint8_t imu_online_ping[2];
 
 void motor_calib_task(void *argument) {
 //	can_start(&hcan1, 0x00000000, 0x00000000);
@@ -183,6 +184,12 @@ void motor_calib_task(void *argument) {
 
 		if (joint_motor_online == 0){
 			bz_buzzer(1, 2);
+			vTaskDelay(1000);
+			continue;
+
+		}
+		if (imu_online_ping[0] == 0){
+			bz_buzzer(0, 2);
 			vTaskDelay(1000);
 			continue;
 		}

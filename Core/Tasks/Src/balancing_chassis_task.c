@@ -43,8 +43,8 @@ float LFTP;
 float RFTP;
 int robot_ready = 0; // 1 ready, 0 not ready
 PID manual_left_F, manual_left_Tp, manual_right_F, manual_right_Tp;
-float kRatio[2][6] = {{1.0f, 0.9f, 1.0f, 1.0f, 1.0f, 0.8f},
-                      {1.0f, 0.9f, 1.0f, 1.0f, 1.0f, 0.8f}};
+float kRatio[2][6] = {{1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 0.8f},
+                      {1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 0.8f}};
 float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
 double kRes[12] = {0}, k[2][6] = {0};
 float LlqrOutT;
@@ -119,7 +119,7 @@ void Ctrl_TargetUpdateTask()
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
     float speedSlopeStep = 0.4f;
-    float speedCmdSlope = 0.013f;
+    float speedCmdSlope = 0.016f;
 
     while (1)
     {
@@ -203,10 +203,10 @@ void Ctrl_TargetUpdateTask()
         else if (target.position - stateVar.x < -0.5f)
             target.position = stateVar.x - 0.5f;
 
-        if (target.speed - stateVar.dx > 1.0f)
-            target.speed = stateVar.dx + 1.0f;
-        else if (target.speed - stateVar.dx < -1.0f)
-            target.speed = stateVar.dx - 1.0f;
+        if (target.speed - stateVar.dx > 1.5f)
+            target.speed = stateVar.dx + 1.5f;
+        else if (target.speed - stateVar.dx < -1.5f)
+            target.speed = stateVar.dx - 1.5f;
         target.legLength = 0.19f + ((float)g_remote_cmd.left_x / 660)*0.07f;
         
         vTaskDelayUntil(&xLastWakeTime, 5);
@@ -273,7 +273,7 @@ int robot_check() {
 float last_Ltheta = 0.0f;
 float last_Rtheta = 0.0f;
 void state_update() {
-    stateVar.phi = INS.Pitch;
+    stateVar.phi = INS.Pitch + CHASSIS_PITCH_OFFSET;
     stateVar.dPhi = -INS.Gyro[1];
     stateVar.x = filtered_x;
     stateVar.dx = filtered_v;

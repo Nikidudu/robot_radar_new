@@ -126,7 +126,7 @@ void master_task(void* argument){
 //			&balancing_imu_task_handle);
 
 	xTaskCreate(imu_processing_task, "IMU_task",
-	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 12,
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 11,
 			&imu_processing_task_handle);
 
 	xTaskCreate(motor_calib_task, "motor_calib_task",

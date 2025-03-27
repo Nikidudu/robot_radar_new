@@ -1,0 +1,4 @@
+../Core/Tasks/Src/INS_task.c:34:6:INS_Init	1
+../Core/Tasks/Src/INS_task.c:40:6:INS_task	8
+../Core/Tasks/Src/INS_task.c:141:6:BodyFrameToEarthFrame	1
+../Core/Tasks/Src/INS_task.c:162:6:EarthFrameToBodyFrame	1

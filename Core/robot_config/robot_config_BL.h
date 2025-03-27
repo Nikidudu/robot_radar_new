@@ -319,6 +319,8 @@
 #define GIMBAL_DELAY			10
 #define CHASSIS_DELAY 			10
 
+#define CHASSIS_PITCH_OFFSET 0.0
+
 //microsecond timer used for PIDs
 #define TIMER_FREQ			1000000 //Cannot be too high if not the ISRs overload the CPU
 #endif /* TASKS_INC_ROBOT_CONFIG_H_ */
