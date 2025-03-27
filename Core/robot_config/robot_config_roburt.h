@@ -47,18 +47,18 @@
 #define OVERHEAT_TIME			100
 
 #define LV1_FEEDER				100//1200//800//480//480
-#define	LV1_PROJECTILE			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
-#define LV1_MAX_SPEED			4000//4500//M3508_MAX_RPM
+#define	LV1_PROJECTILE			15.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
+#define LV1_MAX_SPEED			M3508_MAX_RPM//4500//M3508_MAX_RPM
 #define LV1_MAX_CURRENT			16384
 
 #define LV2_FEEDER				100//1200//840
-#define	LV2_PROJECTILE			20.5//12
-#define LV2_MAX_SPEED			4750//5250//8000
+#define	LV2_PROJECTILE			15.5//12
+#define LV2_MAX_SPEED			M3508_MAX_RPM//5250//8000
 #define LV2_MAX_CURRENT			16384
 
 #define LV3_FEEDER				100//1200//840
-#define	LV3_PROJECTILE			20.5//12
-#define LV3_MAX_SPEED			5250//6000//9000
+#define	LV3_PROJECTILE			15.5//12
+#define LV3_MAX_SPEED			M3508_MAX_RPM//6000//9000
 #define LV3_MAX_CURRENT			16384
 
 #define LVL_TUNING
@@ -72,12 +72,12 @@
 
 #define GEAR_DEFAULT			3
 
-#define GEAR1_YAW_MULT			1//0.3
-#define GEAR1_SPEED_MULT		1//0.3
+#define GEAR1_YAW_MULT			0.3
+#define GEAR1_SPEED_MULT		0.3
 #define GEAR1_ACCEL_MULT		1
 
-#define GEAR2_YAW_MULT			1//0.6
-#define GEAR2_SPEED_MULT		1//0.6
+#define GEAR2_YAW_MULT			0.6
+#define GEAR2_SPEED_MULT		0.6
 #define GEAR2_ACCEL_MULT		1
 
 #define GEAR3_YAW_MULT			1
@@ -102,8 +102,8 @@
 #define CHASSIS_POWER_MARGIN 0
 #define CHASSIS_POWER_MIN	0.5
 #define CHASSIS_POWER_BUFFER_LIMITER
-#define CHASSIS_POWER_LPF 0.1         // filter for chassis power readout from referee system
-#define CHASSIS_POWER_DELTA_LIM 0.3   // limit change for the automatic rpm adjusting code
+#define CHASSIS_POWER_LPF 0.02//0.1         // filter for chassis power readout from referee system
+#define CHASSIS_POWER_DELTA_LIM 0.1//0.3   // limit change for the automatic rpm adjusting code
 
 
 #define PROJECTILE_SPEED_RATIO	360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
@@ -160,12 +160,12 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_KP 			10//0			// |
+#define FEEDER_KP 			11//0			// |
 #define FEEDER_KI  			0				// | - FEEDER PID VALUES
 #define FEEDER_KD  			0			// |
 #define FEEDER_MAX_INT		10000
 
-#define FEEDER_ANGLE_KP 			1//5			// |
+#define FEEDER_ANGLE_KP 			0//5			// |
 #define FEEDER_ANGLE_KD  			0			// | - FEEDER_ANGLE PID VALUES
 #define FEEDER_ANGLE_KI  			0			// |
 #define FEEDER_ANGLE_INT_MAX  		0			// |
@@ -266,7 +266,7 @@
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
-#define YAW_CENTER 				4721//2790//7870//
+#define YAW_CENTER 				541//2790//7870//
 #define YAW_MAX_ANG				5*PI
 #define YAW_MIN_ANG				5*-PI
 

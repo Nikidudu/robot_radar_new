@@ -162,6 +162,7 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 
 	// -0.32 to 0.65
 	//	pitch_angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
+//	pitch_motor->output = -pitch_motor->rpm_pid.output;
 	pitch_motor->output = pitch_motor->rpm_pid.output;
 
 	if (gimbal_upper_bound == 1 && pitch_motor->output > 0){

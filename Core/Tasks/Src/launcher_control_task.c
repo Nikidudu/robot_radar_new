@@ -704,7 +704,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		break;
 	case FEEDER_FIRING:
 		if (!projectile_loaded) {
-			feeder_state =  FEEDER_SPINUP; //FEEDER_FIRING_2; //FEEDER_SPINUP
+			feeder_state =  FEEDER_FIRING_2; //FEEDER_SPINUP
 			break;
 		}
 		if (abs(avg_rpm - friction_wheel_speed) > LAUNCHER_MARGIN) {
@@ -728,12 +728,12 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		}
 		break;
 	case FEEDER_FIRING_3:
-		if (projectile_loaded) {
-			feeder_state = FEEDER_LOADED;
-			break;
-		} else {
-			feeder_state = FEEDER_SPINUP;
-		}
+//		if (projectile_loaded) {
+//			feeder_state = FEEDER_LOADED;
+//			break;
+//		} else {
+			feeder_state = FEEDER_STANDBY;
+//		}
 		break;
 	case FEEDER_JAM:
 		//check if either after unjam time
@@ -763,7 +763,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 	case FEEDER_OVERHEAT:
 	case FEEDER_LOADED:
 		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
-		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
+		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
 		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
@@ -772,9 +772,12 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		if (g_flywheel->raw_data.rpm <= 10) { // ensures that flywheel stops rotation before feeder moves
 			speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
 					feeder->raw_data.rpm, &feeder->rpm_pid);
-			feeder->output = feeder->rpm_pid.output;
+		} else {
+			speed_pid(0,feeder->raw_data.rpm, &feeder->rpm_pid);
 		}
-		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
+		feeder->output = feeder->rpm_pid.output;
+
+		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
 
@@ -782,22 +785,22 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		// spins feeder forward until projectile not loaded
 		// then move on to FEEDER_FIRING_2
 
-		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
-		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-		feeder->output = feeder->rpm_pid.output;
-		g_flywheel->output = g_flywheel->rpm_pid.output;
+//		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
+//		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
+//		feeder->output = feeder->rpm_pid.output;
+//		g_flywheel->output = g_flywheel->rpm_pid.output;
 
 // 		//updated code to make speeder spin slowly
 //		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio / 2,
 //							feeder->raw_data.rpm, &feeder->rpm_pid);
 //		feeder->output = feeder->rpm_pid.output;
 
-//		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
-//				feeder->raw_data.rpm, &feeder->rpm_pid);
-//		feeder->output = feeder->rpm_pid.output;
-//
-//		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-//		g_flywheel->output = g_flywheel->rpm_pid.output;
+		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
+				feeder->raw_data.rpm, &feeder->rpm_pid);
+		feeder->output = feeder->rpm_pid.output;
+
+		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
+		g_flywheel->output = g_flywheel->rpm_pid.output;
 
 		break;
 
@@ -809,9 +812,8 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 				feeder->raw_data.rpm, &feeder->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
 
-		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
+		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		g_flywheel->output = g_flywheel->rpm_pid.output;
-		break;
 
 		// alternative code 2 @KIM
 		// spin guidance flywheel slowly until 2nd ball is loaded
@@ -821,11 +823,13 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 //
 //		speed_pid(-friction_wheel_speed / 20, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 //		g_flywheel->output = g_flywheel->rpm_pid.output;
-//		break;
+
+		break;
 
 	case FEEDER_FIRING_3:
 		// actually fires the 1st projectile
-		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid); //spin guidance wheel
+//		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid); //spin guidance wheel
+		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		g_flywheel->output = g_flywheel->rpm_pid.output;
 
 		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid); // stops feeder
@@ -837,6 +841,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		speed_pid(FEEDER_UNJAM_SPD * feeder->angle_data.gearbox_ratio * FEEDER_INVERT,
 				feeder->raw_data.rpm, &feeder->rpm_pid);
 		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
+
 		feeder->output = feeder->rpm_pid.output;
 		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
