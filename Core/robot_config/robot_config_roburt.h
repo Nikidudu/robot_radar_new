@@ -309,8 +309,8 @@
 #define BFRICTION_MOTOR_ID  3
 #define BFRICTION_MOTOR_CAN_PTR	&hcan1
 // Active guidance flywheel
-#define GFRICTION_MOTOR_ID  4
-#define GFRICTION_MOTOR_CAN_PTR	&hcan1
+//#define GFRICTION_MOTOR_ID  4
+//#define GFRICTION_MOTOR_CAN_PTR	&hcan1
 #endif
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used

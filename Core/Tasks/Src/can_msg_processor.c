@@ -229,10 +229,10 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b01000,
 					&xHigherPriorityTaskWoken);
 			break;
-		case GFRICTION_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b10000,
-					&xHigherPriorityTaskWoken);
-			break;
+//		case GFRICTION_MOTOR_ID:
+//			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b10000,
+//					&xHigherPriorityTaskWoken);
+//			break;
 #endif
 		case PITCH_MOTOR_ID:
 			xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,

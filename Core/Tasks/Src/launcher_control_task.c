@@ -61,7 +61,7 @@ void launcher_control_task(void *argument) {
 	while (1) {
 		//event flags!
 #ifdef ACTIVE_GUIDANCE
-		xEventGroupWaitBits(launcher_event_group, 0b11111, pdTRUE, pdTRUE, portMAX_DELAY);
+		xEventGroupWaitBits(launcher_event_group, 0b1111, pdTRUE, pdTRUE, portMAX_DELAY);
 #else
 		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE, portMAX_DELAY);
 #endif
@@ -84,7 +84,7 @@ void launcher_control_task(void *argument) {
 			guidance_feeder(g_can_motors + LFRICTION_MOTOR_ID - 1,
 					g_can_motors + RFRICTION_MOTOR_ID - 1,
 					g_can_motors + BFRICTION_MOTOR_ID - 1,
-					g_can_motors + GFRICTION_MOTOR_ID - 1,
+//					g_can_motors + GFRICTION_MOTOR_ID - 1,
 					g_can_motors + FEEDER_MOTOR_ID - 1);
 #elif ANGLE_FEEDER
 			launcher_angle_control(g_can_motors + LFRICTION_MOTOR_ID - 1,
@@ -102,13 +102,13 @@ void launcher_control_task(void *argument) {
 			g_can_motors[FEEDER_MOTOR_ID - 1].output = 0;
 #ifdef ACTIVE_GUIDANCE
 			g_can_motors[BFRICTION_MOTOR_ID - 1].output = 0;
-			g_can_motors[GFRICTION_MOTOR_ID - 1].output = 0;
+//			g_can_motors[GFRICTION_MOTOR_ID - 1].output = 0;
 #endif
 		}
 		status_led(4, off_led);
 		//vTaskDelay(CHASSIS_DELAY);
 #ifdef ACTIVE_GUIDANCE
-		xEventGroupClearBits(launcher_event_group, 0b11111);
+		xEventGroupClearBits(launcher_event_group, 0b1111);
 #else
 		xEventGroupClearBits(launcher_event_group, 0b111);
 #endif
@@ -633,7 +633,7 @@ void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor
 }
 
 void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel,
-		motor_data_t *g_flywheel, motor_data_t *feeder) {
+		 motor_data_t *feeder) {
 
 	static uint32_t jam_start_time = 0;
 
@@ -763,45 +763,21 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 	case FEEDER_OVERHEAT:
 	case FEEDER_LOADED:
 		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
-		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
-		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
 
 	case FEEDER_SPINUP:
-		if (g_flywheel->raw_data.rpm <= 10) { // ensures that flywheel stops rotation before feeder moves
-			speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
-					feeder->raw_data.rpm, &feeder->rpm_pid);
-		} else {
-			speed_pid(0,feeder->raw_data.rpm, &feeder->rpm_pid);
-		}
+		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
+				feeder->raw_data.rpm, &feeder->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
-
-		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
 
 	case FEEDER_FIRING:
 		// spins feeder forward until projectile not loaded
 		// then move on to FEEDER_FIRING_2
-
-//		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
-//		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-//		feeder->output = feeder->rpm_pid.output;
-//		g_flywheel->output = g_flywheel->rpm_pid.output;
-
-// 		//updated code to make speeder spin slowly
-//		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio / 2,
-//							feeder->raw_data.rpm, &feeder->rpm_pid);
-//		feeder->output = feeder->rpm_pid.output;
-
 		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
 				feeder->raw_data.rpm, &feeder->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
-
-		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-		g_flywheel->output = g_flywheel->rpm_pid.output;
-
 		break;
 
 	case FEEDER_FIRING_2:
@@ -811,27 +787,10 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
 				feeder->raw_data.rpm, &feeder->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
-
-		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-		g_flywheel->output = g_flywheel->rpm_pid.output;
-
-		// alternative code 2 @KIM
-		// spin guidance flywheel slowly until 2nd ball is loaded
-		// change value 20 to change speed of guidance flywheel
-//		speed_pid(0 ,feeder->raw_data.rpm, &feeder->rpm_pid);
-//		feeder->output = feeder->rpm_pid.output;
-//
-//		speed_pid(-friction_wheel_speed / 20, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-//		g_flywheel->output = g_flywheel->rpm_pid.output;
-
 		break;
 
 	case FEEDER_FIRING_3:
 		// actually fires the 1st projectile
-//		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid); //spin guidance wheel
-		speed_pid(-400, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-		g_flywheel->output = g_flywheel->rpm_pid.output;
-
 		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid); // stops feeder
 		feeder->output = feeder->rpm_pid.output;
 		break;
@@ -840,10 +799,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 	case FEEDER_JAM:
 		speed_pid(FEEDER_UNJAM_SPD * feeder->angle_data.gearbox_ratio * FEEDER_INVERT,
 				feeder->raw_data.rpm, &feeder->rpm_pid);
-		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
-
 		feeder->output = feeder->rpm_pid.output;
-		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
 
 	default:

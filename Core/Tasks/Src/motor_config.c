@@ -702,15 +702,15 @@ uint16_t check_motors() {
 		}
 	}
 
-	if (curr_time
-			- g_can_motors[GFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << 10;
-
-	} else {
-		if (g_can_motors[GFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(2, 5);
-		}
-	}
+//	if (curr_time
+//			- g_can_motors[GFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
+//		error |= 1 << 10;
+//
+//	} else {
+//		if (g_can_motors[GFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+//			motor_temp_bz(2, 5);
+//		}
+//	}
 #endif
 
 	if (curr_time
