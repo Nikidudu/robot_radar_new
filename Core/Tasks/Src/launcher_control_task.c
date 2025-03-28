@@ -663,7 +663,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 	switch (feeder_state) {
 	// Spin the feeder if microswitch is not triggered
 	case FEEDER_STANDBY:
-		if (!projectile_loaded) {
+		if (launcher_ctrl_data.firing) {
 			feeder_state = FEEDER_SPINUP;
 			break;
 		}
@@ -675,8 +675,8 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		break;
 	// Keep spinning the feeder while microswitch is not triggered
 	case FEEDER_SPINUP:
-		if (projectile_loaded) {
-			feeder_state = FEEDER_LOADED;
+		if (!launcher_ctrl_data.firing) {
+			feeder_state = FEEDER_STANDBY;
 			break;
 		}
 		if ((feeder->raw_data.torque)
