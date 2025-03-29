@@ -119,7 +119,7 @@ void Ctrl_TargetUpdateTask()
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
     float speedSlopeStep = 0.4f;
-    float speedCmdSlope = 0.016f;
+//    float speedCmdSlope = 0.016f;
 
     while (1)
     {
@@ -140,15 +140,15 @@ void Ctrl_TargetUpdateTask()
         float desiredSpeedCmd;
         if (fabs(error6900) < fabs(error2777)){
         	if (control_mode == KEYBOARD_CTRL_MODE){
-        		desiredSpeedCmd = forward * 2.5f;
+        		desiredSpeedCmd = forward * 1.5f;
         	}else{
-        		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 2.5f;
+        		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 1.5f;
         	}
         }else{
         	if (control_mode == KEYBOARD_CTRL_MODE){
-        		desiredSpeedCmd = forward * -2.5f;
+        		desiredSpeedCmd = forward * -1.5f;
         	}else{
-        		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -2.5f;
+        		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -1.5f;
         	}
         }
 
@@ -159,15 +159,16 @@ void Ctrl_TargetUpdateTask()
                  (desiredSpeedCmd < 0 && target.speedCmd > 0)) {
             target.speedCmd = 0.0f;
         }
-        else if (fabs(desiredSpeedCmd - target.speedCmd) < speedCmdSlope) {
-            target.speedCmd = desiredSpeedCmd;
-        }
-        else {
-            if (desiredSpeedCmd > target.speedCmd)
-                target.speedCmd += speedCmdSlope;
-            else
-                target.speedCmd -= speedCmdSlope;
-        }
+//        else if (fabs(desiredSpeedCmd - target.speedCmd) < speedCmdSlope) {
+//            target.speedCmd = desiredSpeedCmd;
+//        }
+//        else {
+//            if (desiredSpeedCmd > target.speedCmd)
+//                target.speedCmd += speedCmdSlope;
+//            else
+//                target.speedCmd -= speedCmdSlope;
+//        }
+        target.speedCmd = desiredSpeedCmd;
 
         if ((float)g_remote_cmd.side_dial > 0){
             spin_speed = ((float)g_remote_cmd.side_dial / 660) * 90.0f;
@@ -253,6 +254,12 @@ int ground_detect_staircase(float LF, float LTP, float Ltheta, float LL0, float 
 }
 
 int robot_check() {
+	uint8_t robotbody_within_range;
+	if (fabs(INS.Pitch)<1.1f && fabs(INS.Roll)<1.1f){
+		robotbody_within_range = 1;
+	}else{
+		robotbody_within_range = 0;
+	}
 	imu_online_ping[1] += 1;
 	if (imu_online_ping[1] < 50){
 		imu_online_ping[0] = 1;
@@ -260,9 +267,15 @@ int robot_check() {
 		imu_online_ping[0] = 0;
 	}
 
-	if (imu_online_ping[0] == 1 && joint_motor_online == 1 && g_remote_cmd.right_switch == 2){
+	if (imu_online_ping[0] == 1
+			&& joint_motor_online == 1
+			&& g_remote_cmd.right_switch == 2
+			&& robotbody_within_range == 1){
 		return 2;
-	}else if(imu_online_ping[0] == 1 && joint_motor_online == 1 && g_remote_cmd.right_switch == 3){
+	}else if(imu_online_ping[0] == 1
+			&& joint_motor_online == 1
+			&& g_remote_cmd.right_switch == 3
+			&& robotbody_within_range == 1){
 		return 1;
 	}else{
 		return 0;
@@ -309,10 +322,10 @@ void kill_chassis() {
 }
 
 void manual_set_PidInit() {
-    PID_Init(&manual_left_F, 400, 0, 5, -70, 70);
-    PID_Init(&manual_left_Tp, 20.0, 0, 1.0, -50, 50);
-    PID_Init(&manual_right_F, 400, 0, 5, -70, 70);
-    PID_Init(&manual_right_Tp, 20.0, 0, 1.0, -50, 50);
+    PID_Init(&manual_left_F, 300, 0, 5, -70, 70);
+    PID_Init(&manual_left_Tp, 15.0, 0, 1.0, -50, 50);
+    PID_Init(&manual_right_F, 300, 0, 5, -70, 70);
+    PID_Init(&manual_right_Tp, 15.0, 0, 1.0, -50, 50);
 }
 
 void manual_set_legPos(float angle, float legLength) {
@@ -415,10 +428,10 @@ void balancing_chassis_task(void *argument) {
         state_update();
         lqr_k(stateVar.legLength, kRes);
         
-        if (g_remote_cmd.right_switch == 1) {
+        if (robot_ready == 0) {
             chassis_state = 0;
         }
-        if (g_remote_cmd.right_switch == 3) {
+        if (robot_ready == 1) {
             chassis_state = 1;
         }
         
@@ -443,7 +456,7 @@ void balancing_chassis_task(void *argument) {
                     (leftLegPos.length >0.1 && leftLegPos.length < 0.15) &&
                     (rightLegPos.angle >1.3 && rightLegPos.angle < 1.7) &&
                     (rightLegPos.length >0.1 && rightLegPos.length < 0.15)) {
-                    if (g_remote_cmd.right_switch == 2) {
+                    if (robot_ready == 2) {
                         chassis_state = 2;
                         break;
                     }
