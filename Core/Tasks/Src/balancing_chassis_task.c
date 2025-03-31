@@ -42,8 +42,8 @@ float LFTP;
 float RFTP;
 int robot_ready = 0; // 1 ready, 0 not ready
 PID manual_left_F, manual_left_Tp, manual_right_F, manual_right_Tp;
-float kRatio[2][6] = {{1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 0.8f},
-                      {1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 0.8f}};
+float kRatio[2][6] = {{1.0f, 0.9f, 1.0f, 1.0f, 1.0f, 0.8f},
+                      {1.0f, 0.9f, 1.0f, 1.0f, 1.0f, 0.8f}};
 float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
 double kRes[12] = {0}, k[2][6] = {0};
 float LlqrOutT;
@@ -106,8 +106,8 @@ void Ctrl_Init()
     PID_Init(&RlegLengthPID, 400, 0.0, 60.0, -200.0, 200.0);
     PID_Init(&LcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
     PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
-    PID_Init(&legAnglePID, 30, 0.1, 1, -50.0, 50.0);
-    PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
+    PID_Init(&legAnglePID, 50, 0.0, 1, -100.0, 100.0);
+    PID_Init(&rollPID, 100, 0.0, 2.0, -50.0, 50.0);
     PID_Init(&yawPID.outer, 0.0035, 0.0, 0.0, -3.0, 3.0);
     PID_Init(&yawPID.inner, 3.0, 0.0, 0.0, -3.0, 3.0);
     PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
@@ -214,7 +214,10 @@ void Ctrl_TargetUpdateTask()
             target.speed = stateVar.dx + 1.5f;
         else if (target.speed - stateVar.dx < -1.5f)
             target.speed = stateVar.dx - 1.5f;
-        target.legLength = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.07f;
+        target.legLength = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.12f;
+        if (target.legLength < 0.13f) {
+        	target.legLength = 0.13f;
+        }
         
         vTaskDelayUntil(&xLastWakeTime, 5);
     }
@@ -510,8 +513,8 @@ void balancing_chassis_task(void *argument) {
 
                 leftForce = LlegLengthPID.output + F_gravity_left + rollPID.output;
                 rightForce = RlegLengthPID.output + F_gravity_right - rollPID.output;
-                leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-                rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+                leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
+                rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
 
                 leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
                 leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
@@ -587,8 +590,8 @@ void balancing_chassis_task(void *argument) {
 
                 leftForce = LlegLengthPID.output + F_gravity_left + rollPID.output;
                 rightForce = RlegLengthPID.output + F_gravity_right - rollPID.output;
-                leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-                rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+                leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
+                rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
 
                 leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
                 leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
@@ -615,8 +618,8 @@ void balancing_chassis_task(void *argument) {
 
                 leftForce = LcushionPID.output + F_gravity_left + 20.0f;
                 rightForce = RcushionPID.output + F_gravity_right + 20.0f;
-                leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-                rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+                leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
+                rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
                 leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
                 leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
 
@@ -657,8 +660,8 @@ void balancing_chassis_task(void *argument) {
                         PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
                         leftForce = LlegLengthPID.output + F_gravity_left - 10.0f + rollPID.output;
                         rightForce = RlegLengthPID.output + F_gravity_right - 10.0f - rollPID.output;
-                        leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-                        rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+                        leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
+                        rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
                         leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
                         leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
 
@@ -687,8 +690,8 @@ void balancing_chassis_task(void *argument) {
                         PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
                         leftForce = LlegLengthPID.output + F_gravity_left - 10.0f;
                         rightForce = RlegLengthPID.output + F_gravity_right - 10.0f;
-                        leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-                        rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+                        leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
+                        rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
                         leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
                         leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
 
@@ -718,8 +721,8 @@ void balancing_chassis_task(void *argument) {
                         PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
                         leftForce = LlegLengthPID.output - 50.0f;
                         rightForce = RlegLengthPID.output - 50.0f;
-                        leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-                        rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+                        leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
+                        rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
                         leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
                         leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
 
@@ -791,8 +794,8 @@ void balancing_chassis_task(void *argument) {
 
                 leftForce = LlegLengthPID.output + F_gravity_left + rollPID.output;
                 rightForce = RlegLengthPID.output + F_gravity_right - rollPID.output;
-                leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output + (leftLegPos.length));
-                rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output + (rightLegPos.length));
+                leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
+                rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
 
                 leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
                 leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
@@ -832,8 +835,8 @@ void balancing_chassis_task(void *argument) {
                 PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
                 leftForce = LlegLengthPID.output - 50.0f;
                 rightForce = RlegLengthPID.output - 50.0f;
-                leftTp = (legAnglePID.output + (leftLegPos.length));
-                rightTp = (legAnglePID.output + (rightLegPos.length));
+                leftTp = (legAnglePID.output * leftLegPos.length);
+                rightTp = (legAnglePID.output * rightLegPos.length);
                 leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
                 leg_conv(rightForce, rightTp, rightJoint[0].angle, rightJoint[1].angle, rightJointTorque);
 
