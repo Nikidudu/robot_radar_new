@@ -8,6 +8,11 @@
 #ifndef TASKS_INC_ROBOT_CONFIG_CF_H_
 #define TASKS_INC_ROBOT_CONFIG_CF_H_
 
+#define BODY_MASS 20  //kg
+#define LEG_MASS 2 //kg
+#define UPPER_LEG_LENGTH 0.15 //m
+#define LOWER_LEG_LENGTH 0.28 //m
+
 #define BULLET_17
 
 #define OVERHEAT_PROTECTION
