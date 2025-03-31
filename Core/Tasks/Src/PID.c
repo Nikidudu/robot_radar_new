@@ -51,8 +51,8 @@ float PID_Compute(PID *pid, float setpoint, float measured_value, float dt, floa
 
 void PID_CascadeCalc(CascadePID *pid,float angleRef,float angleFdb,float speedFdb, float dt)
 {
-	PID_Compute(&pid->outer,angleRef,angleFdb,dt,0.001);//�����⻷(�ǶȻ�)
-	PID_Compute(&pid->inner,pid->outer.output,speedFdb,dt,0.001);//�����ڻ�(�ٶȻ�)
+	PID_Compute(&pid->outer,angleRef,angleFdb,dt,0);//�����⻷(�ǶȻ�)
+	PID_Compute(&pid->inner,pid->outer.output,speedFdb,dt,0);//�����ڻ�(�ٶȻ�)
 	pid->output=pid->inner.output;
 }
 

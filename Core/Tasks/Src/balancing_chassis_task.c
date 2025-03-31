@@ -23,7 +23,8 @@ extern remote_cmd_t g_remote_cmd;
 extern motor_data_t g_can_motors[24];
 extern float dm_set_tor[4];
 extern float mf_set_tor[2];
-PID yawPID, rollPID;
+CascadePID yawPID;
+PID rollPID;
 PID legAnglePID, LlegLengthPID, RlegLengthPID;
 PID spinPID;
 PID LcushionPID, RcushionPID;
@@ -103,7 +104,8 @@ void Ctrl_Init()
     PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
     PID_Init(&legAnglePID, 30, 0.1, 1, -50.0, 50.0);
     PID_Init(&rollPID, 500, 0.0, 2.0, -200.0, 200.0);
-    PID_Init(&yawPID, 0.0015, 0.0, 0.0007, -3.0, 3.0);
+    PID_Init(&yawPID.outer, 0.0035, 0.0, 0.0, -3.0, 3.0);
+    PID_Init(&yawPID.inner, 3.0, 0.0, 0.0, -3.0, 3.0);
     PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
 }
 
@@ -474,9 +476,11 @@ void balancing_chassis_task(void *argument) {
                 error2777 = computeError(filtered_angle, 2777);
 
                 if (fabs(error6900) < fabs(error2777)) {
-                    PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
+//                    PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
+                    PID_CascadeCalc(&yawPID,target.yawAngle, error6900,INS.Gyro[2],dt);
                 } else {
-                    PID_Compute(&yawPID, target.yawAngle, error2777, dt, 0);
+//                    PID_Compute(&yawPID, target.yawAngle, error2777, dt, 0);
+                    PID_CascadeCalc(&yawPID,target.yawAngle, error2777,INS.Gyro[2],dt);
                 }
                 mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
                 mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
@@ -550,9 +554,9 @@ void balancing_chassis_task(void *argument) {
                         spin_toggle = 0;
                     }
                     if (fabs(error6900) < fabs(error2777)) {
-                        PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
+                    	PID_CascadeCalc(&yawPID,target.yawAngle, error6900,INS.Gyro[2],dt);
                     } else {
-                        PID_Compute(&yawPID, target.yawAngle, error2777, dt, 0);
+                    	PID_CascadeCalc(&yawPID,target.yawAngle, error2777,INS.Gyro[2],dt);
                     }
                     mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
                     mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
@@ -754,9 +758,9 @@ void balancing_chassis_task(void *argument) {
                         spin_toggle = 0;
                     }
                     if (fabs(error6900) < fabs(error2777)) {
-                        PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
+                    	PID_CascadeCalc(&yawPID,target.yawAngle, error6900,INS.Gyro[2],dt);
                     } else {
-                        PID_Compute(&yawPID, target.yawAngle, error2777, dt, 0);
+                    	PID_CascadeCalc(&yawPID,target.yawAngle, error2777,INS.Gyro[2],dt);
                     }
                     mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
                     mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;

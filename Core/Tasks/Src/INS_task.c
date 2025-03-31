@@ -55,7 +55,7 @@ void INS_task(void *argument)
 		Accel.z=imu_test[2];
     INS.Gyro[0] = imu_test[3];
     INS.Gyro[1] = imu_test[4];
-    INS.Gyro[2] = imu_test[5];
+    INS.Gyro[2] = -imu_test[5];
   	Gyro.x=imu_test[3];
 		Gyro.y=imu_test[4];
 		Gyro.z=imu_test[5];
