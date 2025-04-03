@@ -26,8 +26,9 @@ extern float mf_set_tor[2];
 CascadePID yawPID;
 PID rollPID;
 PID legAnglePID, LlegLengthPID, RlegLengthPID;
-PID spinPID;
+//PID spinPID;
 PID LcushionPID, RcushionPID;
+PID leftWheelPID, rightWheelPID;
 int chassis_state = 0;
 int ground_state = 0;
 float yaw_angle_offset = 2.14f;
@@ -42,8 +43,8 @@ float LFTP;
 float RFTP;
 int robot_ready = 0; // 1 ready, 0 not ready
 PID manual_left_F, manual_left_Tp, manual_right_F, manual_right_Tp;
-float kRatio[2][6] = {{1.0f, 0.9f, 1.0f, 1.0f, 1.0f, 0.8f},
-                      {1.0f, 0.9f, 1.0f, 1.0f, 1.0f, 0.8f}};
+float kRatio[2][6] = {{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
+                      {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}};
 float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
 double kRes[12] = {0}, k[2][6] = {0};
 float LlqrOutT;
@@ -54,6 +55,8 @@ float F_gravity = 0.0f;
 float F_gravity_left = 0.0f;
 float F_gravity_right = 0.0f;
 float F_roll = 0.0f;
+float F_inertia_left = 0.0f;
+float F_inertia_right = 0.0f;
 float left_ankle_rad = 0.0f;
 float right_ankle_rad = 0.0f;
 
@@ -108,9 +111,12 @@ void Ctrl_Init()
     PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
     PID_Init(&legAnglePID, 50, 0.0, 1, -100.0, 100.0);
     PID_Init(&rollPID, 100, 0.0, 2.0, -50.0, 50.0);
-    PID_Init(&yawPID.outer, 0.0035, 0.0, 0.0, -3.0, 3.0);
-    PID_Init(&yawPID.inner, 3.0, 0.0, 0.0, -3.0, 3.0);
-    PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
+    PID_Init(&yawPID.outer, 0.0045, 0.0, 0.0, -3.0, 3.0);
+    PID_Init(&yawPID.inner, 3.5, 0.0, 0.0, -3.0, 3.0);
+//    PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
+    PID_Init(&leftWheelPID, 50.0, 0.0, 0.0, -15.0, 15.0);
+    PID_Init(&rightWheelPID, 50.0, 0.0, 0.0, -15.0, 15.0);
+
 }
 
 #define MAX_ANGLE 8191
@@ -158,13 +164,13 @@ void Ctrl_TargetUpdateTask()
         	}
         }
 
-        if (desiredSpeedCmd == 0.0f) {
-            target.speedCmd = 0.0f;
-        }
-        else if ((desiredSpeedCmd > 0 && target.speedCmd < 0) ||
-                 (desiredSpeedCmd < 0 && target.speedCmd > 0)) {
-            target.speedCmd = 0.0f;
-        }
+//        if (desiredSpeedCmd == 0.0f) {
+//            target.speedCmd = 0.0f;
+//        }
+//        else if ((desiredSpeedCmd > 0 && target.speedCmd < 0) ||
+//                 (desiredSpeedCmd < 0 && target.speedCmd > 0)) {
+//            target.speedCmd = 0.0f;
+//        }
 //        else if (fabs(desiredSpeedCmd - target.speedCmd) < speedCmdSlope) {
 //            target.speedCmd = desiredSpeedCmd;
 //        }
@@ -177,7 +183,7 @@ void Ctrl_TargetUpdateTask()
         target.speedCmd = desiredSpeedCmd;
 
         if ((float)g_remote_cmd.side_dial > 0){
-            spin_speed = ((float)g_remote_cmd.side_dial / 660) * 90.0f;
+            spin_speed = ((float)g_remote_cmd.side_dial / 660) * 35.0f;
         }else{
             spin_speed = 0;
         }
@@ -210,11 +216,11 @@ void Ctrl_TargetUpdateTask()
         else if (target.position - stateVar.x < -0.5f)
             target.position = stateVar.x - 0.5f;
 
-        if (target.speed - stateVar.dx > 1.5f)
-            target.speed = stateVar.dx + 1.5f;
-        else if (target.speed - stateVar.dx < -1.5f)
-            target.speed = stateVar.dx - 1.5f;
-        target.legLength = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.12f;
+        if (target.speed - stateVar.dx > 1.3f)
+            target.speed = stateVar.dx + 1.3f;
+        else if (target.speed - stateVar.dx < -1.3f)
+            target.speed = stateVar.dx - 1.3f;
+        target.legLength = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.15f;
         if (target.legLength < 0.13f) {
         	target.legLength = 0.13f;
         }
@@ -456,10 +462,13 @@ void balancing_chassis_task(void *argument) {
         if (isnan(right_ankle_rad) || right_ankle_rad < 0.2f) {
         	right_ankle_rad = 0.2f;
         }
+        F_inertia_left = (0.5f*BODY_MASS + 3.0f*LEG_MASS)*(((leftLegPos.length+rightLegPos.length)/2.0f)*INS.Gyro[2]*filtered_v)/(2.0f*RADIUS_BETWEEN_2LEG);
+//        F_inertia_right = (0.5f*BODY_MASS + LEG_MASS)*(rightLegPos.length*INS.Gyro[2]*filtered_v)/(2.0f*RADIUS_BETWEEN_2LEG);
+        F_gravity_left = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*(F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(left_ankle_rad) - F_roll + F_inertia_left));
+        F_gravity_right = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*(F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(right_ankle_rad) + F_roll - F_inertia_left));
 
-        F_gravity_left = F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(left_ankle_rad) - F_roll;
-        F_gravity_right = F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(right_ankle_rad) + F_roll;
-
+        PID_Compute(&leftWheelPID, spin_speed, leftWheel.speed, dt, 0);
+        PID_Compute(&rightWheelPID, -spin_speed, rightWheel.speed, dt, 0);
         
         switch (chassis_state) {
             case 0: // Robot die
@@ -567,9 +576,9 @@ void balancing_chassis_task(void *argument) {
                         spin_toggle = 1;
                     }
                     target.position = stateVar.x;
-                    PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm, 0.005, 0);
-                    mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
-                    mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
+//                    PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm, 0.005, 0);
+                    mf_set_tor[0] = -LlqrOutT * lqrTRatio + leftWheelPID.output*leftLegPos.length;
+                    mf_set_tor[1] = -RlqrOutT * lqrTRatio + rightWheelPID.output*rightLegPos.length;
                 } else {
                     if (spin_toggle == 1) {
                         spin_toggle = 0;
@@ -771,9 +780,9 @@ void balancing_chassis_task(void *argument) {
                         spin_toggle = 1;
                     }
                     target.position = stateVar.x;
-                    PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm, 0.005, 0);
-                    mf_set_tor[0] = -LlqrOutT * lqrTRatio + spinPID.output;
-                    mf_set_tor[1] = -RlqrOutT * lqrTRatio - spinPID.output;
+//                    PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm, 0.005, 0);
+                    mf_set_tor[0] = -LlqrOutT * lqrTRatio + leftWheelPID.output*leftLegPos.length;
+                    mf_set_tor[1] = -RlqrOutT * lqrTRatio + rightWheelPID.output*rightLegPos.length;
                 } else {
                     if (spin_toggle == 1) {
                         spin_toggle = 0;
@@ -787,8 +796,8 @@ void balancing_chassis_task(void *argument) {
                     mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
                 }
 
-                PID_Compute(&LlegLengthPID, 0.32, leftLegPos.length, dt, 0);
-                PID_Compute(&RlegLengthPID, 0.32, rightLegPos.length, dt, 0);
+                PID_Compute(&LlegLengthPID, 0.35, leftLegPos.length, dt, 0);
+                PID_Compute(&RlegLengthPID, 0.12, rightLegPos.length, dt, 0);
                 PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
                 PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
 

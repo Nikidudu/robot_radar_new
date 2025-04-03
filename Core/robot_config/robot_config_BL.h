@@ -12,6 +12,7 @@
 #define LEG_MASS 2 //kg
 #define UPPER_LEG_LENGTH 0.15 //m
 #define LOWER_LEG_LENGTH 0.28 //m
+#define RADIUS_BETWEEN_2LEG 0.228 //m
 
 #define BULLET_17
 

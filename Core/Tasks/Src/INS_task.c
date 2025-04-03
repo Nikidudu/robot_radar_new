@@ -32,8 +32,8 @@ int stop_time;
 extern float imu_test[6];
 
 void INS_Init(void)
-{ 
-	 mahony_init(&mahony,1.0f,0.01f,0.005f);
+{
+	 mahony_init(&mahony,1.0f,0.0f,0.005f);
    INS.AccelLPF = 0.089f;
 }
 
@@ -42,9 +42,9 @@ void INS_task(void *argument)
 	 INS_Init();
 
 	 while(1)
-	 {  
+	 {
 		ins_dt = 0.005f;
-    
+
 		mahony.dt = ins_dt;
 
     INS.Accel[0] = imu_test[0];
@@ -69,24 +69,24 @@ void INS_task(void *argument)
 		mahony.q2 /= norm;
 		mahony.q3 /= norm;
 	  RotationMatrix_update(&mahony);
-				
+
 		INS.q[0]=mahony.q0;
 		INS.q[1]=mahony.q1;
 		INS.q[2]=mahony.q2;
 		INS.q[3]=mahony.q3;
-       
+
       // �������ӵ�������ϵnת��������ϵb,�����ݼ��ٶȼ����ݼ����˶����ٶ�
 		float gravity_b[3];
     EarthFrameToBodyFrame(gravity, gravity_b, INS.q);
     for (uint8_t i = 0; i < 3; i++) // ͬ����һ����ͨ�˲�
     {
-      INS.MotionAccel_b[i] = (INS.Accel[i] - gravity_b[i]) * ins_dt / (INS.AccelLPF + ins_dt) 
-														+ INS.MotionAccel_b[i] * INS.AccelLPF / (INS.AccelLPF + ins_dt); 
-//			INS.MotionAccel_b[i] = (INS.Accel[i] ) * dt / (INS.AccelLPF + dt) 
-//														+ INS.MotionAccel_b[i] * INS.AccelLPF / (INS.AccelLPF + dt);			
+      INS.MotionAccel_b[i] = (INS.Accel[i] - gravity_b[i]) * ins_dt / (INS.AccelLPF + ins_dt)
+														+ INS.MotionAccel_b[i] * INS.AccelLPF / (INS.AccelLPF + ins_dt);
+//			INS.MotionAccel_b[i] = (INS.Accel[i] ) * dt / (INS.AccelLPF + dt)
+//														+ INS.MotionAccel_b[i] * INS.AccelLPF / (INS.AccelLPF + dt);
 		}
 		BodyFrameToEarthFrame(INS.MotionAccel_b, INS.MotionAccel_n, INS.q); // ת���ص���ϵn
-		
+
 		//��������
 		if(fabsf(INS.MotionAccel_n[0])<0.02f)
 		{
@@ -100,7 +100,7 @@ void INS_task(void *argument)
 		{
 		  INS.MotionAccel_n[2]=0.0f;//z��
 		}
-   		
+
 		if(ins_time>100.0f)
 		{
 			INS.ins_flag=1;//��Ԫ���������������ٶ�Ҳ�������������Կ�ʼ��������
@@ -108,9 +108,9 @@ void INS_task(void *argument)
       INS.Pitch= -mahony.pitch;
 		  INS.Roll=mahony.roll;
 		  INS.Yaw=mahony.yaw;
-		
+
 		//INS.YawTotalAngle=INS.YawTotalAngle+INS.Gyro[2]*0.001f;
-			
+
 			if (INS.Yaw - INS.YawAngleLast > 3.1415926f)
 			{
 					INS.YawRoundCount--;
@@ -126,10 +126,10 @@ void INS_task(void *argument)
 		{
 		 ins_time++;
 		}
-		
+
     osDelay(5);
 	}
-} 
+}
 
 
 /**
