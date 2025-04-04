@@ -45,6 +45,7 @@ int robot_ready = 0; // 1 ready, 0 not ready
 PID manual_left_F, manual_left_Tp, manual_right_F, manual_right_Tp;
 float kRatio[2][6] = {{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
                       {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}};
+float phi_mul = 1.0f;
 float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
 double kRes[12] = {0}, k[2][6] = {0};
 float LlqrOutT;
@@ -395,7 +396,7 @@ void calculate_T_TP(int touching_ground){
     Rx[2] -= target.position;
     Rx[3] -= target.speed;
     LlqrOutT = k[0][0] * Lx[0] + k[0][1] * Lx[1] + k[0][2] * Lx[2] + k[0][3] * Lx[3] + k[0][4] * Lx[4] + k[0][5] * Lx[5];
-    LlqrOutTp = k[1][0] * Lx[0] + k[1][1] * Lx[1] + k[1][2] * Lx[2] + k[1][3] * Lx[3] + k[1][4] * Lx[4] + k[1][5] * Lx[5];
+    LlqrOutTp = k[1][0] * Lx[0] + k[1][1] * Lx[1] + k[1][2] * Lx[2] + k[1][3] * Lx[3] + k[1][4]*phi_mul * Lx[4] + k[1][5]*phi_mul * Lx[5];
     RlqrOutT = k[0][0] * Rx[0] + k[0][1] * Rx[1] + k[0][2] * Rx[2] + k[0][3] * Rx[3] + k[0][4] * Rx[4] + k[0][5] * Rx[5];
     RlqrOutTp = k[1][0] * Rx[0] + k[1][1] * Rx[1] + k[1][2] * Rx[2] + k[1][3] * Rx[3] + k[1][4] * Rx[4] + k[1][5] * Rx[5];
 }
