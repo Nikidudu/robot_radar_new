@@ -9,11 +9,15 @@
 #include <Telemetry.h>
 #include "robot_config.h"
 #include "dm4310_drv.h"
-
+#include "INS_task.h"
 extern motor_data_t g_can_motors[24];
 extern motor_data_t g_pitch_motor;
 
 extern motor_t dm_pitch_motor;
+extern motor_t dm_yaw_motor;
+
+extern INS_t INS;
+extern orientation_data_t imu_heading;
 
 extern gimbal_control_t gimbal_ctrl_data;
 extern uint8_t control_mode;
@@ -38,12 +42,14 @@ void cvAimbotCommandThread::init() {
 void cvAimbotCommandThread::loop() {
 	if (control_mode == SBC_CTRL_MODE) {
 		if (aim_state) {
-			gimbal_ctrl_data.yaw = yaw;
-			gimbal_ctrl_data.pitch = pitch;
+			gimbal_ctrl_data.delta_yaw = yaw*2; // + g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+			gimbal_ctrl_data.pitch = pitch + INS.Pitch;
+					// imu_heading.pit;
 			launcher_ctrl_data.firing = fire_state;
 		} else {
 			gimbal_ctrl_data.pitch = 0;
 			launcher_ctrl_data.firing = 0;
+			yaw = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
 		}
 		// SEND AIM STATE TO MINI PC
 	}
@@ -65,8 +71,8 @@ void cvAimbotCommandThread::handle_cv_gimbal(uint8_t sender_id, cvGimbalCommandP
 }
 
 void cvAimbotCommandThread::send_command_gimbal(cvGimbalCommandPacket* packet) {
-	yaw = packet->yaw + g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
-	pitch = packet->pitch;
+	yaw = YAW_INVERT * packet->yaw;
+	pitch = PITCH_INVERT * packet->pitch;
 }
 
 void cvAimbotCommandThread::handle_cv_firing(uint8_t sender_id, cvFiringCommandPacket* packet) {

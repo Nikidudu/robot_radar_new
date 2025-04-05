@@ -19,6 +19,8 @@
 #include "cvAimbotCommandThread.h"
 #include "status_thread.h"
 
+
+
 ROCANDriver* CAN1_driver = nullptr;
 CANBus* CAN1_network = nullptr;
 ROCANDriver* CAN2_driver = nullptr;

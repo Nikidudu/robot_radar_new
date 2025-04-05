@@ -11,8 +11,8 @@
 #include "motor_config.h"
 #include "hud_roburt.h"
 #define BULLET_17
-
-#define OVERHEAT_PROTECTION
+#define SENTRY
+#define OVERHEAT_PROTECTIONYAW
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
 #define IMU_ORIENTATION 7

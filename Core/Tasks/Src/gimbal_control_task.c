@@ -12,6 +12,7 @@
 #include "can_msg_processor.h"
 #include "gimbal_control_task.h"
 #include "bsp_lk_motor.h"
+extern uint8_t control_mode;
 
 extern uint8_t aimbot_mode;
 
@@ -78,6 +79,7 @@ void gimbal_control_task(void *argument) {
 	//	xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE,
 	//	portMAX_DELAY);
 		start_time = xTaskGetTickCount();
+
 		if (gimbal_ctrl_data.enabled) {
 			calc_chassis_rot(&g_can_motors[FL_MOTOR_ID - 1],
 					&g_can_motors[FR_MOTOR_ID - 1],
@@ -89,7 +91,9 @@ void gimbal_control_task(void *argument) {
 			}
 #endif
 
-
+#ifdef SENTRY
+			yaw_control(g_can_motors + YAW_MOTOR_ID - 1);
+#else
 			if (gimbal_ctrl_data.imu_mode) {
 				gimbal_control(&g_pitch_motor,
 						g_can_motors + YAW_MOTOR_ID - 1);
@@ -97,6 +101,7 @@ void gimbal_control_task(void *argument) {
 				gimbal_angle_control(&g_pitch_motor,
 						g_can_motors + YAW_MOTOR_ID - 1);
 			}
+#endif
 		} else {
 			g_pitch_motor.output = 0;
 			g_can_motors[YAW_MOTOR_ID - 1].output = 0;
@@ -108,6 +113,60 @@ void gimbal_control_task(void *argument) {
 		vTaskDelayUntil(&start_time, GIMBAL_DELAY);
 	}
 	//should not run here
+}
+
+void yaw_control(motor_data_t *yaw_motor) {
+	uint8_t yaw_lim = 0;
+	if (prev_yaw == imu_heading.yaw) {
+		return;
+	}
+
+	float rel_yaw_angle = yaw_motor->angle_data.adj_ang + gimbal_ctrl_data.yaw
+			- imu_heading.yaw;
+
+	//if yaw has overflowed (i.e. goes to the next round) move it back into pi to -pi range
+	if (rel_yaw_angle > PI) {
+		rel_yaw_angle -= 2 * PI;
+	}
+	if (rel_yaw_angle < -PI) {
+		rel_yaw_angle += 2 * PI;
+	}
+	//check limits
+	if (rel_yaw_angle > yaw_motor->angle_data.phy_max_ang) {
+		rel_yaw_angle = yaw_motor->angle_data.phy_max_ang;
+		yaw_lim = 1;
+	}
+	if (rel_yaw_angle < yaw_motor->angle_data.phy_min_ang) {
+		rel_yaw_angle = yaw_motor->angle_data.phy_min_ang;
+		yaw_lim = 1;
+	}
+	if (yaw_lim == 1) {
+		gimbal_ctrl_data.yaw = rel_yaw_angle + imu_heading.yaw
+				- yaw_motor->angle_data.adj_ang;
+	}
+	float turn_ang = imu_heading.yaw - prev_yaw;
+	if (turn_ang > PI){
+		turn_ang -= 2 * PI;
+	} else if (turn_ang < -PI){
+		turn_ang += 2 * PI;
+
+	}
+	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
+	gimbal_ctrl_data.delta_yaw -= turn_ang;
+
+	if (control_mode == SBC_CTRL_MODE) {
+		yangle_pid(gimbal_ctrl_data.yaw, yaw_motor->angle_data.adj_ang, yaw_motor,
+					imu_heading.yaw, &prev_yaw,0);
+	} else {
+		yangle_pid(gimbal_ctrl_data.delta_yaw, 0, yaw_motor,
+					imu_heading.yaw, &prev_yaw,0);
+	}
+
+	xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
+
+	int32_t temp_output = yaw_motor->rpm_pid.output  + (chassis_ctrl_data.yaw * YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
+	temp_output = (temp_output > 20000) ? 20000 : (temp_output < -20000) ? -20000 : temp_output;
+	yaw_motor->output = temp_output;
 }
 
 /**

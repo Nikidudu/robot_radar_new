@@ -130,7 +130,8 @@ void control_input_task(void *argument) {
 					break;
 #ifdef HAS_SBC
 				case SBC_CTRL_MODE:
-					sbc_control_input();
+					//sbc_control_input();
+					nx_control_input();
 					break;
 					;
 #endif

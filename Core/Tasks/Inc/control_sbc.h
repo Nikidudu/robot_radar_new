@@ -8,6 +8,11 @@
 #ifndef TASKS_INC_CONTROL_SBC_H_
 #define TASKS_INC_CONTROL_SBC_H_
 
+void nx_control_input();
+void nx_remote_chassis_input();
+void nx_gimbal_input();
+void nx_launcher_input();
+
 void sbc_control_input();
 void aimbot_pid_init();
 void sbc_gimbal_control_input(uint8_t timeout);

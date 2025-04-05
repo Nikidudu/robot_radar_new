@@ -37,6 +37,7 @@ extern motor_data_t g_can_motors[24];
 extern motor_data_t g_pitch_motor;
 
 uint8_t joint_motor_online = 0;
+extern uint8_t g_safety_toggle;
 
 //float test =0;
 
@@ -57,7 +58,7 @@ void dm_motor_control_task(void *argument) {
 
 //	PID_Init(&gimbal_pid_pit.inner, 0.3, 0, 0.1, 0, 7);
 //	PID_Init(&gimbal_pid_pit.outer, 25, 0, 0.1, 0, 10);
-	PID_Init(&gimbal_pid_yaw, 1, 0.1,100.0, 0, 7);
+	PID_Init(&gimbal_pid_yaw, 1, 0.1, 75.0, 0, 7);
 	PID_Init(&gimbal_pid_pitch, 2.0, 0.0, 100.0, 0, 5);
 
 //	float las_angle = 0.0f;
@@ -103,24 +104,17 @@ void dm_motor_control_task(void *argument) {
 	    PID_SingleCalc(&gimbal_pid_yaw, 0, -yaw_error);
 	    dm_set_tor[1] = gimbal_pid_yaw.output ;
 
-	    target_rad += g_remote_cmd.right_y*0.00001;
-	    if (target_rad>0.25f){
-	    	target_rad = 0.25f;
-	    }else if(target_rad < -0.46){
-	    	target_rad = -0.46f;
+	    //target_rad += g_remote_cmd.right_y*0.00001;
+	    target_rad = gimbal_ctrl_data.pitch;
+
+	    if (target_rad>0.18f){
+	    	target_rad = 0.18f;
+	    }else if(target_rad < -0.43){
+	    	target_rad = -0.43f;
 	    }
+
 	    PID_SingleCalc(&gimbal_pid_pitch, target_rad , INS.Pitch);
-//	    dm_set_tor[0] = gimbal_pid_pitch.output ;
-	    if (g_remote_cmd.right_switch == 3 || g_remote_cmd.right_switch == 2){
-	    	dm_set_tor[0] =  0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
-	    	dm_set_tor[1] = gimbal_pid_yaw.output ;
-	    }else{
-	    	dm_set_tor[0] = 0;
-	    	dm_set_tor[1] = 0;
-	    }
 
-
-//	    dm_set_tor[0] =  dumbasss;
 
 	    // if ((dm_pitch_motor.para.heartbeat == 0 || dm_pitch_motor.para.state != 9) && dm_pitch_motor.para.disconnect_time > 100) {
 	    if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
@@ -173,14 +167,20 @@ void dm_motor_control_task(void *argument) {
 	   }
 //	    dm_yaw_motor.para.heartbeat = 0;
 
-//	    dm_set_tor[1] = (float)g_can_motors[YAW_MOTOR_ID - 1].output;
-	   //  dm_set_tor[1] = map_gm_speed_to_dm(dm_set_tor[1]);
+	    // Disable pitch if kill switch is on
+	    if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+	    	dm_set_tor[0] = 0;
+	    	dm_set_tor[1] = 0;
+	    } else {
+	    	dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
+	    	dm_set_tor[0] *= 1.1 ;
+	    	dm_set_tor[1] = gimbal_pid_yaw.output * 2 ;
+	    }
 
-	    dm_yaw_motor.ctrl.tor_set = dm_set_tor[1]*1.1;
-	    dm4310_ctrl_send(&hcan2, &dm_yaw_motor);
-
-	    dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
+    	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
+		dm_yaw_motor.ctrl.tor_set = dm_set_tor[1];
 	    dm4310_ctrl_send(&hcan1, &dm_pitch_motor);
+	    dm4310_ctrl_send(&hcan2, &dm_yaw_motor);
 
 		vTaskDelay(3);
 

@@ -253,7 +253,7 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 			break;
 		default:
 			xResult = pdFAIL;
-			idnum = idnum;
+//			idnum = idnum;
 			//error handler
 			break;
 		}

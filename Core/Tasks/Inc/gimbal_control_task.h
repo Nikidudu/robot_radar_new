@@ -11,6 +11,7 @@
 void gimbal_control_task(void *argument);
 void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor);
 void gimbal_angle_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor);
+void yaw_control(motor_data_t *yaw_motor);
 void gimbal_pid_init();
 
 
