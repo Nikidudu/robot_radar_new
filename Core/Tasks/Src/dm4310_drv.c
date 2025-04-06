@@ -58,7 +58,7 @@ void dm_motor_control_task(void *argument) {
 
 //	PID_Init(&gimbal_pid_pit.inner, 0.3, 0, 0.1, 0, 7);
 //	PID_Init(&gimbal_pid_pit.outer, 25, 0, 0.1, 0, 10);
-	PID_Init(&gimbal_pid_yaw, 1, 0.1, 75.0, 0, 7);
+	PID_Init(&gimbal_pid_yaw, 1.5, 1, 50, 0, 7);
 	PID_Init(&gimbal_pid_pitch, 2.0, 0.0, 100.0, 0, 5);
 
 //	float las_angle = 0.0f;
@@ -104,13 +104,15 @@ void dm_motor_control_task(void *argument) {
 	    PID_SingleCalc(&gimbal_pid_yaw, 0, -yaw_error);
 	    dm_set_tor[1] = gimbal_pid_yaw.output ;
 
-	    //target_rad += g_remote_cmd.right_y*0.00001;
-	    target_rad = gimbal_ctrl_data.pitch;
+	    target_rad += g_remote_cmd.right_y*0.00001;
+	    //target_rad = gimbal_ctrl_data.pitch;
 
-	    if (target_rad>0.18f){
-	    	target_rad = 0.18f;
-	    }else if(target_rad < -0.43){
-	    	target_rad = -0.43f;
+	    if (target_rad > 0.13f){
+	    	target_rad = 0.13f;
+
+	    }else if(target_rad < -0.70f){
+	    	target_rad = -0.70f;
+
 	    }
 
 	    PID_SingleCalc(&gimbal_pid_pitch, target_rad , INS.Pitch);
