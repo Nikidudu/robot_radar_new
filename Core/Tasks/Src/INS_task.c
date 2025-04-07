@@ -13,7 +13,7 @@
   *********************************************************************
   */
 	
-#include "ins_task.h"
+#include "INS_task.h"
 //#include "QuaternionEKF.h"
 #include "mahony_filter.h"
 #include <math.h>

@@ -212,9 +212,9 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 #define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
-#define CHASSIS_YAW_KP 		2//3.75//1//0.7//0.4
-#define CHASSIS_YAW_KI		0.1
-#define CHASSIS_YAW_KD 		1//0
+#define CHASSIS_YAW_KP 		0.7//3.75//1//0.7//0.4
+#define CHASSIS_YAW_KI		0.0001
+#define CHASSIS_YAW_KD 		3//0
 #define CHASSIS_YAW_MIN		0.1
 
 #define CHASSIS_TRANS_PRIO		0.85			//% of chassis speed to be prioritised for translation
@@ -276,13 +276,13 @@
 //ADD 4 TO GM6020 IDS i.e. flashing 5 times = ID 9
 //#define CHASSIS_MCU
 #ifndef CHASSIS_MCU
-#define FR_MOTOR_ID 		13
+#define FR_MOTOR_ID 		15
 #define FR_MOTOR_CAN_PTR	&hcan2
-#define FL_MOTOR_ID 		14
+#define FL_MOTOR_ID 		13
 #define FL_MOTOR_CAN_PTR	&hcan2
-#define BL_MOTOR_ID 		15
+#define BL_MOTOR_ID 		16
 #define BL_MOTOR_CAN_PTR	&hcan2
-#define BR_MOTOR_ID 		16
+#define BR_MOTOR_ID 		14
 #define BR_MOTOR_CAN_PTR	&hcan2
 #endif
 #define FEEDER_MOTOR_ID		4

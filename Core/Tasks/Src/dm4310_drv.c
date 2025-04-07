@@ -260,7 +260,8 @@ void dm4310_motor_init(void)
 //}
 
 void dmmapyawfbdata(motor_t *yaw_motor){
-	g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = -yaw_motor->para.pos;
+//	yaw_motor->para.pos = dm_yaw_encoder_mod(yaw_motor->para.pos);
+	g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = dm_yaw_encoder_mod(yaw_motor->para.pos);
 }
 
 void dmmappitchfbdata(motor_t *pitch_motor){
@@ -881,4 +882,9 @@ void pos_force_ctrl(CAN_HandleTypeDef* hcan,uint16_t motor_id, float pos, uint16
 	data[7] = *(ibuf+1);
 	
 	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
+}
+
+float dm_yaw_encoder_mod(float raw_angle) {
+	float mapped_angle = fmod(P_MAX + raw_angle, 2*P_MAX/P_ROUNDS);
+	return mapped_angle - P_MAX/P_ROUNDS;
 }

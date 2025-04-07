@@ -13,6 +13,7 @@ extern "C" {
 
 #define P_MIN -12.5f
 #define P_MAX 12.5f
+#define P_ROUNDS 4 // number of revolutions P_MAX - P_MIN gives
 #define V_MIN -30.0f
 #define V_MAX 30.0f
 #define KP_MIN 0.0f
@@ -115,6 +116,7 @@ void clear_err(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id);
 void dm_motor_control_task(void *argument);
 
 void dmmapfbdata(motor_t *pitch_motor, motor_t *yaw_motor);
+float dm_yaw_encoder_mod(float raw_angle);
 
 float shortest_angular_difference(float current, float target);
 float map_gm_speed_to_dm(float gm6020_speed_rpm);
