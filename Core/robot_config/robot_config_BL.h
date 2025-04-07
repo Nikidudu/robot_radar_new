@@ -265,7 +265,7 @@
 //#define BR_MOTOR_ID 		13
 //#define BR_MOTOR_CAN_PTR	&hcan2
 //#endif
-#define FEEDER_MOTOR_ID		6
+#define FEEDER_MOTOR_ID		8
 #define FEEDER_MOTOR_CAN_PTR	&hcan1
 #define LFRICTION_MOTOR_ID	1
 #define LFRICTION_MOTOR_CAN_PTR	&hcan1

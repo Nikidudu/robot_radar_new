@@ -26,6 +26,7 @@ extern float mf_set_tor[2];
 CascadePID yawPID;
 PID rollPID;
 PID legAnglePID, LlegLengthPID, RlegLengthPID;
+PID leftLegJumpPID, rightLegJumpPID;
 //PID spinPID;
 PID LcushionPID, RcushionPID;
 PID leftWheelPID, rightWheelPID;
@@ -102,14 +103,17 @@ float left = 0.0f;
 float right = 0.0f;
 extern uint8_t control_mode;
 extern uint8_t imu_online_ping[2];
+uint8_t working_mode = 0; //0 default dancing 1 jumping mode
 
 void Ctrl_Init()
 {
     // Robot main PID initialization
     PID_Init(&LlegLengthPID, 400, 0.0, 60.0, -200.0, 200.0);
     PID_Init(&RlegLengthPID, 400, 0.0, 60.0, -200.0, 200.0);
-    PID_Init(&LcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
-    PID_Init(&RcushionPID, 800, 0.0, 150.0, -200.0, 200.0);
+    PID_Init(&LcushionPID, 500, 0.0, 20.0, -200.0, 200.0);
+    PID_Init(&RcushionPID, 500, 0.0, 20.0, -200.0, 200.0);
+    PID_Init(&leftLegJumpPID, 600, 0.0, 5.0, -200.0, 200.0);
+    PID_Init(&rightLegJumpPID, 600, 0.0, 5.0, -200.0, 200.0);
     PID_Init(&legAnglePID, 50, 0.0, 1, -100.0, 100.0);
     PID_Init(&rollPID, 100, 0.0, 2.0, -50.0, 50.0);
     PID_Init(&yawPID.outer, 0.0045, 0.0, 0.0, -3.0, 3.0);
@@ -189,14 +193,30 @@ void Ctrl_TargetUpdateTask()
             spin_speed = 0;
         }
         
-        if (chassis_state == 3 || chassis_state == 6){
-            if (g_remote_cmd.side_dial == -660 && staircase_toggle != -660) {
-                staircase_state = !staircase_state;
-                staircase_toggle = -660;
-            } else if (g_remote_cmd.side_dial > -360) {
-                staircase_toggle = 0;
-            }
+        if(g_remote_cmd.left_switch == 3){
+        	working_mode = 1;
+        }else{
+        	working_mode = 0;
         }
+        if (working_mode == 0){
+        	jump_state = 0;
+        	if (chassis_state == 3 || chassis_state == 6){
+        		if (g_remote_cmd.side_dial == -660 && staircase_toggle != -660) {
+        			staircase_state = !staircase_state;
+        			staircase_toggle = -660;
+        		} else if (g_remote_cmd.side_dial > -360) {
+        			staircase_toggle = 0;
+        		}
+        	}
+        }else if(working_mode == 1){
+        	staircase_state = 0;
+        	if (chassis_state == 3){
+        		if (g_remote_cmd.side_dial == -660) {
+        			jump_state = 1;
+        		}
+        	}
+        }
+
 
         float legLength = (leftLegPos.length + rightLegPos.length) / 2;
         speedSlopeStep = -(legLength - 0.15f) * 0.03f + 1.0f;
@@ -475,6 +495,10 @@ void balancing_chassis_task(void *argument) {
             case 0: // Robot die
                 kill_chassis();
                 jump_state = 0;
+                jump_time_l = 0;
+                jump_time_r = 0;
+                jump_state_l = 0;
+                jump_state_r = 0;
                 staircase_state = 0;
                 target.position = stateVar.x; // Reset target pos
                 ground_state = 0; // On ground
@@ -556,6 +580,10 @@ void balancing_chassis_task(void *argument) {
                 
             case 3: // Robot standing with target leglength
                 staircase_detect = 0;
+                jump_time_l = 0;
+                jump_time_r = 0;
+                jump_state_l = 0;
+                jump_state_r = 0;
                 calculate_T_TP(1); // 1 touching ground, 0 not touching ground
                 if (ground_state != 0) { // If robot not touching ground
                     chassis_state = 4;
@@ -664,10 +692,10 @@ void balancing_chassis_task(void *argument) {
                         calculate_T_TP(1);
                         mf_set_tor[0] = -LlqrOutT * lqrTRatio;
                         mf_set_tor[1] = -RlqrOutT * lqrTRatio;
-                        PID_Compute(&LlegLengthPID, target.min_legLength, leftLegPos.length, dt, 0);
-                        PID_Compute(&RlegLengthPID, target.min_legLength, rightLegPos.length, dt, 0);
+                        PID_Compute(&LlegLengthPID, 0.12, leftLegPos.length, dt, 0);
+                        PID_Compute(&RlegLengthPID, 0.12, rightLegPos.length, dt, 0);
                         PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
-                        PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
+                        PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
                         leftForce = LlegLengthPID.output + F_gravity_left - 10.0f + rollPID.output;
                         rightForce = RlegLengthPID.output + F_gravity_right - 10.0f - rollPID.output;
                         leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
@@ -695,11 +723,11 @@ void balancing_chassis_task(void *argument) {
                         calculate_T_TP(1);
                         mf_set_tor[0] = -LlqrOutT * lqrTRatio;
                         mf_set_tor[1] = -RlqrOutT * lqrTRatio;
-                        PID_Compute(&LlegLengthPID, 0.6, leftLegPos.length, dt, 0);
-                        PID_Compute(&RlegLengthPID, 0.6, rightLegPos.length, dt, 0);
-                        PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
-                        leftForce = LlegLengthPID.output + F_gravity_left - 10.0f;
-                        rightForce = RlegLengthPID.output + F_gravity_right - 10.0f;
+                        PID_Compute(&leftLegJumpPID, 0.4, leftLegPos.length, dt, 0);
+                        PID_Compute(&rightLegJumpPID, 0.4, rightLegPos.length, dt, 0);
+                        PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
+                        leftForce = leftLegJumpPID.output + F_gravity_left;
+                        rightForce = rightLegJumpPID.output + F_gravity_right;
                         leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
                         rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
                         leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
@@ -709,13 +737,13 @@ void balancing_chassis_task(void *argument) {
                         dm_set_tor[0] = leftJointTorque[1];
                         dm_set_tor[1] = -rightJointTorque[0];
                         dm_set_tor[2] = -rightJointTorque[1];
-                        if (leftLegPos.length > 0.26f) {
+                        if (leftLegPos.length > 0.25f) {
                             jump_time_l++;
                         }
-                        if (rightLegPos.length > 0.26f) {
+                        if (rightLegPos.length > 0.25f) {
                             jump_time_r++;
                         }
-                        if (jump_time_l > 10 && jump_time_r > 10) {
+                        if (jump_time_l > 8 && jump_time_r > 8) {
                             jump_time_l = 0;
                             jump_time_r = 0;
                             jump_state_l = 2;
@@ -726,11 +754,11 @@ void balancing_chassis_task(void *argument) {
                         calculate_T_TP(0);
                         mf_set_tor[0] = 0;
                         mf_set_tor[1] = 0;
-                        PID_Compute(&LlegLengthPID, 0.1, leftLegPos.length, dt, 0);
-                        PID_Compute(&RlegLengthPID, 0.1, rightLegPos.length, dt, 0);
-                        PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
-                        leftForce = LlegLengthPID.output - 50.0f;
-                        rightForce = RlegLengthPID.output - 50.0f;
+                        PID_Compute(&leftLegJumpPID, 0.16, leftLegPos.length, dt, 0);
+                        PID_Compute(&rightLegJumpPID, 0.16, rightLegPos.length, dt, 0);
+                        PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
+                        leftForce = leftLegJumpPID.output ;
+                        rightForce = rightLegJumpPID.output ;
                         leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
                         rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
                         leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
@@ -740,13 +768,13 @@ void balancing_chassis_task(void *argument) {
                         dm_set_tor[0] = leftJointTorque[1];
                         dm_set_tor[1] = -rightJointTorque[0];
                         dm_set_tor[2] = -rightJointTorque[1];
-                        if (leftLegPos.length < 0.2f) {
+                        if (leftLegPos.length < 0.27f) {
                             jump_time_l++;
                         }
-                        if (rightLegPos.length < 0.2f) {
+                        if (rightLegPos.length < 0.27f) {
                             jump_time_r++;
                         }
-                        if (jump_time_l > 10 && jump_time_r > 10) {
+                        if (jump_time_l > 5 && jump_time_r > 5) {
                             jump_time_l = 0;
                             jump_time_r = 0;
                             jump_state_l = 3;
@@ -800,7 +828,7 @@ void balancing_chassis_task(void *argument) {
                 PID_Compute(&LlegLengthPID, 0.35, leftLegPos.length, dt, 0);
                 PID_Compute(&RlegLengthPID, 0.12, rightLegPos.length, dt, 0);
                 PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
-                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
+                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
 
                 leftForce = LlegLengthPID.output + F_gravity_left + rollPID.output;
                 rightForce = RlegLengthPID.output + F_gravity_right - rollPID.output;
@@ -815,8 +843,8 @@ void balancing_chassis_task(void *argument) {
                 dm_set_tor[1] = -rightJointTorque[0];
                 dm_set_tor[2] = -rightJointTorque[1];
 
-                staircase_detect = ground_detect_staircase(leftForce, leftTp, stateVar.Ltheta, leftLegPos.length,
-                                                         rightForce, rightTp, stateVar.Rtheta, rightLegPos.length);
+//                staircase_detect = ground_detect_staircase(leftForce, leftTp, stateVar.Ltheta, leftLegPos.length,
+//                                                         rightForce, rightTp, stateVar.Rtheta, rightLegPos.length);
                 break;
                 
             case 7: // Staircase detect - crossing edge
@@ -842,7 +870,7 @@ void balancing_chassis_task(void *argument) {
 
                 PID_Compute(&LlegLengthPID, 0.12, leftLegPos.length, dt, 0);
                 PID_Compute(&RlegLengthPID, 0.12, rightLegPos.length, dt, 0);
-                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
+                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
                 leftForce = LlegLengthPID.output - 50.0f;
                 rightForce = RlegLengthPID.output - 50.0f;
                 leftTp = (legAnglePID.output * leftLegPos.length);
