@@ -245,14 +245,17 @@
  * the motors
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_ANGLE_KP	  		1//200
+#define PITCH_ANGLE_KP	  		9000//200
 #define PITCH_ANGLE_KI  		0
 #define PITCH_ANGLE_KD  		0
 #define PITCH_ANGLE_INT_MAX		0.1
-#define PITCH_MAX_RPM			400 //60
+#define PITCH_MAX_RPM			3000 //60
+// idea to reduce ANGLE_KP for hero:
+// multiply the input to the rpm_pid (from the angle_pid) by a factor
+// ?? is there a difference if there is no KI and KD values
 
-#define PITCHRPM_KP				2//700
-#define PITCHRPM_KI				0
+#define PITCHRPM_KP				12//700
+#define PITCHRPM_KI				0.2
 #define PITCHRPM_KD				0
 #define PITCHRPM_INT_MAX		4000
 #define PITCH_MAX_CURRENT		20000
