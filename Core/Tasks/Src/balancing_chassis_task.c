@@ -119,8 +119,8 @@ void Ctrl_Init()
     PID_Init(&yawPID.outer, 0.0045, 0.0, 0.0, -3.0, 3.0);
     PID_Init(&yawPID.inner, 3.5, 0.0, 0.0, -3.0, 3.0);
 //    PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
-    PID_Init(&leftWheelPID, 50.0, 0.0, 0.0, -15.0, 15.0);
-    PID_Init(&rightWheelPID, 50.0, 0.0, 0.0, -15.0, 15.0);
+    PID_Init(&leftWheelPID, 30.0, 0.0, 1.0, -10.0, 10.0);
+    PID_Init(&rightWheelPID, 30.0, 0.0, 1.0, -10.0, 10.0);
 
 }
 
@@ -188,7 +188,7 @@ void Ctrl_TargetUpdateTask()
         target.speedCmd = desiredSpeedCmd;
 
         if ((float)g_remote_cmd.side_dial > 0){
-            spin_speed = ((float)g_remote_cmd.side_dial / 660) * 35.0f;
+            spin_speed = ((float)g_remote_cmd.side_dial / 660) * 40.0f;
         }else{
             spin_speed = 0;
         }
@@ -543,7 +543,7 @@ void balancing_chassis_task(void *argument) {
                 PID_Compute(&LlegLengthPID, target.min_legLength, leftLegPos.length, dt, 0);
                 PID_Compute(&RlegLengthPID, target.min_legLength, rightLegPos.length, dt, 0);
                 PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
-                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
+                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
 
                 leftForce = LlegLengthPID.output + F_gravity_left + rollPID.output;
                 rightForce = RlegLengthPID.output + F_gravity_right - rollPID.output;
@@ -624,7 +624,7 @@ void balancing_chassis_task(void *argument) {
                 PID_Compute(&LlegLengthPID, target.legLength, leftLegPos.length, dt, 0);
                 PID_Compute(&RlegLengthPID, target.legLength, rightLegPos.length, dt, 0);
                 PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
-                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
+                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
 
                 leftForce = LlegLengthPID.output + F_gravity_left + rollPID.output;
                 rightForce = RlegLengthPID.output + F_gravity_right - rollPID.output;
@@ -652,7 +652,7 @@ void balancing_chassis_task(void *argument) {
 
                 PID_Compute(&LcushionPID, target.legLength, leftLegPos.length, dt, 0);
                 PID_Compute(&RcushionPID, target.legLength, rightLegPos.length, dt, 0);
-                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.01);
+                PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
 
                 leftForce = LcushionPID.output + F_gravity_left + 20.0f;
                 rightForce = RcushionPID.output + F_gravity_right + 20.0f;
