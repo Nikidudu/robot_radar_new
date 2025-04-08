@@ -160,7 +160,7 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_KP 			11//0			// |
+#define FEEDER_KP 			13//0			// |
 #define FEEDER_KI  			0				// | - FEEDER PID VALUES
 #define FEEDER_KD  			0			// |
 #define FEEDER_MAX_INT		10000
@@ -209,16 +209,27 @@
 #define CHASSIS_MIN_CURRENT 0
 #define BUFFER_MIN			0.22			// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
 											//tune this by seeing if pilot likes the speed
+
+#define CHASSIS_MAX_ACCEL	0.3				// s to top speed TO BE REPLACED WITH ACTUAL PHYSICAL VALUES
+#define CHASSIS_MAX_YAW_ACCEL 0.15			// s to max yaw
+
+
 #define CHASSIS_CAN_SPINSPIN
+#define CHASSIS_SPINSPIN_MIN 0.4
 #define CHASSIS_SPINSPIN_MAX 1
 
-#define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
-#define CHASSIS_YAW_KP 		2//3.75//1//0.7//0.4
+#define CHASSIS_SPINSPIN_ANNOY_STEPS 50
+#define CHASSIS_SPINSPIN_MULT 0.03
+#define CHASSIS_SPINSPIN_RANGE (CHASSIS_SPINSPIN_MAX - CHASSIS_SPINSPIN_MIN)
+#define CHASSIS_SPINSPIN_MIN_RAMP 0.002
+
+#define CHASSIS_YAW_MAX_RPM	0.5					//max RPM for chassis centering
+#define CHASSIS_YAW_KP 		0.7//0.7//0.4
 #define CHASSIS_YAW_KI		0
-#define CHASSIS_YAW_KD 		0.2//0
+#define CHASSIS_YAW_KD 		0//0
 #define CHASSIS_YAW_MIN		0.1
 
-#define CHASSIS_TRANS_PRIO		0.85			//% of chassis speed to be prioritised for translation
+#define CHASSIS_TRANS_PRIO		0.5			//% of chassis speed to be prioritised for translation
 #define CHASSIS_YAW_PRIO		(1-CHASSIS_TRANS_PRIO)
 
 #define CHASSIS_MAX_POWER 		400
@@ -253,26 +264,27 @@
 #define PITCH_CONST 			0
 
 
-#define YAW_ANGLE_KP			0//120//200
+#define YAW_ANGLE_KP			40//120//200
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			0
 #define YAW_ANGLE_INT_MAX		0.05
 #define YAW_MAX_RPM				85
 #define YAW_SPINSPIN_CONSTANT	5000
 
-#define YAWRPM_KP				0//1200//600//400
+#define YAWRPM_KP				300//1200//600//400
 #define YAWRPM_KI				0
 #define YAWRPM_KD				0
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
-#define YAW_CENTER 				541//2790//7870//
+#define YAW_CENTER 				3913 //2790//7870//
 #define YAW_MAX_ANG				5*PI
 #define YAW_MIN_ANG				5*-PI
 
 /*********************** MOTOR CONFIGURATION *******************/
 
 /*
+ * ID values
  * 1-4 4x flywheels
  * 5-8 pitch
  * 9-12(6020)
