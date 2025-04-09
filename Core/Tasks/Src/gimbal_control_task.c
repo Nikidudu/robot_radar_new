@@ -166,6 +166,7 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 	// upper and lower bound microswitch
 	if (gimbal_upper_bound == 1 && pitch_motor->output > 0){
 			pitch_motor->output =0;
+	}
 	if (gimbal_lower_bound == 1 && pitch_motor->output < 20){
 			pitch_motor->output =0;
 		}
@@ -262,7 +263,7 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 	int32_t temp_output = yaw_motor->rpm_pid.output  + (chassis_ctrl_data.yaw * YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
 	temp_output = (temp_output > 20000) ? 20000 : (temp_output < -20000) ? -20000 : temp_output;
 	yaw_motor->output = temp_output;
-	yaw_motor->output = 0; // to be removed
+
 #ifdef YAW_FEEDFORWARD
 //	speed_pid(yaw_motor->raw_data.rpm + yaw_motor->angle_pid.output, g_chassis_rot, &g_yaw_ff_pid);
 //	yaw_motor->output += g_yaw_ff_pid.output;

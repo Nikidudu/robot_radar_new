@@ -3,12 +3,12 @@
 #ifndef TASKS_INC_ROBOT_CONFIG_H_
 #define TASKS_INC_ROBOT_CONFIG_H_
 
+#include <robot_config_NEW_HERO.h>
 #include "typedefs.h"
 //#include "robot_config_6_6.h"
 //#include "robot_config_ALI.h"
 //#include "robot_config_TALI_LK.h"
 //#include "robot_config_HERO_GIMBAL.h"
-#include "robot_config_roburt.h"
 //#include "robot_config_CF.h"
 //#include "robot_config_DS4.h"
 

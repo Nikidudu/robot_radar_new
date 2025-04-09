@@ -77,7 +77,6 @@ extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart6;
 extern TIM_HandleTypeDef htim6;
-int count=0;
 
 /* USER CODE BEGIN EV */
 
@@ -289,7 +288,6 @@ void EXTI9_5_IRQHandler(void)
 	#ifdef ACTIVE_GUIDANCE
 		 microswitch_int2();
 	#endif
-		 count++;
   }
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GYRO_INT_Pin);
@@ -359,14 +357,12 @@ void EXTI15_10_IRQHandler(void)
 #ifdef ACTIVE_GUIDANCE
 	 microswitch_int();
 #endif
-	 count++;
   }
 
   if(__HAL_GPIO_EXTI_GET_IT(MICROS_2_Pin) != RESET) {
 #ifdef ACTIVE_GUIDANCE
 	 microswitch_int1();
 #endif
-	 count++;
   }
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
