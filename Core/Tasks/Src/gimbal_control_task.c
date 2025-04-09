@@ -25,7 +25,6 @@ extern orientation_data_t imu_heading;
 extern QueueHandle_t telem_motor_queue;
 extern chassis_control_t chassis_ctrl_data;
 extern int32_t chassis_rpm;
-extern remote_cmd_t g_remote_cmd;
 static float rel_pitch_angle;
 uint8_t g_gimbal_state = 0;
 extern uint8_t gimbal_upper_bound;

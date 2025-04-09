@@ -71,51 +71,29 @@ void Error_Handler(void);
 
 /* Private defines -----------------------------------------------------------*/
 #define FREERTOS_ENABLED 1
-
-#define MICROS_3_Pin GPIO_PIN_6
-#define MICROS_3_GPIO_Port GPIOI
-#define MICROS_3_EXTI_IRQn EXTI9_5_IRQn
-
 #define LASER_GPIO_Pin GPIO_PIN_8
 #define LASER_GPIO_GPIO_Port GPIOC
-
 #define IST_RST_Pin GPIO_PIN_6
 #define IST_RST_GPIO_Port GPIOG
-
 #define IMU_HEAT_TIM_Pin GPIO_PIN_6
 #define IMU_HEAT_TIM_GPIO_Port GPIOF
-
 #define GREEN_LED_TIM_Pin GPIO_PIN_12
 #define GREEN_LED_TIM_GPIO_Port GPIOH
-
 #define IST_INT_Pin GPIO_PIN_3
 #define IST_INT_GPIO_Port GPIOG
 #define IST_INT_EXTI_IRQn EXTI3_IRQn
-
 #define RED_LED_TIM_Pin GPIO_PIN_11
 #define RED_LED_TIM_GPIO_Port GPIOH
-
 #define BLUE_LED_TIM_Pin GPIO_PIN_10
 #define BLUE_LED_TIM_GPIO_Port GPIOH
-
 #define BUZZER_Pin GPIO_PIN_14
 #define BUZZER_GPIO_Port GPIOD
-
 #define ACC_INT_Pin GPIO_PIN_4
 #define ACC_INT_GPIO_Port GPIOC
 #define ACC_INT_EXTI_IRQn EXTI4_IRQn
-
-#define MICROS_1_Pin GPIO_PIN_13
-#define MICROS_1_GPIO_Port GPIOE
-#define MICROS_1_EXTI_IRQn EXTI15_10_IRQn
-
 #define GYRO_INT_Pin GPIO_PIN_5
 #define GYRO_INT_GPIO_Port GPIOC
 #define GYRO_INT_EXTI_IRQn EXTI9_5_IRQn
-
-#define MICROS_2_Pin GPIO_PIN_14
-#define MICROS_2_GPIO_Port GPIOE
-#define MICROS_2_EXTI_IRQn EXTI15_10_IRQn
 
 /* USER CODE BEGIN Private defines */
 

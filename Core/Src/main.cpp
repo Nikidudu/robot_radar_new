@@ -110,7 +110,6 @@ int main(void)
   MX_ADC3_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
-  MX_TIM8_Init();
   MX_RNG_Init();
   MX_TIM2_Init();
   MX_CRC_Init();
