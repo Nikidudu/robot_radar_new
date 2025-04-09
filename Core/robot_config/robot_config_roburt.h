@@ -328,6 +328,8 @@
 //#define GFRICTION_MOTOR_CAN_PTR	&hcan1
 #endif
 
+#define LEAD_SCREW
+
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
 #define PITCH_MOTOR_ID 		5
