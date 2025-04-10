@@ -44,8 +44,8 @@ float LFTP;
 float RFTP;
 int robot_ready = 0; // 1 ready, 0 not ready
 PID manual_left_F, manual_left_Tp, manual_right_F, manual_right_Tp;
-float kRatio[2][6] = {{1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
-                      {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}};
+float kRatio[2][6] = {{1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f},
+                      {1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f}};
 float phi_mul = 1.0f;
 float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
 double kRes[12] = {0}, k[2][6] = {0};
@@ -57,7 +57,7 @@ float F_gravity = 0.0f;
 float F_gravity_left = 0.0f;
 float F_gravity_right = 0.0f;
 float F_roll = 0.0f;
-float F_inertia_left = 0.0f;
+float F_inertia = 0.0f;
 float F_inertia_right = 0.0f;
 float left_ankle_rad = 0.0f;
 float right_ankle_rad = 0.0f;
@@ -237,10 +237,10 @@ void Ctrl_TargetUpdateTask()
         else if (target.position - stateVar.x < -0.5f)
             target.position = stateVar.x - 0.5f;
 
-        if (target.speed - stateVar.dx > 1.3f)
-            target.speed = stateVar.dx + 1.3f;
-        else if (target.speed - stateVar.dx < -1.3f)
-            target.speed = stateVar.dx - 1.3f;
+        if (target.speed - stateVar.dx > 1.2f)
+            target.speed = stateVar.dx + 1.2f;
+        else if (target.speed - stateVar.dx < -1.2f)
+            target.speed = stateVar.dx - 1.2f;
         target.legLength = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.15f;
         if (target.legLength < 0.13f) {
         	target.legLength = 0.13f;
@@ -483,10 +483,10 @@ void balancing_chassis_task(void *argument) {
         if (isnan(right_ankle_rad) || right_ankle_rad < 0.2f) {
         	right_ankle_rad = 0.2f;
         }
-        F_inertia_left = (0.5f*BODY_MASS + 3.0f*LEG_MASS)*(((leftLegPos.length+rightLegPos.length)/2.0f)*INS.Gyro[2]*filtered_v)/(2.0f*RADIUS_BETWEEN_2LEG);
+        F_inertia = (0.5f*BODY_MASS + 8.0f*LEG_MASS)*(((leftLegPos.length+rightLegPos.length)/2.0f)*INS.Gyro[2]*filtered_v)/(2.0f*RADIUS_BETWEEN_2LEG);
 //        F_inertia_right = (0.5f*BODY_MASS + LEG_MASS)*(rightLegPos.length*INS.Gyro[2]*filtered_v)/(2.0f*RADIUS_BETWEEN_2LEG);
-        F_gravity_left = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*(F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(left_ankle_rad) - F_roll + F_inertia_left));
-        F_gravity_right = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*(F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(right_ankle_rad) + F_roll - F_inertia_left));
+        F_gravity_left = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*(F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(left_ankle_rad) - F_roll + F_inertia));
+        F_gravity_right = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*(F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(right_ankle_rad) + F_roll - F_inertia));
 
         PID_Compute(&leftWheelPID, spin_speed, leftWheel.speed, dt, 0);
         PID_Compute(&rightWheelPID, -spin_speed, rightWheel.speed, dt, 0);
@@ -502,7 +502,7 @@ void balancing_chassis_task(void *argument) {
                 staircase_state = 0;
                 target.position = stateVar.x; // Reset target pos
                 ground_state = 0; // On ground
-                if (robot_ready == 1) {
+                if (robot_ready == 1 || robot_ready == 2) {
                     chassis_state = 1;
                 }
                 break;
