@@ -7,6 +7,6 @@ C:/Users/YI MING/Desktop/Revert/robot_firmware_new/Drivers/Include/core_cm4.h:19
 ../Core/Tasks/Src/control_input_task.c:218:6:control_reset	8	static
 ../Core/Tasks/Src/control_input_task.c:233:6:control_mode_change	24	static
 ../Core/Tasks/Src/control_input_task.c:308:6:gimbal_turn_ang	16	static
-../Core/Tasks/Src/control_input_task.c:323:6:gimbal_set_ang	16	static
-../Core/Tasks/Src/control_input_task.c:336:6:chassis_yaw_pid_init	4	static
-../Core/Tasks/Src/control_input_task.c:345:6:dbus_reset	4	static
+../Core/Tasks/Src/control_input_task.c:328:6:gimbal_set_ang	16	static
+../Core/Tasks/Src/control_input_task.c:341:6:chassis_yaw_pid_init	4	static
+../Core/Tasks/Src/control_input_task.c:350:6:dbus_reset	4	static

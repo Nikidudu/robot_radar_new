@@ -12,9 +12,11 @@
 #include "can_msg_processor.h"
 #include "gimbal_control_task.h"
 #include "bsp_lk_motor.h"
+#include "ins_task.h"
+#include "PID.h"
 
 extern uint8_t aimbot_mode;
-
+extern INS_t INS;
 extern EventGroupHandle_t gimbal_event_group;
 extern float g_chassis_yaw;
 extern motor_data_t g_can_motors[24];
@@ -26,10 +28,11 @@ extern chassis_control_t chassis_ctrl_data;
 extern int32_t chassis_rpm;
 static float rel_pitch_angle;
 uint8_t g_gimbal_state = 0;
-
+float gimbal_pitch_rad = 0;
 static float prev_pit;
 static float prev_yaw;
-
+extern float pitch_set_tor;
+PID gimbalPitchPID;
 
 extern int g_spinspin_mode;
 #ifdef YAW_FEEDFORWARD
@@ -72,6 +75,8 @@ uint8_t check_yaw(){
  */
 void gimbal_control_task(void *argument) {
 	TickType_t start_time;
+	PID_Init(&gimbalPitchPID, 35, 0.0, 2, -20.0, 20.0);
+
 	while (1) {
 //#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
 //		lk_read_motor_sang(&g_pitch_motor);
@@ -94,6 +99,9 @@ void gimbal_control_task(void *argument) {
 			if (gimbal_ctrl_data.imu_mode) {
 				gimbal_control(&g_pitch_motor,
 						g_can_motors + YAW_MOTOR_ID - 1);
+				gimbal_pitch_rad = imu_heading.pit - INS.Pitch;
+				PID_Compute(&gimbalPitchPID,gimbal_ctrl_data.pitch , gimbal_pitch_rad, GIMBAL_DELAY/1000.0f, 0);
+				pitch_set_tor = -gimbalPitchPID.output + 9.2462f*gimbal_pitch_rad*gimbal_pitch_rad - 2.3602f*gimbal_pitch_rad - 6.0314f;
 			} else {
 				gimbal_angle_control(&g_pitch_motor,
 						g_can_motors + YAW_MOTOR_ID - 1);
@@ -101,6 +109,7 @@ void gimbal_control_task(void *argument) {
 		} else {
 			g_pitch_motor.output = 0;
 			g_can_motors[YAW_MOTOR_ID - 1].output = 0;
+			pitch_set_tor = 0;
 		}
 		prev_yaw = imu_heading.yaw;
 		status_led(2, off_led);

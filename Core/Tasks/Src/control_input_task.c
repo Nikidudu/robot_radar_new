@@ -317,6 +317,11 @@ void gimbal_turn_ang(float pit_radians, float yaw_radians) {
 	gimbal_ctrl_data.delta_yaw += yaw_radians;
 	xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 	gimbal_ctrl_data.pitch += pit_radians;
+	if (gimbal_ctrl_data.pitch > 0.4f){
+		gimbal_ctrl_data.pitch = 0.4f;
+	}else if(gimbal_ctrl_data.pitch<-0.26f){
+		gimbal_ctrl_data.pitch = -0.26;
+	}
 //	gimbal_ctrl_data.yaw = yaw_radians;
 }
 //SETs angle to gimbal ctrl

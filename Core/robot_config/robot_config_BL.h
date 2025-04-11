@@ -34,8 +34,8 @@
 
 
 /********************* CONTROL SENSITIVITIES ***********/
-#define REMOTE_YAW_SPEED 	 			0.1 			//Speed of gimbal yaw turning
-#define REMOTE_PITCH_SPEED 	 		0.1//0.005		//Speed of gimbal pitch turning
+#define REMOTE_YAW_SPEED 	 			0.07 			//Speed of gimbal yaw turning
+#define REMOTE_PITCH_SPEED 	 		0.05//0.005		//Speed of gimbal pitch turning
 
 #define MOUSE_X_SENSITIVITY		(400 * REMOTE_YAW_SPEED)				//Speed of yaw turning with mouse, dependent on above speed
 #define MOUSE_Y_SENSITIVITY 	(200 * REMOTE_PITCH_SPEED)				//Speed of pitch turning with mouse,  dependent on above speed
@@ -98,7 +98,7 @@
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
 #define YAW_INVERT  			-1				//1 to invert control -1 to disable
-#define PITCH_INVERT  			-1				//1 to invert control -1 to disable
+#define PITCH_INVERT  			1				//1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
 #define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
@@ -230,8 +230,8 @@
 #define PITCH_MAX_CURRENT		20000
 
 #define PITCH_CENTER			2490
-#define PITCH_MAX_ANG			0.25
-#define PITCH_MIN_ANG			-0.25
+#define PITCH_MAX_ANG			0.45
+#define PITCH_MIN_ANG			-0.23
 #define PITCH_CONST 			-2000
 
 #define YAW_ANGLE_KP			120 //120

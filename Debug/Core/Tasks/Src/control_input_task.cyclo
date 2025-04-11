@@ -6,7 +6,7 @@ C:/Users/YI MING/Desktop/Revert/robot_firmware_new/Drivers/Include/core_cm4.h:19
 ../Core/Tasks/Src/control_input_task.c:180:9:gimbal_aim_at_damaged_plate	7
 ../Core/Tasks/Src/control_input_task.c:218:6:control_reset	1
 ../Core/Tasks/Src/control_input_task.c:233:6:control_mode_change	18
-../Core/Tasks/Src/control_input_task.c:308:6:gimbal_turn_ang	3
-../Core/Tasks/Src/control_input_task.c:323:6:gimbal_set_ang	3
-../Core/Tasks/Src/control_input_task.c:336:6:chassis_yaw_pid_init	1
-../Core/Tasks/Src/control_input_task.c:345:6:dbus_reset	3
+../Core/Tasks/Src/control_input_task.c:308:6:gimbal_turn_ang	5
+../Core/Tasks/Src/control_input_task.c:328:6:gimbal_set_ang	3
+../Core/Tasks/Src/control_input_task.c:341:6:chassis_yaw_pid_init	1
+../Core/Tasks/Src/control_input_task.c:350:6:dbus_reset	3

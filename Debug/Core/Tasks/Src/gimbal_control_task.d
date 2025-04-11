@@ -90,7 +90,11 @@ Core/Tasks/Src/gimbal_control_task.o: \
  ../Core/robot_config/robot_config_BL.h ../Core/robot_config/hud_bl.h \
  ../Core/BSP/Inc/hud_constants.h ../Core/Tasks/Inc/motor_control.h \
  ../Core/Tasks/Inc/motor_config.h ../Core/Tasks/Inc/can_msg_processor.h \
- ../Core/Tasks/Inc/gimbal_control_task.h ../Core/BSP/Inc/bsp_lk_motor.h
+ ../Core/Tasks/Inc/gimbal_control_task.h ../Core/BSP/Inc/bsp_lk_motor.h \
+ ../Core/Tasks/Inc/ins_task.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h \
+ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h \
+ ../Core/Tasks/Inc/PID.h ../Core/Tasks/Inc/typedefs.h
 ../Core/BSP/Inc/board_lib.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h:
@@ -200,3 +204,8 @@ C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Drivers/Include/cmsis_compil
 ../Core/Tasks/Inc/can_msg_processor.h:
 ../Core/Tasks/Inc/gimbal_control_task.h:
 ../Core/BSP/Inc/bsp_lk_motor.h:
+../Core/Tasks/Inc/ins_task.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Core/Algorithm/EKF/QuaternionEKF.h:
+C:/Users/YI\ MING/Desktop/Revert/robot_firmware_new/Core/Algorithm/kalman/kalman_filter.h:
+../Core/Tasks/Inc/PID.h:
+../Core/Tasks/Inc/typedefs.h:

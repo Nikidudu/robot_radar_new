@@ -26,6 +26,7 @@ motor_t motor[num];
 Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
 float dm_set_tor[4] = {0};
 float mf_set_tor[2] = {0};
+float pitch_set_tor = 0;
 extern int chassis_state;
 uint8_t joint_motor_online = 0;
 
@@ -38,6 +39,7 @@ void dm_motor_control_task(void *argument) {
 	dm_set_tor[1] = 0.0f;
 	dm_set_tor[2] = 0.0f;
 	dm_set_tor[3] = 0.0f;
+	pitch_set_tor = 0.0f;
 	osDelay(1000);
 	dm4310_motor_init();
 	osDelay(100);
@@ -55,6 +57,7 @@ void dm_motor_control_task(void *argument) {
     	motor[Motor2].ctrl.tor_set = dm_set_tor[1];
     	motor[Motor3].ctrl.tor_set = dm_set_tor[2];
     	motor[Motor4].ctrl.tor_set = dm_set_tor[3];
+    	motor[Motor5].ctrl.tor_set = pitch_set_tor;
     	MF_motor[0].ctrl.tor_set = mf_set_tor[0];
     	MF_motor[1].ctrl.tor_set = mf_set_tor[1];
     	leftJoint[0].angle = motor[Motor4].para.pos;
@@ -81,7 +84,11 @@ void dm_motor_control_task(void *argument) {
     	motor[Motor3].para.ping += 1;
     	dm4310_ctrl_send(&hcan2, &motor[Motor4]);
     	motor[Motor4].para.ping += 1;
+
+    	dm4310_ctrl_send(&hcan1, &motor[Motor5]);
+    	motor[Motor5].para.ping += 1;
     	osDelay(1);
+
         MFtorque_command(&hcan2, 0x141, MF_motor[0].ctrl.tor_set);
         MF_motor[0].para.ping += 1;
 //        DWT_Delay(0.0002);
@@ -109,6 +116,11 @@ void dm_motor_control_task(void *argument) {
         	motor[Motor4].para.online = 0;
         }else{
         	motor[Motor4].para.online = 1;
+        }
+        if (motor[Motor5].para.ping > 50 || motor[Motor5].para.state != 9){
+        	motor[Motor5].para.online = 0;
+        }else{
+        	motor[Motor5].para.online = 1;
         }
         if (MF_motor[0].para.ping > 50){
         	MF_motor[0].para.online = 0;
@@ -138,6 +150,7 @@ void dm_motor_control_task(void *argument) {
         	DWT_Delay(0.0002);
         	dm4310_enable(&hcan2, &motor[Motor3]);
         	dm4310_enable(&hcan2, &motor[Motor4]);
+        	dm4310_enable(&hcan1, &motor[Motor5]);
         	DWT_Delay(0.0002);
         	enableMFMotor(&hcan2, 0x141);
         	DWT_Delay(0.0002);
@@ -157,8 +170,7 @@ void dm4310_motor_init(void)
   	memset(&motor[Motor4], 0, sizeof(motor[Motor4]));
   	memset(&MF_motor[0], 0, sizeof(MF_motor[0]));
   	memset(&MF_motor[1], 0, sizeof(MF_motor[1]));
-
-//  	memset(&motor[Motor5], 0, sizeof(motor[Motor5]));
+  	memset(&motor[Motor5], 0, sizeof(motor[Motor5]));
 //  	memset(&motor[Motor6], 0, sizeof(motor[Motor6]));
 
   	// ����Motor1�ĵ����Ϣ
@@ -185,6 +197,11 @@ void dm4310_motor_init(void)
   	motor[Motor4].ctrl.tor_set = 0.0f;
 //  	motor[Motor4].ctrl.vel_set = 3.0f;
 //  	motor[Motor4].ctrl.pos_set = 0.0f;
+  	motor[Motor5].id = 0x85;
+  	motor[Motor5].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+  	motor[Motor5].ctrl.tor_set = 0.0f;
+//  	motor[Motor4].ctrl.vel_set = 3.0f;
+//  	motor[Motor4].ctrl.pos_set = 0.0f;
 //
 //  	motor[Motor5].id = 0x05;
 //  	motor[Motor5].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
@@ -204,6 +221,8 @@ void dm4310_motor_init(void)
   	dm4310_enable(&hcan2, &motor[Motor3]);
   	vTaskDelay(1);
   	dm4310_enable(&hcan2, &motor[Motor4]);
+  	vTaskDelay(1);
+  	dm4310_enable(&hcan1, &motor[Motor5]);
   	vTaskDelay(1);
   	enableMFMotor(&hcan2, 0x141);
   	enableMFMotor(&hcan2, 0x142);
