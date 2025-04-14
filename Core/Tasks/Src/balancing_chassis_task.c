@@ -104,6 +104,8 @@ float right = 0.0f;
 extern uint8_t control_mode;
 extern uint8_t imu_online_ping[2];
 uint8_t working_mode = 0; //0 default dancing 1 jumping mode
+float left_leg_Tp_feedforward = 0;
+float right_leg_Tp_feedforward = 0;
 
 void Ctrl_Init()
 {
@@ -114,13 +116,13 @@ void Ctrl_Init()
     PID_Init(&RcushionPID, 500, 0.0, 20.0, -200.0, 200.0);
     PID_Init(&leftLegJumpPID, 600, 0.0, 5.0, -200.0, 200.0);
     PID_Init(&rightLegJumpPID, 600, 0.0, 5.0, -200.0, 200.0);
-    PID_Init(&legAnglePID, 50, 0.0, 1, -100.0, 100.0);
+    PID_Init(&legAnglePID, 60, 0.0, 1, -100.0, 100.0);
     PID_Init(&rollPID, 100, 0.0, 2.0, -50.0, 50.0);
     PID_Init(&yawPID.outer, 0.0045, 0.0, 0.0, -3.0, 3.0);
     PID_Init(&yawPID.inner, 3.5, 0.0, 0.0, -3.0, 3.0);
 //    PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
-    PID_Init(&leftWheelPID, 30.0, 0.0, 1.0, -10.0, 10.0);
-    PID_Init(&rightWheelPID, 30.0, 0.0, 1.0, -10.0, 10.0);
+    PID_Init(&leftWheelPID, 50.0, 0.0, 0.3, -10.0, 10.0);
+    PID_Init(&rightWheelPID, 50.0, 0.0, 0.3, -10.0, 10.0);
 
 }
 
@@ -242,8 +244,8 @@ void Ctrl_TargetUpdateTask()
         else if (target.speed - stateVar.dx < -1.2f)
             target.speed = stateVar.dx - 1.2f;
         target.legLength = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.15f;
-        if (target.legLength < 0.13f) {
-        	target.legLength = 0.13f;
+        if (target.legLength < 0.115f) {
+        	target.legLength = 0.115f;
         }
         
         vTaskDelayUntil(&xLastWakeTime, 5);
@@ -606,6 +608,8 @@ void balancing_chassis_task(void *argument) {
                     }
                     target.position = stateVar.x;
 //                    PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm, 0.005, 0);
+//                    left_leg_Tp_feedforward = leftWheel.torque * leftLegPos.length;
+//                    right_leg_Tp_feedforward = rightWheel.torque * rightLegPos.length;
                     mf_set_tor[0] = -LlqrOutT * lqrTRatio + leftWheelPID.output*leftLegPos.length;
                     mf_set_tor[1] = -RlqrOutT * lqrTRatio + rightWheelPID.output*rightLegPos.length;
                 } else {
