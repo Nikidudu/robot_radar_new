@@ -110,10 +110,10 @@ float right_leg_Tp_feedforward = 0;
 void Ctrl_Init()
 {
     // Robot main PID initialization
-    PID_Init(&LlegLengthPID, 400, 0.0, 60.0, -200.0, 200.0);
-    PID_Init(&RlegLengthPID, 400, 0.0, 60.0, -200.0, 200.0);
-    PID_Init(&LcushionPID, 500, 0.0, 20.0, -200.0, 200.0);
-    PID_Init(&RcushionPID, 500, 0.0, 20.0, -200.0, 200.0);
+    PID_Init(&LlegLengthPID, 800, 0.0, 50.0, -200.0, 200.0);
+    PID_Init(&RlegLengthPID, 800, 0.0, 50.0, -200.0, 200.0);
+    PID_Init(&LcushionPID, 900, 0.0, 20.0, -200.0, 200.0);
+    PID_Init(&RcushionPID, 900, 0.0, 20.0, -200.0, 200.0);
     PID_Init(&leftLegJumpPID, 600, 0.0, 5.0, -200.0, 200.0);
     PID_Init(&rightLegJumpPID, 600, 0.0, 5.0, -200.0, 200.0);
     PID_Init(&legAnglePID, 60, 0.0, 1, -100.0, 100.0);
@@ -680,7 +680,7 @@ void balancing_chassis_task(void *argument) {
                     if (!isGroundStateTimerActive) {
                         groundStateStartTime = xTaskGetTickCount();
                         isGroundStateTimerActive = 1;
-                    } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 50) {
+                    } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 80) {
                         chassis_state = 3;
                         isGroundStateTimerActive = 0;
                         break;

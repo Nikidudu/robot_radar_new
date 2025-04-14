@@ -14930,7 +14930,7 @@ void Ctrl_Init()
  8006ce0:	b580      	push	{r7, lr}
  8006ce2:	af00      	add	r7, sp, #0
     // Robot main PID initialization
-    PID_Init(&LlegLengthPID, 400, 0.0, 60.0, -200.0, 200.0);
+    PID_Init(&LlegLengthPID, 800, 0.0, 50.0, -200.0, 200.0);
  8006ce4:	ed9f 2a4e 	vldr	s4, [pc, #312]	@ 8006e20 <Ctrl_Init+0x140>
  8006ce8:	eddf 1a4e 	vldr	s3, [pc, #312]	@ 8006e24 <Ctrl_Init+0x144>
  8006cec:	ed9f 1a4e 	vldr	s2, [pc, #312]	@ 8006e28 <Ctrl_Init+0x148>
@@ -14938,7 +14938,7 @@ void Ctrl_Init()
  8006cf4:	ed9f 0a4e 	vldr	s0, [pc, #312]	@ 8006e30 <Ctrl_Init+0x150>
  8006cf8:	484e      	ldr	r0, [pc, #312]	@ (8006e34 <Ctrl_Init+0x154>)
  8006cfa:	f7ff ff09 	bl	8006b10 <PID_Init>
-    PID_Init(&RlegLengthPID, 400, 0.0, 60.0, -200.0, 200.0);
+    PID_Init(&RlegLengthPID, 800, 0.0, 50.0, -200.0, 200.0);
  8006cfe:	ed9f 2a48 	vldr	s4, [pc, #288]	@ 8006e20 <Ctrl_Init+0x140>
  8006d02:	eddf 1a48 	vldr	s3, [pc, #288]	@ 8006e24 <Ctrl_Init+0x144>
  8006d06:	ed9f 1a48 	vldr	s2, [pc, #288]	@ 8006e28 <Ctrl_Init+0x148>
@@ -14946,7 +14946,7 @@ void Ctrl_Init()
  8006d0e:	ed9f 0a48 	vldr	s0, [pc, #288]	@ 8006e30 <Ctrl_Init+0x150>
  8006d12:	4849      	ldr	r0, [pc, #292]	@ (8006e38 <Ctrl_Init+0x158>)
  8006d14:	f7ff fefc 	bl	8006b10 <PID_Init>
-    PID_Init(&LcushionPID, 500, 0.0, 20.0, -200.0, 200.0);
+    PID_Init(&LcushionPID, 900, 0.0, 20.0, -200.0, 200.0);
  8006d18:	ed9f 2a41 	vldr	s4, [pc, #260]	@ 8006e20 <Ctrl_Init+0x140>
  8006d1c:	eddf 1a41 	vldr	s3, [pc, #260]	@ 8006e24 <Ctrl_Init+0x144>
  8006d20:	eeb3 1a04 	vmov.f32	s2, #52	@ 0x41a00000  20.0
@@ -14954,7 +14954,7 @@ void Ctrl_Init()
  8006d28:	ed9f 0a44 	vldr	s0, [pc, #272]	@ 8006e3c <Ctrl_Init+0x15c>
  8006d2c:	4844      	ldr	r0, [pc, #272]	@ (8006e40 <Ctrl_Init+0x160>)
  8006d2e:	f7ff feef 	bl	8006b10 <PID_Init>
-    PID_Init(&RcushionPID, 500, 0.0, 20.0, -200.0, 200.0);
+    PID_Init(&RcushionPID, 900, 0.0, 20.0, -200.0, 200.0);
  8006d32:	ed9f 2a3b 	vldr	s4, [pc, #236]	@ 8006e20 <Ctrl_Init+0x140>
  8006d36:	eddf 1a3b 	vldr	s3, [pc, #236]	@ 8006e24 <Ctrl_Init+0x144>
  8006d3a:	eeb3 1a04 	vmov.f32	s2, #52	@ 0x41a00000  20.0
@@ -14983,11 +14983,11 @@ void Ctrl_Init()
  8006d84:	eddf 1a34 	vldr	s3, [pc, #208]	@ 8006e58 <Ctrl_Init+0x178>
  8006d88:	eeb7 1a00 	vmov.f32	s2, #112	@ 0x3f800000  1.0
  8006d8c:	eddf 0a27 	vldr	s1, [pc, #156]	@ 8006e2c <Ctrl_Init+0x14c>
- 8006d90:	ed9f 0a25 	vldr	s0, [pc, #148]	@ 8006e28 <Ctrl_Init+0x148>
- 8006d94:	4831      	ldr	r0, [pc, #196]	@ (8006e5c <Ctrl_Init+0x17c>)
+ 8006d90:	ed9f 0a32 	vldr	s0, [pc, #200]	@ 8006e5c <Ctrl_Init+0x17c>
+ 8006d94:	4832      	ldr	r0, [pc, #200]	@ (8006e60 <Ctrl_Init+0x180>)
  8006d96:	f7ff febb 	bl	8006b10 <PID_Init>
     PID_Init(&rollPID, 100, 0.0, 2.0, -50.0, 50.0);
- 8006d9a:	ed9f 2a31 	vldr	s4, [pc, #196]	@ 8006e60 <Ctrl_Init+0x180>
+ 8006d9a:	ed9f 2a23 	vldr	s4, [pc, #140]	@ 8006e28 <Ctrl_Init+0x148>
  8006d9e:	eddf 1a31 	vldr	s3, [pc, #196]	@ 8006e64 <Ctrl_Init+0x184>
  8006da2:	eeb0 1a00 	vmov.f32	s2, #0	@ 0x40000000  2.0
  8006da6:	eddf 0a21 	vldr	s1, [pc, #132]	@ 8006e2c <Ctrl_Init+0x14c>
@@ -15016,7 +15016,7 @@ void Ctrl_Init()
  8006dec:	eefa 1a04 	vmov.f32	s3, #164	@ 0xc1200000 -10.0
  8006df0:	ed9f 1a21 	vldr	s2, [pc, #132]	@ 8006e78 <Ctrl_Init+0x198>
  8006df4:	eddf 0a0d 	vldr	s1, [pc, #52]	@ 8006e2c <Ctrl_Init+0x14c>
- 8006df8:	ed9f 0a19 	vldr	s0, [pc, #100]	@ 8006e60 <Ctrl_Init+0x180>
+ 8006df8:	ed9f 0a0b 	vldr	s0, [pc, #44]	@ 8006e28 <Ctrl_Init+0x148>
  8006dfc:	481f      	ldr	r0, [pc, #124]	@ (8006e7c <Ctrl_Init+0x19c>)
  8006dfe:	f7ff fe87 	bl	8006b10 <PID_Init>
     PID_Init(&rightWheelPID, 50.0, 0.0, 0.3, -10.0, 10.0);
@@ -15024,7 +15024,7 @@ void Ctrl_Init()
  8006e06:	eefa 1a04 	vmov.f32	s3, #164	@ 0xc1200000 -10.0
  8006e0a:	ed9f 1a1b 	vldr	s2, [pc, #108]	@ 8006e78 <Ctrl_Init+0x198>
  8006e0e:	eddf 0a07 	vldr	s1, [pc, #28]	@ 8006e2c <Ctrl_Init+0x14c>
- 8006e12:	ed9f 0a13 	vldr	s0, [pc, #76]	@ 8006e60 <Ctrl_Init+0x180>
+ 8006e12:	ed9f 0a05 	vldr	s0, [pc, #20]	@ 8006e28 <Ctrl_Init+0x148>
  8006e16:	481a      	ldr	r0, [pc, #104]	@ (8006e80 <Ctrl_Init+0x1a0>)
  8006e18:	f7ff fe7a 	bl	8006b10 <PID_Init>
 
@@ -15033,12 +15033,12 @@ void Ctrl_Init()
  8006e1e:	bd80      	pop	{r7, pc}
  8006e20:	43480000 	.word	0x43480000
  8006e24:	c3480000 	.word	0xc3480000
- 8006e28:	42700000 	.word	0x42700000
+ 8006e28:	42480000 	.word	0x42480000
  8006e2c:	00000000 	.word	0x00000000
- 8006e30:	43c80000 	.word	0x43c80000
+ 8006e30:	44480000 	.word	0x44480000
  8006e34:	20000c1c 	.word	0x20000c1c
  8006e38:	20000c3c 	.word	0x20000c3c
- 8006e3c:	43fa0000 	.word	0x43fa0000
+ 8006e3c:	44610000 	.word	0x44610000
  8006e40:	20000c9c 	.word	0x20000c9c
  8006e44:	20000cbc 	.word	0x20000cbc
  8006e48:	44160000 	.word	0x44160000
@@ -15046,8 +15046,8 @@ void Ctrl_Init()
  8006e50:	20000c7c 	.word	0x20000c7c
  8006e54:	42c80000 	.word	0x42c80000
  8006e58:	c2c80000 	.word	0xc2c80000
- 8006e5c:	20000bfc 	.word	0x20000bfc
- 8006e60:	42480000 	.word	0x42480000
+ 8006e5c:	42700000 	.word	0x42700000
+ 8006e60:	20000bfc 	.word	0x20000bfc
  8006e64:	c2480000 	.word	0xc2480000
  8006e68:	20000bdc 	.word	0x20000bdc
  8006e6c:	3b9374bc 	.word	0x3b9374bc
@@ -18870,13 +18870,13 @@ void balancing_chassis_task(void *argument) {
                 }
                 break;
  8009366:	f000 bf62 	b.w	800a22e <balancing_chassis_task+0x20e6>
-                    } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 50) {
+                    } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 80) {
  800936a:	f017 ff29 	bl	80211c0 <xTaskGetTickCount>
  800936e:	4602      	mov	r2, r0
  8009370:	4b1c      	ldr	r3, [pc, #112]	@ (80093e4 <balancing_chassis_task+0x129c>)
  8009372:	681b      	ldr	r3, [r3, #0]
  8009374:	1ad3      	subs	r3, r2, r3
- 8009376:	2b31      	cmp	r3, #49	@ 0x31
+ 8009376:	2b4f      	cmp	r3, #79	@ 0x4f
  8009378:	f240 8759 	bls.w	800a22e <balancing_chassis_task+0x20e6>
                         chassis_state = 3;
  800937c:	4a1a      	ldr	r2, [pc, #104]	@ (80093e8 <balancing_chassis_task+0x12a0>)
