@@ -106,14 +106,17 @@ extern uint8_t imu_online_ping[2];
 uint8_t working_mode = 0; //0 default dancing 1 jumping mode
 float left_leg_Tp_feedforward = 0;
 float right_leg_Tp_feedforward = 0;
+float leglength_cmd = 0.12f;
+static uint8_t spin_keyboard_toggle = 0;
+static uint8_t last_q_state = 0;
 
 void Ctrl_Init()
 {
     // Robot main PID initialization
-    PID_Init(&LlegLengthPID, 800, 0.0, 50.0, -200.0, 200.0);
-    PID_Init(&RlegLengthPID, 800, 0.0, 50.0, -200.0, 200.0);
-    PID_Init(&LcushionPID, 900, 0.0, 20.0, -200.0, 200.0);
-    PID_Init(&RcushionPID, 900, 0.0, 20.0, -200.0, 200.0);
+    PID_Init(&LlegLengthPID, 600, 0.0, 50.0, -200.0, 200.0);
+    PID_Init(&RlegLengthPID, 600, 0.0, 50.0, -200.0, 200.0);
+    PID_Init(&LcushionPID, 900, 0.0, 70.0, -200.0, 200.0);
+    PID_Init(&RcushionPID, 900, 0.0, 70.0, -200.0, 200.0);
     PID_Init(&leftLegJumpPID, 600, 0.0, 5.0, -200.0, 200.0);
     PID_Init(&rightLegJumpPID, 600, 0.0, 5.0, -200.0, 200.0);
     PID_Init(&legAnglePID, 60, 0.0, 1, -100.0, 100.0);
@@ -131,24 +134,38 @@ void Ctrl_Init()
 int computeError(int current, int target) {
     return ((current - target + HALF_RANGE) % MAX_ANGLE) - HALF_RANGE;
 }
-
+float keyboard_cmd = 0;
+float addSpeedSlope = 0;
 void Ctrl_TargetUpdateTask()
 {
 
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
     float speedSlopeStep = 0.4f;
+    float legLengthSlope = 0.0015f;
+    float keyboardSlopeStep = 0.001f;
 //    float speedCmdSlope = 0.016f;
 
     while (1)
     {
     	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_W) {
-    		forward = KEYBD_MAX_SPD;
+    		keyboard_cmd = KEYBD_MAX_SPD/3.0f;
     	}else if (g_remote_cmd.keyboard_keys & KEY_OFFSET_S) {
-    		forward = -KEYBD_MAX_SPD;
+    		keyboard_cmd = -KEYBD_MAX_SPD/3.0f;
     	}else{
-    		forward = 0;
+    		keyboard_cmd = 0;
+    		addSpeedSlope = 0;
     	}
+    	if (fabs(keyboard_cmd - addSpeedSlope) < keyboardSlopeStep) {
+    		addSpeedSlope = keyboard_cmd;
+    	}
+    	else {
+    		if (keyboard_cmd - addSpeedSlope > 0)
+    			addSpeedSlope += keyboardSlopeStep;
+    		else
+    			addSpeedSlope -= keyboardSlopeStep;
+    	}
+    	forward = keyboard_cmd + addSpeedSlope*3.0f;
 
     	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_A) {
     		left = KEYBD_MAX_SPD;
@@ -159,13 +176,13 @@ void Ctrl_TargetUpdateTask()
         float desiredSpeedCmd;
         if (fabs(error6900) < fabs(error2777)){
         	if (control_mode == KEYBOARD_CTRL_MODE){
-        		desiredSpeedCmd = forward * 1.5f;
+        		desiredSpeedCmd = forward;
         	}else{
         		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 1.5f;
         	}
         }else{
         	if (control_mode == KEYBOARD_CTRL_MODE){
-        		desiredSpeedCmd = forward * -1.5f;
+        		desiredSpeedCmd = -forward;
         	}else{
         		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -1.5f;
         	}
@@ -189,12 +206,31 @@ void Ctrl_TargetUpdateTask()
 //        }
         target.speedCmd = desiredSpeedCmd;
 
-        if ((float)g_remote_cmd.side_dial > 0){
-            spin_speed = ((float)g_remote_cmd.side_dial / 660) * 40.0f;
-        }else{
-            spin_speed = 0;
+        //g_remote_cmd.keyboard_keys & KEY_OFFSET_Q;
+        if (control_mode == KEYBOARD_CTRL_MODE){
+        	uint8_t current_q_state = (g_remote_cmd.keyboard_keys & KEY_OFFSET_Q) ? 1 : 0;
+        	// Edge detection - only toggle when key changes from not pressed to pressed
+        	if (current_q_state && !last_q_state) {
+        		spin_keyboard_toggle = !spin_keyboard_toggle;
+        	}
+        	last_q_state = current_q_state;
+        	if (spin_keyboard_toggle == 1){
+        		spin_speed = 40.0f;
+        	}else{
+        		spin_speed = 0;
+        	}
+        }else if(control_mode == REMOTE_CTRL_MODE){
+        	spin_keyboard_toggle = 0;
+        	if ((float)g_remote_cmd.side_dial > 0){
+        		spin_speed = ((float)g_remote_cmd.side_dial / 660) * 40.0f;
+        	}else{
+        		spin_speed = 0;
+        	}
         }
+
+
         
+
         if(g_remote_cmd.left_switch == 3){
         	working_mode = 1;
         }else{
@@ -243,10 +279,30 @@ void Ctrl_TargetUpdateTask()
             target.speed = stateVar.dx + 1.2f;
         else if (target.speed - stateVar.dx < -1.2f)
             target.speed = stateVar.dx - 1.2f;
-        target.legLength = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.15f;
-        if (target.legLength < 0.115f) {
-        	target.legLength = 0.115f;
+
+        if (chassis_state == 2){
+        	leglength_cmd = 0.12f;
+        }else if(chassis_state == 3){
+        	leglength_cmd = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.17f;
+        	if (leglength_cmd < 0.115f) {
+        		leglength_cmd = 0.115f;
+        	}
+        }else if(chassis_state == 4){
+        	leglength_cmd = 0.32f;
         }
+        if (fabs(leglength_cmd - target.legLength) < legLengthSlope) {
+        	target.legLength = leglength_cmd;
+        }
+        else {
+        	if (leglength_cmd - target.legLength > 0)
+        		target.legLength += legLengthSlope;
+        	else
+        		target.legLength -= legLengthSlope;
+        }
+//        target.legLength = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.15f;
+//        if (target.legLength < 0.115f) {
+//        	target.legLength = 0.115f;
+//        }
         
         vTaskDelayUntil(&xLastWakeTime, 5);
     }
@@ -542,8 +598,8 @@ void balancing_chassis_task(void *argument) {
                 mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
                 mf_set_tor[1] = -RlqrOutT * lqrTRatio - yawPID.output;
 
-                PID_Compute(&LlegLengthPID, target.min_legLength, leftLegPos.length, dt, 0);
-                PID_Compute(&RlegLengthPID, target.min_legLength, rightLegPos.length, dt, 0);
+                PID_Compute(&LlegLengthPID, target.legLength, leftLegPos.length, dt, 0);
+                PID_Compute(&RlegLengthPID, target.legLength, rightLegPos.length, dt, 0);
                 PID_Compute(&rollPID, target.rollAngle, INS.Roll, dt, 0);
                 PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
 
@@ -658,8 +714,8 @@ void balancing_chassis_task(void *argument) {
                 PID_Compute(&RcushionPID, target.legLength, rightLegPos.length, dt, 0);
                 PID_Compute(&legAnglePID, 0, leftLegPos.angle - rightLegPos.angle, dt, 0.0);
 
-                leftForce = LcushionPID.output + F_gravity_left + 20.0f;
-                rightForce = RcushionPID.output + F_gravity_right + 20.0f;
+                leftForce = LcushionPID.output;
+                rightForce = RcushionPID.output;
                 leftTp = -LlqrOutTp * lqrTpRatio + (legAnglePID.output * leftLegPos.length);
                 rightTp = -RlqrOutTp * lqrTpRatio - (legAnglePID.output * rightLegPos.length);
                 leg_conv(leftForce, leftTp, leftJoint[0].angle, leftJoint[1].angle, leftJointTorque);
@@ -680,7 +736,7 @@ void balancing_chassis_task(void *argument) {
                     if (!isGroundStateTimerActive) {
                         groundStateStartTime = xTaskGetTickCount();
                         isGroundStateTimerActive = 1;
-                    } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 80) {
+                    } else if ((xTaskGetTickCount() - groundStateStartTime) * portTICK_PERIOD_MS >= 50) {
                         chassis_state = 3;
                         isGroundStateTimerActive = 0;
                         break;

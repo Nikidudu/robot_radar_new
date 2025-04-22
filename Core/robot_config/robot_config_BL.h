@@ -105,7 +105,7 @@
 
 #define MOUSE_LIMIT 			200
 
-#define KEYBD_MAX_SPD 			1//0.8//0.5				//% of max speed	//% of max speed
+#define KEYBD_MAX_SPD 			1.5//0.8//0.5				//% of max speed	//% of max speed
 
 #define GIMBAL_MODE 			1				//1 for IMU control, 0 for absolute angle based control
 
