@@ -148,7 +148,11 @@ void Ctrl_TargetUpdateTask()
 
     while (1)
     {
-    	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_W) {
+    	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_A) {
+    		keyboard_cmd = (-KEYBD_MAX_SPD/3.0)/2.0f;
+    	}else if (g_remote_cmd.keyboard_keys & KEY_OFFSET_D) {
+    		keyboard_cmd = (KEYBD_MAX_SPD/3.0f)/2.0f;
+    	}else if (g_remote_cmd.keyboard_keys & KEY_OFFSET_W) {
     		keyboard_cmd = KEYBD_MAX_SPD/3.0f;
     	}else if (g_remote_cmd.keyboard_keys & KEY_OFFSET_S) {
     		keyboard_cmd = -KEYBD_MAX_SPD/3.0f;
@@ -165,6 +169,7 @@ void Ctrl_TargetUpdateTask()
     		else
     			addSpeedSlope -= keyboardSlopeStep;
     	}
+
     	forward = keyboard_cmd + addSpeedSlope*3.0f;
 
     	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_A) {
@@ -175,17 +180,44 @@ void Ctrl_TargetUpdateTask()
     	}
         float desiredSpeedCmd;
         if (fabs(error6900) < fabs(error2777)){
-        	if (control_mode == KEYBOARD_CTRL_MODE){
-        		desiredSpeedCmd = forward;
-        	}else{
-        		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 1.5f;
-        	}
+            if (control_mode == KEYBOARD_CTRL_MODE){
+                // Normalize error and clamp between -1 and 1
+            	if (spin_toggle == 1){
+            		float normalized_error = fabs(error6900) / 300.0f;
+            		if (normalized_error > 1.0f) normalized_error = 1.0f;
+            		if (normalized_error < 0.0f) normalized_error = 0.0f;
+            		desiredSpeedCmd = cos(normalized_error * (PI/2.0f)) * -forward;
+            	}else if(g_remote_cmd.keyboard_keys & KEY_OFFSET_A || g_remote_cmd.keyboard_keys & KEY_OFFSET_D){
+            		float normalized_error = fabs(error6900) / 300.0f;
+            		if (normalized_error > 1.0f) normalized_error = 1.0f;
+            		if (normalized_error < 0.0f) normalized_error = 0.0f;
+            		desiredSpeedCmd = cos(normalized_error * (PI/2.0f)) * forward;
+            	}else{
+            		desiredSpeedCmd = forward;
+            	}
+
+            }else{
+                desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * 1.5f;
+            }
         }else{
-        	if (control_mode == KEYBOARD_CTRL_MODE){
-        		desiredSpeedCmd = -forward;
-        	}else{
-        		desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -1.5f;
-        	}
+            if (control_mode == KEYBOARD_CTRL_MODE){
+            	if (spin_toggle == 1){
+            		float normalized_error = fabs(error2777) / 300.0f;
+            		if (normalized_error > 1.0f) normalized_error = 1.0f;
+            		if (normalized_error < 0.0f) normalized_error = 0.0f;
+            		desiredSpeedCmd = cos(normalized_error * (PI/2.0f)) * forward;
+            	}else if(g_remote_cmd.keyboard_keys & KEY_OFFSET_A || g_remote_cmd.keyboard_keys & KEY_OFFSET_D){
+            		float normalized_error = fabs(error2777) / 300.0f;
+            		if (normalized_error > 1.0f) normalized_error = 1.0f;
+            		if (normalized_error < 0.0f) normalized_error = 0.0f;
+            		desiredSpeedCmd = cos(normalized_error * (PI/2.0f)) * -forward;
+            	}else{
+            		desiredSpeedCmd = -forward;
+            	}
+
+            }else{
+                desiredSpeedCmd = ((float)g_remote_cmd.left_y / 660) * -1.5f;
+            }
         }
 
 //        if (desiredSpeedCmd == 0.0f) {
@@ -481,19 +513,35 @@ void calculate_T_TP(int touching_ground){
 
 void gimbal_auto_front(){ // Find shortest distance to align robot gimbal and body
     // Apply low-pass filter to raw angle data
-    filtered_angle = angle_alpha * g_can_motors[19].raw_data.angle[0] + (1.0f - angle_alpha) * filtered_angle;
+//    filtered_angle = angle_alpha * g_can_motors[19].raw_data.angle[0] + (1.0f - angle_alpha) * filtered_angle;
     
-    // Use filtered angle for direction toggle logic
-    if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 0){
-        gimbal_direction_toggle = 1;
-    }else if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 1){
-        gimbal_direction_toggle = 0;
-    }
-    if (gimbal_direction_toggle == 1){
-        g_can_motors[19].angle_data.center_ang = 2777;
-    }else{
-        g_can_motors[19].angle_data.center_ang = 6905;
-    }
+    // Check for keyboard input for 90/-90 degree centering
+//    if ((g_remote_cmd.keyboard_keys & KEY_OFFSET_A) || (g_remote_cmd.keyboard_keys & KEY_OFFSET_D)) {
+//        // Find shortest path to either 90 or -90 degrees
+//        if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 0){
+//            gimbal_direction_toggle = 1;
+//        }else if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 1){
+//            gimbal_direction_toggle = 0;
+//        }
+//        if (gimbal_direction_toggle == 1){
+//            g_can_motors[19].angle_data.center_ang = 1367; // -90 degrees
+//        }else{
+//            g_can_motors[19].angle_data.center_ang = 4839; // 90 degrees
+//        }
+//    }
+//    else {
+        // Use filtered angle for direction toggle logic for 0/180 degrees
+//        if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 0){
+//            gimbal_direction_toggle = 1;
+//        }else if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 1){
+//            gimbal_direction_toggle = 0;
+//        }
+//        if (gimbal_direction_toggle == 1){
+//            g_can_motors[19].angle_data.center_ang = 2777;
+//        }else{
+//            g_can_motors[19].angle_data.center_ang = 6905;
+//        }
+
 }
 
 void balancing_chassis_task(void *argument) {
@@ -529,7 +577,8 @@ void balancing_chassis_task(void *argument) {
             chassis_state = 1;
         }
         
-        gimbal_auto_front(); // Align gimbal 0 or 180
+//        gimbal_auto_front(); // Align gimbal 0 or 180
+        filtered_angle = angle_alpha * g_can_motors[19].raw_data.angle[0] + (1.0f - angle_alpha) * filtered_angle;
 //        F_gravity = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*8.0f*9.81f);
         F_gravity = 0.35*BODY_MASS*9.81f;
         F_roll = (BODY_MASS + LEG_MASS) * 9.81f * arm_sin_f32(INS.Roll);
@@ -655,8 +704,15 @@ void balancing_chassis_task(void *argument) {
                     chassis_state = 6;
                     break;
                 }
-                error6900 = computeError(filtered_angle, 6900);
-                error2777 = computeError(filtered_angle, 2777);
+                if ((g_remote_cmd.keyboard_keys & KEY_OFFSET_A) || (g_remote_cmd.keyboard_keys & KEY_OFFSET_D)) {
+                	error6900 = computeError(filtered_angle, 716);
+                	error2777 = computeError(filtered_angle, 4839);
+                }else{
+                	error6900 = computeError(filtered_angle, 6900);
+                	error2777 = computeError(filtered_angle, 2777);
+                }
+//                error6900 = computeError(filtered_angle, 6900);
+//                error2777 = computeError(filtered_angle, 2777);
 
                 if (fabs(spin_speed) > 0) {
                     if (spin_toggle == 0) {
