@@ -284,7 +284,11 @@ void CAN1_RX1_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
-
+  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) {
+	#ifdef ACTIVE_GUIDANCE
+		 microswitch_int2();
+	#endif
+  }
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GYRO_INT_Pin);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
@@ -348,9 +352,15 @@ void EXTI15_10_IRQHandler(void)
 	 hall_int();
 #endif
   }
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET) {
+  if(__HAL_GPIO_EXTI_GET_IT(MICROS_1_Pin) != RESET) {
 #ifdef ACTIVE_GUIDANCE
 	 microswitch_int();
+#endif
+  }
+
+  if(__HAL_GPIO_EXTI_GET_IT(MICROS_2_Pin) != RESET) {
+#ifdef ACTIVE_GUIDANCE
+	 microswitch_int1();
 #endif
   }
   /* USER CODE END EXTI15_10_IRQn 0 */

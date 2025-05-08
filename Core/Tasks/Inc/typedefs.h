@@ -388,8 +388,8 @@ typedef enum {
 
 
 enum launcher_state_e {
-	WHEEL_FIRING,
 	WHEEL_STANDBY,
+	WHEEL_FIRING,
 	WHEEL_CLEARING
 };
 
@@ -401,7 +401,9 @@ enum feeder_state_e {
 	FEEDER_OVERHEAT,
 	FEEDER_FIRING,
 	FEEDER_FREE,
-	FEEDER_LOADED
+	FEEDER_LOADED,
+	FEEDER_FIRING_2,
+	FEEDER_FIRING_3
 };
 
 /*

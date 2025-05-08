@@ -61,7 +61,7 @@ void launcher_control_task(void *argument) {
 	while (1) {
 		//event flags!
 #ifdef ACTIVE_GUIDANCE
-		xEventGroupWaitBits(launcher_event_group, 0b11111, pdTRUE, pdTRUE, portMAX_DELAY);
+		xEventGroupWaitBits(launcher_event_group, 0b1111, pdTRUE, pdTRUE, portMAX_DELAY);
 #else
 		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE, portMAX_DELAY);
 #endif
@@ -84,7 +84,7 @@ void launcher_control_task(void *argument) {
 			guidance_feeder(g_can_motors + LFRICTION_MOTOR_ID - 1,
 					g_can_motors + RFRICTION_MOTOR_ID - 1,
 					g_can_motors + BFRICTION_MOTOR_ID - 1,
-					g_can_motors + GFRICTION_MOTOR_ID - 1,
+//					g_can_motors + GFRICTION_MOTOR_ID - 1,
 					g_can_motors + FEEDER_MOTOR_ID - 1);
 #elif ANGLE_FEEDER
 			launcher_angle_control(g_can_motors + LFRICTION_MOTOR_ID - 1,
@@ -102,13 +102,13 @@ void launcher_control_task(void *argument) {
 			g_can_motors[FEEDER_MOTOR_ID - 1].output = 0;
 #ifdef ACTIVE_GUIDANCE
 			g_can_motors[BFRICTION_MOTOR_ID - 1].output = 0;
-			g_can_motors[GFRICTION_MOTOR_ID - 1].output = 0;
+//			g_can_motors[GFRICTION_MOTOR_ID - 1].output = 0;
 #endif
 		}
 		status_led(4, off_led);
 		//vTaskDelay(CHASSIS_DELAY);
 #ifdef ACTIVE_GUIDANCE
-		xEventGroupClearBits(launcher_event_group, 0b11111);
+		xEventGroupClearBits(launcher_event_group, 0b1111);
 #else
 		xEventGroupClearBits(launcher_event_group, 0b111);
 #endif
@@ -377,6 +377,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
 				feeder->raw_data.rpm, &feeder->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
+
 		break;
 
 	case FEEDER_JAM:
@@ -632,7 +633,7 @@ void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor
 }
 
 void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel,
-		motor_data_t *g_flywheel, motor_data_t *feeder) {
+		 motor_data_t *feeder) {
 
 	static uint32_t jam_start_time = 0;
 
@@ -657,12 +658,12 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 	int16_t avg_rpm = sum_rpm / 3;
 
 	/**
-	 * Finite state machine for feeder
+	 * Finite state machine for feeder & guidance flywheel
 	 */
 	switch (feeder_state) {
 	// Spin the feeder if microswitch is not triggered
 	case FEEDER_STANDBY:
-		if (!projectile_loaded) {
+		if (launcher_ctrl_data.firing) {
 			feeder_state = FEEDER_SPINUP;
 			break;
 		}
@@ -674,8 +675,8 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		break;
 	// Keep spinning the feeder while microswitch is not triggered
 	case FEEDER_SPINUP:
-		if (projectile_loaded) {
-			feeder_state = FEEDER_LOADED;
+		if (!launcher_ctrl_data.firing) {
+			feeder_state = FEEDER_STANDBY;
 			break;
 		}
 		if ((feeder->raw_data.torque)
@@ -703,7 +704,7 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 		break;
 	case FEEDER_FIRING:
 		if (!projectile_loaded) {
-			feeder_state = FEEDER_SPINUP;
+			feeder_state =  FEEDER_FIRING_2; //FEEDER_SPINUP
 			break;
 		}
 		if (abs(avg_rpm - friction_wheel_speed) > LAUNCHER_MARGIN) {
@@ -712,6 +713,27 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 				break;
 			}
 		}
+		break;
+	case FEEDER_FIRING_2:
+		if (projectile_loaded) {
+			feeder_state = FEEDER_FIRING_3;
+			break;
+		}
+		if ((feeder->raw_data.torque)
+				> (FEEDER_JAM_TORQUE * FEEDER_INVERT) && (abs(feeder->raw_data.rpm) < FEEDER_JAM_RPM)) {
+			jam_start_time = HAL_GetTick();
+			feeder->rpm_pid.integral = 0;
+			feeder_state = FEEDER_JAM;
+			break;
+		}
+		break;
+	case FEEDER_FIRING_3:
+//		if (projectile_loaded) {
+//			feeder_state = FEEDER_LOADED;
+//			break;
+//		} else {
+			feeder_state = FEEDER_STANDBY;
+//		}
 		break;
 	case FEEDER_JAM:
 		//check if either after unjam time
@@ -741,32 +763,43 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 	case FEEDER_OVERHEAT:
 	case FEEDER_LOADED:
 		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
-		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
-		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
 
 	case FEEDER_SPINUP:
 		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
 				feeder->raw_data.rpm, &feeder->rpm_pid);
-		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
-		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
 
 	case FEEDER_FIRING:
-		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
-		speed_pid(-friction_wheel_speed, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
+		// spins feeder forward until projectile not loaded
+		// then move on to FEEDER_FIRING_2
+		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
+				feeder->raw_data.rpm, &feeder->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
-		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
+
+	case FEEDER_FIRING_2:
+		// spins feeder forward until 2nd projectile loaded
+		// then move on to FEEDER_FIRING_2
+
+		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
+				feeder->raw_data.rpm, &feeder->rpm_pid);
+		feeder->output = feeder->rpm_pid.output;
+		break;
+
+	case FEEDER_FIRING_3:
+		// actually fires the 1st projectile
+		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid); // stops feeder
+		feeder->output = feeder->rpm_pid.output;
+		break;
+
 
 	case FEEDER_JAM:
 		speed_pid(FEEDER_UNJAM_SPD * feeder->angle_data.gearbox_ratio * FEEDER_INVERT,
 				feeder->raw_data.rpm, &feeder->rpm_pid);
-		speed_pid(0, g_flywheel->raw_data.rpm, &g_flywheel->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
-		g_flywheel->output = g_flywheel->rpm_pid.output;
 		break;
 
 	default:
