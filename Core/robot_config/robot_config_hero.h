@@ -1,5 +1,5 @@
 /*
- * robot_config_HERO_GIMBAL.h
+ * robot_config_hero.h
  *
  *  Created on: Dec 8, 2024
  *      Author: cw

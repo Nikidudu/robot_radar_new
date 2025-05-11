@@ -32,6 +32,27 @@ void yaw_pid(double setpoint, double curr_pt, pid_data_t *pid) {
 	float_minmax(&pid->output, pid->max_out, 0);
 }
 
+void pitch_angle_pid(double setpoint, double curr_pt, motor_data_t *motor) {
+	double ang_diff = (setpoint - curr_pt);
+//	if (ang_diff > PI) {
+//		ang_diff -= 2 * PI;
+//	} else if (ang_diff < -PI) {
+//		ang_diff += 2 * PI;
+//	}
+
+	motor->angle_pid.error[1] = motor->angle_pid.error[0];
+	motor->angle_pid.error[0] = ang_diff;
+	float rpm_pOut = motor->angle_pid.kp * ang_diff;
+	float rpm_dOut = motor->angle_pid.kd * (motor->angle_pid.error[0] - motor->angle_pid.error[1]);
+
+	motor->angle_pid.integral += motor->angle_pid.error[0] * motor->angle_pid.ki;
+	float_minmax(&motor->angle_pid.integral, motor->angle_pid.int_max, 0);
+	float rpm_iOut = motor->angle_pid.integral;
+	motor->angle_pid.output = rpm_pOut + rpm_dOut + rpm_iOut;
+	float_minmax(&motor->angle_pid.output, motor->angle_pid.max_out,0);
+	speed_pid(motor->angle_pid.output, motor->raw_data.rpm, &motor->rpm_pid);
+}
+
 /* Function for angle PID (i.e. aiming for a target angle rather than RPM)
  * Function calculates target RPM, then calls the speed PID
  * function to set the motor's rpm until it reaches the target angle
@@ -397,6 +418,3 @@ void float_minmax(float *motor_in, float motor_max, float motor_min) {
 void reset_pid(motor_data_t *motor_data) {
 
 }
-
-
-
