@@ -159,20 +159,8 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.850718065" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.640206101" name="bsp_gpio.h" rcbsApplicability="disable" resourcePath="Core/BSP/Inc/bsp_gpio.h" toolsToInvoke="">
-						<tool customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.168975820" name="Resource Custom Build Step">
-							<inputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.inputtype.1445548766" name="Resource Custom Build Step Input Type">
-								<additionalInput kind="additionalinputdependency" paths=""/>
-							</inputType>
-							<outputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.outputtype.1959060794" name="Resource Custom Build Step Output Type"/>
-						</tool>
-					</fileInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.386409865" name="xvr_msgs.h" rcbsApplicability="disable" resourcePath="Core/BSP/Inc/xvr_msgs.h" toolsToInvoke=""/>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.434302332" name="ist8310_reg.h" rcbsApplicability="disable" resourcePath="Core/BSP/Inc/ist8310_reg.h" toolsToInvoke=""/>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.417440457" name="bsp_oled.h" rcbsApplicability="disable" resourcePath="Core/BSP/Inc/bsp_oled.h" toolsToInvoke=""/>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.850580033" name="oledfont.h" rcbsApplicability="disable" resourcePath="Core/BSP/Inc/oledfont.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="BSP/Inc/ist8310_reg.h|BSP/Inc/bsp_oled.h|BSP/Inc/oledfont.h|BSP/Src/bsp_oled.c|BSP/Inc/xvr_msgs.h|BSP/Src/bsp_gpio.c|BSP/Inc/bsp_gpio.h|Tasks/Src/hud_task.c|Tasks/Src/launcher_control_tasksnail.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
+						<entry excluding="BSP/Inc/bsp_oled.h|BSP/Inc/oledfont.h|BSP/Src/bsp_oled.c|BSP/Inc/xvr_msgs.h|BSP/Src/bsp_gpio.c|BSP/Inc/bsp_gpio.h|Tasks/Src/hud_task.c|Tasks/Src/launcher_control_tasksnail.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="System"/>

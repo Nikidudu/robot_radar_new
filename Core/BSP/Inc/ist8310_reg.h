@@ -1,5 +1,3 @@
-
-
 // IST8310 internal reg addr
 
 #define IST8310_ADDRESS 0x0E
