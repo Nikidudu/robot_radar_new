@@ -76,6 +76,18 @@ void dm_motor_control_task(void *argument) {
 	    dt = (currentTick - lastTick) / 1000.0f;  // Convert to seconds
 	    lastTick = currentTick;  // Update last tick
 
+	    target_rad = gimbal_ctrl_data.pitch;
+
+		if (target_rad > 0.13f){
+			target_rad = 0.13f;
+		    gimbal_ctrl_data.pitch = 0.13f;
+		} else if(target_rad < -0.70f){
+		    target_rad = -0.70f;
+		    gimbal_ctrl_data.pitch = -0.70f;
+		}
+
+		PID_SingleCalc(&gimbal_pid_pitch, target_rad , INS.Pitch);
+
 	    // Calculate angle turned
 //	    float yaw_turn_ang = imu_heading.yaw - prev_yaw;
 //	    yaw_turn_ang = (yaw_turn_ang > PI) ? yaw_turn_ang - (2 * PI) :
@@ -84,27 +96,19 @@ void dm_motor_control_task(void *argument) {
 	    // Calculate smallest angle to reach target angle
 	    // Current angle: 0; Target angle: delta yaw (relative)
 	    yaw_error = shortest_angular_difference(gimbal_ctrl_data.delta_yaw, 0);
-	    PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
+	  //  PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
 
 	    float turn_ang = imu_heading.yaw - prev_yaw;
-	    turn_ang = (turn_ang > PI) ? turn_ang - 2 * PI : ((turn_ang < PI) ? turn_ang + 2 * PI : turn_ang);
+	   // turn_ang = (turn_ang > PI) ? turn_ang - 2 * PI : ((turn_ang < PI) ? turn_ang + 2 * PI : turn_ang);
 
-	    gimbal_ctrl_data.delta_yaw -= turn_ang;
+	  //  gimbal_ctrl_data.delta_yaw -= turn_ang;
 	    prev_yaw = imu_heading.yaw;
 
+	    xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
+	    gimbal_ctrl_data.delta_yaw -= turn_ang;
+	    PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
+	    xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 //	    target_rad += g_remote_cmd.right_y * 0.00001;
-	    target_rad = gimbal_ctrl_data.pitch;
-
-	    if (target_rad > 0.13f){
-	    	target_rad = 0.13f;
-	    	gimbal_ctrl_data.pitch = 0.13f;
-	    } else if(target_rad < -0.70f){
-	    	target_rad = -0.70f;
-	    	gimbal_ctrl_data.pitch = -0.70f;
-	    }
-
-	    PID_SingleCalc(&gimbal_pid_pitch, target_rad , INS.Pitch);
-
 
 	    // if ((dm_pitch_motor.para.heartbeat == 0 || dm_pitch_motor.para.state != 9) && dm_pitch_motor.para.disconnect_time > 100) {
 	    if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
@@ -164,7 +168,7 @@ void dm_motor_control_task(void *argument) {
 	    } else {
 	    	dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
 	    	dm_set_tor[0] *= 1.1 ;
-	    	dm_set_tor[1] = gimbal_pid_yaw.output + chassis_ctrl_data.yaw * test;
+	    	dm_set_tor[1] = gimbal_pid_yaw.output + chassis_ctrl_data.yaw * 5.0;
 	    }
 
     	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
@@ -256,44 +260,6 @@ void dmmappitchfbdata(motor_t *pitch_motor){
 	g_pitch_motor.angle_data.adj_ang = pitch_motor->para.pos;
 }
 
-void enableMFMotor(CAN_HandleTypeDef* hcan,int id) {
-	uint8_t data[8];
-	dm_TxHeader.DLC = 0x08;  //The Data Bytes of the data. For the C620, it is 8 bytes of data.
-	dm_TxHeader.IDE = CAN_ID_STD;  //Standard CAN BUS transmission
-	dm_TxHeader.RTR = CAN_RTR_DATA; //RTR
-	dm_TxHeader.StdId = id;
-	//id.StdId = motor_id + mode_id;
-	data[0] = 0x88;
-	data[1] = 0x00;
-	data[2] = 0x00;
-	data[3] = 0x00;
-	data[4] = 0x00;
-	data[5] = 0x00;
-	data[6] = 0x00;
-	data[7] = 0x00;
-
-	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
-
-}
-
-void disableMFMotor(CAN_HandleTypeDef* hcan,int id) {
-	uint8_t data[8];
-	dm_TxHeader.DLC = 8;  //The Data Bytes of the data. For the C620, it is 8 bytes of data.
-	dm_TxHeader.IDE = CAN_ID_STD;  //Standard CAN BUS transmission
-	dm_TxHeader.RTR = CAN_RTR_DATA; //RTR
-	dm_TxHeader.StdId = id;
-	//id.StdId = motor_id + mode_id;
-	data[0] = 0x80;
-	data[1] = 0x00;
-	data[2] = 0x00;
-	data[3] = 0x00;
-	data[4] = 0x00;
-	data[5] = 0x00;
-	data[6] = 0x00;
-	data[7] = 0x00;
-
-	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
-}
 void dm4310_enable(CAN_HandleTypeDef* hcan, motor_t* motor)
 {
 	switch(motor->ctrl.mode)
@@ -462,51 +428,6 @@ void dm4310_fbdata(motor_t *motor, uint8_t *rx_data)
 	} else if (motor->id == 0x81){
 		dmmappitchfbdata(&dm_pitch_motor);
 	}
-}
-
-void MF_fbdata(motor_t *motor, uint8_t *rx_data, uint32_t id)
-{
-    // Parse motor temperature directly from DATA[1]
-    motor->para.temperature = (int8_t)rx_data[1];
-
-    // Parse torque current (iq) from DATA[2] and DATA[3] as a 16-bit signed integer
-    int16_t iq_raw = (int16_t)((rx_data[2]) | (rx_data[3] << 8));
-    motor->para.torque = iq_raw * (5.28f / 2048.0f);
-
-    // Parse motor speed from DATA[4] and DATA[5] as a 16-bit signed integer
-    motor->para.speed = ((int16_t)((rx_data[4]) | (rx_data[5] << 8))) * (73.303f / 2820.0f);
-
-    // Parse encoder position from DATA[6] and DATA[7] as a 16-bit unsigned integer
-    uint16_t encoder_raw = (uint16_t)((rx_data[6]) | (rx_data[7] << 8));
-
-//    if (motor->initialized == 1 && encoder_raw != 0){
-//    	motor->initial_angle_offset = encoder_raw;
-//    	motor->initialized = 0;
-//    }
-//    encoder_raw = encoder_raw - motor->initial_angle_offset;
-    // Convert raw encoder value to radians
-    float current_angle = encoder_raw * (2.0f * M_PI / 65535.0f); // Map 0 to 65535 -> 0 to 2π radians
-
-    // Calculate the angle difference to detect wrapping
-    float delta_angle = current_angle - motor->para.previous_angle;
-
-    // Handle positive and negative wrapping
-    if (delta_angle > M_PI) {
-        motor->para.rotations--; // Crossed the 0 -> 2π boundary
-    } else if (delta_angle < -M_PI) {
-        motor->para.rotations++; // Crossed the 2π -> 0 boundary
-    }
-
-    // Calculate the continuous angle in radians
-    motor->para.encoder_angle = current_angle + (motor->para.rotations * 2.0f * M_PI);
-
-    // Update the previous angle for the next iteration
-    motor->para.previous_angle = current_angle;
-    if (id == 0x142){
-    	motor->para.encoder_angle = -motor->para.encoder_angle;
-    	motor->para.speed = -motor->para.speed;
-    	motor->para.torque = -motor->para.torque;
-    }
 }
 
 
