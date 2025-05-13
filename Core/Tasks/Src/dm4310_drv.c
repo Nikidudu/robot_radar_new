@@ -35,13 +35,15 @@ extern orientation_data_t imu_heading;
 
 extern motor_data_t g_can_motors[24];
 extern motor_data_t g_pitch_motor;
+extern chassis_control_t chassis_ctrl_data;
 
 uint8_t joint_motor_online = 0;
 extern uint8_t g_safety_toggle;
 
-//float test =0;
+float test = 0;
 
-CascadePID gimbal_pid_pit;
+CascadePID gimbal_cpid_pit;
+CascadePID gimbal_cpid_yaw;
 PID gimbal_pid_yaw;
 PID gimbal_pid_pitch;
 float yaw_error = 0;
@@ -56,9 +58,9 @@ void dm_motor_control_task(void *argument) {
 	dm4310_motor_init();
 	vTaskDelay(101);
 
-//	PID_Init(&gimbal_pid_pit.inner, 0.3, 0, 0.1, 0, 7);
-//	PID_Init(&gimbal_pid_pit.outer, 25, 0, 0.1, 0, 10);
-	PID_Init(&gimbal_pid_yaw, 1.5, 1, 50, 0, 7);
+	PID_Init(&gimbal_cpid_yaw.inner, 0.3, 0, 0.1, 0, 7);
+	PID_Init(&gimbal_cpid_yaw.outer, 25, 0, 0.1, 0, 10);
+	PID_Init(&gimbal_pid_yaw, 2.5, 1, 50, 0, 7);
 	PID_Init(&gimbal_pid_pitch, 2.0, 0.0, 100.0, 0, 5);
 
 //	float las_angle = 0.0f;
@@ -66,53 +68,39 @@ void dm_motor_control_task(void *argument) {
 	float dt = 0.003;
 	TickType_t lastTick = xTaskGetTickCount();
 
+	float prev_yaw = imu_heading.yaw;
+
 	while (1) {
 
 	    TickType_t currentTick = xTaskGetTickCount();
 	    dt = (currentTick - lastTick) / 1000.0f;  // Convert to seconds
 	    lastTick = currentTick;  // Update last tick
 
-//	    target_gimbal =  gimbal_ctrl_data.pitch;//(g_remote_cmd.right_y / 660.0f );
-//	    if (target_gimbal > PITCH_MAX_ANG) {
-//	        target_gimbal = PITCH_MAX_ANG;
-//	    } else if (target_gimbal < PITCH_MIN_ANG) {
-//	        target_gimbal = PITCH_MIN_ANG;
-//	    }
+	    // Calculate angle turned
+//	    float yaw_turn_ang = imu_heading.yaw - prev_yaw;
+//	    yaw_turn_ang = (yaw_turn_ang > PI) ? yaw_turn_ang - (2 * PI) :
+//				((yaw_turn_ang < -PI) ? yaw_turn_ang + (2*PI) : yaw_turn_ang);
 
-//	    if (dt > 0.0f) {
-//	        angular_speed = (imu_heading.pit - las_angle) / dt;
-//	    } else {
-//	        angular_speed = 0.0f;  // Prevent NaN
-//	    }
+	    // Calculate smallest angle to reach target angle
+	    // Current angle: 0; Target angle: delta yaw (relative)
+	    yaw_error = shortest_angular_difference(gimbal_ctrl_data.delta_yaw, 0);
+	    PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
 
-//	    las_angle = imu_heading.pit;  // Update last angle
-//	    PID_CascadeCalc(&gimbal_pid_pit, target_gimbal, imu_heading.pit, angular_speed );
-//	    dm_set_tor[0] = gimbal_pid_pit.output + fabs(1.5f * cos(imu_heading.pit));
-//	    dm_pitch_motor.ctrl.pos_set = target_gimbal;
-//	    float t_ff = gimbal_mass * 9.81 * length * sin(joint_angle);
-//
-//	    dm_pitch_motor.ctrl.pos_set = target_gimbal;
+	    float turn_ang = imu_heading.yaw - prev_yaw;
+	    turn_ang = (turn_ang > PI) ? turn_ang - 2 * PI : ((turn_ang < PI) ? turn_ang + 2 * PI : turn_ang);
 
-		//(float)g_pitch_motor.output;
-		//dm_pitch_motor.ctrl.tor_set = -dm_set_tor[0]; //set to negative to flip
+	    gimbal_ctrl_data.delta_yaw -= turn_ang;
+	    prev_yaw = imu_heading.yaw;
 
-
-//	    dm_pitch_motor.para.heartbeat = 0;
-
-//	    vTaskDelay(delayMs);
-	    yaw_error = shortest_angular_difference(imu_heading.yaw,gimbal_ctrl_data.delta_yaw);
-	    PID_SingleCalc(&gimbal_pid_yaw, 0, -yaw_error);
-	    dm_set_tor[1] = gimbal_pid_yaw.output ;
-
-	    target_rad += g_remote_cmd.right_y*0.00001;
-	    //target_rad = gimbal_ctrl_data.pitch;
+//	    target_rad += g_remote_cmd.right_y * 0.00001;
+	    target_rad = gimbal_ctrl_data.pitch;
 
 	    if (target_rad > 0.13f){
 	    	target_rad = 0.13f;
-
-	    }else if(target_rad < -0.70f){
+	    	gimbal_ctrl_data.pitch = 0.13f;
+	    } else if(target_rad < -0.70f){
 	    	target_rad = -0.70f;
-
+	    	gimbal_ctrl_data.pitch = -0.70f;
 	    }
 
 	    PID_SingleCalc(&gimbal_pid_pitch, target_rad , INS.Pitch);
@@ -176,7 +164,7 @@ void dm_motor_control_task(void *argument) {
 	    } else {
 	    	dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
 	    	dm_set_tor[0] *= 1.1 ;
-	    	dm_set_tor[1] = gimbal_pid_yaw.output * 2 ;
+	    	dm_set_tor[1] = gimbal_pid_yaw.output + chassis_ctrl_data.yaw * test;
 	    }
 
     	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
