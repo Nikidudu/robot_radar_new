@@ -58,19 +58,13 @@ extern gimbal_control_t gimbal_ctrl_data;
 
 
 void master_task(void* argument){
-//	led_on();
-//	buzzer_init();
 	imu_init();
-//	led_green_off();
-//	start_micros_timer();
-//	led_toggle();
 
 	gimbal_event_group = xEventGroupCreate();
 	chassis_event_group = xEventGroupCreate();
 	launcher_event_group = xEventGroupCreate();
 
 	usb_continue_semaphore = xSemaphoreCreateBinary();
-
 
 	gyro_data_queue = xQueueCreate(5, sizeof(gyro_data_t));
 	accel_data_queue = xQueueCreate(5, sizeof(accel_data_t));

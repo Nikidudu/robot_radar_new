@@ -1,0 +1,1051 @@
+Folder PATH listing for volume OS
+Volume serial number is 72F8-DBD9
+C:.
+¦   .cproject
+¦   .gitignore
+¦   .mxproject
+¦   .project
+¦   dev_c_DAP.cfg
+¦   LOGIC.md
+¦   project_tree.txt
+¦   README.md
+¦   standard_bot_v5C Debug (1).launch
+¦   standard_bot_v5C Debug.cfg
+¦   standard_bot_v5C Debug.launch
+¦   standard_bot_v5C.ioc
+¦   standard_bot_v5CDAP.cfg
+¦   STM32F407IGHX_FLASH.ld
+¦   STM32F407IGHX_RAM.ld
+¦   
++---.settings
+¦       com.st.stm32cube.ide.mcu.sfrview.prefs
+¦       language.settings.xml
+¦       stm32cubeide.project.prefs
+¦       
++---Core
+¦   +---BSP
+¦   ¦   +---Inc
+¦   ¦   ¦       BMI088reg.h
+¦   ¦   ¦       board_lib.h
+¦   ¦   ¦       board_settings.h
+¦   ¦   ¦       bsp_buzzer.h
+¦   ¦   ¦       bsp_can.h
+¦   ¦   ¦       bsp_dbus_input.h
+¦   ¦   ¦       bsp_hall.h
+¦   ¦   ¦       bsp_imu.h
+¦   ¦   ¦       bsp_led.h
+¦   ¦   ¦       bsp_lk_motor.h
+¦   ¦   ¦       bsp_microswitch.h
+¦   ¦   ¦       bsp_micros_timer.h
+¦   ¦   ¦       bsp_queue.h
+¦   ¦   ¦       bsp_referee.h
+¦   ¦   ¦       bsp_servo.h
+¦   ¦   ¦       bsp_usart.h
+¦   ¦   ¦       bsp_usb_redir.h
+¦   ¦   ¦       crc8_crc16.h
+¦   ¦   ¦       hud_constants.h
+¦   ¦   ¦       ist8310_reg.h
+¦   ¦   ¦       referee_msgs.h
+¦   ¦   ¦       
+¦   ¦   +---Src
+¦   ¦           bsp_buzzer.c
+¦   ¦           bsp_can.c
+¦   ¦           bsp_dbus_input.c
+¦   ¦           bsp_hall.c
+¦   ¦           bsp_imu.c
+¦   ¦           bsp_led.c
+¦   ¦           bsp_lk_motor.c
+¦   ¦           bsp_microswitch.c
+¦   ¦           bsp_micros_timer.c
+¦   ¦           bsp_queue.c
+¦   ¦           bsp_referee.c
+¦   ¦           bsp_servo.c
+¦   ¦           bsp_usart.c
+¦   ¦           bsp_usb_redir.c
+¦   ¦           crc8_crc16.c
+¦   ¦           
+¦   +---Inc
+¦   ¦       adc.h
+¦   ¦       arm_math.h
+¦   ¦       can.h
+¦   ¦       crc.h
+¦   ¦       dma.h
+¦   ¦       FreeRTOSConfig.h
+¦   ¦       gpio.h
+¦   ¦       i2c.h
+¦   ¦       main.h
+¦   ¦       rng.h
+¦   ¦       spi.h
+¦   ¦       stm32f4xx_hal_conf.h
+¦   ¦       stm32f4xx_it.h
+¦   ¦       stm32_assert.h
+¦   ¦       tim.h
+¦   ¦       usart.h
+¦   ¦       
+¦   +---robot_config
+¦   ¦       hud_ds4.h
+¦   ¦       hud_hero.h
+¦   ¦       hud_roburt.h
+¦   ¦       hud_tali.h
+¦   ¦       robot_config.h
+¦   ¦       robot_config_6_6.h
+¦   ¦       robot_config_DS3.h
+¦   ¦       robot_config_DS4.h
+¦   ¦       robot_config_hero.h
+¦   ¦       robot_config_kirbee.h
+¦   ¦       robot_config_NEW_HERO.h
+¦   ¦       robot_config_roburt.h
+¦   ¦       robot_config_sentry.h
+¦   ¦       robot_config_TALI_LK.h
+¦   ¦       
+¦   +---Src
+¦   ¦       adc.c
+¦   ¦       can.c
+¦   ¦       crc.c
+¦   ¦       dma.c
+¦   ¦       freertos.cpp
+¦   ¦       gpio.c
+¦   ¦       i2c.c
+¦   ¦       main.cpp
+¦   ¦       rng.c
+¦   ¦       spi.c
+¦   ¦       stm32f4xx_hal_msp.c
+¦   ¦       stm32f4xx_hal_timebase_tim.c
+¦   ¦       stm32f4xx_it.c
+¦   ¦       syscalls.c
+¦   ¦       sysmem.c
+¦   ¦       system_stm32f4xx.c
+¦   ¦       tim.c
+¦   ¦       usart.c
+¦   ¦       
+¦   +---Startup
+¦   ¦       startup_stm32f407ighx.s
+¦   ¦       
+¦   +---Tasks
+¦       +---Inc
+¦       ¦       buzzing_task.h
+¦       ¦       can_msg_processor.h
+¦       ¦       can_relay_task.h
+¦       ¦       control_input_task.h
+¦       ¦       control_keyboard.h
+¦       ¦       control_remote.h
+¦       ¦       control_sbc.h
+¦       ¦       gimbal_control_task.h
+¦       ¦       hud_new.h
+¦       ¦       hud_task.h
+¦       ¦       imu_processing_task.h
+¦       ¦       launcher_control_task.h
+¦       ¦       master_task.h
+¦       ¦       motor_config.h
+¦       ¦       motor_control.h
+¦       ¦       motor_control_task.h
+¦       ¦       movement_control_task.h
+¦       ¦       referee_processing_task.h
+¦       ¦       rtos_g_vars.h
+¦       ¦       startup_task.h
+¦       ¦       telemetry_task.h
+¦       ¦       typedefs.h
+¦       ¦       usb_task.h
+¦       ¦       
+¦       +---Src
+¦               buzzing_task.c
+¦               can_msg_processor.c
+¦               can_relay_task.c
+¦               control_input_task.c
+¦               control_keyboard.c
+¦               control_remote.c
+¦               control_sbc.c
+¦               error_handler.c
+¦               gimbal_control_task.c
+¦               hud_new.c
+¦               hud_task.c
+¦               imu_processing_task.c
+¦               launcher_control_task.c
+¦               launcher_control_tasksnail.c
+¦               master_task.c
+¦               motor_config.c
+¦               motor_control.c
+¦               motor_control_task.c
+¦               movement_control_task.c
+¦               referee_processing_task.c
+¦               startup_task.c
+¦               telemetry_task.c
+¦               usb_task.c
+¦               
++---Debug
+¦   ¦   makefile
+¦   ¦   objects.list
+¦   ¦   objects.mk
+¦   ¦   sources.mk
+¦   ¦   standard_bot_v5C.elf
+¦   ¦   standard_bot_v5C.list
+¦   ¦   standard_bot_v5C.map
+¦   ¦   
+¦   +---Core
+¦   ¦   +---BSP
+¦   ¦   ¦   +---Inc
+¦   ¦   ¦   ¦       subdir.mk
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---Src
+¦   ¦   ¦           bsp_buzzer.cyclo
+¦   ¦   ¦           bsp_buzzer.d
+¦   ¦   ¦           bsp_buzzer.o
+¦   ¦   ¦           bsp_buzzer.su
+¦   ¦   ¦           bsp_can.cyclo
+¦   ¦   ¦           bsp_can.d
+¦   ¦   ¦           bsp_can.o
+¦   ¦   ¦           bsp_can.su
+¦   ¦   ¦           bsp_dbus_input.cyclo
+¦   ¦   ¦           bsp_dbus_input.d
+¦   ¦   ¦           bsp_dbus_input.o
+¦   ¦   ¦           bsp_dbus_input.su
+¦   ¦   ¦           bsp_hall.cyclo
+¦   ¦   ¦           bsp_hall.d
+¦   ¦   ¦           bsp_hall.o
+¦   ¦   ¦           bsp_hall.su
+¦   ¦   ¦           bsp_imu.cyclo
+¦   ¦   ¦           bsp_imu.d
+¦   ¦   ¦           bsp_imu.o
+¦   ¦   ¦           bsp_imu.su
+¦   ¦   ¦           bsp_led.cyclo
+¦   ¦   ¦           bsp_led.d
+¦   ¦   ¦           bsp_led.o
+¦   ¦   ¦           bsp_led.su
+¦   ¦   ¦           bsp_lk_motor.cyclo
+¦   ¦   ¦           bsp_lk_motor.d
+¦   ¦   ¦           bsp_lk_motor.o
+¦   ¦   ¦           bsp_lk_motor.su
+¦   ¦   ¦           bsp_microswitch.cyclo
+¦   ¦   ¦           bsp_microswitch.d
+¦   ¦   ¦           bsp_microswitch.o
+¦   ¦   ¦           bsp_microswitch.su
+¦   ¦   ¦           bsp_micros_timer.cyclo
+¦   ¦   ¦           bsp_micros_timer.d
+¦   ¦   ¦           bsp_micros_timer.o
+¦   ¦   ¦           bsp_micros_timer.su
+¦   ¦   ¦           bsp_queue.cyclo
+¦   ¦   ¦           bsp_queue.d
+¦   ¦   ¦           bsp_queue.o
+¦   ¦   ¦           bsp_queue.su
+¦   ¦   ¦           bsp_referee.cyclo
+¦   ¦   ¦           bsp_referee.d
+¦   ¦   ¦           bsp_referee.o
+¦   ¦   ¦           bsp_referee.su
+¦   ¦   ¦           bsp_servo.cyclo
+¦   ¦   ¦           bsp_servo.d
+¦   ¦   ¦           bsp_servo.o
+¦   ¦   ¦           bsp_servo.su
+¦   ¦   ¦           bsp_usart.cyclo
+¦   ¦   ¦           bsp_usart.d
+¦   ¦   ¦           bsp_usart.o
+¦   ¦   ¦           bsp_usart.su
+¦   ¦   ¦           bsp_usb_redir.cyclo
+¦   ¦   ¦           bsp_usb_redir.d
+¦   ¦   ¦           bsp_usb_redir.o
+¦   ¦   ¦           bsp_usb_redir.su
+¦   ¦   ¦           crc8_crc16.cyclo
+¦   ¦   ¦           crc8_crc16.d
+¦   ¦   ¦           crc8_crc16.o
+¦   ¦   ¦           crc8_crc16.su
+¦   ¦   ¦           subdir.mk
+¦   ¦   ¦           
+¦   ¦   +---Src
+¦   ¦   ¦       adc.cyclo
+¦   ¦   ¦       adc.d
+¦   ¦   ¦       adc.o
+¦   ¦   ¦       adc.su
+¦   ¦   ¦       can.cyclo
+¦   ¦   ¦       can.d
+¦   ¦   ¦       can.o
+¦   ¦   ¦       can.su
+¦   ¦   ¦       crc.cyclo
+¦   ¦   ¦       crc.d
+¦   ¦   ¦       crc.o
+¦   ¦   ¦       crc.su
+¦   ¦   ¦       dma.cyclo
+¦   ¦   ¦       dma.d
+¦   ¦   ¦       dma.o
+¦   ¦   ¦       dma.su
+¦   ¦   ¦       freertos.cyclo
+¦   ¦   ¦       freertos.d
+¦   ¦   ¦       freertos.o
+¦   ¦   ¦       freertos.su
+¦   ¦   ¦       gpio.cyclo
+¦   ¦   ¦       gpio.d
+¦   ¦   ¦       gpio.o
+¦   ¦   ¦       gpio.su
+¦   ¦   ¦       i2c.cyclo
+¦   ¦   ¦       i2c.d
+¦   ¦   ¦       i2c.o
+¦   ¦   ¦       i2c.su
+¦   ¦   ¦       main.cyclo
+¦   ¦   ¦       main.d
+¦   ¦   ¦       main.o
+¦   ¦   ¦       main.su
+¦   ¦   ¦       rng.cyclo
+¦   ¦   ¦       rng.d
+¦   ¦   ¦       rng.o
+¦   ¦   ¦       rng.su
+¦   ¦   ¦       spi.cyclo
+¦   ¦   ¦       spi.d
+¦   ¦   ¦       spi.o
+¦   ¦   ¦       spi.su
+¦   ¦   ¦       stm32f4xx_hal_msp.cyclo
+¦   ¦   ¦       stm32f4xx_hal_msp.d
+¦   ¦   ¦       stm32f4xx_hal_msp.o
+¦   ¦   ¦       stm32f4xx_hal_msp.su
+¦   ¦   ¦       stm32f4xx_hal_timebase_tim.cyclo
+¦   ¦   ¦       stm32f4xx_hal_timebase_tim.d
+¦   ¦   ¦       stm32f4xx_hal_timebase_tim.o
+¦   ¦   ¦       stm32f4xx_hal_timebase_tim.su
+¦   ¦   ¦       stm32f4xx_it.cyclo
+¦   ¦   ¦       stm32f4xx_it.d
+¦   ¦   ¦       stm32f4xx_it.o
+¦   ¦   ¦       stm32f4xx_it.su
+¦   ¦   ¦       subdir.mk
+¦   ¦   ¦       syscalls.cyclo
+¦   ¦   ¦       syscalls.d
+¦   ¦   ¦       syscalls.o
+¦   ¦   ¦       syscalls.su
+¦   ¦   ¦       sysmem.cyclo
+¦   ¦   ¦       sysmem.d
+¦   ¦   ¦       sysmem.o
+¦   ¦   ¦       sysmem.su
+¦   ¦   ¦       system_stm32f4xx.cyclo
+¦   ¦   ¦       system_stm32f4xx.d
+¦   ¦   ¦       system_stm32f4xx.o
+¦   ¦   ¦       system_stm32f4xx.su
+¦   ¦   ¦       tim.cyclo
+¦   ¦   ¦       tim.d
+¦   ¦   ¦       tim.o
+¦   ¦   ¦       tim.su
+¦   ¦   ¦       usart.cyclo
+¦   ¦   ¦       usart.d
+¦   ¦   ¦       usart.o
+¦   ¦   ¦       usart.su
+¦   ¦   ¦       
+¦   ¦   +---Startup
+¦   ¦   ¦       startup_stm32f407ighx.d
+¦   ¦   ¦       startup_stm32f407ighx.o
+¦   ¦   ¦       subdir.mk
+¦   ¦   ¦       
+¦   ¦   +---Tasks
+¦   ¦       +---Src
+¦   ¦               buzzing_task.cyclo
+¦   ¦               buzzing_task.d
+¦   ¦               buzzing_task.o
+¦   ¦               buzzing_task.su
+¦   ¦               can_msg_processor.cyclo
+¦   ¦               can_msg_processor.d
+¦   ¦               can_msg_processor.o
+¦   ¦               can_msg_processor.su
+¦   ¦               can_relay_task.cyclo
+¦   ¦               can_relay_task.d
+¦   ¦               can_relay_task.o
+¦   ¦               can_relay_task.su
+¦   ¦               control_input_task.cyclo
+¦   ¦               control_input_task.d
+¦   ¦               control_input_task.o
+¦   ¦               control_input_task.su
+¦   ¦               control_keyboard.cyclo
+¦   ¦               control_keyboard.d
+¦   ¦               control_keyboard.o
+¦   ¦               control_keyboard.su
+¦   ¦               control_remote.cyclo
+¦   ¦               control_remote.d
+¦   ¦               control_remote.o
+¦   ¦               control_remote.su
+¦   ¦               control_sbc.cyclo
+¦   ¦               control_sbc.d
+¦   ¦               control_sbc.o
+¦   ¦               control_sbc.su
+¦   ¦               error_handler.cyclo
+¦   ¦               error_handler.d
+¦   ¦               error_handler.o
+¦   ¦               error_handler.su
+¦   ¦               gimbal_control_task.cyclo
+¦   ¦               gimbal_control_task.d
+¦   ¦               gimbal_control_task.o
+¦   ¦               gimbal_control_task.su
+¦   ¦               hud_new.cyclo
+¦   ¦               hud_new.d
+¦   ¦               hud_new.o
+¦   ¦               hud_new.su
+¦   ¦               imu_processing_task.cyclo
+¦   ¦               imu_processing_task.d
+¦   ¦               imu_processing_task.o
+¦   ¦               imu_processing_task.su
+¦   ¦               launcher_control_task.cyclo
+¦   ¦               launcher_control_task.d
+¦   ¦               launcher_control_task.o
+¦   ¦               launcher_control_task.su
+¦   ¦               master_task.cyclo
+¦   ¦               master_task.d
+¦   ¦               master_task.o
+¦   ¦               master_task.su
+¦   ¦               motor_config.cyclo
+¦   ¦               motor_config.d
+¦   ¦               motor_config.o
+¦   ¦               motor_config.su
+¦   ¦               motor_control.cyclo
+¦   ¦               motor_control.d
+¦   ¦               motor_control.o
+¦   ¦               motor_control.su
+¦   ¦               motor_control_task.cyclo
+¦   ¦               motor_control_task.d
+¦   ¦               motor_control_task.o
+¦   ¦               motor_control_task.su
+¦   ¦               movement_control_task.cyclo
+¦   ¦               movement_control_task.d
+¦   ¦               movement_control_task.o
+¦   ¦               movement_control_task.su
+¦   ¦               referee_processing_task.cyclo
+¦   ¦               referee_processing_task.d
+¦   ¦               referee_processing_task.o
+¦   ¦               referee_processing_task.su
+¦   ¦               startup_task.cyclo
+¦   ¦               startup_task.d
+¦   ¦               startup_task.o
+¦   ¦               startup_task.su
+¦   ¦               subdir.mk
+¦   ¦               telemetry_task.cyclo
+¦   ¦               telemetry_task.d
+¦   ¦               telemetry_task.o
+¦   ¦               telemetry_task.su
+¦   ¦               usb_task.cyclo
+¦   ¦               usb_task.d
+¦   ¦               usb_task.o
+¦   ¦               usb_task.su
+¦   ¦               
+¦   +---Drivers
+¦   ¦   +---STM32F4xx_HAL_Driver
+¦   ¦       +---Src
+¦   ¦               stm32f4xx_hal.cyclo
+¦   ¦               stm32f4xx_hal.d
+¦   ¦               stm32f4xx_hal.o
+¦   ¦               stm32f4xx_hal.su
+¦   ¦               stm32f4xx_hal_adc.cyclo
+¦   ¦               stm32f4xx_hal_adc.d
+¦   ¦               stm32f4xx_hal_adc.o
+¦   ¦               stm32f4xx_hal_adc.su
+¦   ¦               stm32f4xx_hal_adc_ex.cyclo
+¦   ¦               stm32f4xx_hal_adc_ex.d
+¦   ¦               stm32f4xx_hal_adc_ex.o
+¦   ¦               stm32f4xx_hal_adc_ex.su
+¦   ¦               stm32f4xx_hal_can.cyclo
+¦   ¦               stm32f4xx_hal_can.d
+¦   ¦               stm32f4xx_hal_can.o
+¦   ¦               stm32f4xx_hal_can.su
+¦   ¦               stm32f4xx_hal_cortex.cyclo
+¦   ¦               stm32f4xx_hal_cortex.d
+¦   ¦               stm32f4xx_hal_cortex.o
+¦   ¦               stm32f4xx_hal_cortex.su
+¦   ¦               stm32f4xx_hal_crc.cyclo
+¦   ¦               stm32f4xx_hal_crc.d
+¦   ¦               stm32f4xx_hal_crc.o
+¦   ¦               stm32f4xx_hal_crc.su
+¦   ¦               stm32f4xx_hal_dma.cyclo
+¦   ¦               stm32f4xx_hal_dma.d
+¦   ¦               stm32f4xx_hal_dma.o
+¦   ¦               stm32f4xx_hal_dma.su
+¦   ¦               stm32f4xx_hal_dma_ex.cyclo
+¦   ¦               stm32f4xx_hal_dma_ex.d
+¦   ¦               stm32f4xx_hal_dma_ex.o
+¦   ¦               stm32f4xx_hal_dma_ex.su
+¦   ¦               stm32f4xx_hal_exti.cyclo
+¦   ¦               stm32f4xx_hal_exti.d
+¦   ¦               stm32f4xx_hal_exti.o
+¦   ¦               stm32f4xx_hal_exti.su
+¦   ¦               stm32f4xx_hal_flash.cyclo
+¦   ¦               stm32f4xx_hal_flash.d
+¦   ¦               stm32f4xx_hal_flash.o
+¦   ¦               stm32f4xx_hal_flash.su
+¦   ¦               stm32f4xx_hal_flash_ex.cyclo
+¦   ¦               stm32f4xx_hal_flash_ex.d
+¦   ¦               stm32f4xx_hal_flash_ex.o
+¦   ¦               stm32f4xx_hal_flash_ex.su
+¦   ¦               stm32f4xx_hal_flash_ramfunc.cyclo
+¦   ¦               stm32f4xx_hal_flash_ramfunc.d
+¦   ¦               stm32f4xx_hal_flash_ramfunc.o
+¦   ¦               stm32f4xx_hal_flash_ramfunc.su
+¦   ¦               stm32f4xx_hal_gpio.cyclo
+¦   ¦               stm32f4xx_hal_gpio.d
+¦   ¦               stm32f4xx_hal_gpio.o
+¦   ¦               stm32f4xx_hal_gpio.su
+¦   ¦               stm32f4xx_hal_i2c.cyclo
+¦   ¦               stm32f4xx_hal_i2c.d
+¦   ¦               stm32f4xx_hal_i2c.o
+¦   ¦               stm32f4xx_hal_i2c.su
+¦   ¦               stm32f4xx_hal_i2c_ex.cyclo
+¦   ¦               stm32f4xx_hal_i2c_ex.d
+¦   ¦               stm32f4xx_hal_i2c_ex.o
+¦   ¦               stm32f4xx_hal_i2c_ex.su
+¦   ¦               stm32f4xx_hal_pcd.cyclo
+¦   ¦               stm32f4xx_hal_pcd.d
+¦   ¦               stm32f4xx_hal_pcd.o
+¦   ¦               stm32f4xx_hal_pcd.su
+¦   ¦               stm32f4xx_hal_pcd_ex.cyclo
+¦   ¦               stm32f4xx_hal_pcd_ex.d
+¦   ¦               stm32f4xx_hal_pcd_ex.o
+¦   ¦               stm32f4xx_hal_pcd_ex.su
+¦   ¦               stm32f4xx_hal_pwr.cyclo
+¦   ¦               stm32f4xx_hal_pwr.d
+¦   ¦               stm32f4xx_hal_pwr.o
+¦   ¦               stm32f4xx_hal_pwr.su
+¦   ¦               stm32f4xx_hal_pwr_ex.cyclo
+¦   ¦               stm32f4xx_hal_pwr_ex.d
+¦   ¦               stm32f4xx_hal_pwr_ex.o
+¦   ¦               stm32f4xx_hal_pwr_ex.su
+¦   ¦               stm32f4xx_hal_rcc.cyclo
+¦   ¦               stm32f4xx_hal_rcc.d
+¦   ¦               stm32f4xx_hal_rcc.o
+¦   ¦               stm32f4xx_hal_rcc.su
+¦   ¦               stm32f4xx_hal_rcc_ex.cyclo
+¦   ¦               stm32f4xx_hal_rcc_ex.d
+¦   ¦               stm32f4xx_hal_rcc_ex.o
+¦   ¦               stm32f4xx_hal_rcc_ex.su
+¦   ¦               stm32f4xx_hal_rng.cyclo
+¦   ¦               stm32f4xx_hal_rng.d
+¦   ¦               stm32f4xx_hal_rng.o
+¦   ¦               stm32f4xx_hal_rng.su
+¦   ¦               stm32f4xx_hal_spi.cyclo
+¦   ¦               stm32f4xx_hal_spi.d
+¦   ¦               stm32f4xx_hal_spi.o
+¦   ¦               stm32f4xx_hal_spi.su
+¦   ¦               stm32f4xx_hal_tim.cyclo
+¦   ¦               stm32f4xx_hal_tim.d
+¦   ¦               stm32f4xx_hal_tim.o
+¦   ¦               stm32f4xx_hal_tim.su
+¦   ¦               stm32f4xx_hal_tim_ex.cyclo
+¦   ¦               stm32f4xx_hal_tim_ex.d
+¦   ¦               stm32f4xx_hal_tim_ex.o
+¦   ¦               stm32f4xx_hal_tim_ex.su
+¦   ¦               stm32f4xx_hal_uart.cyclo
+¦   ¦               stm32f4xx_hal_uart.d
+¦   ¦               stm32f4xx_hal_uart.o
+¦   ¦               stm32f4xx_hal_uart.su
+¦   ¦               stm32f4xx_ll_adc.cyclo
+¦   ¦               stm32f4xx_ll_adc.d
+¦   ¦               stm32f4xx_ll_adc.o
+¦   ¦               stm32f4xx_ll_adc.su
+¦   ¦               stm32f4xx_ll_dma.cyclo
+¦   ¦               stm32f4xx_ll_dma.d
+¦   ¦               stm32f4xx_ll_dma.o
+¦   ¦               stm32f4xx_ll_dma.su
+¦   ¦               stm32f4xx_ll_exti.cyclo
+¦   ¦               stm32f4xx_ll_exti.d
+¦   ¦               stm32f4xx_ll_exti.o
+¦   ¦               stm32f4xx_ll_exti.su
+¦   ¦               stm32f4xx_ll_gpio.cyclo
+¦   ¦               stm32f4xx_ll_gpio.d
+¦   ¦               stm32f4xx_ll_gpio.o
+¦   ¦               stm32f4xx_ll_gpio.su
+¦   ¦               stm32f4xx_ll_rcc.cyclo
+¦   ¦               stm32f4xx_ll_rcc.d
+¦   ¦               stm32f4xx_ll_rcc.o
+¦   ¦               stm32f4xx_ll_rcc.su
+¦   ¦               stm32f4xx_ll_tim.cyclo
+¦   ¦               stm32f4xx_ll_tim.d
+¦   ¦               stm32f4xx_ll_tim.o
+¦   ¦               stm32f4xx_ll_tim.su
+¦   ¦               stm32f4xx_ll_usb.cyclo
+¦   ¦               stm32f4xx_ll_usb.d
+¦   ¦               stm32f4xx_ll_usb.o
+¦   ¦               stm32f4xx_ll_usb.su
+¦   ¦               stm32f4xx_ll_utils.cyclo
+¦   ¦               stm32f4xx_ll_utils.d
+¦   ¦               stm32f4xx_ll_utils.o
+¦   ¦               stm32f4xx_ll_utils.su
+¦   ¦               subdir.mk
+¦   ¦               
+¦   +---Middlewares
+¦   ¦   +---ST
+¦   ¦   ¦   +---STM32_USB_Device_Library
+¦   ¦   ¦       +---Class
+¦   ¦   ¦       ¦   +---CDC
+¦   ¦   ¦       ¦       +---Src
+¦   ¦   ¦       ¦               subdir.mk
+¦   ¦   ¦       ¦               usbd_cdc.cyclo
+¦   ¦   ¦       ¦               usbd_cdc.d
+¦   ¦   ¦       ¦               usbd_cdc.o
+¦   ¦   ¦       ¦               usbd_cdc.su
+¦   ¦   ¦       ¦               
+¦   ¦   ¦       +---Core
+¦   ¦   ¦           +---Src
+¦   ¦   ¦                   subdir.mk
+¦   ¦   ¦                   usbd_core.cyclo
+¦   ¦   ¦                   usbd_core.d
+¦   ¦   ¦                   usbd_core.o
+¦   ¦   ¦                   usbd_core.su
+¦   ¦   ¦                   usbd_ctlreq.cyclo
+¦   ¦   ¦                   usbd_ctlreq.d
+¦   ¦   ¦                   usbd_ctlreq.o
+¦   ¦   ¦                   usbd_ctlreq.su
+¦   ¦   ¦                   usbd_ioreq.cyclo
+¦   ¦   ¦                   usbd_ioreq.d
+¦   ¦   ¦                   usbd_ioreq.o
+¦   ¦   ¦                   usbd_ioreq.su
+¦   ¦   ¦                   
+¦   ¦   +---Third_Party
+¦   ¦       +---FreeRTOS
+¦   ¦           +---Source
+¦   ¦               ¦   croutine.cyclo
+¦   ¦               ¦   croutine.d
+¦   ¦               ¦   croutine.o
+¦   ¦               ¦   croutine.su
+¦   ¦               ¦   event_groups.cyclo
+¦   ¦               ¦   event_groups.d
+¦   ¦               ¦   event_groups.o
+¦   ¦               ¦   event_groups.su
+¦   ¦               ¦   list.cyclo
+¦   ¦               ¦   list.d
+¦   ¦               ¦   list.o
+¦   ¦               ¦   list.su
+¦   ¦               ¦   queue.cyclo
+¦   ¦               ¦   queue.d
+¦   ¦               ¦   queue.o
+¦   ¦               ¦   queue.su
+¦   ¦               ¦   stream_buffer.cyclo
+¦   ¦               ¦   stream_buffer.d
+¦   ¦               ¦   stream_buffer.o
+¦   ¦               ¦   stream_buffer.su
+¦   ¦               ¦   subdir.mk
+¦   ¦               ¦   tasks.cyclo
+¦   ¦               ¦   tasks.d
+¦   ¦               ¦   tasks.o
+¦   ¦               ¦   tasks.su
+¦   ¦               ¦   timers.cyclo
+¦   ¦               ¦   timers.d
+¦   ¦               ¦   timers.o
+¦   ¦               ¦   timers.su
+¦   ¦               ¦   
+¦   ¦               +---CMSIS_RTOS_V2
+¦   ¦               ¦       cmsis_os2.cyclo
+¦   ¦               ¦       cmsis_os2.d
+¦   ¦               ¦       cmsis_os2.o
+¦   ¦               ¦       cmsis_os2.su
+¦   ¦               ¦       subdir.mk
+¦   ¦               ¦       
+¦   ¦               +---portable
+¦   ¦                   +---GCC
+¦   ¦                   ¦   +---ARM_CM4F
+¦   ¦                   ¦           port.cyclo
+¦   ¦                   ¦           port.d
+¦   ¦                   ¦           port.o
+¦   ¦                   ¦           port.su
+¦   ¦                   ¦           subdir.mk
+¦   ¦                   ¦           
+¦   ¦                   +---MemMang
+¦   ¦                           heap_4.cyclo
+¦   ¦                           heap_4.d
+¦   ¦                           heap_4.o
+¦   ¦                           heap_4.su
+¦   ¦                           subdir.mk
+¦   ¦                           
+¦   +---System
+¦   ¦   +---BRoCo
+¦   ¦   ¦   +---src
+¦   ¦   ¦           CANBus.cyclo
+¦   ¦   ¦           CANBus.d
+¦   ¦   ¦           CANBus.o
+¦   ¦   ¦           CANBus.su
+¦   ¦   ¦           CanSocketDriver.cyclo
+¦   ¦   ¦           CanSocketDriver.d
+¦   ¦   ¦           CanSocketDriver.o
+¦   ¦   ¦           CanSocketDriver.su
+¦   ¦   ¦           IOBus.cyclo
+¦   ¦   ¦           IOBus.d
+¦   ¦   ¦           IOBus.o
+¦   ¦   ¦           IOBus.su
+¦   ¦   ¦           MessageBus.cyclo
+¦   ¦   ¦           MessageBus.d
+¦   ¦   ¦           MessageBus.o
+¦   ¦   ¦           MessageBus.su
+¦   ¦   ¦           NetworkBus.cyclo
+¦   ¦   ¦           NetworkBus.d
+¦   ¦   ¦           NetworkBus.o
+¦   ¦   ¦           NetworkBus.su
+¦   ¦   ¦           RoCanDriver.cyclo
+¦   ¦   ¦           RoCanDriver.d
+¦   ¦   ¦           RoCanDriver.o
+¦   ¦   ¦           RoCanDriver.su
+¦   ¦   ¦           RoCanFDDriver.cyclo
+¦   ¦   ¦           RoCanFDDriver.d
+¦   ¦   ¦           RoCanFDDriver.o
+¦   ¦   ¦           RoCanFDDriver.su
+¦   ¦   ¦           STMUARTDriver.cyclo
+¦   ¦   ¦           STMUARTDriver.d
+¦   ¦   ¦           STMUARTDriver.o
+¦   ¦   ¦           STMUARTDriver.su
+¦   ¦   ¦           subdir.mk
+¦   ¦   ¦           UDevDriver.cyclo
+¦   ¦   ¦           UDevDriver.d
+¦   ¦   ¦           UDevDriver.o
+¦   ¦   ¦           UDevDriver.su
+¦   ¦   ¦           
+¦   ¦   +---Threads
+¦   ¦   ¦   +---Src
+¦   ¦   ¦           dummy_thread.cyclo
+¦   ¦   ¦           dummy_thread.d
+¦   ¦   ¦           dummy_thread.o
+¦   ¦   ¦           dummy_thread.su
+¦   ¦   ¦           subdir.mk
+¦   ¦   ¦           SuperCapCommThread.cyclo
+¦   ¦   ¦           SuperCapCommThread.d
+¦   ¦   ¦           SuperCapCommThread.o
+¦   ¦   ¦           SuperCapCommThread.su
+¦   ¦   ¦           Telemetry.cyclo
+¦   ¦   ¦           Telemetry.d
+¦   ¦   ¦           Telemetry.o
+¦   ¦   ¦           Telemetry.su
+¦   ¦   ¦           
+¦   ¦   +---utils
+¦   ¦       +---Src
+¦   ¦               subdir.mk
+¦   ¦               Thread.cyclo
+¦   ¦               Thread.d
+¦   ¦               Thread.o
+¦   ¦               Thread.su
+¦   ¦               
+¦   +---USB_DEVICE
+¦       +---App
+¦       ¦       subdir.mk
+¦       ¦       usbd_cdc_if.cyclo
+¦       ¦       usbd_cdc_if.d
+¦       ¦       usbd_cdc_if.o
+¦       ¦       usbd_cdc_if.su
+¦       ¦       usbd_desc.cyclo
+¦       ¦       usbd_desc.d
+¦       ¦       usbd_desc.o
+¦       ¦       usbd_desc.su
+¦       ¦       usb_device.cyclo
+¦       ¦       usb_device.d
+¦       ¦       usb_device.o
+¦       ¦       usb_device.su
+¦       ¦       
+¦       +---Target
+¦               subdir.mk
+¦               usbd_conf.cyclo
+¦               usbd_conf.d
+¦               usbd_conf.o
+¦               usbd_conf.su
+¦               
++---docs
+¦   ¦   Header Diagram - RTOS Architecture.png
+¦   ¦   hero_rnd2.png
+¦   ¦   oshero.png
+¦   ¦   oshero_slipring.png
+¦   ¦   osstandard.png
+¦   ¦   osstandard_slipring.png
+¦   ¦   RTOS Architecture - Standard.png
+¦   ¦   sentry_rnd.png
+¦   ¦   Standard Robot System Architecture.png
+¦   ¦   standard_rnd.jpg
+¦   ¦   standard_wire.png
+¦   ¦   
+¦   +---cubeide
+¦   ¦       alt_import.png
+¦   ¦       build_console.png
+¦   ¦       debug_config.png
+¦   ¦       import.png
+¦   ¦       imported.png
+¦   ¦       reset_perspective.png
+¦   ¦       splash.png
+¦   ¦       st_link_upgrade1.png
+¦   ¦       st_link_upgrade2.png
+¦   ¦       toolbar.png
+¦   ¦       
+¦   +---debugger
+¦   ¦       breakpoints.png
+¦   ¦       breakpoint_not_triggered.png
+¦   ¦       breakpoint_triggered.png
+¦   ¦       debug_buttons.png
+¦   ¦       debug_toolbar.png
+¦   ¦       live_expressions.png
+¦   ¦       session_initialized.png
+¦   ¦       
+¦   +---others
+¦           file_explorer_project.png
+¦           robotfirmware_github_download.png
+¦           
++---Drivers
+¦   +---CMSIS
+¦   ¦   ¦   LICENSE.txt
+¦   ¦   ¦   
+¦   ¦   +---Device
+¦   ¦   ¦   +---ST
+¦   ¦   ¦       +---STM32F4xx
+¦   ¦   ¦           ¦   License.md
+¦   ¦   ¦           ¦   LICENSE.txt
+¦   ¦   ¦           ¦   
+¦   ¦   ¦           +---Include
+¦   ¦   ¦           ¦       stm32f407xx.h
+¦   ¦   ¦           ¦       stm32f4xx.h
+¦   ¦   ¦           ¦       system_stm32f4xx.h
+¦   ¦   ¦           ¦       
+¦   ¦   ¦           +---Source
+¦   ¦   ¦               +---Templates
+¦   ¦   +---Include
+¦   ¦           cmsis_armcc.h
+¦   ¦           cmsis_armclang.h
+¦   ¦           cmsis_compiler.h
+¦   ¦           cmsis_gcc.h
+¦   ¦           cmsis_iccarm.h
+¦   ¦           cmsis_version.h
+¦   ¦           core_armv8mbl.h
+¦   ¦           core_armv8mml.h
+¦   ¦           core_cm0.h
+¦   ¦           core_cm0plus.h
+¦   ¦           core_cm1.h
+¦   ¦           core_cm23.h
+¦   ¦           core_cm3.h
+¦   ¦           core_cm33.h
+¦   ¦           core_cm4.h
+¦   ¦           core_cm7.h
+¦   ¦           core_sc000.h
+¦   ¦           core_sc300.h
+¦   ¦           mpu_armv7.h
+¦   ¦           mpu_armv8.h
+¦   ¦           tz_context.h
+¦   ¦           
+¦   +---STM32F4xx_HAL_Driver
+¦       ¦   License.md
+¦       ¦   LICENSE.txt
+¦       ¦   
+¦       +---Inc
+¦       ¦   ¦   stm32f4xx_hal.h
+¦       ¦   ¦   stm32f4xx_hal_adc.h
+¦       ¦   ¦   stm32f4xx_hal_adc_ex.h
+¦       ¦   ¦   stm32f4xx_hal_can.h
+¦       ¦   ¦   stm32f4xx_hal_cortex.h
+¦       ¦   ¦   stm32f4xx_hal_crc.h
+¦       ¦   ¦   stm32f4xx_hal_def.h
+¦       ¦   ¦   stm32f4xx_hal_dma.h
+¦       ¦   ¦   stm32f4xx_hal_dma_ex.h
+¦       ¦   ¦   stm32f4xx_hal_exti.h
+¦       ¦   ¦   stm32f4xx_hal_flash.h
+¦       ¦   ¦   stm32f4xx_hal_flash_ex.h
+¦       ¦   ¦   stm32f4xx_hal_flash_ramfunc.h
+¦       ¦   ¦   stm32f4xx_hal_gpio.h
+¦       ¦   ¦   stm32f4xx_hal_gpio_ex.h
+¦       ¦   ¦   stm32f4xx_hal_i2c.h
+¦       ¦   ¦   stm32f4xx_hal_i2c_ex.h
+¦       ¦   ¦   stm32f4xx_hal_pcd.h
+¦       ¦   ¦   stm32f4xx_hal_pcd_ex.h
+¦       ¦   ¦   stm32f4xx_hal_pwr.h
+¦       ¦   ¦   stm32f4xx_hal_pwr_ex.h
+¦       ¦   ¦   stm32f4xx_hal_rcc.h
+¦       ¦   ¦   stm32f4xx_hal_rcc_ex.h
+¦       ¦   ¦   stm32f4xx_hal_rng.h
+¦       ¦   ¦   stm32f4xx_hal_spi.h
+¦       ¦   ¦   stm32f4xx_hal_tim.h
+¦       ¦   ¦   stm32f4xx_hal_tim_ex.h
+¦       ¦   ¦   stm32f4xx_hal_uart.h
+¦       ¦   ¦   stm32f4xx_ll_adc.h
+¦       ¦   ¦   stm32f4xx_ll_bus.h
+¦       ¦   ¦   stm32f4xx_ll_cortex.h
+¦       ¦   ¦   stm32f4xx_ll_crc.h
+¦       ¦   ¦   stm32f4xx_ll_dma.h
+¦       ¦   ¦   stm32f4xx_ll_exti.h
+¦       ¦   ¦   stm32f4xx_ll_gpio.h
+¦       ¦   ¦   stm32f4xx_ll_i2c.h
+¦       ¦   ¦   stm32f4xx_ll_pwr.h
+¦       ¦   ¦   stm32f4xx_ll_rcc.h
+¦       ¦   ¦   stm32f4xx_ll_rng.h
+¦       ¦   ¦   stm32f4xx_ll_system.h
+¦       ¦   ¦   stm32f4xx_ll_tim.h
+¦       ¦   ¦   stm32f4xx_ll_usart.h
+¦       ¦   ¦   stm32f4xx_ll_usb.h
+¦       ¦   ¦   stm32f4xx_ll_utils.h
+¦       ¦   ¦   
+¦       ¦   +---Legacy
+¦       ¦           stm32_hal_legacy.h
+¦       ¦           
+¦       +---Src
+¦               stm32f4xx_hal.c
+¦               stm32f4xx_hal_adc.c
+¦               stm32f4xx_hal_adc_ex.c
+¦               stm32f4xx_hal_can.c
+¦               stm32f4xx_hal_cortex.c
+¦               stm32f4xx_hal_crc.c
+¦               stm32f4xx_hal_dma.c
+¦               stm32f4xx_hal_dma_ex.c
+¦               stm32f4xx_hal_exti.c
+¦               stm32f4xx_hal_flash.c
+¦               stm32f4xx_hal_flash_ex.c
+¦               stm32f4xx_hal_flash_ramfunc.c
+¦               stm32f4xx_hal_gpio.c
+¦               stm32f4xx_hal_i2c.c
+¦               stm32f4xx_hal_i2c_ex.c
+¦               stm32f4xx_hal_pcd.c
+¦               stm32f4xx_hal_pcd_ex.c
+¦               stm32f4xx_hal_pwr.c
+¦               stm32f4xx_hal_pwr_ex.c
+¦               stm32f4xx_hal_rcc.c
+¦               stm32f4xx_hal_rcc_ex.c
+¦               stm32f4xx_hal_rng.c
+¦               stm32f4xx_hal_spi.c
+¦               stm32f4xx_hal_tim.c
+¦               stm32f4xx_hal_tim_ex.c
+¦               stm32f4xx_hal_uart.c
+¦               stm32f4xx_ll_adc.c
+¦               stm32f4xx_ll_dma.c
+¦               stm32f4xx_ll_exti.c
+¦               stm32f4xx_ll_gpio.c
+¦               stm32f4xx_ll_rcc.c
+¦               stm32f4xx_ll_tim.c
+¦               stm32f4xx_ll_usb.c
+¦               stm32f4xx_ll_utils.c
+¦               
++---lib
+¦       libarm_cortexM4lf_math.a
+¦       
++---Middlewares
+¦   +---ST
+¦   ¦   +---STM32_USB_Device_Library
+¦   ¦       ¦   LICENSE.txt
+¦   ¦       ¦   
+¦   ¦       +---Class
+¦   ¦       ¦   +---CDC
+¦   ¦       ¦       +---Inc
+¦   ¦       ¦       ¦       usbd_cdc.h
+¦   ¦       ¦       ¦       
+¦   ¦       ¦       +---Src
+¦   ¦       ¦               usbd_cdc.c
+¦   ¦       ¦               
+¦   ¦       +---Core
+¦   ¦           +---Inc
+¦   ¦           ¦       usbd_core.h
+¦   ¦           ¦       usbd_ctlreq.h
+¦   ¦           ¦       usbd_def.h
+¦   ¦           ¦       usbd_ioreq.h
+¦   ¦           ¦       
+¦   ¦           +---Src
+¦   ¦                   usbd_core.c
+¦   ¦                   usbd_ctlreq.c
+¦   ¦                   usbd_ioreq.c
+¦   ¦                   
+¦   +---Third_Party
+¦       +---FreeRTOS
+¦           +---Source
+¦               ¦   croutine.c
+¦               ¦   event_groups.c
+¦               ¦   LICENSE
+¦               ¦   list.c
+¦               ¦   queue.c
+¦               ¦   stream_buffer.c
+¦               ¦   tasks.c
+¦               ¦   timers.c
+¦               ¦   
+¦               +---CMSIS_RTOS_V2
+¦               ¦       cmsis_os.h
+¦               ¦       cmsis_os2.c
+¦               ¦       cmsis_os2.h
+¦               ¦       freertos_mpool.h
+¦               ¦       freertos_os2.h
+¦               ¦       
+¦               +---include
+¦               ¦       atomic.h
+¦               ¦       croutine.h
+¦               ¦       deprecated_definitions.h
+¦               ¦       event_groups.h
+¦               ¦       FreeRTOS.h
+¦               ¦       list.h
+¦               ¦       message_buffer.h
+¦               ¦       mpu_prototypes.h
+¦               ¦       mpu_wrappers.h
+¦               ¦       portable.h
+¦               ¦       projdefs.h
+¦               ¦       queue.h
+¦               ¦       semphr.h
+¦               ¦       StackMacros.h
+¦               ¦       stack_macros.h
+¦               ¦       stream_buffer.h
+¦               ¦       task.h
+¦               ¦       timers.h
+¦               ¦       
+¦               +---portable
+¦                   +---GCC
+¦                   ¦   +---ARM_CM4F
+¦                   ¦           port.c
+¦                   ¦           portmacro.h
+¦                   ¦           
+¦                   +---MemMang
+¦                           heap_4.c
+¦                           
++---System
+¦   ¦   broco_+_threads.zip
+¦   ¦   
+¦   +---BRoCo
+¦   ¦   +---include
+¦   ¦   ¦   +---BRoCo
+¦   ¦   ¦   ¦       CANBus.h
+¦   ¦   ¦   ¦       CanSocketDriver.h
+¦   ¦   ¦   ¦       IOBus.h
+¦   ¦   ¦   ¦       IODriver.h
+¦   ¦   ¦   ¦       MessageBus.h
+¦   ¦   ¦   ¦       NetworkBus.h
+¦   ¦   ¦   ¦       RoCanDriver.h
+¦   ¦   ¦   ¦       RoCanFDDriver.h
+¦   ¦   ¦   ¦       RoCo.h
+¦   ¦   ¦   ¦       STMUARTDriver.h
+¦   ¦   ¦   ¦       UDevDriver.h
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---Build
+¦   ¦   ¦   ¦       Build.h
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---Protocol
+¦   ¦   ¦           Protocol.h
+¦   ¦   ¦           Protocol20W18.h
+¦   ¦   ¦           Protocol21W3.h
+¦   ¦   ¦           Protocol22W12_DWM.h
+¦   ¦   ¦           Protocol22W29.h
+¦   ¦   ¦           Protocol23.h
+¦   ¦   ¦           ProtocolMacros.h
+¦   ¦   ¦           ProtocolNUS24.h
+¦   ¦   ¦           ProtocolRegisters.h
+¦   ¦   ¦           
+¦   ¦   +---src
+¦   ¦           CANBus.cpp
+¦   ¦           CanSocketDriver.cpp
+¦   ¦           IOBus.cpp
+¦   ¦           MessageBus.cpp
+¦   ¦           NetworkBus.cpp
+¦   ¦           RoCanDriver.cpp
+¦   ¦           RoCanFDDriver.cpp
+¦   ¦           STMUARTDriver.cpp
+¦   ¦           UDevDriver.cpp
+¦   ¦           
+¦   +---Threads
+¦   ¦   +---Inc
+¦   ¦   ¦       DataStructures.h
+¦   ¦   ¦       dummy_thread.h
+¦   ¦   ¦       SuperCapCommThread.h
+¦   ¦   ¦       Telemetry.h
+¦   ¦   ¦       typedefs.h
+¦   ¦   ¦       
+¦   ¦   +---Src
+¦   ¦           dummy_thread.cpp
+¦   ¦           SuperCapCommThread.cpp
+¦   ¦           Telemetry.cpp
+¦   ¦           
+¦   +---utils
+¦       +---Inc
+¦       ¦       Thread.h
+¦       ¦       
+¦       +---Src
+¦               Thread.cpp
+¦               
++---USB_DEVICE
+    +---App
+    ¦       usbd_cdc_if.c
+    ¦       usbd_cdc_if.h
+    ¦       usbd_desc.c
+    ¦       usbd_desc.h
+    ¦       usb_device.c
+    ¦       usb_device.h
+    ¦       
+    +---Target
+            usbd_conf.c
+            usbd_conf.h
+            

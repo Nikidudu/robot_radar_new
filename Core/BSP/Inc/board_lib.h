@@ -25,6 +25,7 @@ extern "C" {
 #include "usbd_cdc_if.h"
 #include "bsp_usb_redir.h"
 #include "bsp_micros_timer.h"
+#include "bsp_servo.h"
 #include <crc8_crc16.h>
 
 
