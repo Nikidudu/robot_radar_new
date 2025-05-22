@@ -53,6 +53,8 @@ float dumbasss;
 float debug1 = 1;
 float debug2 = 0;
 float test3 = 0;
+float dm1 = 2.0;
+float dm2 = 10.0;
 
 void dm_motor_control_task(void *argument) {
 	dm_set_tor[0] = 0.0f;
@@ -74,129 +76,149 @@ void dm_motor_control_task(void *argument) {
 	float prev_yaw = imu_heading.yaw;
 
 	while (1) {
+		if(gimbal_ctrl_data.enabled == 1){
+		    TickType_t currentTick = xTaskGetTickCount();
+		    dt = (currentTick - lastTick) / 1000.0f;  // Convert to seconds
+		    lastTick = currentTick;  // Update last tick
 
-	    TickType_t currentTick = xTaskGetTickCount();
-	    dt = (currentTick - lastTick) / 1000.0f;  // Convert to seconds
-	    lastTick = currentTick;  // Update last tick
+		    target_rad = gimbal_ctrl_data.pitch;
 
-	    target_rad = gimbal_ctrl_data.pitch;
+			if (target_rad > 0.13f){
+				target_rad = 0.13f;
+			    gimbal_ctrl_data.pitch = 0.13f;
+			} else if(target_rad < -0.70f){
+			    target_rad = -0.70f;
+			    gimbal_ctrl_data.pitch = -0.70f;
+			}
 
-		if (target_rad > 0.13f){
-			target_rad = 0.13f;
-		    gimbal_ctrl_data.pitch = 0.13f;
-		} else if(target_rad < -0.70f){
-		    target_rad = -0.70f;
-		    gimbal_ctrl_data.pitch = -0.70f;
+			PID_SingleCalc(&gimbal_pid_pitch, target_rad , INS.Pitch);
+
+		    // Calculate angle turned
+	//	    float yaw_turn_ang = imu_heading.yaw - prev_yaw;
+	//	    yaw_turn_ang = (yaw_turn_ang > PI) ? yaw_turn_ang - (2 * PI) :
+	//				((yaw_turn_ang < -PI) ? yaw_turn_ang + (2*PI) : yaw_turn_ang);
+
+		    // Calculate smallest angle to reach target angle
+		    // Current angle: 0; Target angle: delta yaw (relative)
+		    // yaw_error = shortest_angular_difference(gimbal_ctrl_data.delta_yaw, 0);
+		    //  PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
+
+		    float turn_ang = imu_heading.yaw - prev_yaw;
+
+		    while (turn_ang > PI) {
+		    	turn_ang -= 2 * PI;
+		    }
+
+		    while (turn_ang < -PI) {
+		    	turn_ang += 2 * PI;
+		    }
+
+		    dumbasss = turn_ang;
+
+		  //  gimbal_ctrl_data.delta_yaw -= turn_ang;
+		    prev_yaw = imu_heading.yaw;
+
+		    xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
+		    // Clamp delta_yaw to one round
+		    while (gimbal_ctrl_data.delta_yaw > 4*PI) {
+		    	gimbal_ctrl_data.delta_yaw = 4*PI;
+		    }
+		    while (gimbal_ctrl_data.delta_yaw < -4*PI) {
+		    	gimbal_ctrl_data.delta_yaw = -4*PI;
+		    }
+
+		    /*
+		     * motor->para.pos
+		     * motor->para.vel
+		     * motor->ctrl.pos_set
+		     * motor->ctrl.vel_set
+		     */
+
+		    dm_yaw_motor.ctrl.pos_set = dm_yaw_motor.para.pos + gimbal_ctrl_data.delta_yaw;
+
+		    gimbal_ctrl_data.delta_yaw -= turn_ang;
+		    PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
+	//	    PID_CascadeCalc(&gimbal_cpid_yaw, 0, -gimbal_ctrl_data.delta_yaw, g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque);
+		    xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
+	//	    target_rad += g_remote_cmd.right_y * 0.00001;
+
+		    // if ((dm_pitch_motor.para.heartbeat == 0 || dm_pitch_motor.para.state != 9) && dm_pitch_motor.para.disconnect_time > 100) {
+		    if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
+		    	dm_pitch_motor.para.disconnect_time = 0;
+		    	dm_pitch_motor.para.online = 0;
+		    }
+	//	    else if ((dm_pitch_motor.para.heartbeat == 0 || dm_pitch_motor.para.state != 9)) {
+	//	    	dm_pitch_motor.para.disconnect_time++;
+	//	    }
+		    else {
+		    	dm_pitch_motor.para.disconnect_time = 0;
+		    	dm_pitch_motor.para.online = 1;
+		    }
+
+		    if (dm_pitch_motor.para.online == 1) {
+		        joint_motor_online = 1;
+		    } else {
+		        joint_motor_online = 0;
+	//	        HAL_CAN_Stop(&hcan1);
+	//	        osDelay(10);  // Wait for motor power stabilization
+	//	        HAL_CAN_Start(&hcan1);
+	//	        osDelay(10);
+	//	        dm4310_enable(&hcan1, &dm_pitch_motor);
+	//	        vTaskDelay(1);
+		    }
+
+
+		   // if ((dm_yaw_motor.para.heartbeat == 0 || dm_yaw_motor.para.state != 9) && dm_yaw_motor.para.disconnect_time > 100) {
+		   if (dm_yaw_motor.para.state != 9 && dm_yaw_motor.para.disconnect_time > 100) {
+			   dm_yaw_motor.para.disconnect_time = 0;
+			   dm_yaw_motor.para.online = 0;
+		   }
+	//	   else if ((dm_yaw_motor.para.heartbeat == 0 || dm_yaw_motor.para.state != 9)) {
+	//		   dm_yaw_motor.para.disconnect_time++;
+	//	   }
+		   else {
+			   dm_yaw_motor.para.disconnect_time = 0;
+			   dm_yaw_motor.para.online = 1;
+		   }
+		   if (dm_yaw_motor.para.online == 1) {
+			   joint_motor_online = 1;
+		   } else {
+			   joint_motor_online = 0;
+	//		   HAL_CAN_Stop(&hcan2);
+	//		   osDelay(10);  // Wait for motor power stabilization
+	//		   HAL_CAN_Start(&hcan2);
+	//		   osDelay(10);
+	//		   dm4310_enable(&hcan2, &dm_yaw_motor);
+	//		   vTaskDelay(1);
+		   }
+	//	    dm_yaw_motor.para.heartbeat = 0;
+
+		    // Disable pitch if kill switch is on
+		    if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+		    	dm_set_tor[0] = 0;
+		    	dm_set_tor[1] = 0;
+		    } else {
+		    	dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
+		    	dm_set_tor[0] *= 1.1 ;
+		    	dm_set_tor[1] = gimbal_pid_yaw.output * debug1  + chassis_ctrl_data.yaw * debug2;
+		    	test3 = gimbal_pid_yaw.output;
+		    }
+
+	    	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
+			dm_yaw_motor.ctrl.tor_set = dm_set_tor[1];
+			dm_yaw_motor.ctrl.vel_set = 10.0;
+			dm_yaw_motor.ctrl.tor_set = 3.0;
+			dm_yaw_motor.ctrl.kp_set = dm1;
+			dm_yaw_motor.ctrl.kd_set = dm2;
+
+
+		} else {
+			dm4310_clear_para(&dm_yaw_motor);
+			dm4310_clear_para(&dm_pitch_motor);
 		}
 
-		PID_SingleCalc(&gimbal_pid_pitch, target_rad , INS.Pitch);
-
-	    // Calculate angle turned
-//	    float yaw_turn_ang = imu_heading.yaw - prev_yaw;
-//	    yaw_turn_ang = (yaw_turn_ang > PI) ? yaw_turn_ang - (2 * PI) :
-//				((yaw_turn_ang < -PI) ? yaw_turn_ang + (2*PI) : yaw_turn_ang);
-
-	    // Calculate smallest angle to reach target angle
-	    // Current angle: 0; Target angle: delta yaw (relative)
-	    // yaw_error = shortest_angular_difference(gimbal_ctrl_data.delta_yaw, 0);
-	    //  PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
-
-	    float turn_ang = imu_heading.yaw - prev_yaw;
-
-	    while (turn_ang > PI) {
-	    	turn_ang -= 2 * PI;
-	    }
-
-	    while (turn_ang < -PI) {
-	    	turn_ang += 2 * PI;
-	    }
-
-	    dumbasss = turn_ang;
-
-	  //  gimbal_ctrl_data.delta_yaw -= turn_ang;
-	    prev_yaw = imu_heading.yaw;
-
-	    xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
-	    // Clamp delta_yaw to one round
-	    while (gimbal_ctrl_data.delta_yaw > 2*PI) {
-	    	gimbal_ctrl_data.delta_yaw = 2*PI;
-	    }
-	    while (gimbal_ctrl_data.delta_yaw < -2*PI) {
-	    	gimbal_ctrl_data.delta_yaw = -2*PI;
-	    }
-
-	    gimbal_ctrl_data.delta_yaw -= turn_ang;
-	    PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
-//	    PID_CascadeCalc(&gimbal_cpid_yaw, 0, -gimbal_ctrl_data.delta_yaw, g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque);
-	    xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
-//	    target_rad += g_remote_cmd.right_y * 0.00001;
-
-	    // if ((dm_pitch_motor.para.heartbeat == 0 || dm_pitch_motor.para.state != 9) && dm_pitch_motor.para.disconnect_time > 100) {
-	    if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
-	    	dm_pitch_motor.para.disconnect_time = 0;
-	    	dm_pitch_motor.para.online = 0;
-	    }
-//	    else if ((dm_pitch_motor.para.heartbeat == 0 || dm_pitch_motor.para.state != 9)) {
-//	    	dm_pitch_motor.para.disconnect_time++;
-//	    }
-	    else {
-	    	dm_pitch_motor.para.disconnect_time = 0;
-	    	dm_pitch_motor.para.online = 1;
-	    }
-
-	    if (dm_pitch_motor.para.online == 1) {
-	        joint_motor_online = 1;
-	    } else {
-	        joint_motor_online = 0;
-//	        HAL_CAN_Stop(&hcan1);
-//	        osDelay(10);  // Wait for motor power stabilization
-//	        HAL_CAN_Start(&hcan1);
-//	        osDelay(10);
-//	        dm4310_enable(&hcan1, &dm_pitch_motor);
-//	        vTaskDelay(1);
-	    }
-
-
-	   // if ((dm_yaw_motor.para.heartbeat == 0 || dm_yaw_motor.para.state != 9) && dm_yaw_motor.para.disconnect_time > 100) {
-	   if (dm_yaw_motor.para.state != 9 && dm_yaw_motor.para.disconnect_time > 100) {
-		   dm_yaw_motor.para.disconnect_time = 0;
-		   dm_yaw_motor.para.online = 0;
-	   }
-//	   else if ((dm_yaw_motor.para.heartbeat == 0 || dm_yaw_motor.para.state != 9)) {
-//		   dm_yaw_motor.para.disconnect_time++;
-//	   }
-	   else {
-		   dm_yaw_motor.para.disconnect_time = 0;
-		   dm_yaw_motor.para.online = 1;
-	   }
-	   if (dm_yaw_motor.para.online == 1) {
-		   joint_motor_online = 1;
-	   } else {
-		   joint_motor_online = 0;
-//		   HAL_CAN_Stop(&hcan2);
-//		   osDelay(10);  // Wait for motor power stabilization
-//		   HAL_CAN_Start(&hcan2);
-//		   osDelay(10);
-//		   dm4310_enable(&hcan2, &dm_yaw_motor);
-//		   vTaskDelay(1);
-	   }
-//	    dm_yaw_motor.para.heartbeat = 0;
-
-	    // Disable pitch if kill switch is on
-	    if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
-	    	dm_set_tor[0] = 0;
-	    	dm_set_tor[1] = 0;
-	    } else {
-	    	dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
-	    	dm_set_tor[0] *= 1.1 ;
-	    	dm_set_tor[1] = gimbal_pid_yaw.output * debug1  + chassis_ctrl_data.yaw * debug2;
-	    	test3 = gimbal_pid_yaw.output;
-	    }
-
-    	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
-		dm_yaw_motor.ctrl.tor_set = dm_set_tor[1];
-	    dm4310_ctrl_send(&hcan1, &dm_pitch_motor);
-	    dm4310_ctrl_send(&hcan2, &dm_yaw_motor);
+		dm4310_ctrl_send(&hcan1, &dm_pitch_motor);
+		dm4310_ctrl_send(&hcan2, &dm_yaw_motor);
 
 		vTaskDelay(4);
 
@@ -345,7 +367,7 @@ void dm4310_ctrl_send(CAN_HandleTypeDef* hcan, motor_t *motor)
 	switch(motor->ctrl.mode)
 	{
 		case 0:
-			mit_ctrl(hcan, motor->id, motor->ctrl.pos_set, motor->ctrl.vel_set, motor->ctrl.kp_set, motor->ctrl.kd_set, motor->ctrl.tor_set);
+			mit_ctrl(hcan, motor->id, motor->ctrl.pos_set,motor->ctrl.vel_set,motor->ctrl.kp_set,motor->ctrl.kd_set, motor->ctrl.tor_set);
 			break;
 		case 1:
 			pos_speed_ctrl(hcan, motor->id, motor->ctrl.pos_set, motor->ctrl.vel_set);
