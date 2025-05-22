@@ -50,6 +50,8 @@ float yaw_error = 0;
 float target_rad = 0;
 float target_gimbal = 0.0f; //gimbal center
 float dumbasss;
+float debug1 = 1;
+float debug2 = 0;
 
 void dm_motor_control_task(void *argument) {
 	dm_set_tor[0] = 0.0f;
@@ -95,18 +97,36 @@ void dm_motor_control_task(void *argument) {
 
 	    // Calculate smallest angle to reach target angle
 	    // Current angle: 0; Target angle: delta yaw (relative)
-	    yaw_error = shortest_angular_difference(gimbal_ctrl_data.delta_yaw, 0);
-	  //  PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
+	    // yaw_error = shortest_angular_difference(gimbal_ctrl_data.delta_yaw, 0);
+	    //  PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
 
 	    float turn_ang = imu_heading.yaw - prev_yaw;
-	   // turn_ang = (turn_ang > PI) ? turn_ang - 2 * PI : ((turn_ang < PI) ? turn_ang + 2 * PI : turn_ang);
+	    dumbasss = turn_ang;
+
+	    while (turn_ang > PI) {
+	    	turn_ang -= 2 * PI;
+	    }
+
+	    while (turn_ang < -PI) {
+	    	turn_ang += 2 * PI;
+	    }
 
 	  //  gimbal_ctrl_data.delta_yaw -= turn_ang;
 	    prev_yaw = imu_heading.yaw;
 
 	    xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
+
+	    // Clamp delta_yaw to one round
+//	    while (gimbal_ctrl_data.delta_yaw > 2*PI) {
+//	    	gimbal_ctrl_data.delta_yaw = 2*PI;
+//	    }
+//	    while (gimbal_ctrl_data.delta_yaw < -2*PI) {
+//	    	gimbal_ctrl_data.delta_yaw = -2*PI;
+//	    }
+
 	    gimbal_ctrl_data.delta_yaw -= turn_ang;
-	    PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
+	    PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
+//	    PID_CascadeCalc(&gimbal_cpid_yaw, 0, -gimbal_ctrl_data.delta_yaw, g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque);
 	    xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 //	    target_rad += g_remote_cmd.right_y * 0.00001;
 
@@ -168,7 +188,7 @@ void dm_motor_control_task(void *argument) {
 	    } else {
 	    	dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
 	    	dm_set_tor[0] *= 1.1 ;
-	    	dm_set_tor[1] = gimbal_pid_yaw.output + chassis_ctrl_data.yaw * 5.0;
+	    	dm_set_tor[1] = gimbal_pid_yaw.output * debug1  + chassis_ctrl_data.yaw * debug2;
 	    }
 
     	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
@@ -254,6 +274,7 @@ void dm4310_motor_init(void)
 void dmmapyawfbdata(motor_t *yaw_motor){
 //	yaw_motor->para.pos = dm_yaw_encoder_mod(yaw_motor->para.pos);
 	g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = dm_yaw_encoder_mod(yaw_motor->para.pos);
+	g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque = yaw_motor->para.tor;
 }
 
 void dmmappitchfbdata(motor_t *pitch_motor){
