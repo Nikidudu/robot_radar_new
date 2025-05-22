@@ -52,6 +52,7 @@ float target_gimbal = 0.0f; //gimbal center
 float dumbasss;
 float debug1 = 1;
 float debug2 = 0;
+float test3 = 0;
 
 void dm_motor_control_task(void *argument) {
 	dm_set_tor[0] = 0.0f;
@@ -62,7 +63,7 @@ void dm_motor_control_task(void *argument) {
 
 	PID_Init(&gimbal_cpid_yaw.inner, 0.3, 0, 0.1, 0, 7);
 	PID_Init(&gimbal_cpid_yaw.outer, 25, 0, 0.1, 0, 10);
-	PID_Init(&gimbal_pid_yaw, 2.5, 1, 50, 0, 7);
+	PID_Init(&gimbal_pid_yaw, 1, 0, 0, 0, 2);
 	PID_Init(&gimbal_pid_pitch, 2.0, 0.0, 100.0, 0, 5);
 
 //	float las_angle = 0.0f;
@@ -101,7 +102,6 @@ void dm_motor_control_task(void *argument) {
 	    //  PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
 
 	    float turn_ang = imu_heading.yaw - prev_yaw;
-	    dumbasss = turn_ang;
 
 	    while (turn_ang > PI) {
 	    	turn_ang -= 2 * PI;
@@ -111,18 +111,19 @@ void dm_motor_control_task(void *argument) {
 	    	turn_ang += 2 * PI;
 	    }
 
+	    dumbasss = turn_ang;
+
 	  //  gimbal_ctrl_data.delta_yaw -= turn_ang;
 	    prev_yaw = imu_heading.yaw;
 
 	    xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
-
 	    // Clamp delta_yaw to one round
-//	    while (gimbal_ctrl_data.delta_yaw > 2*PI) {
-//	    	gimbal_ctrl_data.delta_yaw = 2*PI;
-//	    }
-//	    while (gimbal_ctrl_data.delta_yaw < -2*PI) {
-//	    	gimbal_ctrl_data.delta_yaw = -2*PI;
-//	    }
+	    while (gimbal_ctrl_data.delta_yaw > 2*PI) {
+	    	gimbal_ctrl_data.delta_yaw = 2*PI;
+	    }
+	    while (gimbal_ctrl_data.delta_yaw < -2*PI) {
+	    	gimbal_ctrl_data.delta_yaw = -2*PI;
+	    }
 
 	    gimbal_ctrl_data.delta_yaw -= turn_ang;
 	    PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
@@ -147,12 +148,12 @@ void dm_motor_control_task(void *argument) {
 	        joint_motor_online = 1;
 	    } else {
 	        joint_motor_online = 0;
-	        HAL_CAN_Stop(&hcan1);
-	        osDelay(10);  // Wait for motor power stabilization
-	        HAL_CAN_Start(&hcan1);
-	        osDelay(10);
-	        dm4310_enable(&hcan1, &dm_pitch_motor);
-	        vTaskDelay(1);
+//	        HAL_CAN_Stop(&hcan1);
+//	        osDelay(10);  // Wait for motor power stabilization
+//	        HAL_CAN_Start(&hcan1);
+//	        osDelay(10);
+//	        dm4310_enable(&hcan1, &dm_pitch_motor);
+//	        vTaskDelay(1);
 	    }
 
 
@@ -172,12 +173,12 @@ void dm_motor_control_task(void *argument) {
 		   joint_motor_online = 1;
 	   } else {
 		   joint_motor_online = 0;
-		   HAL_CAN_Stop(&hcan2);
-		   osDelay(10);  // Wait for motor power stabilization
-		   HAL_CAN_Start(&hcan2);
-		   osDelay(10);
-		   dm4310_enable(&hcan2, &dm_yaw_motor);
-		   vTaskDelay(1);
+//		   HAL_CAN_Stop(&hcan2);
+//		   osDelay(10);  // Wait for motor power stabilization
+//		   HAL_CAN_Start(&hcan2);
+//		   osDelay(10);
+//		   dm4310_enable(&hcan2, &dm_yaw_motor);
+//		   vTaskDelay(1);
 	   }
 //	    dm_yaw_motor.para.heartbeat = 0;
 
@@ -189,6 +190,7 @@ void dm_motor_control_task(void *argument) {
 	    	dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
 	    	dm_set_tor[0] *= 1.1 ;
 	    	dm_set_tor[1] = gimbal_pid_yaw.output * debug1  + chassis_ctrl_data.yaw * debug2;
+	    	test3 = gimbal_pid_yaw.output;
 	    }
 
     	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
@@ -196,7 +198,7 @@ void dm_motor_control_task(void *argument) {
 	    dm4310_ctrl_send(&hcan1, &dm_pitch_motor);
 	    dm4310_ctrl_send(&hcan2, &dm_yaw_motor);
 
-		vTaskDelay(3);
+		vTaskDelay(4);
 
 	}
 }
