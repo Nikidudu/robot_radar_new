@@ -53,8 +53,10 @@ float dumbasss;
 float debug1 = 1;
 float debug2 = 0;
 float test3 = 0;
-float dm1 = 2.0;
-float dm2 = 0.5;
+float dm1 = 10;
+float dm2 = 5;
+float ex_pos = 0.0;
+float debug3 = 0.0;
 
 void dm_motor_control_task(void *argument) {
 	dm_set_tor[0] = 0.0f;
@@ -74,6 +76,7 @@ void dm_motor_control_task(void *argument) {
 	TickType_t lastTick = xTaskGetTickCount();
 
 	float prev_yaw = imu_heading.yaw;
+	ex_pos = dm_yaw_motor.para.pos;
 
 	while (1) {
 	    xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
@@ -105,8 +108,8 @@ void dm_motor_control_task(void *argument) {
 		    // yaw_error = shortest_angular_difference(gimbal_ctrl_data.delta_yaw, 0);
 		    //  PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
 
-		    float turn_ang = imu_heading.yaw - prev_yaw;
-
+		    //float turn_ang = imu_heading.yaw - prev_yaw;
+		    float turn_ang = dm_yaw_motor.para.pos - ex_pos;
 		    while (turn_ang > PI) {
 		    	turn_ang -= 2 * PI;
 		    }
@@ -118,15 +121,16 @@ void dm_motor_control_task(void *argument) {
 		    dumbasss = turn_ang;
 
 		  //  gimbal_ctrl_data.delta_yaw -= turn_ang;
-		    prev_yaw = imu_heading.yaw;
+		   // prev_yaw = imu_heading.yaw;
+		    ex_pos = dm_yaw_motor.para.pos;
 
 		    // Clamp delta_yaw to one round
-		    while (gimbal_ctrl_data.delta_yaw > 4*PI) {
-		    	gimbal_ctrl_data.delta_yaw = 4*PI;
-		    }
-		    while (gimbal_ctrl_data.delta_yaw < -4*PI) {
-		    	gimbal_ctrl_data.delta_yaw = -4*PI;
-		    }
+//		    while (gimbal_ctrl_data.delta_yaw > 4*PI) {
+//		    	gimbal_ctrl_data.delta_yaw = 4*PI;
+//		    }
+//		    while (gimbal_ctrl_data.delta_yaw < -4*PI) {
+//		    	gimbal_ctrl_data.delta_yaw = -4*PI;
+//		    }
 
 		    /*
 		     * motor->para.pos
@@ -135,15 +139,15 @@ void dm_motor_control_task(void *argument) {
 		     * motor->ctrl.vel_set
 		     */
 
-		    dm_yaw_motor.ctrl.pos_set = dm_yaw_motor.para.pos + gimbal_ctrl_data.delta_yaw;
-
-		    while (dm_yaw_motor.ctrl.pos_set > 4 * PI) {
-		    	dm_yaw_motor.ctrl.pos_set -= 8 * PI;
-		    }
-
-		    while (dm_yaw_motor.ctrl.pos_set < -4 * PI) {
-		    	dm_yaw_motor.ctrl.pos_set += 8 * PI;
-		    }
+		    debug3= dm_yaw_motor.para.pos + gimbal_ctrl_data.delta_yaw;
+//
+//		    while (debug3 > 4*PI) {
+//		    	debug3 -= 8 * PI;
+//		    }
+//
+//		    while (debug3 <  4*-PI) {
+//		    	debug3 += 8 * PI;
+//		    }
 
 		    gimbal_ctrl_data.delta_yaw -= turn_ang;
 		    PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
@@ -208,15 +212,16 @@ void dm_motor_control_task(void *argument) {
 		    } else {
 		    	dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
 		    	dm_set_tor[0] *= 1.1 ;
-		    	dm_set_tor[1] = gimbal_pid_yaw.output * debug1  + chassis_ctrl_data.yaw * debug2;
-		    	test3 = gimbal_pid_yaw.output;
+//		    	dm_set_tor[1] = gimbal_pid_yaw.output * debug1  + chassis_ctrl_data.yaw * debug2;
+//		    	test3 = gimbal_pid_yaw.output;
 		    }
 
 	    	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
-			dm_yaw_motor.ctrl.tor_set = dm_set_tor[1];
+//			dm_yaw_motor.ctrl.tor_set = dm_set_tor[1];
 
 			dm_yaw_motor.ctrl.vel_set = 0.0;//10.0;
 			dm_yaw_motor.ctrl.tor_set = 0.0;//3.0;
+			dm_yaw_motor.ctrl.pos_set = debug3;
 			dm_yaw_motor.ctrl.kp_set = dm1;
 			dm_yaw_motor.ctrl.kd_set = dm2;
 
