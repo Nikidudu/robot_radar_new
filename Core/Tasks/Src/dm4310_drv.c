@@ -67,7 +67,7 @@ void dm_motor_control_task(void *argument) {
 
 	PID_Init(&gimbal_cpid_yaw.inner, 0.3, 0, 0.1, 0, 7);
 	PID_Init(&gimbal_cpid_yaw.outer, 25, 0, 0.1, 0, 10);
-	PID_Init(&gimbal_pid_yaw, 1, 0, 0, 0, 2);
+	PID_Init(&gimbal_pid_yaw, 5, 0, 0, 0, 45);
 	PID_Init(&gimbal_pid_pitch, 2.0, 0.0, 100.0, 0, 5);
 
 //	float las_angle = 0.0f;
@@ -98,35 +98,27 @@ void dm_motor_control_task(void *argument) {
 
 			PID_SingleCalc(&gimbal_pid_pitch, target_rad , INS.Pitch);
 
-		    // Calculate angle turned
-	//	    float yaw_turn_ang = imu_heading.yaw - prev_yaw;
-	//	    yaw_turn_ang = (yaw_turn_ang > PI) ? yaw_turn_ang - (2 * PI) :
-	//				((yaw_turn_ang < -PI) ? yaw_turn_ang + (2*PI) : yaw_turn_ang);
-
-		    // Calculate smallest angle to reach target angle
-		    // Current angle: 0; Target angle: delta yaw (relative)
-		    // yaw_error = shortest_angular_difference(gimbal_ctrl_data.delta_yaw, 0);
-		    //  PID_SingleCalc(&gimbal_pid_yaw, 0, yaw_error);
-
-		    gimbal_ctrl_data.delta_yaw -= turn_ang;
 
 		    //float turn_ang = imu_heading.yaw - prev_yaw;
+			float raw_pos = dm_yaw_motor.para.pos;
+//		    float turn_ang = imu_heading.yaw - prev_yaw;
+			float turn_ang = raw_pos - prev_yaw;
+			gimbal_ctrl_data.delta_yaw -= turn_ang;
 
-//		    float turn_ang = dm_yaw_motor.para.pos - ex_pos;
-//		    while (turn_ang > PI) {
-//		    	turn_ang -= 2 * PI;
-//		    }
-//
-//		    while (turn_ang < -PI) {
-//		    	turn_ang += 2 * PI;
-//		    }
+		    while (turn_ang > PI) {
+		    	turn_ang -= 2 * PI;
+		    }
+
+		    while (turn_ang < -PI) {
+		    	turn_ang += 2 * PI;
+		    }
 
 		    dumbasss = turn_ang;
 
 		  //  gimbal_ctrl_data.delta_yaw -= turn_ang;
-		   // prev_yaw = imu_heading.yaw;
-		    ex_pos = dm_yaw_motor.para.pos;
-		    debug3= dm_yaw_motor.para.pos + gimbal_ctrl_data.delta_yaw;
+		    prev_yaw = raw_pos;
+//		    ex_pos = dm_yaw_motor.para.pos;
+//		    debug3 = dm_yaw_motor.para.pos + gimbal_ctrl_data.delta_yaw;
 
 		    // Clamp delta_yaw to one round
 //		    while (gimbal_ctrl_data.delta_yaw > 4*PI) {
@@ -135,13 +127,18 @@ void dm_motor_control_task(void *argument) {
 //		    while (gimbal_ctrl_data.delta_yaw < -4*PI) {
 //		    	gimbal_ctrl_data.delta_yaw = -4*PI;
 //		    }
+		    gimbal_ctrl_data.delta_yaw -= turn_ang;
 
-		    while (debug3 > 4 * PI) {
-		    	debug3 -= 2 * PI;
-		    }
-		    while (debug3 <  4 * -PI) {
-		    	debug3 += 2 * PI;
-		    }
+//		    while (debug3 > 4 * PI) {
+//		    	debug3 -= 8 * PI;
+//		    }
+//		    while (debug3 <  4 * -PI) {
+//		    	debug3 += 8 * PI;
+//		    }
+
+//		    void yangle_pid(double setpoint, double curr_pt, motor_data_t *motor, float imu_data, float *prev_imu_data, uint8_t loopback) {
+//			yangle_pid(dm_pitch_motor.para.yaw, dm_pitch_motor.para.yaw, yaw_motor,
+//						imu_heading.yaw, &prev_yaw,0);
 
 		    PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
 	//	    PID_CascadeCalc(&gimbal_cpid_yaw, 0, -gimbal_ctrl_data.delta_yaw, g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque);
@@ -212,11 +209,11 @@ void dm_motor_control_task(void *argument) {
 	    	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
 //			dm_yaw_motor.ctrl.tor_set = dm_set_tor[1];
 
-			dm_yaw_motor.ctrl.vel_set = 0.0;//10.0;
+			dm_yaw_motor.ctrl.vel_set = gimbal_pid_yaw.output;
 			dm_yaw_motor.ctrl.tor_set = 0.0;//3.0;
-			dm_yaw_motor.ctrl.pos_set = debug3;
-			dm_yaw_motor.ctrl.kp_set = dm1;
-			dm_yaw_motor.ctrl.kd_set = dm2;
+			dm_yaw_motor.ctrl.pos_set = 0;
+			dm_yaw_motor.ctrl.kp_set = 0;
+			dm_yaw_motor.ctrl.kd_set = 2;
 
 
 		} else {
