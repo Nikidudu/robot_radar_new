@@ -54,7 +54,7 @@ float debug1 = 1;
 float debug2 = 0;
 float test3 = 0;
 float dm1 = 2.0;
-float dm2 = 10.0;
+float dm2 = 0.5;
 
 void dm_motor_control_task(void *argument) {
 	dm_set_tor[0] = 0.0f;
@@ -76,6 +76,8 @@ void dm_motor_control_task(void *argument) {
 	float prev_yaw = imu_heading.yaw;
 
 	while (1) {
+	    xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
+
 		if(gimbal_ctrl_data.enabled == 1){
 		    TickType_t currentTick = xTaskGetTickCount();
 		    dt = (currentTick - lastTick) / 1000.0f;  // Convert to seconds
@@ -118,7 +120,6 @@ void dm_motor_control_task(void *argument) {
 		  //  gimbal_ctrl_data.delta_yaw -= turn_ang;
 		    prev_yaw = imu_heading.yaw;
 
-		    xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
 		    // Clamp delta_yaw to one round
 		    while (gimbal_ctrl_data.delta_yaw > 4*PI) {
 		    	gimbal_ctrl_data.delta_yaw = 4*PI;
@@ -136,10 +137,17 @@ void dm_motor_control_task(void *argument) {
 
 		    dm_yaw_motor.ctrl.pos_set = dm_yaw_motor.para.pos + gimbal_ctrl_data.delta_yaw;
 
+		    while (dm_yaw_motor.ctrl.pos_set > 4 * PI) {
+		    	dm_yaw_motor.ctrl.pos_set -= 8 * PI;
+		    }
+
+		    while (dm_yaw_motor.ctrl.pos_set < -4 * PI) {
+		    	dm_yaw_motor.ctrl.pos_set += 8 * PI;
+		    }
+
 		    gimbal_ctrl_data.delta_yaw -= turn_ang;
 		    PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
 	//	    PID_CascadeCalc(&gimbal_cpid_yaw, 0, -gimbal_ctrl_data.delta_yaw, g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque);
-		    xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 	//	    target_rad += g_remote_cmd.right_y * 0.00001;
 
 		    // if ((dm_pitch_motor.para.heartbeat == 0 || dm_pitch_motor.para.state != 9) && dm_pitch_motor.para.disconnect_time > 100) {
@@ -206,8 +214,9 @@ void dm_motor_control_task(void *argument) {
 
 	    	dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
 			dm_yaw_motor.ctrl.tor_set = dm_set_tor[1];
-			dm_yaw_motor.ctrl.vel_set = 10.0;
-			dm_yaw_motor.ctrl.tor_set = 3.0;
+
+			dm_yaw_motor.ctrl.vel_set = 0.0;//10.0;
+			dm_yaw_motor.ctrl.tor_set = 0.0;//3.0;
 			dm_yaw_motor.ctrl.kp_set = dm1;
 			dm_yaw_motor.ctrl.kd_set = dm2;
 
@@ -217,8 +226,11 @@ void dm_motor_control_task(void *argument) {
 			dm4310_clear_para(&dm_pitch_motor);
 		}
 
+
 		dm4310_ctrl_send(&hcan1, &dm_pitch_motor);
 		dm4310_ctrl_send(&hcan2, &dm_yaw_motor);
+
+	    xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 
 		vTaskDelay(4);
 
