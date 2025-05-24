@@ -82,25 +82,11 @@ void dm_motor_control_task(void *argument) {
 
             PID_SingleCalc(&gimbal_pid_pitch, target_rad, INS.Pitch);
 
-//            float raw_pos = dm_yaw_motor.para.pos;
-//            float turn_ang = raw_pos - prev_yaw;
-//            turn_ang = dm_yaw_encoder_mod(turn_ang);
-//
-//            prev_yaw = raw_pos;
-//            gimbal_ctrl_data.delta_yaw -= turn_ang;
-
 			float raw_pos = dm_yaw_motor.para.pos;
-//		    float turn_ang = imu_heading.yaw - prev_yaw;
 			float turn_ang = raw_pos - prev_yaw;
-			gimbal_ctrl_data.delta_yaw -= turn_ang;
 
-		    while (turn_ang > PI) {
-		    	turn_ang -= 2 * PI;
-		    }
-
-		    while (turn_ang < -PI) {
-		    	turn_ang += 2 * PI;
-		    }
+		    while (turn_ang > PI) { turn_ang -= 2 * PI; }
+		    while (turn_ang < -PI) { turn_ang += 2 * PI; }
 
 		    dumbasss = turn_ang;
 		    prev_yaw = raw_pos;
