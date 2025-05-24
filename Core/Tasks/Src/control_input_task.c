@@ -166,6 +166,7 @@ float chassis_center_yaw() {
 	if (fabs(yaw_pid_data.output) < CHASSIS_YAW_MIN){
 		return 0;
 	}
+
 	return yaw_pid_data.output;
 //	return 0;
 }
@@ -174,7 +175,7 @@ void chassis_set_ctrl(float forward, float horizontal, float yaw){
 	chassis_ctrl_data.enabled = 1;
 	ramp(&(chassis_ctrl_data.horizontal), horizontal, CHASSIS_CTL_RAMP);
 	ramp(&(chassis_ctrl_data.forward), forward, CHASSIS_CTL_RAMP);
-//	ramp(&(chassis_ctrl_data.horizontal), horizontal, CHASSIS_CTL_RAMP);
+//	ramp(&(chassis_ctrl_data.yaw), yaw, CHASSIS_CTL_RAMP);
 	chassis_ctrl_data.horizontal = horizontal;
 	chassis_ctrl_data.forward = forward;
 	chassis_ctrl_data.yaw = yaw;

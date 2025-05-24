@@ -211,7 +211,7 @@
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
 
-#define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
+#define CHASSIS_YAW_MAX_RPM	1					//max RPM for chassis centering
 #define CHASSIS_YAW_KP 		0.7//3.75//1//0.7//0.4
 #define CHASSIS_YAW_KI		0.0001
 #define CHASSIS_YAW_KD 		3//0
@@ -259,7 +259,7 @@
 #define YAW_ANGLE_KD			1
 #define YAW_ANGLE_INT_MAX		0.05
 #define YAW_MAX_RPM				85
-#define YAW_SPINSPIN_CONSTANT	5000
+#define YAW_SPINSPIN_CONSTANT	8
 
 #define YAWRPM_KP				2//600//400
 #define YAWRPM_KI				0
