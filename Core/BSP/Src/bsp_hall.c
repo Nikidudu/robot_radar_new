@@ -40,3 +40,11 @@ void hall_int(){
 	return;
 }
 
+uint8_t check_yaw(){
+	if (get_microseconds()- g_can_motors[YAW_MOTOR_ID-1].last_time[0] < 1000){
+		return 1;
+	} else {
+		return 0;
+	}
+}
+

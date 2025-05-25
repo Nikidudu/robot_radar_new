@@ -26,7 +26,7 @@ extern QueueHandle_t telem_motor_queue;
 extern chassis_control_t chassis_ctrl_data;
 extern int32_t chassis_rpm;
 static float rel_pitch_angle;
-uint8_t g_gimbal_state = 0;
+
 
 static float prev_pit;
 static float prev_yaw;
@@ -56,14 +56,6 @@ float calc_chassis_rot(motor_data_t *flmotor, motor_data_t *frmotor,
 	return g_chassis_rot;
 }
 
-uint8_t check_yaw(){
-	if (get_microseconds()- g_can_motors[YAW_MOTOR_ID-1].last_time[0] < 1000){
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
 /**
  *
  * FreeRTOS task for gimbal controls
@@ -73,11 +65,10 @@ uint8_t check_yaw(){
 void gimbal_control_task(void *argument) {
 	TickType_t start_time;
 	while (1) {
-//#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
-//		lk_read_motor_sang(&g_pitch_motor);
-//#endif
-	//	xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE,
-	//	portMAX_DELAY);
+#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
+		lk_read_motor_sang(&g_pitch_motor);
+#endif
+		xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE, portMAX_DELAY);
 		start_time = xTaskGetTickCount();
 
 		if (gimbal_ctrl_data.enabled) {
@@ -85,11 +76,6 @@ void gimbal_control_task(void *argument) {
 					&g_can_motors[FR_MOTOR_ID - 1],
 					&g_can_motors[BR_MOTOR_ID - 1],
 					&g_can_motors[BL_MOTOR_ID - 1]);
-#ifdef HALL_ZERO
-			if (check_yaw()){
-				g_gimbal_state = 1;
-			}
-#endif
 
 #ifdef SENTRY
 			yaw_control(g_can_motors + YAW_MOTOR_ID - 1);

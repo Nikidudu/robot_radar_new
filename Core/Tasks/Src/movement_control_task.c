@@ -25,7 +25,7 @@ extern uint32_t ref_power_data_txno;
 extern speed_shift_t gear_speed;
 float g_chassis_yaw = 0;
 int32_t chassis_rpm = MAX_SPEED;
-extern uint8_t g_gimbal_state;
+uint8_t g_gimbal_state = 0;
 extern uint8_t hall_state;
 extern int g_spinspin_mode;
 
@@ -38,36 +38,6 @@ float motor_yaw_mult[4];
 
 extern QueueHandle_t telem_motor_queue;
 extern int supercap_dash;
-
-#ifdef HALL_ZERO
-void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
-		motor_data_t *motorbl, motor_data_t *motorbr){
-	if (!zero_start && (g_remote_cmd.right_switch == ge_RSW_ALL_ON)) {
-		zeroing_start_time = HAL_GetTick();
-		zero_start = 1;
-	}
-	if (zero_start && (HAL_GetTick() - zeroing_start_time > HALL_TIMEOUT)){
-		hall_int();
-		g_can_motors[YAW_MOTOR_ID-1].angle_data.center_ang = 0;
-	}
-	float yaw_rpm[4];
-	yaw_rpm[0] = ZERO_SPEED * motor_yaw_mult[0];
-	yaw_rpm[1] = ZERO_SPEED * motor_yaw_mult[1];
-	yaw_rpm[2] = ZERO_SPEED * motor_yaw_mult[2];
-	yaw_rpm[3] = ZERO_SPEED * motor_yaw_mult[3];
-
-
-	speed_pid(yaw_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
-	speed_pid(yaw_rpm[1], motorfl->raw_data.rpm, &motorfl->rpm_pid);
-	speed_pid(yaw_rpm[2], motorbl->raw_data.rpm, &motorbl->rpm_pid);
-	speed_pid(yaw_rpm[3], motorbr->raw_data.rpm, &motorbr->rpm_pid);
-
-	motorfr->output = motorfr->rpm_pid.output;
-	motorfl->output = motorfl->rpm_pid.output;
-	motorbl->output = motorbl->rpm_pid.output;
-	motorbr->output = motorbr->rpm_pid.output;
-}
-#endif
 
 void movement_control_task(void *argument) {
 	TickType_t start_time;
@@ -94,6 +64,8 @@ void movement_control_task(void *argument) {
 			if (chassis_ctrl_data.enabled) {
 
 #ifdef HALL_ZERO
+			if (check_yaw()){ g_gimbal_state = 1; }
+
 			if (g_gimbal_state){
 				if (hall_state == HALL_ON){
 				yaw_zeroing(g_can_motors + FR_MOTOR_ID - 1,
@@ -101,7 +73,6 @@ void movement_control_task(void *argument) {
 						g_can_motors + BL_MOTOR_ID - 1,
 						g_can_motors + BR_MOTOR_ID - 1);
 				} else {
-
 #endif
 					chassis_motion_control(g_can_motors + FR_MOTOR_ID - 1,
 							g_can_motors + FL_MOTOR_ID - 1,
@@ -316,6 +287,34 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	speed_pid(translation_rpm[3], motorbr->raw_data.rpm, &motorbr->rpm_pid);
 	total_power += fabs(motorbr->rpm_pid.output);
 
+
+	motorfr->output = motorfr->rpm_pid.output;
+	motorfl->output = motorfl->rpm_pid.output;
+	motorbl->output = motorbl->rpm_pid.output;
+	motorbr->output = motorbr->rpm_pid.output;
+}
+
+void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
+		motor_data_t *motorbl, motor_data_t *motorbr){
+	if (!zero_start && (g_remote_cmd.right_switch == ge_RSW_ALL_ON)) {
+		zeroing_start_time = HAL_GetTick();
+		zero_start = 1;
+	}
+	if (zero_start && (HAL_GetTick() - zeroing_start_time > HALL_TIMEOUT)){
+		hall_int();
+		g_can_motors[YAW_MOTOR_ID-1].angle_data.center_ang = 0;
+	}
+	float yaw_rpm[4];
+	yaw_rpm[0] = ZERO_SPEED * motor_yaw_mult[0];
+	yaw_rpm[1] = ZERO_SPEED * motor_yaw_mult[1];
+	yaw_rpm[2] = ZERO_SPEED * motor_yaw_mult[2];
+	yaw_rpm[3] = ZERO_SPEED * motor_yaw_mult[3];
+
+
+	speed_pid(yaw_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
+	speed_pid(yaw_rpm[1], motorfl->raw_data.rpm, &motorfl->rpm_pid);
+	speed_pid(yaw_rpm[2], motorbl->raw_data.rpm, &motorbl->rpm_pid);
+	speed_pid(yaw_rpm[3], motorbr->raw_data.rpm, &motorbr->rpm_pid);
 
 	motorfr->output = motorfr->rpm_pid.output;
 	motorfl->output = motorfl->rpm_pid.output;

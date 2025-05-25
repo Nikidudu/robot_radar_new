@@ -7,7 +7,8 @@
 
 #ifndef BSP_INC_BSP_HALL_H_
 #define BSP_INC_BSP_HALL_H_
-void hall_int();
 
+void hall_int();
+uint8_t check_yaw();
 
 #endif /* BSP_INC_BSP_HALL_H_ */
