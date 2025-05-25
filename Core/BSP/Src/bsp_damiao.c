@@ -86,30 +86,6 @@ void dm4310_disable(CAN_HandleTypeDef* hcan, motor_t *motor)
     dm4310_clear_para(motor);
 }
 
-// TODO: Implement in RoCAN
-// Callback function to handle CAN receive interrupt
-//void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
-//{
-//    HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &dm_RxHeader, RxData);
-//    MF_fbdata(&MF_motor, &RxData[0]);
-////    fb_id = (RxData[0])&0x0F;
-////    switch(fb_id)
-////    	{
-////    		case 1:
-////    			dm4310_fbdata(&motor[Motor1],&RxData[0]);
-////    			break;
-////    		case 2:
-////    			dm4310_fbdata(&motor[Motor2],&RxData[0]);
-////    			break;
-////    		case 3:
-////    			dm4310_fbdata(&motor[Motor3],&RxData[0]);
-////    			break;
-////    		case 4:
-////    			dm4310_fbdata(&motor[Motor4],&RxData[0]);
-////    			break;
-////    	}
-//}
-
 /**
 ************************************************************************
 * @brief:      	dm4310_ctrl_send: Sends control commands to the DM4310
