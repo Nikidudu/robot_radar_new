@@ -7,8 +7,8 @@
 static CAN_TxHeaderTypeDef dm_TxHeader;
 static uint32_t dm_mailbox[3];
 
-extern motor_t dm_pitch_motor;
-extern motor_t dm_yaw_motor;
+extern dm_motor_t dm_pitch_motor;
+extern dm_motor_t dm_yaw_motor;
 
 void dm4310_motor_init(void)
 {
@@ -32,12 +32,12 @@ void dm4310_motor_init(void)
 /** ************************************************************************
  * @brief:       dm4310_enable: Enables the control mode of the DM4310 motor
  * @param[in]:   hcan:    Pointer to a CAN_HandleTypeDef structure
- * @param[in]:   motor:   Pointer to a motor_t structure, which contains configuration and control parameters for the motor
+ * @param[in]:   motor:   Pointer to a dm_motor_t structure, which contains configuration and control parameters for the motor
  * @retval:      void
  * @details:     Based on the motor's control mode, selects the appropriate mode and sends control commands via the CAN bus
  *               Supported control modes include position control, position-speed composite control, and speed control
  ************************************************************************ **/
-void dm4310_enable(CAN_HandleTypeDef* hcan, motor_t* motor)
+void dm4310_enable(CAN_HandleTypeDef* hcan, dm_motor_t* motor)
 {
     switch(motor->ctrl.mode)
     {
@@ -60,13 +60,13 @@ void dm4310_enable(CAN_HandleTypeDef* hcan, motor_t* motor)
 ************************************************************************
 * @brief:      	dm4310_disable: Disables the control mode of the DM4310 motor
 * @param[in]:   hcan:    Pointer to a CAN_HandleTypeDef structure
-* @param[in]:   motor:   Pointer to a motor_t structure, which contains configuration and control parameters for the motor
+* @param[in]:   motor:   Pointer to a dm_motor_t structure, which contains configuration and control parameters for the motor
 * @retval:     	void
 * @details:    	Based on the motor's control mode, selects the corresponding mode and sends a stop command via the CAN bus
 *               Supported control modes include position control, position-speed composite control, and speed control
 ************************************************************************
 **/
-void dm4310_disable(CAN_HandleTypeDef* hcan, motor_t *motor)
+void dm4310_disable(CAN_HandleTypeDef* hcan, dm_motor_t *motor)
 {
     switch(motor->ctrl.mode)
     {
@@ -90,13 +90,13 @@ void dm4310_disable(CAN_HandleTypeDef* hcan, motor_t *motor)
 ************************************************************************
 * @brief:      	dm4310_ctrl_send: Sends control commands to the DM4310
 * @param[in]:   hcan:    Pointer to a CAN_HandleTypeDef structure
-* @param[in]:   motor:   Pointer to a motor_t structure, containing motor configuration and control parameters
+* @param[in]:   motor:   Pointer to a dm_motor_t structure, containing motor configuration and control parameters
 * @retval:     	void
 * @details:    	Sends corresponding commands to the DM4310 based on the control mode
 *               Supported control modes include position control, position-speed composite control, and speed control
 ************************************************************************
 **/
-void dm4310_ctrl_send(CAN_HandleTypeDef* hcan, motor_t *motor)
+void dm4310_ctrl_send(CAN_HandleTypeDef* hcan, dm_motor_t *motor)
 {
     switch(motor->ctrl.mode)
     {
@@ -119,13 +119,13 @@ void dm4310_ctrl_send(CAN_HandleTypeDef* hcan, motor_t *motor)
 /**
 ************************************************************************
 * @brief:      	dm4310_set: Sets the target control parameters for DM4310
-* @param[in]:   motor:   Pointer to a motor_t structure, containing motor configuration and control parameters
+* @param[in]:   motor:   Pointer to a dm_motor_t structure, containing motor configuration and control parameters
 * @retval:     	void
 * @details:    	Sets the target control parameters for the DM4310, such as position, speed,
 *               proportional gain (KP), derivative gain (KD), and torque
 ************************************************************************
 **/
-void dm4310_set(motor_t *motor)
+void dm4310_set(dm_motor_t *motor)
 {
     motor->ctrl.kd_set  = motor->cmd.kd_set;
     motor->ctrl.kp_set  = motor->cmd.kp_set;
@@ -137,13 +137,13 @@ void dm4310_set(motor_t *motor)
 /**
 ************************************************************************
 * @brief:      	dm4310_clear: Clears the target control parameters for DM4310
-* @param[in]:   motor:   Pointer to a motor_t structure, containing motor configuration and control parameters
+* @param[in]:   motor:   Pointer to a dm_motor_t structure, containing motor configuration and control parameters
 * @retval:     	void
 * @details:    	Clears the target control parameters of the DM4310, including position, speed,
 *               proportional gain (KP), derivative gain (KD), and torque
 ************************************************************************
 **/
-void dm4310_clear_para(motor_t *motor)
+void dm4310_clear_para(dm_motor_t *motor)
 {
     motor->cmd.kd_set   = 0;
     motor->cmd.kp_set   = 0;
@@ -167,7 +167,7 @@ void dm4310_clear_para(motor_t *motor)
 * @details:    	Sends the appropriate error-clearing command based on the target control mode
 ************************************************************************
 **/
-void dm4310_clear_err(CAN_HandleTypeDef* hcan, motor_t *motor)
+void dm4310_clear_err(CAN_HandleTypeDef* hcan, dm_motor_t *motor)
 {
     switch(motor->ctrl.mode)
     {
@@ -186,14 +186,14 @@ void dm4310_clear_err(CAN_HandleTypeDef* hcan, motor_t *motor)
 /**
 ************************************************************************
 * @brief:      	dm4310_fbdata: Retrieves feedback data from DM4310
-* @param[in]:   motor:    Pointer to motor_t structure, containing motor info and feedback buffer
+* @param[in]:   motor:    Pointer to dm_motor_t structure, containing motor info and feedback buffer
 * @param[in]:   rx_data:  Pointer to the received data buffer
 * @retval:     	void
 * @details:    	Extracts feedback information from received data, including motor ID,
 *               status, position, speed, torque, and temperature
 ************************************************************************
 **/
-void dm4310_fbdata(motor_t *motor, uint8_t *rx_data)
+void dm4310_fbdata(dm_motor_t *motor, uint8_t *rx_data)
 {
     motor->para.id = (rx_data[0])&0x0F;
     motor->para.state = (rx_data[0])>>4;

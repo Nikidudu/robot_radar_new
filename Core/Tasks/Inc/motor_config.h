@@ -27,6 +27,11 @@ void motor_calib_task(void* argument);
 #define LK_MG5010E_MAX_RPM 	3200
 #define DM_4340_MAX_SPEED_RADS 5.44f
 
+#define DM8009_MAX_RPM		168
+#define DM8009_MAX_TORQUE	40
+#define DM4310_MAX_RPM		200
+#define DM4310_MAX_TORQUE	7
+
 #define	TYPE_GM6020 		1
 #define	TYPE_M2006 			2
 #define	TYPE_M3508 			3
@@ -39,8 +44,8 @@ void motor_calib_task(void* argument);
 #define	TYPE_LK_MG5010E_SPD		10
 #define	TYPE_LK_MG5010E_ANG		11
 #define	TYPE_LK_MG5010E_MULTI_ANG		12
-#define TYPE_DM8009         13
-#define TYPE_DM4310			14
+#define TYPE_DM8009_MIT         13
+#define TYPE_DM4310_MIT			14
 
 
 void motor_calib_task(void *argument);

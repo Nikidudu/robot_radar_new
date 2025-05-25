@@ -46,11 +46,9 @@ motor_data_t yaw_motor;
 
 
 void motor_calib_task(void *argument) {
-//	can_start(&hcan1, 0x00000000, 0x00000000);
-//	can_start(&hcan2, 0x00000000, 0x00000000);
 	vTaskDelay(1000);
 	config_motors();
-//	dm4310_motor_init(); //form dm4310_drv library
+
 	//check motors
 	//start motor control tasks after initialisation of motors
 	//shift function to master task.c probably
@@ -234,10 +232,9 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.min_raw_ticks = -4096;
 		motor->angle_data.raw_ticks_range = motor->angle_data.max_raw_ticks - motor->angle_data.min_raw_ticks;
 		motor->angle_data.ang_range = motor->angle_data.max_ang - motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+		map_dji_motor(motor->id, motor);
 		break;
+
 	case TYPE_M3508_NGEARBOX:
 		motor->angle_data.gearbox_ratio = 1;
 		motor->angle_pid.physical_max = M3508_MAX_RPM;
@@ -254,9 +251,8 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.max_ang = PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+
+		map_dji_motor(motor->id, motor);
 		break;
 
 	case TYPE_GM6020:
@@ -275,9 +271,8 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.min_ang = -PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+
+		map_dji_motor(motor->id, motor);
 		break;
 
 	case TYPE_GM6020_720:
@@ -296,10 +291,10 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.max_ang = 2 * PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+
+		map_dji_motor(motor->id, motor);
 		break;
+
 	case TYPE_M2006:
 	case TYPE_M2006_STEPS:
 	case TYPE_M2006_ANGLE:
@@ -318,10 +313,10 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.max_ang = PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+
+		map_dji_motor(motor->id, motor);
 		break;
+
 	case TYPE_LK_MG5010E_SPD:
 	case TYPE_LK_MG5010E_ANG:
 	case TYPE_LK_MG5010E_MULTI_ANG:
@@ -341,10 +336,11 @@ void set_motor_config(motor_data_t *motor) {
 		map_lk_motor(motor->id, motor);
 		lk_set_pid(motor, 500000);
 		break;
-	case TYPE_DM8009:
-		motor->angle_data.gearbox_ratio = 1;
-		motor->angle_pid.physical_max = 45.0; // Example value, adjust as needed
-		motor->rpm_pid.physical_max = 18.0; // Example value, adjust as needed
+
+	case TYPE_DM8009_MIT:
+		motor->angle_data.gearbox_ratio = 9;
+		motor->angle_pid.physical_max = 45.0;
+		motor->rpm_pid.physical_max = 18.0;
 		motor->angle_data.min_ticks = -4096;
 		motor->angle_data.max_ticks = 4096;
 		motor->angle_data.tick_range = motor->angle_data.max_ticks - motor->angle_data.min_ticks;
@@ -357,14 +353,10 @@ void set_motor_config(motor_data_t *motor) {
 		map_dm_motor(motor->id, motor);
 		break;
 
-	case TYPE_DM4310:
-
 	default:
 		break;
 	}
-
 	motor->angle_data.init = 0;
-
 }
 
 extern motor_data_t g_can_motors[24];
@@ -527,8 +519,7 @@ void config_motors() {
 	g_can_motors[motor_id].id = motor_id+1;
 #ifdef ANGLE_FEEDER
 	g_can_motors[motor_id].motor_type = TYPE_M3508_ANGLE;
-#endif
-#ifndef ANGLE_FEEDER
+#else
 	g_can_motors[motor_id].motor_type = TYPE_M2006;
 #endif
 	g_can_motors[motor_id].can = FEEDER_MOTOR_CAN_PTR;

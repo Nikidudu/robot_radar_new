@@ -13,8 +13,8 @@
 extern motor_data_t g_can_motors[24];
 extern motor_data_t g_pitch_motor;
 
-extern motor_t dm_pitch_motor;
-extern motor_t dm_yaw_motor;
+extern dm_motor_t dm_pitch_motor;
+extern dm_motor_t dm_yaw_motor;
 
 extern INS_t INS;
 extern orientation_data_t imu_heading;

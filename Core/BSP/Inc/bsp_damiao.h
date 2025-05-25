@@ -33,7 +33,7 @@ typedef struct {
     float pos_set;
     float vel_set;
     float tor_set;
-} motor_cmd_t;
+} dm_motor_cmd_t;
 
 // Motor Control Structure
 typedef struct {
@@ -43,7 +43,7 @@ typedef struct {
     float pos_set;
     float vel_set;
     float tor_set;
-} motor_ctrl_t;
+} dm_motor_ctrl_t;
 
 // Motor Parameter Structure
 typedef struct {
@@ -60,25 +60,25 @@ typedef struct {
     float Tmos;         // MOSFET temperature
     float Tcoil;        // Coil temperature
     uint16_t disconnect_time; // Time since last feedback in ms
-} motor_para_t;
+} dm_motor_para_t;
 
 // Motor Structure
 typedef struct {
     uint16_t id;           // Motor ID for commands
-    motor_cmd_t cmd;       // Command data
-    motor_ctrl_t ctrl;     // Control data
-    motor_para_t para;     // Parameter data (feedback)
-} motor_t;
+    dm_motor_cmd_t cmd;       // Command data
+    dm_motor_ctrl_t ctrl;     // Control data
+    dm_motor_para_t para;     // Parameter data (feedback)
+} dm_motor_t;
 
 // Function prototypes
 void dm4310_motor_init(void);
-void dm4310_enable(CAN_HandleTypeDef* hcan, motor_t* motor);
-void dm4310_disable(CAN_HandleTypeDef* hcan, motor_t* motor);
-void dm4310_ctrl_send(CAN_HandleTypeDef* hcan, motor_t* motor);
-void dm4310_set(motor_t* motor);
-void dm4310_clear_para(motor_t* motor);
-void dm4310_clear_err(CAN_HandleTypeDef* hcan, motor_t* motor);
-void dm4310_fbdata(motor_t* motor, uint8_t* rx_data);
+void dm4310_enable(CAN_HandleTypeDef* hcan, dm_motor_t* motor);
+void dm4310_disable(CAN_HandleTypeDef* hcan, dm_motor_t* motor);
+void dm4310_ctrl_send(CAN_HandleTypeDef* hcan, dm_motor_t* motor);
+void dm4310_set(dm_motor_t* motor);
+void dm4310_clear_para(dm_motor_t* motor);
+void dm4310_clear_err(CAN_HandleTypeDef* hcan, dm_motor_t* motor);
+void dm4310_fbdata(dm_motor_t* motor, uint8_t* rx_data);
 
 // Low-level control functions
 void enable_motor_mode(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id);

@@ -12,6 +12,9 @@
 #include "can_msg_processor.h"
 #include "gimbal_control_task.h"
 #include "bsp_lk_motor.h"
+#include "INS_task.h"
+#include "bsp_damiao.h"
+
 extern uint8_t control_mode;
 
 extern uint8_t aimbot_mode;

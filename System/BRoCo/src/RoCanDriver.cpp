@@ -30,8 +30,8 @@ extern EventGroupHandle_t launcher_event_group;
 #define SPEED_LPF 0
 extern motor_data_t g_can_motors[24];
 //extern motor_t motor[num];
-extern motor_t dm_pitch_motor;
-extern motor_t dm_yaw_motor;
+extern dm_motor_t dm_pitch_motor;
+extern dm_motor_t dm_yaw_motor;
 extern motor_map_t lk_motor_map[65];
 extern motor_map_t dji_motor_map[25];
 

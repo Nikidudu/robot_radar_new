@@ -49,8 +49,8 @@ float shortest_angular_difference(float current, float target);
 float dm_yaw_encoder_mod(float raw_angle);
 
 // Motor data mapping functions
-void dmmapyawfbdata(motor_t *yaw_motor);
-void dmmappitchfbdata(motor_t *pitch_motor);
+void dmmapyawfbdata(dm_motor_t *yaw_motor);
+void dmmappitchfbdata(dm_motor_t *pitch_motor);
 
 #ifdef __cplusplus
 }

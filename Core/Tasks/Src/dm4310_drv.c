@@ -9,8 +9,8 @@
 #include "INS_task.h"
 #include "bsp_damiao.h"
 
-motor_t dm_pitch_motor;
-motor_t dm_yaw_motor;
+dm_motor_t dm_pitch_motor;
+dm_motor_t dm_yaw_motor;
 float dm_yaw_set_vel;
 float dm_set_tor[2];
 
@@ -238,11 +238,11 @@ float dm_yaw_encoder_mod(float raw_angle) {
     return mapped_angle - P_MAX/P_ROUNDS;
 }
 
-void dmmapyawfbdata(motor_t *yaw_motor) {
+void dmmapyawfbdata(dm_motor_t *yaw_motor) {
     g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = dm_yaw_encoder_mod(yaw_motor->para.pos);
     g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque = yaw_motor->para.tor;
 }
 
-void dmmappitchfbdata(motor_t *pitch_motor) {
+void dmmappitchfbdata(dm_motor_t *pitch_motor) {
     g_pitch_motor.angle_data.adj_ang = pitch_motor->para.pos;
 }
