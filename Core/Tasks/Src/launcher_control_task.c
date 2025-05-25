@@ -86,7 +86,7 @@ void launcher_control_task(void *argument) {
 					g_can_motors + BFRICTION_MOTOR_ID - 1,
 					g_can_motors + GFRICTION_MOTOR_ID - 1,
 					g_can_motors + FEEDER_MOTOR_ID - 1);
-#elif ANGLE_FEEDER
+#elif defined(ANGLE_FEEDER)
 			launcher_angle_control(g_can_motors + LFRICTION_MOTOR_ID - 1,
 					g_can_motors + RFRICTION_MOTOR_ID - 1,
 					g_can_motors + FEEDER_MOTOR_ID - 1);
