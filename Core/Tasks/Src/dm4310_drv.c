@@ -9,8 +9,8 @@
 #include "INS_task.h"
 #include "bsp_damiao.h"
 
-dm_motor_t dm_pitch_motor;
-dm_motor_t dm_yaw_motor;
+extern dm_motor_t dm_pitch_motor;
+extern dm_motor_t dm_yaw_motor;
 float dm_yaw_set_vel;
 float dm_set_tor[2];
 
@@ -29,8 +29,8 @@ extern uint8_t g_safety_toggle;
 // PID controllers
 CascadePID gimbal_cpid_pit;
 CascadePID gimbal_cpid_yaw;
-PID gimbal_pid_yaw;
-PID gimbal_pid_pitch;
+extern PID gimbal_pid_yaw;
+extern PID gimbal_pid_pitch;
 
 // Debug variables
 float yaw_error = 0;
@@ -50,13 +50,13 @@ void dm_motor_control_task(void *argument) {
     dm_set_tor[0] = 0.0f;
     dm_set_tor[1] = 0.0f;
 
-    dm4310_motor_init();
-    vTaskDelay(101);
-
-    PID_Init(&gimbal_cpid_yaw.inner, 0.3, 0, 0.1, 0, 7);
-    PID_Init(&gimbal_cpid_yaw.outer, 25, 0, 0.1, 0, 10);
-    PID_Init(&gimbal_pid_yaw, 5, 0, 0, 0, 45);
-    PID_Init(&gimbal_pid_pitch, 2.0, 0.0, 100.0, 0, 5);
+//    dm4310_motor_init();
+//    vTaskDelay(101);
+//
+//    PID_Init(&gimbal_cpid_yaw.inner, 0.3, 0, 0.1, 0, 7);
+//    PID_Init(&gimbal_cpid_yaw.outer, 25, 0, 0.1, 0, 10);
+//    PID_Init(&gimbal_pid_yaw, 5, 0, 0, 0, 45);
+//    PID_Init(&gimbal_pid_pitch, 2.0, 0.0, 100.0, 0, 5);
 
     float dt = 0.003;
     TickType_t lastTick = xTaskGetTickCount();

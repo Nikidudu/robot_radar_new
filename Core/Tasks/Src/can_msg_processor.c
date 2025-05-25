@@ -43,7 +43,6 @@ void map_dji_motor(uint16_t motor_id, motor_data_t* motor_data){
 	}
 }
 
-//TO CHECK
 void map_dm_motor(uint16_t motor_id, motor_data_t* motor_data){
 	if (motor_id > 0x200 && motor_id <= 0x20E){
 		dm_motor_map[motor_id-0x200].motor_id = motor_id;

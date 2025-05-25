@@ -233,6 +233,10 @@
  * the motors
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
+#define PITCH_MOTOR_TYPE		TYPE_DM4310_MIT
+
+#ifndef PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+
 #define PITCH_ANGLE_KP	  		20//200
 #define PITCH_ANGLE_KI  		0
 #define PITCH_ANGLE_KD  		1
@@ -246,20 +250,30 @@
 #define PITCHRPM_INT_MAX		1000
 #define PITCH_MAX_CURRENT		5000
 
-#define PITCH_MOTOR_TYPE		TYPE_DM4310
-#define PITCH_CENTER			0//2071//3590
-#define PITCH_MAX_ANG			0.394//-0.380
-#define PITCH_MIN_ANG			-0.281//0.256
+#else
+
+#define DM_PITCH_MIT_KP			2
+#define DM_PITCH_MIT_KI			0
+#define DM_PITCH_MIT_KD			100
+#define DM_PITCH_MIT_INT_MAX	0
+#define DM_PITCH_MIT_MAX_OUT	5
+
+#endif
+
+#define PITCH_CENTER			0
+#define PITCH_MAX_ANG			0.13
+#define PITCH_MIN_ANG			-0.70
 #define PITCH_CONST 			0
 
 
-#define YAW_MOTOR_TYPE			TYPE_DM4310
-#define YAW_ANGLE_KP			1//200
+#define YAW_MOTOR_TYPE			TYPE_DM4310_MIT
+
+#ifndef YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+#define YAW_ANGLE_KP			1
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			1
 #define YAW_ANGLE_INT_MAX		0.05
 #define YAW_MAX_RPM				85
-#define YAW_SPINSPIN_CONSTANT	6
 
 #define YAWRPM_KP				2//600//400
 #define YAWRPM_KI				0
@@ -267,7 +281,18 @@
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
-#define YAW_CENTER 				0//2790//7870//
+#else
+
+#define DM_YAW_MIT_KP			5
+#define DM_YAW_MIT_KI			0
+#define DM_YAW_MIT_KD			0
+#define DM_YAW_MIT_INT_MAX		0
+#define DM_YAW_MIT_MAX_OUT		45
+
+#endif
+
+#define YAW_SPINSPIN_CONSTANT	6
+#define YAW_CENTER 				0
 #define YAW_MAX_ANG				4*PI
 #define YAW_MIN_ANG				4*-PI
 
@@ -285,6 +310,7 @@
 #define BR_MOTOR_ID 		14
 #define BR_MOTOR_CAN_PTR	&hcan2
 #endif
+
 #define FEEDER_MOTOR_ID		4
 #define FEEDER_MOTOR_CAN_PTR	&hcan1
 #define LFRICTION_MOTOR_ID	2
@@ -294,10 +320,10 @@
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
-#define PITCH_MOTOR_ID 		8
+#define PITCH_MOTOR_ID 		0x81
 #define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
-#define YAW_MOTOR_ID 		20
+#define YAW_MOTOR_ID 		0x61
 #define YAW_MOTOR_CAN_PTR	&hcan2
 #endif
 

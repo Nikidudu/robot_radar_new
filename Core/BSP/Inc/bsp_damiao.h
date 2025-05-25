@@ -26,6 +26,22 @@
 #define KD_MAX    5.0f
 #define P_ROUNDS  4.0f  // Number of rotation rounds
 
+// Type definitions for PID control
+typedef struct _PID {
+    float kp, ki, kd;
+    float error, lastError;
+    float integral, maxIntegral;
+    float output, maxOutput;
+    float deadzone;
+    float errLpfRatio;
+} PID;
+
+typedef struct _CascadePID {
+    PID inner;
+    PID outer;
+    float output;
+} CascadePID;
+
 // Motor Command Structure
 typedef struct {
     float kp_set;
@@ -64,10 +80,11 @@ typedef struct {
 
 // Motor Structure
 typedef struct {
-    uint16_t id;           // Motor ID for commands
-    dm_motor_cmd_t cmd;       // Command data
-    dm_motor_ctrl_t ctrl;     // Control data
-    dm_motor_para_t para;     // Parameter data (feedback)
+    uint16_t id;           		// Motor ID for commands
+    uint8_t motor_type;			// Store motor type
+    dm_motor_cmd_t cmd;       	// Command data
+    dm_motor_ctrl_t ctrl;     	// Control data
+    dm_motor_para_t para;     	// Parameter data (feedback)
 } dm_motor_t;
 
 // Function prototypes

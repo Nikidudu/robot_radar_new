@@ -47,18 +47,6 @@ static pid_data_t g_yaw_ff_pid = {
 static float g_chassis_rot;
 float curr_rot;
 
-
-float calc_chassis_rot(motor_data_t *flmotor, motor_data_t *frmotor,
-		motor_data_t *brmotor, motor_data_t *blmotor) {
-//	curr_rot = (float)flmotor->raw_data.rpm;
-//	curr_rot += frmotor->raw_data.rpm;
-//			curr_rot -= brmotor->raw_data.rpm;
-//			curr_rot += blmotor->raw_data.rpm;
-	curr_rot = chassis_rpm * chassis_ctrl_data.yaw;
-	g_chassis_rot = (curr_rot * WHEEL_RADIUS )/ (CHASSIS_RADIUS * M3508_GEARBOX_RATIO * 4);
-	return g_chassis_rot;
-}
-
 /**
  *
  * FreeRTOS task for gimbal controls
@@ -68,18 +56,15 @@ float calc_chassis_rot(motor_data_t *flmotor, motor_data_t *frmotor,
 void gimbal_control_task(void *argument) {
 	TickType_t start_time;
 	while (1) {
-#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
+#if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
 		lk_read_motor_sang(&g_pitch_motor);
 #endif
 		xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE, portMAX_DELAY);
 		start_time = xTaskGetTickCount();
 
 		if (gimbal_ctrl_data.enabled) {
-			calc_chassis_rot(&g_can_motors[FL_MOTOR_ID - 1],
-					&g_can_motors[FR_MOTOR_ID - 1],
-					&g_can_motors[BR_MOTOR_ID - 1],
-					&g_can_motors[BL_MOTOR_ID - 1]);
-
 #ifdef SENTRY
 			yaw_control(g_can_motors + YAW_MOTOR_ID - 1);
 #else

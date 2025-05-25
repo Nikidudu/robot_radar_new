@@ -19,22 +19,6 @@ void dm_motor_control_task(void *argument);
 #define ABS(x) ((x)>=0?(x):-(x))
 #endif
 
-// Type definitions for PID control
-typedef struct _PID {
-    float kp, ki, kd;
-    float error, lastError;
-    float integral, maxIntegral;
-    float output, maxOutput;
-    float deadzone;
-    float errLpfRatio;
-} PID;
-
-typedef struct _CascadePID {
-    PID inner;
-    PID outer;
-    float output;
-} CascadePID;
-
 // PID control functions
 void PID_Init(PID *pid, float p, float i, float d, float maxSum, float maxOut);
 void PID_SingleCalc(PID *pid, float reference, float feedback);

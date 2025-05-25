@@ -294,6 +294,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	motorbr->output = motorbr->rpm_pid.output;
 }
 
+#ifdef HALL_ZERO
 void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
 		motor_data_t *motorbl, motor_data_t *motorbr){
 	if (!zero_start && (g_remote_cmd.right_switch == ge_RSW_ALL_ON)) {
@@ -321,4 +322,5 @@ void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
 	motorbl->output = motorbl->rpm_pid.output;
 	motorbr->output = motorbr->rpm_pid.output;
 }
+#endif
 
