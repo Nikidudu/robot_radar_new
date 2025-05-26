@@ -61,9 +61,9 @@ void dm_motor_control_task(void *argument) {
     float dt = 0.003;
     TickType_t lastTick = xTaskGetTickCount();
     float prev_yaw = imu_heading.yaw;
-    ex_pos = dm_yaw_motor.para.pos;
 
     while (1) {
+
         xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore, portMAX_DELAY);
 
         if(gimbal_ctrl_data.enabled == 1) {
@@ -84,8 +84,6 @@ void dm_motor_control_task(void *argument) {
             PID_SingleCalc(&gimbal_pid_pitch, target_rad, INS.Pitch);
 
 		    float turn_ang = imu_heading.yaw - prev_yaw;
-//			float raw_pos = dm_yaw_motor.para.pos;
-//			float turn_ang = raw_pos - prev_yaw;
 
 		    while (turn_ang > PI) { turn_ang -= 2 * PI; }
 		    while (turn_ang < -PI) { turn_ang += 2 * PI; }
@@ -234,12 +232,19 @@ float shortest_angular_difference(float current, float target) {
 }
 
 float dm_yaw_encoder_mod(float raw_angle) {
-    float mapped_angle = fmod(P_MAX + raw_angle, 2*P_MAX/P_ROUNDS);
-    return mapped_angle - P_MAX/P_ROUNDS;
+//    float mapped_angle = fmod(P_MAX + raw_angle, 2*P_MAX/P_ROUNDS);
+//    return mapped_angle - P_MAX/P_ROUNDS;
+
+    while (raw_angle > PI) { raw_angle -= 2 * PI; }
+    while (raw_angle < -PI) { raw_angle += 2 * PI; }
+    return raw_angle;
 }
 
 void dmmapyawfbdata(motor_t *yaw_motor) {
-    g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = dm_yaw_encoder_mod(yaw_motor->para.pos);
+	float temp = dm_yaw_encoder_mod(yaw_motor->para.pos);
+	// maps from 0 to 8192 to 0 to 2PI
+	float mapped_value = temp / 8192 * (2 * PI);
+    g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = mapped_value - g_can_motors[YAW_MOTOR_ID - 1].angle_data.center_ang;
     g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque = yaw_motor->para.tor;
 }
 

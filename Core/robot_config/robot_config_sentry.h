@@ -267,7 +267,7 @@
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
-#define YAW_CENTER 				0//2790//7870//
+#define YAW_CENTER 				1200//2790//7870//
 #define YAW_MAX_ANG				4*PI
 #define YAW_MIN_ANG				4*-PI
 
