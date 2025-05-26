@@ -81,14 +81,14 @@ void motor_calib_task(void *argument) {
 				&launcher_control_task_handle);
 	}
 
-//	if (gimbal_event_group == NULL) {
-//		//error handler implement next time!
-//	} else {
-//		xTaskCreate(gimbal_control_task, "gimbal_task",
-//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
-//				&gimbal_control_task_handle);
-//
-//	}
+	if (gimbal_event_group == NULL) {
+		//error handler implement next time!
+	} else {
+		xTaskCreate(gimbal_control_task, "gimbal_task",
+		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
+				&gimbal_control_task_handle);
+
+	}
 
 	//insert can tester?
 	uint16_t error = 0b111111111;
@@ -342,22 +342,6 @@ void set_motor_config(motor_data_t *motor) {
 		lk_set_pid(motor, 500000);
 		break;
 
-//	case TYPE_DM8009_MIT:
-//		motor->angle_data.gearbox_ratio = 9;
-//		motor->angle_pid.physical_max = 45.0;
-//		motor->rpm_pid.physical_max = 18.0;
-//		motor->angle_data.min_ticks = -4096;
-//		motor->angle_data.max_ticks = 4096;
-//		motor->angle_data.tick_range = motor->angle_data.max_ticks - motor->angle_data.min_ticks;
-//		motor->angle_data.max_raw_ticks = 4096;
-//		motor->angle_data.min_raw_ticks = -4096;
-//		motor->angle_data.raw_ticks_range = motor->angle_data.max_raw_ticks - motor->angle_data.min_raw_ticks;
-//		motor->angle_data.min_ang = -PI;
-//		motor->angle_data.max_ang = PI;
-//		motor->angle_data.ang_range = motor->angle_data.max_ang - motor->angle_data.min_ang;
-//		map_dm_motor(motor->id, motor);
-//		break;
-
 	default:
 		break;
 	}
@@ -588,7 +572,7 @@ void config_motors() {
 	set_motor_config(&g_pitch_motor);
 #endif
 
-#ifdef defined(YAW_MOTOR_ID) && YAW_MOTOR_TYPE != TYPE_DM4310_MIT
+#if defined(YAW_MOTOR_ID) && (YAW_MOTOR_TYPE != TYPE_DM4310_MIT)
 	motor_id = YAW_MOTOR_ID - 1;
 	g_can_motors[motor_id].id = YAW_MOTOR_ID;
 	g_can_motors[motor_id].can = YAW_MOTOR_CAN_PTR;
