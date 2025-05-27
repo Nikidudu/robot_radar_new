@@ -12,8 +12,8 @@
 //#include "robot_config_CF.h"
 //#include "robot_config_DS4.h"
 //#include "robot_config_roburt.h"
-#include "robot_config_kirby.h"
-//#include "robot_config_kirbee.h"
+//#include "robot_config_kirby.h"
+#include "robot_config_kirbee.h"
 
 //#include "robot_config_sentry.h"
 

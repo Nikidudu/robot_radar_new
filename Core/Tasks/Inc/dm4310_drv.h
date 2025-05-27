@@ -22,7 +22,7 @@ void dm_motor_control_task(void *argument);
 // PID control functions
 void PID_Init(PID *pid, float p, float i, float d, float maxSum, float maxOut);
 void PID_SingleCalc(PID *pid, float reference, float feedback);
-void PID_CascadeCalc(CascadePID *pid, float angleRef, float angleFdb, float speedFdb);
+//void PID_CascadeCalc(CascadePID *pid, float angleRef, float angleFdb, float speedFdb);
 void PID_Clear(PID *pid);
 void PID_SetMaxOutput(PID *pid, float maxOut);
 void PID_SetDeadzone(PID *pid, float deadzone);

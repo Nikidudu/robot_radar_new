@@ -27,8 +27,8 @@ uint8_t joint_motor_online = 0;
 extern uint8_t g_safety_toggle;
 
 // PID controllers
-extern CascadePID gimbal_cpid_pit;
-extern CascadePID gimbal_cpid_yaw;
+//extern CascadePID gimbal_cpid_pit;
+//extern CascadePID gimbal_cpid_yaw;
 extern PID gimbal_pid_yaw;
 extern PID gimbal_pid_pitch;
 
@@ -194,12 +194,12 @@ void PID_SingleCalc(PID *pid, float reference, float feedback)
     LIMIT(pid->output, -pid->maxOutput, pid->maxOutput);
 }
 
-void PID_CascadeCalc(CascadePID *pid, float angleRef, float angleFdb, float speedFdb)
-{
-    PID_SingleCalc(&pid->outer, angleRef, angleFdb);
-    PID_SingleCalc(&pid->inner, pid->outer.output, speedFdb);
-    pid->output = pid->inner.output;
-}
+//void PID_CascadeCalc(CascadePID *pid, float angleRef, float angleFdb, float speedFdb)
+//{
+//    PID_SingleCalc(&pid->outer, angleRef, angleFdb);
+//    PID_SingleCalc(&pid->inner, pid->outer.output, speedFdb);
+//    pid->output = pid->inner.output;
+//}
 
 void PID_Clear(PID *pid)
 {

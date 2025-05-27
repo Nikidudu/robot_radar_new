@@ -235,7 +235,7 @@
 /*********************** GIMBAL CONFIGURATION ***********************/
 #define PITCH_MOTOR_TYPE		TYPE_DM4310_MIT
 
-#ifndef PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+#if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 
 #define PITCH_ANGLE_KP	  		20//200
 #define PITCH_ANGLE_KI  		0
@@ -269,7 +269,7 @@
 
 #define YAW_MOTOR_TYPE			TYPE_DM4310_MIT
 
-#ifndef YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+#if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #define YAW_ANGLE_KP			1
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			1

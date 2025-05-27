@@ -124,6 +124,43 @@ uint8_t limit_pitch(float *rel_pitch_angle, motor_data_t *pitch_motor) {
 }
 
 void calculate_direct_pitch(motor_data_t *pitch_motor) {
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+
+	PID_SingleCalc(&gimbal_pid, gimbal_ctrl_data.pitch, imu_heading.pit);
+	if (gimbal_ctrl_data.enabled == 1){
+		dm_set_tor[0] = gimbal_pid.output + 1.7f;
+	}else{
+		dm_set_tor[0] = 0.0f;
+	}
+
+	motor[Motor1].ctrl.tor_set = dm_set_tor[0];
+
+	motor[Motor1].para.heartbeat = 0;
+	dm4310_ctrl_send(&hcan1, &motor[Motor1]);
+
+//	if ((motor[Motor1].para.heartbeat == 0 || motor[Motor1].para.state != 9) && motor[Motor1].para.disconnect_time > 100) {
+//		motor[Motor1].para.disconnect_time = 0;
+//		motor[Motor1].para.online = 0;
+//	} else if ((motor[Motor1].para.heartbeat == 0 || motor[Motor1].para.state != 9)) {
+//		motor[Motor1].para.disconnect_time++;
+//	} else {
+//		motor[Motor1].para.disconnect_time = 0;
+//		motor[Motor1].para.online = 1;
+//	}
+//	if (motor[Motor1].para.online == 1) {
+//		joint_motor_online = 1;
+//	} else {
+//		joint_motor_online = 0;
+//		HAL_CAN_Stop(&hcan1);
+//		osDelay(10);  // Wait for motor power stabilization
+//		HAL_CAN_Start(&hcan1);
+//		osDelay(10);
+//		dm4310_enable(&hcan1, &motor[Motor1]);
+//		vTaskDelay(1);
+//	}
+
+#else
+
 	uint8_t pit_lim = 0;
 	float rel_pitch_angle = pitch_motor->angle_data.adj_ang
 				+ gimbal_ctrl_data.pitch - imu_heading.pit;
@@ -143,6 +180,8 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 						(temp_pit_output > 20000) ? 20000 : temp_pit_output;
 
 	pitch_motor->output = temp_pit_output;
+#endif
+
 }
 
 // Pitch calculation for robots with 4 arm linkage
