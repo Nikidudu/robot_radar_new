@@ -36,11 +36,11 @@ typedef struct _PID {
     float errLpfRatio;
 } PID;
 
-typedef struct _CascadePID {
-    PID inner;
-    PID outer;
-    float output;
-} CascadePID;
+//typedef struct _CascadePID {
+//    PID inner;
+//    PID outer;
+//    float output;
+//} CascadePID;
 
 // Motor Command Structure
 typedef struct {

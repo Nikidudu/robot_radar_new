@@ -27,8 +27,8 @@ uint8_t joint_motor_online = 0;
 extern uint8_t g_safety_toggle;
 
 // PID controllers
-CascadePID gimbal_cpid_pit;
-CascadePID gimbal_cpid_yaw;
+extern CascadePID gimbal_cpid_pit;
+extern CascadePID gimbal_cpid_yaw;
 extern PID gimbal_pid_yaw;
 extern PID gimbal_pid_pitch;
 
