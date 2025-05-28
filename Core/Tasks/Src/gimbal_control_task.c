@@ -250,44 +250,44 @@ void yaw_control(motor_data_t *yaw_motor) {
 
 	 PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
 
-	            // TODO: use another logic for error checking (link to beeping sounds)
-	            if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
-	                dm_pitch_motor.para.disconnect_time = 0;
-	                dm_pitch_motor.para.online = 0;
-	            } else {
-	                dm_pitch_motor.para.disconnect_time = 0;
-	                dm_pitch_motor.para.online = 1;
-	            }
+//	// TODO: use another logic for error checking (link to beeping sounds)
+//	if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
+//		dm_pitch_motor.para.disconnect_time = 0;
+//		dm_pitch_motor.para.online = 0;
+//	} else {
+//		dm_pitch_motor.para.disconnect_time = 0;
+//		dm_pitch_motor.para.online = 1;
+//	}
+//
+//	if (dm_pitch_motor.para.online == 1) {
+//		joint_motor_online = 1;
+//	} else {
+//		joint_motor_online = 0;
+//	}
+//
+//	if (dm_yaw_motor.para.state != 9 && dm_yaw_motor.para.disconnect_time > 100) {
+//		dm_yaw_motor.para.disconnect_time = 0;
+//		dm_yaw_motor.para.online = 0;
+//	} else {
+//		dm_yaw_motor.para.disconnect_time = 0;
+//		dm_yaw_motor.para.online = 1;
+//	}
+//
+//	if (dm_yaw_motor.para.online == 1) {
+//		joint_motor_online = 1;
+//	} else {
+//		joint_motor_online = 0;
+//	}
 
-	            if (dm_pitch_motor.para.online == 1) {
-	                joint_motor_online = 1;
-	            } else {
-	                joint_motor_online = 0;
-	            }
-
-	            if (dm_yaw_motor.para.state != 9 && dm_yaw_motor.para.disconnect_time > 100) {
-	                dm_yaw_motor.para.disconnect_time = 0;
-	                dm_yaw_motor.para.online = 0;
-	            } else {
-	                dm_yaw_motor.para.disconnect_time = 0;
-	                dm_yaw_motor.para.online = 1;
-	            }
-
-	            if (dm_yaw_motor.para.online == 1) {
-	                joint_motor_online = 1;
-	            } else {
-	                joint_motor_online = 0;
-	            }
-
-	            // Disable pitch if kill switch is on
-	            if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
-	                dm_set_tor[0] = 0;
-	                dm_set_tor[1] = 0;
-	                dm_yaw_set_vel = 0;
-	                dm_set_tor[1] = 0;
-	            } else {
-	                dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
-	                dm_set_tor[0] *= 1.1;
+	// Disable pitch if kill switch is on
+	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+		dm_set_tor[0] = 0;
+		dm_set_tor[1] = 0;
+		dm_yaw_set_vel = 0;
+		dm_set_tor[1] = 0;
+	} else {
+		dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
+		dm_set_tor[0] *= 1.1;
 
 
 #else
