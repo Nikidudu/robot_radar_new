@@ -37,12 +37,12 @@ void Telemetry::setup() {
 
 		// CANFD network initialization
 		CAN1_driver = new ROCANDriver(&hcan1, DEVC_NODE_ID);
-		CAN1_network = new CANBus(CAN1_driver);
+//		CAN1_network = new CANBus(CAN1_driver);
 
 //		CAN2_driver = new ROCANDriver(&hcan2, CURRENT_NODE_ID);
 //		CAN2_network = new CANBus(CAN2_driver);
 //		dummy = new dummyThread();
-		supercap_thread = new SuperCapCommThread();
+//		supercap_thread = new SuperCapCommThread();
 
 
 //		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
