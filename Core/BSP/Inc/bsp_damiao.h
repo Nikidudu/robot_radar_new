@@ -78,6 +78,13 @@ typedef struct {
     uint16_t disconnect_time; // Time since last feedback in ms
 } dm_motor_para_t;
 
+typedef struct {
+	float phy_min_ang;
+	float phy_max_ang;
+	float center_ang;
+	float adj_ang;
+} dm_angle_data_t;
+
 // Motor Structure
 typedef struct {
     uint16_t id;           		// Motor ID for commands
@@ -86,6 +93,7 @@ typedef struct {
     dm_motor_ctrl_t ctrl;     	// Control data
     dm_motor_para_t para;     	// Parameter data (feedback)
     pid_data_t angle_pid;
+    dm_angle_data_t angle_data;
 } dm_motor_t;
 
 // Function prototypes

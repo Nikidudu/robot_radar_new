@@ -252,11 +252,11 @@
 
 #else
 
-#define DM_PITCH_KP			25
+#define DM_PITCH_KP			17
 #define DM_PITCH_KI			0
-#define DM_PITCH_KD			1
+#define DM_PITCH_KD			30
 #define DM_PITCH_INT_MAX	0
-#define DM_PITCH_MAX_OUT	10
+#define DM_PITCH_MAX_OUT	3
 #define DM_PITCH_MODE		0	// 0 - MIT, 1 - Position, 2 - Speed
 
 #define DM_PITCH_MIT_KP			0
@@ -268,9 +268,9 @@
 #endif
 
 #define PITCH_CENTER			0
-#define PITCH_MAX_ANG			0.13
-#define PITCH_MIN_ANG			-0.70
-#define PITCH_CONST 			0
+#define PITCH_MAX_ANG			0.12
+#define PITCH_MIN_ANG			-0.25
+#define PITCH_CONST 			0.17
 
 
 //#define YAW_MOTOR_TYPE			TYPE_DM4310_MIT

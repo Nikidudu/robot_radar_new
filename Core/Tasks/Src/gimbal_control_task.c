@@ -139,17 +139,16 @@ uint8_t limit_pitch(float *rel_pitch_angle, motor_data_t *pitch_motor) {
 void calculate_direct_pitch(motor_data_t *pitch_motor) {
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
 	float target_pitch = gimbal_ctrl_data.pitch;
-//    if (target_pitch > 0.13f) {
-//        target_pitch = 0.13f;
-//        target_pitch = 0.13f;
-//    } else if(target_rad < -0.70f) {
-//        target_pitch = -0.70f;
-//        target_pitch = -0.70f;
-//    }
+
+    if (target_pitch > dm_pitch_motor.angle_data.phy_max_ang) {
+        target_pitch = dm_pitch_motor.angle_data.phy_max_ang;
+    } else if(target_pitch < dm_pitch_motor.angle_data.phy_min_ang) {
+        target_pitch = dm_pitch_motor.angle_data.phy_min_ang;
+    }
 
 	yaw_pid(target_pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
 	if (gimbal_ctrl_data.enabled == 1){
-		dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output + 1.7f;
+		dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output + PITCH_CONST;
 //		dm_pitch_motor.ctrl.tor_set = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
 //		dm_pitch_motor.ctrl.tor_set += 1.1;
 	} else {
@@ -239,6 +238,7 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 
 void yaw_control(motor_data_t *yaw_motor) {
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+
 	float turn_ang = imu_heading.yaw - prev_yaw;
 
 	while (turn_ang > PI) {
@@ -292,6 +292,8 @@ void yaw_control(motor_data_t *yaw_motor) {
 	 dm_yaw_motor.ctrl.vel_set = dm_yaw_motor.angle_pid.output +
 			chassis_ctrl_data.yaw * (YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
 	 dm_yaw_motor.ctrl.tor_set = FEEDFORWARD_CONST * dm_yaw_motor.para.vel;
+
+	dm4310_ctrl_send(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
 
 #else
 	uint8_t yaw_lim = 0;

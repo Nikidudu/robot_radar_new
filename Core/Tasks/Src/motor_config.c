@@ -368,6 +368,10 @@ void dm_set_motor_config() {
     dm_pitch_motor.ctrl.vel_set = DM_PITCH_MIT_VEL;
     dm_pitch_motor.ctrl.tor_set = DM_PITCH_MIT_TOR;
 
+    dm_pitch_motor.angle_data.center_ang = PITCH_CENTER;
+    dm_pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
+    dm_pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
+
 #endif
 
 #if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
@@ -390,6 +394,10 @@ void dm_set_motor_config() {
     dm_yaw_motor.ctrl.pos_set = DM_YAW_MIT_POS;
     dm_yaw_motor.ctrl.vel_set = DM_YAW_MIT_VEL;
     dm_yaw_motor.ctrl.tor_set = DM_YAW_MIT_TOR;
+
+    dm_yaw_motor.angle_data.center_ang = YAW_CENTER;
+    dm_yaw_motor.angle_data.phy_max_ang = YAW_MAX_ANG;
+    dm_yaw_motor.angle_data.phy_min_ang = YAW_MIN_ANG;
 
 #endif
 }
