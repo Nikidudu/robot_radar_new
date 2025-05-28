@@ -284,8 +284,8 @@
 
 #else
 
-#define DM_YAW_MIT_KP			5
-#define DM_YAW_MIT_KI			0
+#define DM_YAW_MIT_KP			0
+#define DM_YAW_MIT_KI			5
 #define DM_YAW_MIT_KD			0
 #define DM_YAW_MIT_INT_MAX		0
 #define DM_YAW_MIT_MAX_OUT		45
