@@ -177,22 +177,22 @@ void PID_Init(PID *pid, float p, float i, float d, float maxI, float maxOut)
     pid->errLpfRatio = 1;
 }
 
-void PID_SingleCalc(PID *pid, float reference, float feedback)
-{
-    pid->lastError = pid->error;
-    if(ABS(reference-feedback) < pid->deadzone)
-        pid->error = 0;
-    else
-        pid->error = reference - feedback;
-    
-    pid->error = pid->error * pid->errLpfRatio + pid->lastError * (1 - pid->errLpfRatio);
-    pid->output = (pid->error - pid->lastError) * pid->kd;
-    pid->output += pid->error * pid->kp;
-    pid->integral += pid->error * pid->ki;
-    LIMIT(pid->integral, -pid->maxIntegral, pid->maxIntegral);
-    pid->output += pid->integral;
-    LIMIT(pid->output, -pid->maxOutput, pid->maxOutput);
-}
+//void PID_SingleCalc(PID *pid, float reference, float feedback)
+//{
+//    pid->lastError = pid->error;
+//    if(ABS(reference-feedback) < pid->deadzone)
+//        pid->error = 0;
+//    else
+//        pid->error = reference - feedback;
+//
+//    pid->error = pid->error * pid->errLpfRatio + pid->lastError * (1 - pid->errLpfRatio);
+//    pid->output = (pid->error - pid->lastError) * pid->kd;
+//    pid->output += pid->error * pid->kp;
+//    pid->integral += pid->error * pid->ki;
+//    LIMIT(pid->integral, -pid->maxIntegral, pid->maxIntegral);
+//    pid->output += pid->integral;
+//    LIMIT(pid->output, -pid->maxOutput, pid->maxOutput);
+//}
 
 //void PID_CascadeCalc(CascadePID *pid, float angleRef, float angleFdb, float speedFdb)
 //{

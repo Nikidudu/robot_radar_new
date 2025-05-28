@@ -85,6 +85,7 @@ typedef struct {
     dm_motor_cmd_t cmd;       	// Command data
     dm_motor_ctrl_t ctrl;     	// Control data
     dm_motor_para_t para;     	// Parameter data (feedback)
+    pid_data_t angle_pid;
 } dm_motor_t;
 
 // Function prototypes

@@ -252,12 +252,18 @@
 
 #else
 
-#define DM_PITCH_MIT_KP			2
-#define DM_PITCH_MIT_KI			0
-#define DM_PITCH_MIT_KD			100
-#define DM_PITCH_MIT_INT_MAX	0
-#define DM_PITCH_MIT_MAX_OUT	5
+#define DM_PITCH_KP			2
+#define DM_PITCH_KI			0
+#define DM_PITCH_KD			100
+#define DM_PITCH_INT_MAX	0
+#define DM_PITCH_MAX_OUT	5
 #define DM_PITCH_MODE			0	// 0 - MIT, 1 - Position, 2 - Speed
+
+#define DM_PITCH_MIT_KP			0
+#define DM_PITCH_MIT_KD			0
+#define DM_PITCH_MIT_POS		0
+#define DM_PITCH_MIT_VEL		0
+#define DM_PITCH_MIT_TOR		0
 
 #endif
 
@@ -284,12 +290,18 @@
 
 #else
 
-#define DM_YAW_MIT_KP			0
-#define DM_YAW_MIT_KI			5
-#define DM_YAW_MIT_KD			0
-#define DM_YAW_MIT_INT_MAX		0
-#define DM_YAW_MIT_MAX_OUT		45
+#define DM_YAW_KP			0
+#define DM_YAW_KI			5
+#define DM_YAW_KD			0
+#define DM_YAW_INT_MAX		0
+#define DM_YAW_MAX_OUT		45
 #define DM_YAW_MODE			0	// 0 - MIT, 1 - Position, 2 - Speed
+
+#define DM_YAW_MIT_KP			0
+#define DM_YAW_MIT_KD			0
+#define DM_YAW_MIT_POS			0
+#define DM_YAW_MIT_VEL			0
+#define DM_YAW_MIT_TOR			0
 
 #endif
 

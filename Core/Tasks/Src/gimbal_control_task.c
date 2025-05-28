@@ -31,8 +31,6 @@ extern chassis_control_t chassis_ctrl_data;
 extern int32_t chassis_rpm;
 //static float rel_pitch_angle;
 
-extern PID gimbal_pid_pitch;
-extern PID gimbal_pid_yaw;
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
 
@@ -78,8 +76,18 @@ void gimbal_control_task(void *argument) {
 						g_can_motors + YAW_MOTOR_ID - 1);
 			}
 		} else {
-			g_pitch_motor.output = 0;
+
+#if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 			g_can_motors[YAW_MOTOR_ID - 1].output = 0;
+#else
+			dm_yaw_motor.angle_pid.output = 0;
+#endif
+
+#if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
+			g_pitch_motor.output = 0;
+#else
+			dm_pitch_motor.angle_pid.output = 0;
+#endif
 		}
 		prev_yaw = imu_heading.yaw;;
 
@@ -139,9 +147,11 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 //        target_pitch = -0.70f;
 //    }
 
-	PID_SingleCalc(&gimbal_pid_pitch, target_pitch, imu_heading.pit);
+	yaw_pid(target_pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
 	if (gimbal_ctrl_data.enabled == 1){
-		dm_pitch_motor.ctrl.tor_set = gimbal_pid_pitch.output + 1.7f;
+		dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output + 1.7f;
+//		dm_pitch_motor.ctrl.tor_set = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
+//		dm_pitch_motor.ctrl.tor_set += 1.1;
 	} else {
 		dm_pitch_motor.ctrl.tor_set = 0.0f;
 	}
@@ -248,7 +258,7 @@ void yaw_control(motor_data_t *yaw_motor) {
 //		gimbal_ctrl_data.delta_yaw = -1.5 * PI;
 //	}
 
-	 PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
+	 yaw_pid(0, -gimbal_ctrl_data.delta_yaw, &dm_yaw_motor.angle_pid);
 
 //	// TODO: use another logic for error checking (link to beeping sounds)
 //	if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
@@ -279,16 +289,9 @@ void yaw_control(motor_data_t *yaw_motor) {
 //		joint_motor_online = 0;
 //	}
 
-	// Disable pitch if kill switch is on
-	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
-		dm_set_tor[0] = 0;
-		dm_set_tor[1] = 0;
-		dm_yaw_set_vel = 0;
-		dm_set_tor[1] = 0;
-	} else {
-		dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
-		dm_set_tor[0] *= 1.1;
-
+	 dm_yaw_motor.ctrl.vel_set = dm_yaw_motor.angle_pid.output +
+			chassis_ctrl_data.yaw * (YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
+	 dm_yaw_motor.ctrl.tor_set = FEEDFORWARD_CONST * dm_yaw_motor.para.vel;
 
 #else
 	uint8_t yaw_lim = 0;

@@ -12,21 +12,23 @@ extern dm_motor_t dm_yaw_motor;
 
 void dm4310_motor_init(void)
 {
-#if PITCH_MOTOR_TYPE == TYPE_DM4310
-  	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
-  	dm_pitch_motor.id = 0x81;
-  	dm_pitch_motor.ctrl.mode = 0;
-  	dm4310_enable(&hcan1, &dm_pitch_motor);
-  	vTaskDelay(3);
-#endif
+// this function has been implemented in motor_config. should no longer be used
 
-#if YAW_MOTOR_TYPE == TYPE_DM4310
-  	memset(&dm_yaw_motor, 0, sizeof(dm_yaw_motor));
-  	dm_yaw_motor.id = 0x61;
-  	dm_yaw_motor.ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
-  	dm4310_enable(&hcan2, &dm_yaw_motor);
-  	vTaskDelay(3);
-#endif
+//#if PITCH_MOTOR_TYPE == TYPE_DM4310
+//  	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
+//  	dm_pitch_motor.id = 0x81;
+//  	dm_pitch_motor.ctrl.mode = 0;
+//  	dm4310_enable(&hcan1, &dm_pitch_motor);
+//  	vTaskDelay(3);
+//#endif
+//
+//#if YAW_MOTOR_TYPE == TYPE_DM4310
+//  	memset(&dm_yaw_motor, 0, sizeof(dm_yaw_motor));
+//  	dm_yaw_motor.id = 0x61;
+//  	dm_yaw_motor.ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+//  	dm4310_enable(&hcan2, &dm_yaw_motor);
+//  	vTaskDelay(3);
+//#endif
 }
 
 /** ************************************************************************

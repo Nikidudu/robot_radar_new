@@ -47,9 +47,6 @@ motor_data_t yaw_motor;
 dm_motor_t dm_pitch_motor;
 dm_motor_t dm_yaw_motor;
 
-PID gimbal_pid_yaw;
-PID gimbal_pid_pitch;
-
 void motor_calib_task(void *argument) {
 	vTaskDelay(1000);
 	config_motors();
@@ -356,8 +353,21 @@ void dm_set_motor_config() {
   	dm_pitch_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
   	dm4310_enable(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
 
-    PID_Init(&gimbal_pid_pitch, DM_PITCH_MIT_KP, DM_PITCH_MIT_KI, DM_PITCH_MIT_KD,
-    		DM_PITCH_MIT_INT_MAX, DM_PITCH_MIT_MAX_OUT);
+//    PID_Init(&gimbal_pid_pitch, DM_PITCH_MIT_KP, DM_PITCH_MIT_KI, DM_PITCH_MIT_KD,
+//    		DM_PITCH_MIT_INT_MAX, DM_PITCH_MIT_MAX_OUT);
+
+    dm_pitch_motor.angle_pid.kp = DM_PITCH_KP;
+    dm_pitch_motor.angle_pid.ki = DM_PITCH_KI;
+    dm_pitch_motor.angle_pid.kd = DM_PITCH_KD;
+    dm_pitch_motor.angle_pid.int_max = DM_PITCH_INT_MAX;
+    dm_pitch_motor.angle_pid.max_out = DM_PITCH_MAX_OUT;
+
+    dm_pitch_motor.ctrl.kp_set = DM_PITCH_MIT_KP;
+    dm_pitch_motor.ctrl.kd_set = DM_PITCH_MIT_KD;
+    dm_pitch_motor.ctrl.pos_set = DM_PITCH_MIT_POS;
+    dm_pitch_motor.ctrl.vel_set = DM_PITCH_MIT_VEL;
+    dm_pitch_motor.ctrl.tor_set = DM_PITCH_MIT_TOR;
+
 #endif
 
 #if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
@@ -366,8 +376,21 @@ void dm_set_motor_config() {
   	dm_yaw_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
   	dm4310_enable(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
 
-    PID_Init(&gimbal_pid_yaw, DM_YAW_MIT_KP, DM_YAW_MIT_KI, DM_YAW_MIT_KD,
-    		DM_YAW_MIT_INT_MAX, DM_YAW_MIT_MAX_OUT);
+//    PID_Init(&gimbal_pid_yaw, DM_YAW_MIT_KP, DM_YAW_MIT_KI, DM_YAW_MIT_KD,
+//    		DM_YAW_MIT_INT_MAX, DM_YAW_MIT_MAX_OUT);
+
+    dm_yaw_motor.angle_pid.kp = DM_YAW_KP;
+    dm_yaw_motor.angle_pid.ki = DM_YAW_KI;
+    dm_yaw_motor.angle_pid.kd = DM_YAW_KD;
+    dm_yaw_motor.angle_pid.int_max = DM_YAW_INT_MAX;
+    dm_yaw_motor.angle_pid.max_out = DM_YAW_MAX_OUT;
+
+    dm_yaw_motor.ctrl.kp_set = DM_YAW_MIT_KP;
+    dm_yaw_motor.ctrl.kd_set = DM_YAW_MIT_KD;
+    dm_yaw_motor.ctrl.pos_set = DM_YAW_MIT_POS;
+    dm_yaw_motor.ctrl.vel_set = DM_YAW_MIT_VEL;
+    dm_yaw_motor.ctrl.tor_set = DM_YAW_MIT_TOR;
+
 #endif
 }
 
