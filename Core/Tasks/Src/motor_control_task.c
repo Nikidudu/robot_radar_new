@@ -79,7 +79,10 @@ void motor_control_task(void *argument) {
 
 		if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
 
-#if PITCH_MOTOR_TYPE > TYPE_GM6020_720	//check if motor is LK or DJI
+// check if it is LK motor
+#if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
 			lk_motor_kill(&g_pitch_motor);
 #endif
 			//add lk kill motor
@@ -254,7 +257,9 @@ void motor_control_task(void *argument) {
 		}
 
 
-#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
+#if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
 		lk_read_motor_sang(&g_pitch_motor);
 #endif
 

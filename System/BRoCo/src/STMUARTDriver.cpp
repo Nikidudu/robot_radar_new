@@ -147,6 +147,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
 
 STMUARTDriver* STMUARTDriver::getInstance(UART_HandleTypeDef* huart) {
 	for (auto & driver : STMUARTDriver_list) {
+		if (driver == nullptr)
+			continue;
+
 		if (driver->getHuart() == huart)
 			return driver;
 	}
