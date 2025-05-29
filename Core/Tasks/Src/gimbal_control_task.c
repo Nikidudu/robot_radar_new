@@ -30,7 +30,6 @@ extern chassis_control_t chassis_ctrl_data;
 extern int32_t chassis_rpm;
 extern remote_cmd_t g_remote_cmd;
 static float rel_pitch_angle;
-uint8_t g_gimbal_state = 0;
 extern uint8_t gimbal_upper_bound;
 extern uint8_t gimbal_lower_bound;
 
@@ -51,10 +50,12 @@ static float g_chassis_rot;
 float curr_rot;
 
 /**
- *
- * FreeRTOS task for gimbal controls
- * Has HIGH2 priority
- *
+ * This function controls the gimbals based on IMU reading
+ * @param 	pitch_motor		Pointer to pitch motor struct
+ * 			yaw_motor		Pointer to yaw motor struct
+ * @note both pitch and yaw are currently on CAN2 with ID5 and 6.
+ * Need to check if having ID4 (i.e. 0x208) + having the launcher motors (ID 1-3, 0x201 to 0x203)
+ * still provides a fast enough response
  */
 void gimbal_control_task(void *argument) {
 	TickType_t start_time;
@@ -68,54 +69,6 @@ void gimbal_control_task(void *argument) {
 		start_time = xTaskGetTickCount();
 
 		if (gimbal_ctrl_data.enabled) {
-			if (gimbal_ctrl_data.imu_mode) {
-				gimbal_control(&g_pitch_motor,
-						g_can_motors + YAW_MOTOR_ID - 1);
-			} else {
-				gimbal_angle_control(&g_pitch_motor,
-						g_can_motors + YAW_MOTOR_ID - 1);
-			}
-		} else {
-			g_pitch_motor.output = 0;
-			g_can_motors[YAW_MOTOR_ID - 1].output = 0;
-		}
-		prev_yaw = imu_heading.yaw;
-		status_led(2, off_led);
-		xEventGroupClearBits(gimbal_event_group, 0b11);
-		vTaskDelayUntil(&start_time, GIMBAL_DELAY);
-	}
-	//should not run here
-}
-
-/**
- * This function controls the gimbals based on IMU reading
- * @param 	pitch_motor		Pointer to pitch motor struct
- * 			yaw_motor		Pointer to yaw motor struct
- * @note both pitch and yaw are currently on CAN2 with ID5 and 6.
- * Need to check if having ID4 (i.e. 0x208) + having the launcher motors (ID 1-3, 0x201 to 0x203)
- * still provides a fast enough response
- */
-void gimbal_control_task(void *argument) {
-	TickType_t start_time;
-	while (1) {
-#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
-		lk_read_motor_sang(&g_pitch_motor);
-#endif
-		xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE,
-		portMAX_DELAY);
-		start_time = xTaskGetTickCount();
-		if (gimbal_ctrl_data.enabled) {
-			calc_chassis_rot(&g_can_motors[FL_MOTOR_ID - 1],
-					&g_can_motors[FR_MOTOR_ID - 1],
-					&g_can_motors[BR_MOTOR_ID - 1],
-					&g_can_motors[BL_MOTOR_ID - 1]);
-#ifdef HALL_ZERO
-			if (check_yaw()){
-				g_gimbal_state = 1;
-			}
-#endif
-
-
 			if (gimbal_ctrl_data.imu_mode) {
 				gimbal_control(&g_pitch_motor,
 						g_can_motors + YAW_MOTOR_ID - 1);
