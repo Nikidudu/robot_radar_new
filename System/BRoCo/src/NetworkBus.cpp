@@ -20,9 +20,9 @@ NetworkBus::NetworkBus(IODriver* driver) : IOBus(driver, network_frame, sizeof(n
 //    define<IMUPacket>(1);
 //    define<chassisJointsPacket>(2);
 //    define<gimbalJointsPacket>(3);
-//    define<dummyPacket>(4);
+    define<dummyPacket>(4);
 //    define<imuPacket>(5);
-//    define<chassisSpeedCommandPacket>(6);
+    define<chassisSpeedCommandPacket>(6);
 //    define<gimbalAngleCommandPacket>(7);
 //    define<LeftTriggerPositionPacket>(8);
 //    define<RightTriggerPositionPacket>(9);

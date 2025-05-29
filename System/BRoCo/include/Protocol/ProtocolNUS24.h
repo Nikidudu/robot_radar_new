@@ -49,11 +49,11 @@ RELIABLE_IDENTIFIABLE_PACKET(dummyPacket,
 //  float yaw;
 //)
 //
-//RELIABLE_PACKET(chassisSpeedCommandPacket,
-//  float V_horz;
-//  float V_lat;
-//  float V_yaw;
-//)
+RELIABLE_PACKET(chassisSpeedCommandPacket,
+  float V_horz;
+  float V_lat;
+  float V_yaw;
+)
 //
 //RELIABLE_PACKET(gimbalAngleCommandPacket,
 //  float pitch;

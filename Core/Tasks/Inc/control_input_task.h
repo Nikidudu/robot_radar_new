@@ -8,6 +8,10 @@
 #ifndef TASKS_INC_CONTROL_INPUT_TASK_H_
 #define TASKS_INC_CONTROL_INPUT_TASK_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 void control_input_task(void *argument);
 float chassis_center_yaw();
@@ -25,5 +29,9 @@ void chassis_yaw_pid_init();
 void aimbot_pid_init();
 void dbus_reset();
 void ramp(float *curr_val, float target_val, float max_ramp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* TASKS_INC_CONTROL_INPUT_TASK_H_ */

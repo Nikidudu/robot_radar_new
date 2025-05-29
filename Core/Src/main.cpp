@@ -123,6 +123,7 @@ int main(void)
 
 
 
+
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
@@ -130,9 +131,11 @@ int main(void)
   /* Start scheduler */
   osKernelStart();
 
+
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */

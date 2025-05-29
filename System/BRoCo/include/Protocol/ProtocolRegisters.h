@@ -18,7 +18,7 @@
 //REGISTER(chassisJointsPacket)
 REGISTER(dummyPacket)
 //REGISTER(imuPacket)
-//REGISTER(chassisSpeedCommandPacket)
+REGISTER(chassisSpeedCommandPacket)
 //REGISTER(gimbalAngleCommandPacket)
 //REGISTER(LeftTriggerPositionPacket)
 //REGISTER(RightTriggerPositionPacket)
