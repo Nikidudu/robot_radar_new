@@ -38,8 +38,9 @@ void dummyThread::loop()
 
 	MAKE_IDENTIFIABLE(dummy_packet);
 	MAKE_RELIABLE(dummy_packet);
-	Telemetry::set_id(OTHER_NODE_ID);
+//	Telemetry::set_id(OTHER_NODE_ID);
 
+	UART_network->send(&dummy_packet);
 //	CAN1_network->send(&dummy_packet);
 
 	osDelay(10);

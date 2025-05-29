@@ -18,6 +18,8 @@
 #include "cvGimbalThread.h"
 #include "cvAimbotCommandThread.h"
 #include "status_thread.h"
+#include "spd_cmd_thread.h"
+#include "dummy_cmd_thread.h"
 
 
 
@@ -37,7 +39,8 @@ statusThread* status_thread = nullptr;
 
 //imuThread* imu = nullptr;
 //gimbalJointPubThread* gimbalJointThread = nullptr;
-//ChassisSpdCmdThread* speedCmdThread = nullptr;
+ChassisSpdCmdThread* speedCmdThread = nullptr;
+dummyCmdThread* dummy_cmd = nullptr;
 //statusThread* status = nullptr;
 
 extern gimbal_control_t gimbal_ctrl_data;
@@ -55,32 +58,36 @@ void Telemetry::setup() {
 //		CAN2_network = new CANBus(CAN2_driver);
 //		dummy = new dummyThread();
 //		supercap_thread = new SuperCapCommThread();
-		supercap_thread = new SuperCapCommThread();
+//		supercap_thread = new SuperCapCommThread();
 
 //		cv_gimbal_thread = new cvGimbalThread();
-		cv_aimbot_command_thread = new cvAimbotCommandThread();
-		status_thread = new statusThread();
+//		cv_aimbot_command_thread = new cvAimbotCommandThread();
+//		status_thread = new statusThread();
 //
-////		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
-////		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
+//		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
+//		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
 //
-////		UART_network->handle<cvGimbalCommandPacket>(&cvGimbalThread::handle_cv_gimbal);
-		UART_network->handle<cvGimbalCommandPacket>(&cvAimbotCommandThread::handle_cv_gimbal);
-		UART_network->handle<cvFiringCommandPacket>(&cvAimbotCommandThread::handle_cv_firing);
-		UART_network->handle<cvAimCommandPacket>(&cvAimbotCommandThread::handle_cv_aim);
+//		UART_network->handle<cvGimbalCommandPacket>(&cvGimbalThread::handle_cv_gimbal);
+//		UART_network->handle<cvGimbalCommandPacket>(&cvAimbotCommandThread::handle_cv_gimbal);
+//		UART_network->handle<cvFiringCommandPacket>(&cvAimbotCommandThread::handle_cv_firing);
+//		UART_network->handle<cvAimCommandPacket>(&cvAimbotCommandThread::handle_cv_aim);
 
 
 //		gimbalJointThread = new gimbalJointPubThread();
 ////		imu = new imuThread();
-//		speedCmdThread = new ChassisSpdCmdThread();
+		speedCmdThread = new ChassisSpdCmdThread();
+		dummy_cmd = new dummyCmdThread();
+
+
 //		status = new statusThread();
 
-//		UART1_network->handle<chassisSpeedCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spd_commands);
+		UART_network->handle<chassisSpeedCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spd_commands);
 //		UART1_network->handle<gimbalAngleCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_spd_commands);
 //		UART1_network->handle<gimbalAnglePitchCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_pitch_command);
 //		UART1_network->handle<gimbalAngleYawCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_yaw_command);
 //		UART1_network->handle<FrontFiringPacket>(&ChassisSpdCmdThread::handle_launcher_front_firing_commands);
 //		UART1_network->handle<ChassisSpinCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spin_command);
+		UART_network->handle<dummyPacket>(&dummyCmdThread::handle_dummy_cmd);
 
 
 }
