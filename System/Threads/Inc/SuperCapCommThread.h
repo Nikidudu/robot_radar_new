@@ -58,7 +58,6 @@ private:
 
 void supercapISR(uint8_t* rxdata);
 
-
 extern SuperCapCommThread* SuperCapCommInstance;
 
 #endif /* THREADS_INC_DUMMY_THREAD_H_ */

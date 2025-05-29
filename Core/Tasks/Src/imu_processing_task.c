@@ -39,7 +39,6 @@ static uint32_t last_proc_times[2];
 static uint8_t update_flag = 0;
 
 
-
 void imu_proc_task_notif() {
 	//resets the flags
 	update_flag = 0b000;
@@ -94,9 +93,9 @@ void gyro_data_ready(gyro_data_t gyro_data) {
 }
 
 void accel_data_ready(accel_data_t accel_data) {
-//#ifdef ZERO_ROLL
-//	accel_data.ay = 0;
-//#endif
+#ifdef ZERO_ROLL
+	accel_data.ay = 0;
+#endif
 #if IMU_ORIENTATION == 2
 		accel_proc_data.ax = accel_data.az;
 		accel_proc_data.ay = accel_data.ay;
@@ -158,7 +157,6 @@ void imu_processing_task(void *argument) {
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 		imu_ahrs_update();
 		imu_attitude_update();
-
 	}
 }
 
@@ -502,9 +500,9 @@ void imu_attitude_update(void) {
 		imu_heading.yaw = -atan2(2 * q1 * q2 + 2 * q0 * q3,
 				-2 * q2 * q2 - 2 * q3 * q3 + 1) * IMU_YAW_INVERT;
 		/* pitch  -pi/2----pi/2 */
-		imu_heading.rol = -asin(-2 * q1 * q3 + 2 * q0 * q2) * IMU_PITCH_INVERT;
+		imu_heading.pit = -asin(-2 * q1 * q3 + 2 * q0 * q2) * IMU_PITCH_INVERT;
 		/* roll   -pi----pi  */
-		imu_heading.pit = atan2(2 * q2 * q3 + 2 * q0 * q1,
+		imu_heading.rol = atan2(2 * q2 * q3 + 2 * q0 * q1,
 				-2 * q1 * q1 - 2 * q2 * q2 + 1) * IMU_ROLL_INVERT;
 #endif
 //	} else {

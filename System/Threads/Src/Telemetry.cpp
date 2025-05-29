@@ -43,9 +43,9 @@ statusThread* status_thread = nullptr;
 extern gimbal_control_t gimbal_ctrl_data;
 
 void Telemetry::setup() {
-//		 UART line(s) initialization
-		UART_line = new STMUARTDriver(&huart1);
-		UART_network = new NetworkBus(UART_line);
+		// UART line(s) initialization
+//		UART1_line = new STMUARTDriver(&huart1);
+//		UART1_network = new NetworkBus(UART1_line);
 
 		// CANFD network initialization
 		CAN1_driver = new ROCANDriver(&hcan1, DEVC_NODE_ID);

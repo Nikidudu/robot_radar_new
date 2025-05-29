@@ -109,7 +109,6 @@ void control_input_task(void *argument) {
 					temp_msg = song;
 //					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
 				}
-				laser_on();
 				control_mode_change(g_remote_cmd.side_dial);
 				g_safety_toggle = 0;
 				launcher_safety_toggle = 0;
@@ -166,7 +165,6 @@ float chassis_center_yaw() {
 	if (fabs(yaw_pid_data.output) < CHASSIS_YAW_MIN){
 		return 0;
 	}
-
 	return yaw_pid_data.output;
 //	return 0;
 }
@@ -238,7 +236,6 @@ void control_reset() {
 	launcher_ctrl_data.enabled = 0;
 	g_spinspin_mode = 0;
 	aimbot_mode = 0;
-	laser_off();
 }
 
 void control_mode_change(int16_t left_dial_input) {

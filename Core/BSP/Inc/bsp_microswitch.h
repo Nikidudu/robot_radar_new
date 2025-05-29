@@ -11,5 +11,7 @@
 #include "board_lib.h"
 
 void microswitch_int();
+void microswitch_int1();
+void microswitch_int2();
 
 #endif /* BSP_INC_BSP_MICROSWITCH_H_ */

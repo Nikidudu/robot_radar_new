@@ -65,7 +65,7 @@ void ROCANDriver::init() {
 	else if (can == &hcan2)
 		MX_CAN2_Init();
 	/* Start the FDCan line */
-	//MX_CAN2_Init();
+	MX_CAN2_Init();
 	filterConfig(0, 0);
 	TxHeaderConfig();
 	TxHeaderConfigID(0);

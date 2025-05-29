@@ -62,19 +62,13 @@ extern gimbal_control_t gimbal_ctrl_data;
 
 
 void master_task(void* argument){
-//	led_on();
-//	buzzer_init();
 	imu_init();
-//	led_green_off();
-//	start_micros_timer();
-//	led_toggle();
 
 	gimbal_event_group = xEventGroupCreate();
 	chassis_event_group = xEventGroupCreate();
 	launcher_event_group = xEventGroupCreate();
 
 	usb_continue_semaphore = xSemaphoreCreateBinary();
-
 
 	gyro_data_queue = xQueueCreate(5, sizeof(gyro_data_t));
 	accel_data_queue = xQueueCreate(5, sizeof(accel_data_t));
@@ -102,31 +96,24 @@ void master_task(void* argument){
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 9,
 			&motor_calib_task_handle);
 
-	//testing
-//	xTaskCreate(dm_motor_control_task, "dm_motor_control_task",
-//	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
-//			&dm_motor_control_task_handle);
-
 	xTaskCreate(control_input_task, "RC_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 			&control_input_task_handle);
-
 	xTaskCreate(referee_processing_task, "referee_task", 512, (void*) 1,
 			(UBaseType_t) 2, &referee_processing_task_handle);
-
 	xTaskCreate(buzzing_task, "buzzer_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &buzzing_task_handle);
-//	if (usb_continue_semaphore == NULL) {
-//		//error handler
-//	} else {
-//		xTaskCreate(usb_task, "usb_task",
-//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &usb_task_handle);
-//	}
-//
+	if (usb_continue_semaphore == NULL) {
+		//error handler
+	} else {
+		xTaskCreate(usb_task, "usb_task",
+		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &usb_task_handle);
+	}
+
 //	xTaskCreate(telemetry_task, "telemetry_task", 700, (void*) 1,
 //			(UBaseType_t) 5, &telemetry_task_handle);
-//	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3,
-//			(UBaseType_t) 5, &hud_task_handle);
+	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3,
+			(UBaseType_t) 5, &hud_task_handle);
 
 //	vTaskDelete(master_task_handle);
 	while(1){

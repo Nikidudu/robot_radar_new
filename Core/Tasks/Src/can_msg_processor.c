@@ -182,7 +182,6 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 			break;
 		default:
 			xResult = pdFAIL;
-//			idnum = idnum;
 			//error handler
 			break;
 		}
@@ -196,6 +195,10 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 		//this is a useless statement so that it is possible to set a breakpoint here lol
 		//error handler
 	}
+}
+
+void process_chassis_can_msg(uint16_t msg_id, uint8_t rx_buffer[]) {
+	//for future use
 }
 
 /**

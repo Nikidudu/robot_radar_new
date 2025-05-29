@@ -233,20 +233,19 @@
  * the motors
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_ANGLE_KP	  		50//200
-#define PITCH_ANGLE_KI  		0.025
+#define PITCH_ANGLE_KP	  		200//200
+#define PITCH_ANGLE_KI  		0.1
 #define PITCH_ANGLE_KD  		0
-#define PITCH_ANGLE_INT_MAX		0.025
+#define PITCH_ANGLE_INT_MAX		0.1
+#define PITCH_MAX_RPM			60
 
-#define PITCH_MAX_RPM			25 //changed from 60
+#define PITCHRPM_KP				1000//700
+#define PITCHRPM_KI				1
+#define PITCHRPM_KD				100
+#define PITCHRPM_INT_MAX		4000
+#define PITCH_MAX_CURRENT		20000
 
-#define PITCHRPM_KP				250//700
-#define PITCHRPM_KI				0.25
-#define PITCHRPM_KD				25
-#define PITCHRPM_INT_MAX		1000
-#define PITCH_MAX_CURRENT		5000
-
-#define PITCH_MOTOR_TYPE		TYPE_DM4310
+#define PITCH_MOTOR_TYPE		TYPE_GM6020
 #define PITCH_CENTER			2071//3590
 #define PITCH_MAX_ANG			0.352
 #define PITCH_MIN_ANG			-0.24
