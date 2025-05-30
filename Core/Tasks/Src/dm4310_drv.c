@@ -239,10 +239,14 @@ float dm_yaw_encoder_mod(float raw_angle) {
 }
 
 void dmmapyawfbdata(dm_motor_t *yaw_motor) {
-    g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = dm_yaw_encoder_mod(yaw_motor->para.pos);
+	float adj_ang = dm_yaw_encoder_mod(yaw_motor->para.pos);
+    g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = adj_ang;
     g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque = yaw_motor->para.tor;
+    dm_yaw_motor.angle_data.adj_ang = adj_ang;
 }
 
 void dmmappitchfbdata(dm_motor_t *pitch_motor) {
-    g_pitch_motor.angle_data.adj_ang = pitch_motor->para.pos;
+	float pos = pitch_motor->para.pos;
+    g_pitch_motor.angle_data.adj_ang = pos;
+    dm_pitch_motor.angle_data.adj_ang = pos;
 }

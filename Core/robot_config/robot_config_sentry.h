@@ -229,8 +229,9 @@
  * Physically push the motors to the desired centers
  * and put a breakpoint/live expression on their respective real_ang variables
  * from their raw_data structs
- * The centers should be from 0 to 8192, it should be the value directly from
+ * The centers should be from 0 to 8192 (for non-DM motors), it should be the value directly from
  * the motors
+ * Centers for DM motors should be -PI to PI.
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
 #define PITCH_MOTOR_TYPE		TYPE_DM4310_MIT
