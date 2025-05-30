@@ -1,3 +1,4 @@
+
 #include "dm4310_drv.h"
 #include <string.h>
 #include "board_lib.h"
@@ -37,7 +38,14 @@ float yaw_error = 0;
 float target_rad = 0;
 float target_gimbal = 0.0f;
 float dumbasss;
-
+float debug1 = 0.3;
+float debug2 = 6;
+float test3 = 0;
+float dm1 = 10;
+float dm2 = 5;
+float ex_pos = 0.0;
+float debug3 = 0.0;
+float debug4;
 
 /************************* Main Control Task *************************/
 void dm_motor_control_task(void *argument) {
@@ -47,14 +55,10 @@ void dm_motor_control_task(void *argument) {
     dm4310_motor_init();
     vTaskDelay(101);
 
-//    PID_Init(&gimbal_cpid_yaw.inner, 0.3, 0, 0.1, 0, 7);
-//    PID_Init(&gimbal_cpid_yaw.outer, 25, 0, 0.1, 0, 10);
-    PID_Init(&gimbal_pid_yaw, 5, 0, 0, 0, 45);
+    PID_Init(&gimbal_cpid_yaw.inner, 0.3, 0, 0.1, 0, 7);
+    PID_Init(&gimbal_cpid_yaw.outer, 25, 0, 0.1, 0, 10);
+    PID_Init(&gimbal_pid_yaw, 5, 0, 0, 0, 45);//5
     PID_Init(&gimbal_pid_pitch, 2.0, 0.0, 100.0, 0, 5);
-
-    dm_yaw_motor.ctrl.pos_set = 0;
-    dm_yaw_motor.ctrl.kp_set = 0;
-    dm_yaw_motor.ctrl.kd_set = 2;
 
     float dt = 0.003;
     TickType_t lastTick = xTaskGetTickCount();
@@ -64,88 +68,95 @@ void dm_motor_control_task(void *argument) {
 
         xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore, portMAX_DELAY);
 
-		TickType_t currentTick = xTaskGetTickCount();
-		dt = (currentTick - lastTick) / 1000.0f;
-		lastTick = currentTick;
+        if(gimbal_ctrl_data.enabled == 1) {
+            TickType_t currentTick = xTaskGetTickCount();
+            dt = (currentTick - lastTick) / 1000.0f;
+            lastTick = currentTick;
 
-		target_rad = gimbal_ctrl_data.pitch;
+            target_rad = gimbal_ctrl_data.pitch;
 
-		if (target_rad > 0.13f) {
-			target_rad = 0.13f;
-			gimbal_ctrl_data.pitch = 0.13f;
-		} else if(target_rad < -0.70f) {
-			target_rad = -0.70f;
-			gimbal_ctrl_data.pitch = -0.70f;
-		}
+            if (target_rad > 0.13f) {
+                target_rad = 0.13f;
+                gimbal_ctrl_data.pitch = 0.13f;
+            } else if(target_rad < -0.70f) {
+                target_rad = -0.70f;
+                gimbal_ctrl_data.pitch = -0.70f;
+            }
 
-		PID_SingleCalc(&gimbal_pid_pitch, target_rad, INS.Pitch);
+            PID_SingleCalc(&gimbal_pid_pitch, target_rad, INS.Pitch);
 
-		float turn_ang = imu_heading.yaw - prev_yaw;
+		    float turn_ang = imu_heading.yaw - prev_yaw;
 
-		while (turn_ang > PI) { turn_ang -= 2 * PI; }
-		while (turn_ang < -PI) { turn_ang += 2 * PI; }
+		    while (turn_ang > PI) { turn_ang -= 2 * PI; }
+		    while (turn_ang < -PI) { turn_ang += 2 * PI; }
 
-//		    dumbasss = turn_ang;
-		prev_yaw = imu_heading.yaw;
-		gimbal_ctrl_data.delta_yaw -= turn_ang;
+		    dumbasss = turn_ang;
+		    prev_yaw = imu_heading.yaw;
+		    gimbal_ctrl_data.delta_yaw -= turn_ang;
 
-//		    if (gimbal_ctrl_data.delta_yaw > 1.5 * PI) { gimbal_ctrl_data.delta_yaw = 1.5 * PI; }
-//		    if (gimbal_ctrl_data.delta_yaw < -1.5 * PI) { gimbal_ctrl_data.delta_yaw = -1.5 * PI; }
+		    if (gimbal_ctrl_data.delta_yaw > 1.5 * PI) { gimbal_ctrl_data.delta_yaw = 1.5 * PI; }
+		    if (gimbal_ctrl_data.delta_yaw < -1.5 * PI) { gimbal_ctrl_data.delta_yaw = -1.5 * PI; }
 
-		PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
+            PID_SingleCalc(&gimbal_pid_yaw, 0, -gimbal_ctrl_data.delta_yaw);
 
-		// TODO: use another logic for error checking (link to beeping sounds)
-		if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
-			dm_pitch_motor.para.disconnect_time = 0;
-			dm_pitch_motor.para.online = 0;
-		} else {
-			dm_pitch_motor.para.disconnect_time = 0;
-			dm_pitch_motor.para.online = 1;
-		}
+            // TODO: use another logic for error checking (link to beeping sounds)
+            if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
+                dm_pitch_motor.para.disconnect_time = 0;
+                dm_pitch_motor.para.online = 0;
+            } else {
+                dm_pitch_motor.para.disconnect_time = 0;
+                dm_pitch_motor.para.online = 1;
+            }
 
-		if (dm_pitch_motor.para.online == 1) {
-			joint_motor_online = 1;
-		} else {
-			joint_motor_online = 0;
-		}
+            if (dm_pitch_motor.para.online == 1) {
+                joint_motor_online = 1;
+            } else {
+                joint_motor_online = 0;
+            }
 
-		if (dm_yaw_motor.para.state != 9 && dm_yaw_motor.para.disconnect_time > 100) {
-			dm_yaw_motor.para.disconnect_time = 0;
-			dm_yaw_motor.para.online = 0;
-		} else {
-			dm_yaw_motor.para.disconnect_time = 0;
-			dm_yaw_motor.para.online = 1;
-		}
+            if (dm_yaw_motor.para.state != 9 && dm_yaw_motor.para.disconnect_time > 100) {
+                dm_yaw_motor.para.disconnect_time = 0;
+                dm_yaw_motor.para.online = 0;
+            } else {
+                dm_yaw_motor.para.disconnect_time = 0;
+                dm_yaw_motor.para.online = 1;
+            }
 
-		if (dm_yaw_motor.para.online == 1) {
-			joint_motor_online = 1;
-		} else {
-			joint_motor_online = 0;
-		}
+            if (dm_yaw_motor.para.online == 1) {
+                joint_motor_online = 1;
+            } else {
+                joint_motor_online = 0;
+            }
 
-		// Disable pitch and yaw if kill switch is on
-		if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
-			dm_set_tor[0] = 0;
-			dm_set_tor[1] = 0;
-			dm_yaw_set_vel = 0;
-			dm_set_tor[1] = 0;
-			dm_yaw_set_vel = 0;
+            // Disable pitch if kill switch is on
+            if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+                dm_set_tor[0] = 0;
+                dm_set_tor[1] = 0;
+                dm_yaw_set_vel = 0;
+                dm_set_tor[1] = 0;
+            } else {
+                dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
+                dm_set_tor[0] *= 1.1;
 
-		} else {
-			dm_set_tor[0] = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
-			dm_set_tor[0] *= 1.1;
+                // PID output + yaw centering compensation + feedforward torque
+                dm_set_tor[1] = FEEDFORWARD_CONST * dm_yaw_motor.para.vel;
+                dm_yaw_set_vel = gimbal_pid_yaw.output +
+                		chassis_ctrl_data.yaw * (YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
+            }
 
-			// PID output + yaw centering compensation + feedforward torque
-			dm_set_tor[1] = FEEDFORWARD_CONST * dm_yaw_motor.para.vel;
-			dm_yaw_set_vel = gimbal_pid_yaw.output +
-					chassis_ctrl_data.yaw * (YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
-		}
+            dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
 
-		dm_pitch_motor.ctrl.tor_set = dm_set_tor[0];
-		dm_yaw_motor.ctrl.vel_set = dm_yaw_set_vel;
-		dm_yaw_motor.ctrl.tor_set = dm_set_tor[1];
+            dm_yaw_motor.ctrl.vel_set = dm_yaw_set_vel;
+            dm_yaw_motor.ctrl.tor_set = dm_set_tor[1];
+            dm_yaw_motor.ctrl.pos_set = 0;
+            dm_yaw_motor.ctrl.kp_set = 0;
+            dm_yaw_motor.ctrl.kd_set = 2;
 
-		// sends data to motor
+        } else {
+            dm4310_clear_para(&dm_yaw_motor);
+            dm4310_clear_para(&dm_pitch_motor);
+        }
+
         dm4310_ctrl_send(&hcan1, &dm_pitch_motor);
         dm4310_ctrl_send(&hcan2, &dm_yaw_motor);
 
@@ -233,9 +244,10 @@ float dm_yaw_encoder_mod(float raw_angle) {
 
 void dmmapyawfbdata(motor_t *yaw_motor) {
 	float temp = dm_yaw_encoder_mod(yaw_motor->para.pos);
-	// maps from 0 to 8192 to 0 to 2PI
-	float mapped_value = temp / 8192 * (2 * PI);
-    g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = mapped_value - g_can_motors[YAW_MOTOR_ID - 1].angle_data.center_ang;
+	// maps from 0 to 2PI TO 0 to 8192
+	//float mapped_value = (temp / (2 * PI)) * 8192;
+	debug4 = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+    g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = temp - 0.9;
     g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque = yaw_motor->para.tor;
 }
 
