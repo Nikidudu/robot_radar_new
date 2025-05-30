@@ -81,12 +81,17 @@ void gimbal_control_task(void *argument) {
 			g_can_motors[YAW_MOTOR_ID - 1].output = 0;
 #else
 			dm_yaw_motor.angle_pid.output = 0;
+			dm_yaw_motor.ctrl.vel_set = 0;
+			dm_yaw_motor.ctrl.tor_set = 0;
+			dm4310_ctrl_send(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
 #endif
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 			g_pitch_motor.output = 0;
 #else
 			dm_pitch_motor.angle_pid.output = 0;
+			dm_pitch_motor.ctrl.tor_set = 0;
+			dm4310_ctrl_send(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
 #endif
 		}
 		prev_yaw = imu_heading.yaw;;

@@ -601,6 +601,8 @@ void config_motors() {
 	g_pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
 	g_pitch_motor.can = PITCH_MOTOR_CAN_PTR;
 	set_motor_config(&g_pitch_motor);
+#else
+	dm_set_motor_config();
 #endif
 
 #if defined(YAW_MOTOR_ID) && (YAW_MOTOR_TYPE != TYPE_DM4310_MIT)
@@ -622,12 +624,15 @@ void config_motors() {
 	g_can_motors[motor_id].rpm_pid.int_max = YAWRPM_INT_MAX;
 	g_can_motors[motor_id].rpm_pid.max_out = YAW_MAX_CURRENT;
 	//need to change below for dm
+
 #ifndef YAW_M3508
 	g_can_motors[motor_id].motor_type = TYPE_GM6020;
 #else
 	g_can_motors[motor_id].motor_type = TYPE_M3508_ANGLE;
 #endif
+
 	set_motor_config(&g_can_motors[motor_id]);
+
 #ifdef YAW_BELT
 	g_can_motors[motor_id].angle_data.gearbox_ratio = g_can_motors[motor_id].angle_data.gearbox_ratio * YAW_BELT_GEAR_RATIO;
 	g_can_motors[motor_id].angle_data.min_ticks = -4096 * g_can_motors[motor_id].angle_data.gearbox_ratio;
@@ -635,6 +640,8 @@ void config_motors() {
 	g_can_motors[motor_id].angle_data.tick_range = g_can_motors[motor_id].angle_data.max_ticks
 			- g_can_motors[motor_id].angle_data.min_ticks;
 #endif
+#else
+	dm_set_motor_config();
 #endif
 }
 
