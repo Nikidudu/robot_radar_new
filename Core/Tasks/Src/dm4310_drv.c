@@ -30,8 +30,8 @@ extern uint8_t g_safety_toggle;
 // PID controllers
 //extern CascadePID gimbal_cpid_pit;
 //extern CascadePID gimbal_cpid_yaw;
-extern PID gimbal_pid_yaw;
-extern PID gimbal_pid_pitch;
+PID gimbal_pid_yaw;
+ PID gimbal_pid_pitch;
 
 // Debug variables
 float yaw_error = 0;
@@ -55,8 +55,8 @@ void dm_motor_control_task(void *argument) {
     dm4310_motor_init();
     vTaskDelay(101);
 
-    PID_Init(&gimbal_cpid_yaw.inner, 0.3, 0, 0.1, 0, 7);
-    PID_Init(&gimbal_cpid_yaw.outer, 25, 0, 0.1, 0, 10);
+//    PID_Init(&gimbal_cpid_yaw.inner, 0.3, 0, 0.1, 0, 7);
+//    PID_Init(&gimbal_cpid_yaw.outer, 25, 0, 0.1, 0, 10);
     PID_Init(&gimbal_pid_yaw, 5, 0, 0, 0, 45);//5
     PID_Init(&gimbal_pid_pitch, 2.0, 0.0, 100.0, 0, 5);
 
@@ -177,22 +177,22 @@ void PID_Init(PID *pid, float p, float i, float d, float maxI, float maxOut)
     pid->errLpfRatio = 1;
 }
 
-//void PID_SingleCalc(PID *pid, float reference, float feedback)
-//{
-//    pid->lastError = pid->error;
-//    if(ABS(reference-feedback) < pid->deadzone)
-//        pid->error = 0;
-//    else
-//        pid->error = reference - feedback;
-//
-//    pid->error = pid->error * pid->errLpfRatio + pid->lastError * (1 - pid->errLpfRatio);
-//    pid->output = (pid->error - pid->lastError) * pid->kd;
-//    pid->output += pid->error * pid->kp;
-//    pid->integral += pid->error * pid->ki;
-//    LIMIT(pid->integral, -pid->maxIntegral, pid->maxIntegral);
-//    pid->output += pid->integral;
-//    LIMIT(pid->output, -pid->maxOutput, pid->maxOutput);
-//}
+void PID_SingleCalc(PID *pid, float reference, float feedback)
+{
+    pid->lastError = pid->error;
+    if(ABS(reference-feedback) < pid->deadzone)
+        pid->error = 0;
+    else
+        pid->error = reference - feedback;
+
+    pid->error = pid->error * pid->errLpfRatio + pid->lastError * (1 - pid->errLpfRatio);
+    pid->output = (pid->error - pid->lastError) * pid->kd;
+    pid->output += pid->error * pid->kp;
+    pid->integral += pid->error * pid->ki;
+    LIMIT(pid->integral, -pid->maxIntegral, pid->maxIntegral);
+    pid->output += pid->integral;
+    LIMIT(pid->output, -pid->maxOutput, pid->maxOutput);
+}
 
 //void PID_CascadeCalc(CascadePID *pid, float angleRef, float angleFdb, float speedFdb)
 //{
@@ -242,14 +242,14 @@ float dm_yaw_encoder_mod(float raw_angle) {
     return raw_angle;
 }
 
-void dmmapyawfbdata(motor_t *yaw_motor) {
+void dmmapyawfbdata(dm_motor_t *yaw_motor) {
 	float temp = dm_yaw_encoder_mod(yaw_motor->para.pos);
 	// maps from 0 to 2PI TO 0 to 8192
 	//float mapped_value = (temp / (2 * PI)) * 8192;
 	debug4 = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
     g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang = temp - 0.9;
     g_can_motors[YAW_MOTOR_ID - 1].raw_data.torque = yaw_motor->para.tor;
-    dm_yaw_motor.angle_data.adj_ang = adj_ang;
+//    dm_yaw_motor.angle_data.adj_ang = adj_ang;
 }
 
 void dmmappitchfbdata(dm_motor_t *pitch_motor) {

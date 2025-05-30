@@ -103,9 +103,9 @@ void master_task(void* argument){
 			&motor_calib_task_handle);
 
 	//testing
-//	xTaskCreate(dm_motor_control_task, "dm_motor_control_task",
-//	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
-//			&dm_motor_control_task_handle);
+	xTaskCreate(dm_motor_control_task, "dm_motor_control_task",
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
+			&dm_motor_control_task_handle);
 
 	xTaskCreate(control_input_task, "RC_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
