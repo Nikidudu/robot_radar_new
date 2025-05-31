@@ -64,6 +64,25 @@
 #define LV3_MAX_SPEED			M3508_MAX_RPM
 #define LV3_MAX_CURRENT			16384
 
+#define LV4_MAX_SPEED			6000//6750
+#define LV5_MAX_SPEED			6750//7500
+#define LV6_MAX_SPEED			7500//8250
+#define LV7_MAX_SPEED			M3508_MAX_RPM
+#define LV8_MAX_SPEED			M3508_MAX_RPM
+#define LV9_MAX_SPEED			M3508_MAX_RPM
+#define LV10_MAX_SPEED			M3508_MAX_RPM
+
+#define LV1_MAX_ACCEL			0
+#define LV2_MAX_ACCEL			0
+#define LV3_MAX_ACCEL			0
+#define LV4_MAX_ACCEL			0
+#define LV5_MAX_ACCEL			0
+#define LV6_MAX_ACCEL			0
+#define LV7_MAX_ACCEL			0
+#define LV8_MAX_ACCEL			0
+#define LV9_MAX_ACCEL			0
+#define LV10_MAX_ACCEL			0
+
 
 #define GEAR_DEFAULT			3
 
