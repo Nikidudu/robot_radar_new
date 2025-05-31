@@ -23,7 +23,6 @@
 //nothing uses roll.....yet
 #define IMU_ROLL_INVERT		1
 //#define IST8310
-#define REF_POWER_LIM
 #define CONTROL_DEFAULT			KEYBOARD_CTRL_MODE
 
 

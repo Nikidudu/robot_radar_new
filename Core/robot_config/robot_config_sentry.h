@@ -25,7 +25,6 @@
 //nothing uses roll.....yet
 #define IMU_ROLL_INVERT		1
 //#define IST8310
-#define REF_POWER_LIM
 #define G_X_OFFSET		-7
 #define G_Y_OFFSET 		-16
 #define G_Z_OFFSET	 	5
@@ -61,7 +60,6 @@
 #define LV3_MAX_SPEED			5250//6000//9000
 #define LV3_MAX_CURRENT			16384
 
-#define LVL_TUNING
 #define LV4_MAX_SPEED			6000//6750
 #define LV5_MAX_SPEED			6750//7500
 #define LV6_MAX_SPEED			7500//8250
