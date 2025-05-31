@@ -33,6 +33,7 @@ extern uint8_t charging_state;
 
 uint8_t zero_start = 0;
 uint32_t zeroing_start_time = 0;
+int16_t current_rpm;
 
 float motor_yaw_mult[4];
 
@@ -136,30 +137,44 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 			+ abs(motorbl->raw_data.rpm)) / 4;
 
 	uint32_t lvl_max_speed;
+	uint32_t lvl_max_accel;
 
-	if (ref_robot_data.robot_level == 1) {
-		lvl_max_speed = LV1_MAX_SPEED;
-	} else if (ref_robot_data.robot_level == 2) {
-		lvl_max_speed = LV2_MAX_SPEED;
-	} else if (ref_robot_data.robot_level == 3) {
-		lvl_max_speed = LV3_MAX_SPEED;
-	} else if (ref_robot_data.robot_level == 4) {
-		lvl_max_speed = LV4_MAX_SPEED;
-	} else if (ref_robot_data.robot_level == 5) {
-		lvl_max_speed = LV5_MAX_SPEED;
-	} else if (ref_robot_data.robot_level == 6) {
-		lvl_max_speed = LV6_MAX_SPEED;
-	} else if (ref_robot_data.robot_level == 7) {
-		lvl_max_speed = LV7_MAX_SPEED;
-	} else if (ref_robot_data.robot_level == 8) {
-		lvl_max_speed = LV8_MAX_SPEED;
-	} else if (ref_robot_data.robot_level == 9) {
-		lvl_max_speed = LV9_MAX_SPEED;
-	} else if (ref_robot_data.robot_level == 10) {
-		lvl_max_speed = LV10_MAX_SPEED;
-	} else {
-		lvl_max_speed = LV1_MAX_SPEED + (ref_robot_data.chassis_power_limit-60)/10*1500;
-	}
+	switch (ref_robot_data.robot_level) {
+			case 1: lvl_max_speed = LV1_MAX_SPEED;
+					lvl_max_accel = LV1_MAX_ACCEL; break;
+
+			case 2: lvl_max_speed = LV2_MAX_SPEED;
+					lvl_max_accel = LV2_MAX_ACCEL; break;
+
+			case 3: lvl_max_speed = LV3_MAX_SPEED;
+					lvl_max_accel = LV3_MAX_ACCEL; break;
+
+			case 4: lvl_max_speed = LV4_MAX_SPEED;
+					lvl_max_accel = LV4_MAX_ACCEL; break;
+
+			case 5: lvl_max_speed = LV5_MAX_SPEED;
+					lvl_max_accel = LV5_MAX_ACCEL; break;
+
+			case 6: lvl_max_speed = LV6_MAX_SPEED;
+					lvl_max_accel = LV6_MAX_ACCEL; break;
+
+			case 7: lvl_max_speed = LV7_MAX_SPEED;
+					lvl_max_accel = LV7_MAX_ACCEL; break;
+
+			case 8: lvl_max_speed = LV8_MAX_SPEED;
+					lvl_max_accel = LV8_MAX_ACCEL; break;
+
+			case 9: lvl_max_speed = LV9_MAX_SPEED;
+					lvl_max_accel = LV9_MAX_ACCEL; break;
+
+			case 10: lvl_max_speed = LV10_MAX_SPEED;
+					 lvl_max_accel = LV10_MAX_ACCEL; break;
+
+			default: lvl_max_speed = LV1_MAX_SPEED + (ref_robot_data.chassis_power_limit - 60) / 10 * 1500;
+				     lvl_max_accel = LV1_MAX_ACCEL;
+		}
+
+	lvl_max_speed = (lvl_max_speed < MIN_SPEED) ? MIN_SPEED : lvl_max_speed;
 
 	lvl_max_speed = (lvl_max_speed > MAX_SPEED) ? MAX_SPEED : lvl_max_speed; // Cap the max speed of motor
 
@@ -202,16 +217,48 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 		}
 	}
 
+
+	int rpm1 = motorfr->raw_data.rpm;
+	int rpm2 = motorfl->raw_data.rpm;
+	int rpm3 = motorbr->raw_data.rpm;
+	int rpm4 = motorbl->raw_data.rpm;
+
+	int maxRPM = rpm1;
+
+	if (rpm2 > maxRPM) maxRPM = rpm2;
+	if (rpm3 > maxRPM) maxRPM = rpm3;
+	if (rpm4 > maxRPM) maxRPM = rpm4;
+
+
+	current_rpm = maxRPM;
+	int16_t target_rpm = chassis_rpm;
+	double dt = 0.005;
+	uint32_t accel = lvl_max_accel; //50000 //Default Chassis_Accel_max is LV1_ACCEL_MAX
+
+	if (target_rpm > current_rpm) {
+		current_rpm += accel * dt;
+		if (current_rpm > target_rpm) {
+			current_rpm = target_rpm;
+		}
+	} else if (target_rpm < current_rpm) {
+		current_rpm -= accel * dt;
+		if (current_rpm < target_rpm) {
+			current_rpm = target_rpm;
+		}
+	}
+
+	current_rpm = (current_rpm > MAX_SPEED) ? MAX_SPEED : current_rpm; //Max speed check for motor protection
+
 	// translation rpm will not be more than chassis_rpm
 	int32_t avg_trans = 0;
 	for (uint8_t j = 0; j < 4; j++) {
 		if (g_spinspin_mode == 1) { // if spinning
 			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
-									+ yaw_rpm[j]) * chassis_rpm / (rpm_sum/4);  // for spinning modulate wheel rpm by dividing by average rpm
+									+ yaw_rpm[j]) * current_rpm / (rpm_sum/4);  // for spinning modulate wheel rpm by dividing by average rpm
 			avg_trans += fabs(translation_rpm[j]);
 		} else {
 			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
-						+ yaw_rpm[j]) * chassis_rpm / rpm_mult;					// for no spinning modulate wheel rpm by dividing by highest rpm
+						+ yaw_rpm[j]) * current_rpm / rpm_mult;					// for no spinning modulate wheel rpm by dividing by highest rpm
 			avg_trans += fabs(translation_rpm[j]);
 		}
 	}
