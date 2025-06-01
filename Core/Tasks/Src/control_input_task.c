@@ -171,6 +171,12 @@ float chassis_center_yaw() {
 }
 
 void chassis_centering_config() {
+	static uint8_t prev_robot_level = 0;
+
+	// Hopefully with this, we can adjust pid values without it being overwritten all the time
+	if (prev_robot_level == ref_robot_data.robot_level) return;
+	prev_robot_level = ref_robot_data.robot_level;
+
 #ifdef LVL_TUNING
 	switch (ref_robot_data.robot_level) {
 		case 1:

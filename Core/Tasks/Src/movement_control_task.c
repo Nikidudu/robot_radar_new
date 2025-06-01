@@ -39,6 +39,10 @@ float motor_yaw_mult[4];
 extern QueueHandle_t telem_motor_queue;
 extern int supercap_dash;
 
+static uint32_t lvl_max_speed = LV1_MAX_SPEED;
+static uint32_t lvl_max_accel = LV1_MAX_ACCEL;
+static int8_t lvl_max_spin = CHASSIS_YAW_MAX_RPM;
+
 void movement_control_task(void *argument) {
 	TickType_t start_time;
 	//initialise in an array so it's possible to for-loop it later
@@ -135,10 +139,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 			+ abs(motorfl->raw_data.rpm) + abs(motorbr->raw_data.rpm)
 			+ abs(motorbl->raw_data.rpm)) / 4;
 
-	// Setting speed and acceleration base on robot level
-	uint32_t lvl_max_speed;
-	uint32_t lvl_max_accel;
-	int8_t lvl_max_spin;
+	// Setting translational and rotational speed and acceleration base on robot level
 	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
 	uint32_t chassis_rpm = lvl_max_speed;
@@ -219,6 +220,12 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 }
 
 void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, int8_t *lvl_max_spin) {
+	static uint8_t prev_robot_level = 0;
+
+	// Hopefully with this, we can adjust pid values without it being overwritten all the time
+	if (prev_robot_level == ref_robot_data.robot_level) return;
+	prev_robot_level = ref_robot_data.robot_level;
+
 #ifdef LVL_TUNING
 	switch (ref_robot_data.robot_level) {
 		case 1:
