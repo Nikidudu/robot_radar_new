@@ -138,7 +138,8 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	// Setting speed and acceleration base on robot level
 	uint32_t lvl_max_speed;
 	uint32_t lvl_max_accel;
-	level_config(&lvl_max_speed, &lvl_max_accel);
+	int8_t lvl_max_spin;
+	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
 	uint32_t chassis_rpm = lvl_max_speed;
 
@@ -164,10 +165,10 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	translation_rpm[3] = ((rel_forward * BR_VY_MULT)
 			+ (rel_horizontal * BR_VX_MULT));
 
-	yaw_rpm[0] = rel_yaw * motor_yaw_mult[0] * CHASSIS_YAW_MAX_RPM;  //calculate theoretical wheel rpm for yaw
-	yaw_rpm[1] = rel_yaw * motor_yaw_mult[1] * CHASSIS_YAW_MAX_RPM;
-	yaw_rpm[2] = rel_yaw * motor_yaw_mult[2] * CHASSIS_YAW_MAX_RPM;
-	yaw_rpm[3] = rel_yaw * motor_yaw_mult[3] * CHASSIS_YAW_MAX_RPM;
+	yaw_rpm[0] = rel_yaw * motor_yaw_mult[0] * lvl_max_spin;  //calculate theoretical wheel rpm for yaw
+	yaw_rpm[1] = rel_yaw * motor_yaw_mult[1] * lvl_max_spin;
+	yaw_rpm[2] = rel_yaw * motor_yaw_mult[2] * lvl_max_spin;
+	yaw_rpm[3] = rel_yaw * motor_yaw_mult[3] * lvl_max_spin;
 
 	float rpm_mult = 1;
 	float rpm_sum = 0;
@@ -217,45 +218,86 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	motorbr->output = motorbr->rpm_pid.output;
 }
 
-void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel) {
+void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, int8_t *lvl_max_spin) {
+#ifdef LVL_TUNING
 	switch (ref_robot_data.robot_level) {
-			case 1: *lvl_max_speed = LV1_MAX_SPEED;
-					*lvl_max_accel = LV1_MAX_ACCEL; break;
+		case 1:
+			*lvl_max_speed = LV1_MAX_SPEED;
+			*lvl_max_accel = LV1_MAX_ACCEL;
+			*lvl_max_spin  = LV1_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			case 2: *lvl_max_speed = LV2_MAX_SPEED;
-					*lvl_max_accel = LV2_MAX_ACCEL; break;
+		case 2:
+			*lvl_max_speed = LV2_MAX_SPEED;
+			*lvl_max_accel = LV2_MAX_ACCEL;
+			*lvl_max_spin  = LV2_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			case 3: *lvl_max_speed = LV3_MAX_SPEED;
-					*lvl_max_accel = LV3_MAX_ACCEL; break;
+		case 3:
+			*lvl_max_speed = LV3_MAX_SPEED;
+			*lvl_max_accel = LV3_MAX_ACCEL;
+			*lvl_max_spin  = LV3_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			case 4: *lvl_max_speed = LV4_MAX_SPEED;
-					*lvl_max_accel = LV4_MAX_ACCEL; break;
+		case 4:
+			*lvl_max_speed = LV4_MAX_SPEED;
+			*lvl_max_accel = LV4_MAX_ACCEL;
+			*lvl_max_spin  = LV4_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			case 5: *lvl_max_speed = LV5_MAX_SPEED;
-					*lvl_max_accel = LV5_MAX_ACCEL; break;
+		case 5:
+			*lvl_max_speed = LV5_MAX_SPEED;
+			*lvl_max_accel = LV5_MAX_ACCEL;
+			*lvl_max_spin  = LV5_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			case 6: *lvl_max_speed = LV6_MAX_SPEED;
-					*lvl_max_accel = LV6_MAX_ACCEL; break;
+		case 6:
+			*lvl_max_speed = LV6_MAX_SPEED;
+			*lvl_max_accel = LV6_MAX_ACCEL;
+			*lvl_max_spin  = LV6_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			case 7: *lvl_max_speed = LV7_MAX_SPEED;
-					*lvl_max_accel = LV7_MAX_ACCEL; break;
+		case 7:
+			*lvl_max_speed = LV7_MAX_SPEED;
+			*lvl_max_accel = LV7_MAX_ACCEL;
+			*lvl_max_spin  = LV7_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			case 8: *lvl_max_speed = LV8_MAX_SPEED;
-					*lvl_max_accel = LV8_MAX_ACCEL; break;
+		case 8:
+			*lvl_max_speed = LV8_MAX_SPEED;
+			*lvl_max_accel = LV8_MAX_ACCEL;
+			*lvl_max_spin  = LV8_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			case 9: *lvl_max_speed = LV9_MAX_SPEED;
-					*lvl_max_accel = LV9_MAX_ACCEL; break;
+		case 9:
+			*lvl_max_speed = LV9_MAX_SPEED;
+			*lvl_max_accel = LV9_MAX_ACCEL;
+			*lvl_max_spin  = LV9_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			case 10: *lvl_max_speed = LV10_MAX_SPEED;
-					 *lvl_max_accel = LV10_MAX_ACCEL; break;
+		case 10:
+			*lvl_max_speed = LV10_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
 
-			default: *lvl_max_speed = LV1_MAX_SPEED;
-				     *lvl_max_accel = LV1_MAX_ACCEL;
-		}
+		default:
+			*lvl_max_speed = LV1_MAX_SPEED;
+			*lvl_max_accel = LV1_MAX_ACCEL;
+			*lvl_max_spin  = LV1_CHASSIS_YAW_MAX_RPM;
+	}
+#else
+
+	*lvl_max_speed = LV1_MAX_SPEED;
+	*lvl_max_accel = LV1_MAX_ACCEL;
+	*lvl_max_spin  = CHASSIS_YAW_MAX_RPM;
+
+#endif
 
 	*lvl_max_speed = (*lvl_max_speed < MIN_SPEED) ? MIN_SPEED : *lvl_max_speed;
 	*lvl_max_speed = (*lvl_max_speed > MAX_SPEED) ? MAX_SPEED : *lvl_max_speed; // Cap the max speed of motor
 }
+
 
 void rpm_ramp(int16_t *rpms, int16_t* current_rpm, uint32_t chassis_rpm, uint32_t lvl_max_accel) {
 	int16_t maxRPM = rpms[0];
@@ -302,7 +344,6 @@ void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
 	yaw_rpm[1] = ZERO_SPEED * motor_yaw_mult[1];
 	yaw_rpm[2] = ZERO_SPEED * motor_yaw_mult[2];
 	yaw_rpm[3] = ZERO_SPEED * motor_yaw_mult[3];
-
 
 	speed_pid(yaw_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
 	speed_pid(yaw_rpm[1], motorfl->raw_data.rpm, &motorfl->rpm_pid);

@@ -27,6 +27,7 @@ extern QueueHandle_t g_buzzing_task_msg;
 extern remote_cmd_t g_remote_cmd;
 extern ref_robot_dmg_t ref_dmg_data;
 extern uint32_t ref_dmg_data_txno;
+extern ref_game_robot_data2_t ref_robot_data;
 
 chassis_control_t chassis_ctrl_data;
 gun_control_t launcher_ctrl_data;
@@ -40,7 +41,6 @@ int aimbot_mode = 0;
 uint8_t control_mode = CONTROL_DEFAULT;
 uint8_t g_safety_toggle = ARM_SWITCH;
 uint8_t launcher_safety_toggle = (ARM_SWITCH | LAUNCHER_SAFETY);
-
 
 uint32_t reset_debounce_time = 0;
 uint32_t reset_start_time = 0;
@@ -160,14 +160,91 @@ void control_input_task(void *argument) {
 }
 
 float chassis_center_yaw() {
+	chassis_centering_config(); // set chassis centering pid based on level
+
 	speed_pid(0, g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang,
 			&yaw_pid_data);
 	if (fabs(yaw_pid_data.output) < CHASSIS_YAW_MIN){
 		return 0;
 	}
 	return yaw_pid_data.output;
-//	return 0;
 }
+
+void chassis_centering_config() {
+#ifdef LVL_TUNING
+	switch (ref_robot_data.robot_level) {
+		case 1:
+			yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV1_CHASSIS_YAW_KD;
+			break;
+
+		case 2:
+			yaw_pid_data.kp = LV2_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV2_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV2_CHASSIS_YAW_KD;
+			break;
+
+		case 3:
+			yaw_pid_data.kp = LV3_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV3_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV3_CHASSIS_YAW_KD;
+			break;
+
+		case 4:
+			yaw_pid_data.kp = LV4_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV4_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV4_CHASSIS_YAW_KD;
+			break;
+
+		case 5:
+			yaw_pid_data.kp = LV5_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV5_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV5_CHASSIS_YAW_KD;
+			break;
+
+		case 6:
+			yaw_pid_data.kp = LV6_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV6_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV6_CHASSIS_YAW_KD;
+			break;
+
+		case 7:
+			yaw_pid_data.kp = LV7_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV7_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV7_CHASSIS_YAW_KD;
+			break;
+
+		case 8:
+			yaw_pid_data.kp = LV8_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV8_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV8_CHASSIS_YAW_KD;
+			break;
+
+		case 9:
+			yaw_pid_data.kp = LV9_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV9_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV9_CHASSIS_YAW_KD;
+			break;
+
+		case 10:
+			yaw_pid_data.kp = LV10_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV10_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV10_CHASSIS_YAW_KD;
+			break;
+
+		default:
+			yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
+			yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
+			yaw_pid_data.kd = LV1_CHASSIS_YAW_KD;
+	}
+#else
+	yaw_pid_data.kp = CHASSIS_YAW_KP;
+	yaw_pid_data.ki = CHASSIS_YAW_KI;
+	yaw_pid_data.kd = CHASSIS_YAW_KD;
+#endif
+}
+
 
 void chassis_set_ctrl(float forward, float horizontal, float yaw){
 	chassis_ctrl_data.enabled = 1;

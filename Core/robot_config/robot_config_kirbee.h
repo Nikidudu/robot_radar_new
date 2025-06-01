@@ -46,28 +46,37 @@
 /*********************** REFEREE SYSTEM CONFIGURATION *******************/
 #define OVERHEAT_TIME			100
 
+#define LVL_TUNING
+
 #define LV1_FEEDER				1200//800//480//480
-#define	LV1_PROJECTILE			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
-#define LV1_MAX_SPEED			4000//4500//M3508_MAX_RPM
-#define LV1_MAX_CURRENT			16384
-
 #define LV2_FEEDER				1200//840
-#define	LV2_PROJECTILE			20.5//12
-#define LV2_MAX_SPEED			M3508_MAX_RPM//4750//5250//8000
-#define LV2_MAX_CURRENT			16384
-
 #define LV3_FEEDER				1200//840
-#define	LV3_PROJECTILE			20.5//12
-#define LV3_MAX_SPEED			M3508_MAX_RPM//5250//6000//9000
-#define LV3_MAX_CURRENT			16384
 
-#define LV4_MAX_SPEED			6000//6750
-#define LV5_MAX_SPEED			6750//7500
-#define LV6_MAX_SPEED			7500//8250
+#define	LV1_PROJECTILE			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
+#define	LV2_PROJECTILE			20.5//12
+#define	LV3_PROJECTILE			20.5//12
+
+#define LV1_MAX_SPEED			4000//4500//M3508_MAX_RPM
+#define LV2_MAX_SPEED			6000//4750//5250//8000
+#define LV3_MAX_SPEED			6750//5250//6000//9000
+#define LV4_MAX_SPEED			7500//6750
+#define LV5_MAX_SPEED			M3508_MAX_RPM//7500
+#define LV6_MAX_SPEED			M3508_MAX_RPM//8250
 #define LV7_MAX_SPEED			M3508_MAX_RPM
 #define LV8_MAX_SPEED			M3508_MAX_RPM
 #define LV9_MAX_SPEED			M3508_MAX_RPM
 #define LV10_MAX_SPEED			M3508_MAX_RPM
+
+#define LV1_MAX_ACCEL			1000
+#define LV2_MAX_ACCEL			1000
+#define LV3_MAX_ACCEL			1000
+#define LV4_MAX_ACCEL			1000
+#define LV5_MAX_ACCEL			1000
+#define LV6_MAX_ACCEL			1000
+#define LV7_MAX_ACCEL			1000
+#define LV8_MAX_ACCEL			1000
+#define LV9_MAX_ACCEL			1000
+#define LV10_MAX_ACCEL			1000
 
 #define GEAR_DEFAULT			3
 
@@ -210,11 +219,62 @@
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
 
-#define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
-#define CHASSIS_YAW_KP 		0.45//3.75//1//0.7//0.4
+// Yaw max rpm - max RPM for chassis centering
+#define LV1_CHASSIS_YAW_MAX_RPM		0.75
+#define LV1_CHASSIS_YAW_KP			0.45
+#define LV1_CHASSIS_YAW_KI			0.05
+#define LV1_CHASSIS_YAW_KD			2
+
+#define LV2_CHASSIS_YAW_MAX_RPM		0.75
+#define LV2_CHASSIS_YAW_KP			0.45
+#define LV2_CHASSIS_YAW_KI			0.05
+#define LV2_CHASSIS_YAW_KD			2
+
+#define LV3_CHASSIS_YAW_MAX_RPM		0.75
+#define LV3_CHASSIS_YAW_KP			0.45
+#define LV3_CHASSIS_YAW_KI			0.05
+#define LV3_CHASSIS_YAW_KD			2
+
+#define LV4_CHASSIS_YAW_MAX_RPM		0.75
+#define LV4_CHASSIS_YAW_KP			0.45
+#define LV4_CHASSIS_YAW_KI			0.05
+#define LV4_CHASSIS_YAW_KD			2
+
+#define LV5_CHASSIS_YAW_MAX_RPM		0.75
+#define LV5_CHASSIS_YAW_KP			0.45
+#define LV5_CHASSIS_YAW_KI			0.05
+#define LV5_CHASSIS_YAW_KD			2
+
+#define LV6_CHASSIS_YAW_MAX_RPM		0.75
+#define LV6_CHASSIS_YAW_KP			0.45
+#define LV6_CHASSIS_YAW_KI			0.05
+#define LV6_CHASSIS_YAW_KD			2
+
+#define LV7_CHASSIS_YAW_MAX_RPM		0.75
+#define LV7_CHASSIS_YAW_KP			0.45
+#define LV7_CHASSIS_YAW_KI			0.05
+#define LV7_CHASSIS_YAW_KD			2
+
+#define LV8_CHASSIS_YAW_MAX_RPM		0.75
+#define LV8_CHASSIS_YAW_KP			0.45
+#define LV8_CHASSIS_YAW_KI			0.05
+#define LV8_CHASSIS_YAW_KD			2
+
+#define LV9_CHASSIS_YAW_MAX_RPM		0.75
+#define LV9_CHASSIS_YAW_KP			0.45
+#define LV9_CHASSIS_YAW_KI			0.05
+#define LV9_CHASSIS_YAW_KD			2
+
+#define LV10_CHASSIS_YAW_MAX_RPM	0.75
+#define LV10_CHASSIS_YAW_KP			0.45
+#define LV10_CHASSIS_YAW_KI			0.05
+#define LV10_CHASSIS_YAW_KD			2
+
+// Default values
+#define CHASSIS_YAW_MAX_RPM	0.75
+#define CHASSIS_YAW_KP 		0.45 //3.75//1//0.7//0.4
 #define CHASSIS_YAW_KI		0.05
-#define CHASSIS_YAW_KD 		2//0
-#define CHASSIS_YAW_MIN		0.05
+#define CHASSIS_YAW_KD 		2 //0
 
 #define CHASSIS_TRANS_PRIO		0.85			//% of chassis speed to be prioritised for translation
 #define CHASSIS_YAW_PRIO		(1-CHASSIS_TRANS_PRIO)
@@ -390,3 +450,4 @@
 
 
 #endif /* ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE_H_ */
+_ */
