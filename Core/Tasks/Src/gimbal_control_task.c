@@ -81,16 +81,15 @@ void gimbal_control_task(void *argument) {
 			g_can_motors[YAW_MOTOR_ID - 1].output = 0;
 #else
 			dm_yaw_motor.angle_pid.output = 0;
-			dm_yaw_motor.ctrl.vel_set = 0;
-			dm_yaw_motor.ctrl.tor_set = 0;
-			dm4310_ctrl_send(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
+            dm4310_clear_para(&dm_yaw_motor);
+//			dm4310_ctrl_send(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
 #endif
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 			g_pitch_motor.output = 0;
 #else
 			dm_pitch_motor.angle_pid.output = 0;
-			dm_pitch_motor.ctrl.tor_set = 0;
+            dm4310_clear_para(&dm_pitch_motor);
 			dm4310_ctrl_send(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
 #endif
 		}
@@ -143,6 +142,7 @@ uint8_t limit_pitch(float *rel_pitch_angle, motor_data_t *pitch_motor) {
 
 void calculate_direct_pitch(motor_data_t *pitch_motor) {
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+	dm4310_set(&dm_pitch_motor);
 	float target_pitch = gimbal_ctrl_data.pitch;
 
     if (target_pitch > dm_pitch_motor.angle_data.phy_max_ang) {
@@ -152,16 +152,15 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
     }
 
 	yaw_pid(target_pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
-	if (gimbal_ctrl_data.enabled == 1){
-		dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output + PITCH_CONST;
+	dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output + PITCH_CONST;
+
+		// below is calculation for sentry pitch
 //		dm_pitch_motor.ctrl.tor_set = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
 //		dm_pitch_motor.ctrl.tor_set += 1.1;
-	} else {
-		dm_pitch_motor.ctrl.tor_set = 0.0f;
-	}
 
-	dm_pitch_motor.para.heartbeat = 0;
-	dm4310_ctrl_send(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
+
+//	dm_pitch_motor.para.heartbeat = 0;
+//	dm4310_ctrl_send(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
 
 //	if ((motor[Motor1].para.heartbeat == 0 || motor[Motor1].para.state != 9) && motor[Motor1].para.disconnect_time > 100) {
 //		motor[Motor1].para.disconnect_time = 0;
@@ -243,7 +242,7 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 
 void yaw_control(motor_data_t *yaw_motor) {
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
-
+	dm4310_set(&dm_yaw_motor);
 	float turn_ang = imu_heading.yaw - prev_yaw;
 
 	while (turn_ang > PI) {
@@ -253,7 +252,8 @@ void yaw_control(motor_data_t *yaw_motor) {
 		turn_ang += 2 * PI;
 	}
 
-	prev_yaw = imu_heading.yaw;
+//	prev_yaw = imu_heading.yaw;
+	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
 	gimbal_ctrl_data.delta_yaw -= turn_ang;
 
 //	if (gimbal_ctrl_data.delta_yaw > 1.5 * PI) {
@@ -264,7 +264,7 @@ void yaw_control(motor_data_t *yaw_motor) {
 //	}
 
 	 yaw_pid(0, -gimbal_ctrl_data.delta_yaw, &dm_yaw_motor.angle_pid);
-
+	 xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 //	// TODO: use another logic for error checking (link to beeping sounds)
 //	if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
 //		dm_pitch_motor.para.disconnect_time = 0;
@@ -298,7 +298,7 @@ void yaw_control(motor_data_t *yaw_motor) {
 			chassis_ctrl_data.yaw * (YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
 	 dm_yaw_motor.ctrl.tor_set = FEEDFORWARD_CONST * dm_yaw_motor.para.vel;
 
-	dm4310_ctrl_send(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
+//	dm4310_ctrl_send(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
 
 #else
 	uint8_t yaw_lim = 0;

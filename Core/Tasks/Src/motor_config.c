@@ -362,11 +362,11 @@ void dm_set_motor_config() {
     dm_pitch_motor.angle_pid.int_max = DM_PITCH_INT_MAX;
     dm_pitch_motor.angle_pid.max_out = DM_PITCH_MAX_OUT;
 
-    dm_pitch_motor.ctrl.kp_set = DM_PITCH_MIT_KP;
-    dm_pitch_motor.ctrl.kd_set = DM_PITCH_MIT_KD;
-    dm_pitch_motor.ctrl.pos_set = DM_PITCH_MIT_POS;
-    dm_pitch_motor.ctrl.vel_set = DM_PITCH_MIT_VEL;
-    dm_pitch_motor.ctrl.tor_set = DM_PITCH_MIT_TOR;
+    dm_pitch_motor.cmd.kp_set = DM_PITCH_MIT_KP;
+    dm_pitch_motor.cmd.kd_set = DM_PITCH_MIT_KD;
+    dm_pitch_motor.cmd.pos_set = DM_PITCH_MIT_POS;
+    dm_pitch_motor.cmd.vel_set = DM_PITCH_MIT_VEL;
+    dm_pitch_motor.cmd.tor_set = DM_PITCH_MIT_TOR;
 
     dm_pitch_motor.angle_data.center_ang = PITCH_CENTER;
     dm_pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
@@ -389,11 +389,11 @@ void dm_set_motor_config() {
     dm_yaw_motor.angle_pid.int_max = DM_YAW_INT_MAX;
     dm_yaw_motor.angle_pid.max_out = DM_YAW_MAX_OUT;
 
-    dm_yaw_motor.ctrl.kp_set = DM_YAW_MIT_KP;
-    dm_yaw_motor.ctrl.kd_set = DM_YAW_MIT_KD;
-    dm_yaw_motor.ctrl.pos_set = DM_YAW_MIT_POS;
-    dm_yaw_motor.ctrl.vel_set = DM_YAW_MIT_VEL;
-    dm_yaw_motor.ctrl.tor_set = DM_YAW_MIT_TOR;
+    dm_yaw_motor.cmd.kp_set = DM_YAW_MIT_KP;
+    dm_yaw_motor.cmd.kd_set = DM_YAW_MIT_KD;
+    dm_yaw_motor.cmd.pos_set = DM_YAW_MIT_POS;
+    dm_yaw_motor.cmd.vel_set = DM_YAW_MIT_VEL;
+    dm_yaw_motor.cmd.tor_set = DM_YAW_MIT_TOR;
 
     dm_yaw_motor.angle_data.center_ang = YAW_CENTER;
     dm_yaw_motor.angle_data.phy_max_ang = YAW_MAX_ANG;

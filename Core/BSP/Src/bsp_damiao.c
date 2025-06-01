@@ -147,11 +147,11 @@ void dm4310_set(dm_motor_t *motor)
 **/
 void dm4310_clear_para(dm_motor_t *motor)
 {
-    motor->cmd.kd_set   = 0;
-    motor->cmd.kp_set   = 0;
-    motor->cmd.pos_set  = 0;
-    motor->cmd.vel_set  = 0;
-    motor->cmd.tor_set  = 0;
+//    motor->cmd.kd_set   = 0;
+//    motor->cmd.kp_set   = 0;
+//    motor->cmd.pos_set  = 0;
+//    motor->cmd.vel_set  = 0;
+//    motor->cmd.tor_set  = 0;
     
     motor->ctrl.kd_set  = 0;
     motor->ctrl.kp_set  = 0;

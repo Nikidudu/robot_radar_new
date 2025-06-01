@@ -43,6 +43,7 @@ typedef struct _PID {
 //} CascadePID;
 
 // Motor Command Structure
+// to store fixed kp, kd, pos, vel, tor values
 typedef struct {
     float kp_set;
     float kd_set;
@@ -52,6 +53,7 @@ typedef struct {
 } dm_motor_cmd_t;
 
 // Motor Control Structure
+// values to be sent to the DM4310 motor
 typedef struct {
     uint8_t mode;   // 0: MIT Mode, 1: Position-Speed Mode, 2: Speed Mode, 3: Position Force Mode
     float kp_set;
