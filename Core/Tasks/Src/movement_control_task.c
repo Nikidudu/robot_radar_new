@@ -136,47 +136,10 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 			+ abs(motorfl->raw_data.rpm) + abs(motorbr->raw_data.rpm)
 			+ abs(motorbl->raw_data.rpm)) / 4;
 
+	// Setting speed and acceleration base on robot level
 	uint32_t lvl_max_speed;
 	uint32_t lvl_max_accel;
-
-	switch (ref_robot_data.robot_level) {
-			case 1: lvl_max_speed = LV1_MAX_SPEED;
-					lvl_max_accel = LV1_MAX_ACCEL; break;
-
-			case 2: lvl_max_speed = LV2_MAX_SPEED;
-					lvl_max_accel = LV2_MAX_ACCEL; break;
-
-			case 3: lvl_max_speed = LV3_MAX_SPEED;
-					lvl_max_accel = LV3_MAX_ACCEL; break;
-
-			case 4: lvl_max_speed = LV4_MAX_SPEED;
-					lvl_max_accel = LV4_MAX_ACCEL; break;
-
-			case 5: lvl_max_speed = LV5_MAX_SPEED;
-					lvl_max_accel = LV5_MAX_ACCEL; break;
-
-			case 6: lvl_max_speed = LV6_MAX_SPEED;
-					lvl_max_accel = LV6_MAX_ACCEL; break;
-
-			case 7: lvl_max_speed = LV7_MAX_SPEED;
-					lvl_max_accel = LV7_MAX_ACCEL; break;
-
-			case 8: lvl_max_speed = LV8_MAX_SPEED;
-					lvl_max_accel = LV8_MAX_ACCEL; break;
-
-			case 9: lvl_max_speed = LV9_MAX_SPEED;
-					lvl_max_accel = LV9_MAX_ACCEL; break;
-
-			case 10: lvl_max_speed = LV10_MAX_SPEED;
-					 lvl_max_accel = LV10_MAX_ACCEL; break;
-
-			default: lvl_max_speed = LV1_MAX_SPEED + (ref_robot_data.chassis_power_limit - 60) / 10 * 1500;
-				     lvl_max_accel = LV1_MAX_ACCEL;
-		}
-
-	lvl_max_speed = (lvl_max_speed < MIN_SPEED) ? MIN_SPEED : lvl_max_speed;
-
-	lvl_max_speed = (lvl_max_speed > MAX_SPEED) ? MAX_SPEED : lvl_max_speed; // Cap the max speed of motor
+	level_config(&lvl_max_speed, &lvl_max_accel);
 
 	chassis_rpm = lvl_max_speed;
 
@@ -217,37 +180,14 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 		}
 	}
 
+	int16_t rpms[4] = {
+	    motorfr->raw_data.rpm,
+	    motorfl->raw_data.rpm,
+	    motorbr->raw_data.rpm,
+	    motorbl->raw_data.rpm
+	};
 
-	int rpm1 = motorfr->raw_data.rpm;
-	int rpm2 = motorfl->raw_data.rpm;
-	int rpm3 = motorbr->raw_data.rpm;
-	int rpm4 = motorbl->raw_data.rpm;
-
-	int maxRPM = rpm1;
-
-	if (rpm2 > maxRPM) maxRPM = rpm2;
-	if (rpm3 > maxRPM) maxRPM = rpm3;
-	if (rpm4 > maxRPM) maxRPM = rpm4;
-
-
-	current_rpm = maxRPM;
-	int16_t target_rpm = chassis_rpm;
-	double dt = 0.005;
-	uint32_t accel = lvl_max_accel; //50000 //Default Chassis_Accel_max is LV1_ACCEL_MAX
-
-	if (target_rpm > current_rpm) {
-		current_rpm += accel * dt;
-		if (current_rpm > target_rpm) {
-			current_rpm = target_rpm;
-		}
-	} else if (target_rpm < current_rpm) {
-		current_rpm -= accel * dt;
-		if (current_rpm < target_rpm) {
-			current_rpm = target_rpm;
-		}
-	}
-
-	current_rpm = (current_rpm > MAX_SPEED) ? MAX_SPEED : current_rpm; //Max speed check for motor protection
+	rpm_ramp(rpms, &current_rpm, chassis_rpm, lvl_max_accel);
 
 	// translation rpm will not be more than chassis_rpm
 	int32_t avg_trans = 0;
@@ -276,6 +216,75 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	motorfl->output = motorfl->rpm_pid.output;
 	motorbl->output = motorbl->rpm_pid.output;
 	motorbr->output = motorbr->rpm_pid.output;
+}
+
+void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel) {
+	switch (ref_robot_data.robot_level) {
+			case 1: *lvl_max_speed = LV1_MAX_SPEED;
+					*lvl_max_accel = LV1_MAX_ACCEL; break;
+
+			case 2: *lvl_max_speed = LV2_MAX_SPEED;
+					*lvl_max_accel = LV2_MAX_ACCEL; break;
+
+			case 3: *lvl_max_speed = LV3_MAX_SPEED;
+					*lvl_max_accel = LV3_MAX_ACCEL; break;
+
+			case 4: *lvl_max_speed = LV4_MAX_SPEED;
+					*lvl_max_accel = LV4_MAX_ACCEL; break;
+
+			case 5: *lvl_max_speed = LV5_MAX_SPEED;
+					*lvl_max_accel = LV5_MAX_ACCEL; break;
+
+			case 6: *lvl_max_speed = LV6_MAX_SPEED;
+					*lvl_max_accel = LV6_MAX_ACCEL; break;
+
+			case 7: *lvl_max_speed = LV7_MAX_SPEED;
+					*lvl_max_accel = LV7_MAX_ACCEL; break;
+
+			case 8: *lvl_max_speed = LV8_MAX_SPEED;
+					*lvl_max_accel = LV8_MAX_ACCEL; break;
+
+			case 9: *lvl_max_speed = LV9_MAX_SPEED;
+					*lvl_max_accel = LV9_MAX_ACCEL; break;
+
+			case 10: *lvl_max_speed = LV10_MAX_SPEED;
+					 *lvl_max_accel = LV10_MAX_ACCEL; break;
+
+			default: *lvl_max_speed = LV1_MAX_SPEED;
+				     *lvl_max_accel = LV1_MAX_ACCEL;
+		}
+
+	*lvl_max_speed = (*lvl_max_speed < MIN_SPEED) ? MIN_SPEED : *lvl_max_speed;
+	*lvl_max_speed = (*lvl_max_speed > MAX_SPEED) ? MAX_SPEED : *lvl_max_speed; // Cap the max speed of motor
+}
+
+void rpm_ramp(int16_t *rpms, int16_t* current_rpm, int32_t chassis_rpm, uint32_t lvl_max_accel) {
+	int16_t maxRPM = rpms[0];
+
+	for (int i = 1; i < 4; i++) {
+	    if (rpms[i] > maxRPM) {
+	        maxRPM = rpms[i];
+	    }
+	}
+
+	*current_rpm = maxRPM;
+	int16_t target_rpm = chassis_rpm;
+	double dt = CHASSIS_DELAY / 1000;
+	uint32_t accel = lvl_max_accel; //50000 //Default Chassis_Accel_max is LV1_ACCEL_MAX
+
+	if (target_rpm > *current_rpm) {
+		*current_rpm += accel * dt;
+		if (*current_rpm > target_rpm) {
+			*current_rpm = target_rpm;
+		}
+	} else if (target_rpm < *current_rpm) {
+		*current_rpm -= accel * dt;
+		if (*current_rpm < target_rpm) {
+			*current_rpm = target_rpm;
+		}
+	}
+
+	*current_rpm = (*current_rpm > MAX_SPEED) ? MAX_SPEED : *current_rpm; //Max speed check for motor protection
 }
 
 #ifdef HALL_ZERO
