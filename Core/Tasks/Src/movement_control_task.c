@@ -24,7 +24,6 @@ extern ref_game_robot_data_t ref_robot_data;
 extern uint32_t ref_power_data_txno;
 extern speed_shift_t gear_speed;
 float g_chassis_yaw = 0;
-int32_t chassis_rpm = MAX_SPEED;
 uint8_t g_gimbal_state = 0;
 extern uint8_t hall_state;
 extern int g_spinspin_mode;
@@ -141,7 +140,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	uint32_t lvl_max_accel;
 	level_config(&lvl_max_speed, &lvl_max_accel);
 
-	chassis_rpm = lvl_max_speed;
+	uint32_t chassis_rpm = lvl_max_speed;
 
 	//rotate angle of the movement :)
 	//MA1513/MA1508E is useful!!
@@ -258,7 +257,7 @@ void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel) {
 	*lvl_max_speed = (*lvl_max_speed > MAX_SPEED) ? MAX_SPEED : *lvl_max_speed; // Cap the max speed of motor
 }
 
-void rpm_ramp(int16_t *rpms, int16_t* current_rpm, int32_t chassis_rpm, uint32_t lvl_max_accel) {
+void rpm_ramp(int16_t *rpms, int16_t* current_rpm, uint32_t chassis_rpm, uint32_t lvl_max_accel) {
 	int16_t maxRPM = rpms[0];
 
 	for (int i = 1; i < 4; i++) {
@@ -268,9 +267,9 @@ void rpm_ramp(int16_t *rpms, int16_t* current_rpm, int32_t chassis_rpm, uint32_t
 	}
 
 	*current_rpm = maxRPM;
-	int16_t target_rpm = chassis_rpm;
-	double dt = CHASSIS_DELAY / 1000;
-	uint32_t accel = lvl_max_accel; //50000 //Default Chassis_Accel_max is LV1_ACCEL_MAX
+	uint32_t target_rpm = chassis_rpm;
+	double dt = CHASSIS_DELAY / 1000.0 * 60.0; // Converting dt to minutes
+	uint32_t accel = lvl_max_accel; //1000 //Default Chassis_Accel_max is LV1_ACCEL_MAX
 
 	if (target_rpm > *current_rpm) {
 		*current_rpm += accel * dt;
