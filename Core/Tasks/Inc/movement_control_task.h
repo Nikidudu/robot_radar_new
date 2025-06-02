@@ -11,7 +11,7 @@
 void movement_control_task(void *argument);
 void chassis_motion_control();
 void chassis_pid_init();
-void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, int8_t *lvl_max_spin);
+void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, double *lvl_max_spin);
 void rpm_ramp(int16_t *rpms, int16_t* current_rpm, uint32_t chassis_rpm, uint32_t lvl_max_accel);
 void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl, motor_data_t *motorbl, motor_data_t *motorbr);
 

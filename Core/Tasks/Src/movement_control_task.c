@@ -41,7 +41,7 @@ extern int supercap_dash;
 
 static uint32_t lvl_max_speed = LV1_MAX_SPEED;
 static uint32_t lvl_max_accel = LV1_MAX_ACCEL;
-static int8_t lvl_max_spin = CHASSIS_YAW_MAX_RPM;
+static double lvl_max_spin = CHASSIS_YAW_MAX_RPM;
 
 void movement_control_task(void *argument) {
 	TickType_t start_time;
@@ -219,7 +219,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	motorbr->output = motorbr->rpm_pid.output;
 }
 
-void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, int8_t *lvl_max_spin) {
+void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, double *lvl_max_spin) {
 	static uint8_t prev_robot_level = 0;
 
 	// Hopefully with this, we can adjust pid values without it being overwritten all the time
