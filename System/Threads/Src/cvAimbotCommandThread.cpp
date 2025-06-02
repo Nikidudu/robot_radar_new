@@ -44,7 +44,7 @@ void cvAimbotCommandThread::loop() {
 		if (aim_state) {
 			gimbal_ctrl_data.delta_yaw = yaw*2; // + g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
 			gimbal_ctrl_data.pitch = pitch + INS.Pitch;
-					// imu_heading.pit;
+//			gimbal_ctrl_data.pitch = imu_heading.pit;
 			launcher_ctrl_data.firing = fire_state;
 		} else {
 			gimbal_ctrl_data.pitch = 0;

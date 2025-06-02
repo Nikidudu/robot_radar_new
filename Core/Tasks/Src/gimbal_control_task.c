@@ -33,6 +33,7 @@ extern int32_t chassis_rpm;
 
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
+extern INS_t INS;
 
 static float prev_pit;
 static float prev_yaw;
@@ -152,11 +153,11 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
     }
 
 	yaw_pid(target_pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
-	dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output + PITCH_CONST;
+//	dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output + PITCH_CONST;
 
 		// below is calculation for sentry pitch
-//		dm_pitch_motor.ctrl.tor_set = 0.4842f*imu_heading.pit - 2.3124f - gimbal_pid_pitch.output;
-//		dm_pitch_motor.ctrl.tor_set += 1.1;
+		dm_pitch_motor.ctrl.tor_set = 0.4842f*imu_heading.pit - 2.3124f - dm_pitch_motor.angle_pid.output;
+		dm_pitch_motor.ctrl.tor_set += 1.1;
 
 
 //	dm_pitch_motor.para.heartbeat = 0;
