@@ -291,15 +291,15 @@
 
 #else
 
-#define DM_YAW_KP			0
-#define DM_YAW_KI			5
+#define DM_YAW_KP			5
+#define DM_YAW_KI			0
 #define DM_YAW_KD			0
 #define DM_YAW_INT_MAX		0
 #define DM_YAW_MAX_OUT		45
 #define DM_YAW_MODE			0	// 0 - MIT, 1 - Position, 2 - Speed
 
 #define DM_YAW_MIT_KP			0
-#define DM_YAW_MIT_KD			0
+#define DM_YAW_MIT_KD			2
 #define DM_YAW_MIT_POS			0
 #define DM_YAW_MIT_VEL			0
 #define DM_YAW_MIT_TOR			0
@@ -307,7 +307,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	6
-#define YAW_CENTER 				0
+#define YAW_CENTER 				0.9
 #define YAW_MAX_ANG				4*PI
 #define YAW_MIN_ANG				4*-PI
 

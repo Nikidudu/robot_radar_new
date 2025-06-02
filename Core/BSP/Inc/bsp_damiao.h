@@ -126,4 +126,11 @@ void MFtorque_command(CAN_HandleTypeDef* hcan, uint16_t motor_id, float desired_
 float uint_to_float(int x_int, float x_min, float x_max, int bits);
 int float_to_uint(float x_float, float x_min, float x_max, int bits);
 
+// Helper functions
+float dm_yaw_encoder_mod(float raw_angle);
+
+// Motor data mapping functions
+void dmmapyawfbdata(dm_motor_t *yaw_motor);
+void dmmappitchfbdata(dm_motor_t *pitch_motor);
+
 #endif /* BSP_DAMIAO_H */ 

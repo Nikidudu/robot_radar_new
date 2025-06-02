@@ -90,7 +90,7 @@ void gimbal_control_task(void *argument) {
 #else
 			dm_pitch_motor.angle_pid.output = 0;
             dm4310_clear_para(&dm_pitch_motor);
-			dm4310_ctrl_send(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
+//			dm4310_ctrl_send(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
 #endif
 		}
 		prev_yaw = imu_heading.yaw;;
