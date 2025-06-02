@@ -22,6 +22,8 @@ extern uint8_t g_safety_toggle;
 volatile uint32_t g_motor_control_time;
 extern motor_data_t g_pitch_motor;
 
+extern dm_motor_t dm_pitch_motor;
+extern dm_motor_t dm_yaw_motor;
 
 void empty_tx_mb1(CAN_HandleTypeDef *hcan){
 	static uint8_t prev_mailbox;
@@ -79,8 +81,19 @@ void motor_control_task(void *argument) {
 
 		if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
 
-#if PITCH_MOTOR_TYPE > TYPE_GM6020_720	//check if motor is LK or DJI
+// check if it is LK motor
+#if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
 			lk_motor_kill(&g_pitch_motor);
+#endif
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+			dm4310_clear_para(&dm_pitch_motor);
+	        dm4310_ctrl_send(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
+#endif
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+			dm4310_clear_para(&dm_yaw_motor);
+	        dm4310_ctrl_send(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
 #endif
 			//add lk kill motor
 			CAN_send_data[0] = 0;
@@ -254,8 +267,17 @@ void motor_control_task(void *argument) {
 		}
 
 
-#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
+#if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
 		lk_read_motor_sang(&g_pitch_motor);
+#endif
+
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+		dm4310_ctrl_send(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
+#endif
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+		dm4310_ctrl_send(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
 #endif
 
 

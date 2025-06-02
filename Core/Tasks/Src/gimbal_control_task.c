@@ -15,6 +15,7 @@
 #include "INS_task.h"
 #include "bsp_damiao.h"
 #include "bsp_microswitch.h"
+#include "dm4310_drv.h"
 
 extern uint8_t control_mode;
 extern uint8_t aimbot_mode;
@@ -32,6 +33,11 @@ extern remote_cmd_t g_remote_cmd;
 static float rel_pitch_angle;
 extern uint8_t gimbal_upper_bound;
 extern uint8_t gimbal_lower_bound;
+//static float rel_pitch_angle;
+
+extern dm_motor_t dm_pitch_motor;
+extern dm_motor_t dm_yaw_motor;
+extern INS_t INS;
 
 static float prev_pit;
 static float prev_yaw;
@@ -47,7 +53,7 @@ static pid_data_t g_yaw_ff_pid = {
 			.max_out = YAW_FF_MAX_OUTPUT
 };
 #endif
-static float g_chassis_rot;
+//static float g_chassis_rot;
 float curr_rot;
 
 /**
@@ -78,8 +84,20 @@ void gimbal_control_task(void *argument) {
 						g_can_motors + YAW_MOTOR_ID - 1);
 			}
 		} else {
-			g_pitch_motor.output = 0;
+
+#if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 			g_can_motors[YAW_MOTOR_ID - 1].output = 0;
+#else
+			dm_yaw_motor.angle_pid.output = 0;
+            dm4310_clear_para(&dm_yaw_motor);
+#endif
+
+#if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
+			g_pitch_motor.output = 0;
+#else
+			dm_pitch_motor.angle_pid.output = 0;
+            dm4310_clear_para(&dm_pitch_motor);
+#endif
 		}
 		prev_yaw = imu_heading.yaw;
 		status_led(2, off_led);
@@ -156,7 +174,71 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_3, pulseWidth2 / 10);
 
 #endif
+}
+
+uint8_t limit_pitch(float *rel_pitch_angle, motor_data_t *pitch_motor) {
+	uint8_t pit_lim = 0;
+	if (*rel_pitch_angle > pitch_motor->angle_data.phy_max_ang) {
+		*rel_pitch_angle = pitch_motor->angle_data.phy_max_ang;
+		pit_lim = 1;
+	}
+	if (*rel_pitch_angle < pitch_motor->angle_data.phy_min_ang) {
+		*rel_pitch_angle = pitch_motor->angle_data.phy_min_ang;
+		pit_lim = 1;
+	}
+	return pit_lim;
+}
+
+void calculate_direct_pitch(motor_data_t *pitch_motor) {
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+	dm4310_set(&dm_pitch_motor);
+	float target_pitch = gimbal_ctrl_data.pitch;
+
+    if (target_pitch > dm_pitch_motor.angle_data.phy_max_ang) {
+        target_pitch = dm_pitch_motor.angle_data.phy_max_ang;
+    } else if(target_pitch < dm_pitch_motor.angle_data.phy_min_ang) {
+        target_pitch = dm_pitch_motor.angle_data.phy_min_ang;
+    }
+
+#ifdef SENTRY
+	// this is calculation for sentry pitch
+	yaw_pid(target_pitch, INS.Pitch, &dm_pitch_motor.angle_pid);
+	dm_pitch_motor.ctrl.tor_set = 0.4842f*imu_heading.pit - 2.3124f - dm_pitch_motor.angle_pid.output;
+	dm_pitch_motor.ctrl.tor_set += 1.1;
 #else
+	yaw_pid(target_pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
+	dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output + PITCH_CONST;
+#endif
+
+#else
+
+	uint8_t pit_lim = 0;
+	float rel_pitch_angle = pitch_motor->angle_data.adj_ang
+				+ gimbal_ctrl_data.pitch - imu_heading.pit;
+
+	pit_lim = limit_pitch(&rel_pitch_angle, pitch_motor);
+
+	if (pit_lim == 1) {
+		gimbal_ctrl_data.pitch = rel_pitch_angle + imu_heading.pit
+				- (pitch_motor->angle_data.adj_ang);
+	}
+
+	yangle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor,
+			imu_heading.pit, &prev_pit,1);
+
+	int32_t temp_pit_output = pitch_motor->rpm_pid.output + PITCH_CONST;
+	temp_pit_output = (temp_pit_output < -20000) ? -20000 :
+						(temp_pit_output > 20000) ? 20000 : temp_pit_output;
+
+	pitch_motor->output = temp_pit_output;
+#endif
+
+}
+
+// Pitch calculation for robots with 4 arm linkage
+void calculate_linkage_pitch(motor_data_t *pitch_motor) {
+	uint8_t pit_lim = 0;
+
 	float rel_pitch_angle = gimbal_ctrl_data.pitch; // insert function where input desired gimbal pitch angle and output corresponding motor angle
 
 	if (rel_pitch_angle > pitch_motor->angle_data.phy_max_ang) {
@@ -191,6 +273,36 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 //	pitch_motor->rpm_pid.output *=-1;
 //#endif
 
+void yaw_control(motor_data_t *yaw_motor) {
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+	dm4310_set(&dm_yaw_motor);
+	float turn_ang = imu_heading.yaw - prev_yaw;
+
+	while (turn_ang > PI) {
+		turn_ang -= 2 * PI;
+	}
+	while (turn_ang < -PI) {
+		turn_ang += 2 * PI;
+	}
+
+	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
+	gimbal_ctrl_data.delta_yaw -= turn_ang;
+
+//	if (gimbal_ctrl_data.delta_yaw > 1.5 * PI) {
+//		gimbal_ctrl_data.delta_yaw = 1.5 * PI;
+//	}
+//	if (gimbal_ctrl_data.delta_yaw < -1.5 * PI) {
+//		gimbal_ctrl_data.delta_yaw = -1.5 * PI;
+//	}
+
+	 yaw_pid(0, -gimbal_ctrl_data.delta_yaw, &dm_yaw_motor.angle_pid);
+	 xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
+
+	 dm_yaw_motor.ctrl.vel_set = dm_yaw_motor.angle_pid.output +
+			chassis_ctrl_data.yaw * (YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
+	 dm_yaw_motor.ctrl.tor_set = FEEDFORWARD_CONST * dm_yaw_motor.para.vel;
+#else
+	uint8_t yaw_lim = 0;
 	float rel_yaw_angle = yaw_motor->angle_data.adj_ang + gimbal_ctrl_data.yaw
 			- imu_heading.yaw;
 
@@ -242,12 +354,13 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 	int32_t temp_output = yaw_motor->rpm_pid.output  + (chassis_ctrl_data.yaw * YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
 	temp_output = (temp_output > 20000) ? 20000 : (temp_output < -20000) ? -20000 : temp_output;
 	yaw_motor->output = temp_output;
+
 #ifdef YAW_FEEDFORWARD
 //	speed_pid(yaw_motor->raw_data.rpm + yaw_motor->angle_pid.output, g_chassis_rot, &g_yaw_ff_pid);
 //	yaw_motor->output += g_yaw_ff_pid.output;
 //	yaw_motor->output = (yaw_motor->output < - 20000) ? -20000 : (yaw_motor->output > 20000) ? 20000:yaw_motor->output;
 #endif
-
+#endif
 }
 
 void gimbal_angle_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {

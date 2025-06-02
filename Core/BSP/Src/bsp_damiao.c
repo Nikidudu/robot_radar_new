@@ -9,24 +9,30 @@ static uint32_t dm_mailbox[3];
 
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
+extern motor_data_t g_can_motors[24];
+extern motor_data_t g_pitch_motor;
+extern EventGroupHandle_t gimbal_event_group;
+
 
 void dm4310_motor_init(void)
 {
-#if PITCH_MOTOR_TYPE == TYPE_DM4310
-  	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
-  	dm_pitch_motor.id = 0x81;
-  	dm_pitch_motor.ctrl.mode = 0;
-  	dm4310_enable(&hcan1, &dm_pitch_motor);
-  	vTaskDelay(3);
-#endif
+// this function has been implemented in motor_config. should no longer be used
 
-#if YAW_MOTOR_TYPE == TYPE_DM4310
-  	memset(&dm_yaw_motor, 0, sizeof(dm_yaw_motor));
-  	dm_yaw_motor.id = 0x61;
-  	dm_yaw_motor.ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
-  	dm4310_enable(&hcan2, &dm_yaw_motor);
-  	vTaskDelay(3);
-#endif
+	#if PITCH_MOTOR_TYPE == TYPE_DM4310
+		memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
+		dm_pitch_motor.id = 0x81;
+		dm_pitch_motor.ctrl.mode = 0;
+		dm4310_enable(&hcan1, &dm_pitch_motor);
+		vTaskDelay(3);
+	#endif
+
+	#if YAW_MOTOR_TYPE == TYPE_DM4310
+		memset(&dm_yaw_motor, 0, sizeof(dm_yaw_motor));
+		dm_yaw_motor.id = 0x61;
+		dm_yaw_motor.ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+		dm4310_enable(&hcan2, &dm_yaw_motor);
+		vTaskDelay(3);
+	#endif
 }
 
 /** ************************************************************************
@@ -145,11 +151,11 @@ void dm4310_set(dm_motor_t *motor)
 **/
 void dm4310_clear_para(dm_motor_t *motor)
 {
-    motor->cmd.kd_set   = 0;
-    motor->cmd.kp_set   = 0;
-    motor->cmd.pos_set  = 0;
-    motor->cmd.vel_set  = 0;
-    motor->cmd.tor_set  = 0;
+//    motor->cmd.kd_set   = 0;
+//    motor->cmd.kp_set   = 0;
+//    motor->cmd.pos_set  = 0;
+//    motor->cmd.vel_set  = 0;
+//    motor->cmd.tor_set  = 0;
     
     motor->ctrl.kd_set  = 0;
     motor->ctrl.kp_set  = 0;
@@ -206,10 +212,18 @@ void dm4310_fbdata(dm_motor_t *motor, uint8_t *rx_data)
     motor->para.Tmos = (float)(rx_data[6]);
     motor->para.Tcoil = (float)(rx_data[7]);
 
+	//initialise task switching variables
+	BaseType_t xHigherPriorityTaskWoken, xResult;
+	xHigherPriorityTaskWoken = pdFALSE;
+
     // Map feedback data based on motor ID
-    if (motor->id == 0x61) {
+    if (motor->id == dm_yaw_motor.id) {
+		xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b10,
+				&xHigherPriorityTaskWoken);
         dmmapyawfbdata(motor);
-    } else if (motor->id == 0x81) {
+    } else if (motor->id == dm_pitch_motor.id) {
+		xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
+				&xHigherPriorityTaskWoken);
         dmmappitchfbdata(motor);
     }
 }
@@ -577,4 +591,29 @@ void MFtorque_command(CAN_HandleTypeDef* hcan, uint16_t motor_id, float desired_
         // Transmission error handling
 //        Error_Handler();
     }
+}
+
+float dm_yaw_encoder_mod(float raw_angle) {
+//    float mapped_angle = fmod(P_MAX + raw_angle, 2*P_MAX/P_ROUNDS);
+//    return mapped_angle - P_MAX/P_ROUNDS;
+
+    while (raw_angle > PI) { raw_angle -= 2 * PI; }
+    while (raw_angle < -PI) { raw_angle += 2 * PI; }
+    return raw_angle;
+}
+
+void dmmapyawfbdata(dm_motor_t *yaw_motor) {
+	float adj_ang = dm_yaw_encoder_mod(yaw_motor->para.pos) - dm_yaw_motor.angle_data.center_ang;
+	// maps from 0 to 2PI TO 0 to 8192
+	//float mapped_value = (temp / (2 * PI)) * 8192;
+//	debug4 = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+    g_can_motors[dm_yaw_motor.id - 1].angle_data.adj_ang = adj_ang;
+    g_can_motors[dm_yaw_motor.id - 1].raw_data.torque = yaw_motor->para.tor;
+    dm_yaw_motor.angle_data.adj_ang = adj_ang;
+}
+
+void dmmappitchfbdata(dm_motor_t *pitch_motor) {
+	float pos = pitch_motor->para.pos;
+    g_pitch_motor.angle_data.adj_ang = pos;
+    dm_pitch_motor.angle_data.adj_ang = pos;
 }

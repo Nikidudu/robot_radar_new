@@ -36,13 +36,14 @@ typedef struct _PID {
     float errLpfRatio;
 } PID;
 
-typedef struct _CascadePID {
-    PID inner;
-    PID outer;
-    float output;
-} CascadePID;
+//typedef struct _CascadePID {
+//    PID inner;
+//    PID outer;
+//    float output;
+//} CascadePID;
 
 // Motor Command Structure
+// to store fixed kp, kd, pos, vel, tor values
 typedef struct {
     float kp_set;
     float kd_set;
@@ -52,6 +53,7 @@ typedef struct {
 } dm_motor_cmd_t;
 
 // Motor Control Structure
+// values to be sent to the DM4310 motor
 typedef struct {
     uint8_t mode;   // 0: MIT Mode, 1: Position-Speed Mode, 2: Speed Mode, 3: Position Force Mode
     float kp_set;
@@ -78,6 +80,13 @@ typedef struct {
     uint16_t disconnect_time; // Time since last feedback in ms
 } dm_motor_para_t;
 
+typedef struct {
+	float phy_min_ang;
+	float phy_max_ang;
+	float center_ang;
+	float adj_ang;
+} dm_angle_data_t;
+
 // Motor Structure
 typedef struct {
     uint16_t id;           		// Motor ID for commands
@@ -85,6 +94,8 @@ typedef struct {
     dm_motor_cmd_t cmd;       	// Command data
     dm_motor_ctrl_t ctrl;     	// Control data
     dm_motor_para_t para;     	// Parameter data (feedback)
+    pid_data_t angle_pid;
+    dm_angle_data_t angle_data;
 } dm_motor_t;
 
 // Function prototypes
@@ -114,5 +125,12 @@ void MFtorque_command(CAN_HandleTypeDef* hcan, uint16_t motor_id, float desired_
 // Utility functions
 float uint_to_float(int x_int, float x_min, float x_max, int bits);
 int float_to_uint(float x_float, float x_min, float x_max, int bits);
+
+// Helper functions
+float dm_yaw_encoder_mod(float raw_angle);
+
+// Motor data mapping functions
+void dmmapyawfbdata(dm_motor_t *yaw_motor);
+void dmmappitchfbdata(dm_motor_t *pitch_motor);
 
 #endif /* BSP_DAMIAO_H */ 

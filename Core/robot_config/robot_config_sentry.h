@@ -212,7 +212,7 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 #define CHASSIS_YAW_MAX_RPM	1					//max RPM for chassis centering
-#define CHASSIS_YAW_KP 		1//3.75//1//0.7//0.4
+#define CHASSIS_YAW_KP 		0.5//3.75//1//0.7//0.4
 #define CHASSIS_YAW_KI		0.0001
 #define CHASSIS_YAW_KD 		3//0
 #define CHASSIS_YAW_MIN		0.1
@@ -229,13 +229,14 @@
  * Physically push the motors to the desired centers
  * and put a breakpoint/live expression on their respective real_ang variables
  * from their raw_data structs
- * The centers should be from 0 to 8192, it should be the value directly from
+ * The centers should be from 0 to 8192 (for non-DM motors), it should be the value directly from
  * the motors
+ * Centers for DM motors should be -PI to PI.
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
 #define PITCH_MOTOR_TYPE		TYPE_DM4310_MIT
 
-#ifndef PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+#if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 
 #define PITCH_ANGLE_KP	  		20//200
 #define PITCH_ANGLE_KI  		0
@@ -252,11 +253,18 @@
 
 #else
 
-#define DM_PITCH_MIT_KP			2
-#define DM_PITCH_MIT_KI			0
-#define DM_PITCH_MIT_KD			100
-#define DM_PITCH_MIT_INT_MAX	0
-#define DM_PITCH_MIT_MAX_OUT	5
+#define DM_PITCH_KP			2
+#define DM_PITCH_KI			0
+#define DM_PITCH_KD			100
+#define DM_PITCH_INT_MAX	0
+#define DM_PITCH_MAX_OUT	5
+#define DM_PITCH_MODE			0	// 0 - MIT, 1 - Position, 2 - Speed
+
+#define DM_PITCH_MIT_KP			0
+#define DM_PITCH_MIT_KD			0
+#define DM_PITCH_MIT_POS		0
+#define DM_PITCH_MIT_VEL		0
+#define DM_PITCH_MIT_TOR		0
 
 #endif
 
@@ -268,7 +276,7 @@
 
 #define YAW_MOTOR_TYPE			TYPE_DM4310_MIT
 
-#ifndef YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+#if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #define YAW_ANGLE_KP			1
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			1
@@ -283,16 +291,23 @@
 
 #else
 
-#define DM_YAW_MIT_KP			5
-#define DM_YAW_MIT_KI			0
-#define DM_YAW_MIT_KD			0
-#define DM_YAW_MIT_INT_MAX		0
-#define DM_YAW_MIT_MAX_OUT		45
+#define DM_YAW_KP			5
+#define DM_YAW_KI			0
+#define DM_YAW_KD			0
+#define DM_YAW_INT_MAX		0
+#define DM_YAW_MAX_OUT		45
+#define DM_YAW_MODE			0	// 0 - MIT, 1 - Position, 2 - Speed
+
+#define DM_YAW_MIT_KP			0
+#define DM_YAW_MIT_KD			2
+#define DM_YAW_MIT_POS			0
+#define DM_YAW_MIT_VEL			0
+#define DM_YAW_MIT_TOR			0
 
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	6
-#define YAW_CENTER 				0
+#define YAW_CENTER 				0.9
 #define YAW_MAX_ANG				4*PI
 #define YAW_MIN_ANG				4*-PI
 
