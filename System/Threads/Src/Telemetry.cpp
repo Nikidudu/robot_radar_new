@@ -15,14 +15,26 @@
 #include "can.h"
 
 #include "SuperCapCommThread.h"
+#include "cvGimbalThread.h"
+#include "cvAimbotCommandThread.h"
+#include "status_thread.h"
+
+
 
 ROCANDriver* CAN1_driver = nullptr;
 CANBus* CAN1_network = nullptr;
 ROCANDriver* CAN2_driver = nullptr;
 CANBus* CAN2_network = nullptr;
 
+STMUARTDriver* UART_line = nullptr;
+NetworkBus* UART_network = nullptr;
+
 dummyThread* dummy = nullptr;
 SuperCapCommThread* supercap_thread = nullptr;
+cvGimbalThread* cv_gimbal_thread = nullptr;
+cvAimbotCommandThread* cv_aimbot_command_thread = nullptr;
+statusThread* status_thread = nullptr;
+
 //imuThread* imu = nullptr;
 //gimbalJointPubThread* gimbalJointThread = nullptr;
 //ChassisSpdCmdThread* speedCmdThread = nullptr;
@@ -43,10 +55,20 @@ void Telemetry::setup() {
 //		CAN2_network = new CANBus(CAN2_driver);
 //		dummy = new dummyThread();
 //		supercap_thread = new SuperCapCommThread();
+//		supercap_thread = new SuperCapCommThread();
 
+//		cv_gimbal_thread = new cvGimbalThread();
+//		cv_aimbot_command_thread = new cvAimbotCommandThread();
+//		status_thread = new statusThread();
+//
+////		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
+////		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
+//
+////		UART_network->handle<cvGimbalCommandPacket>(&cvGimbalThread::handle_cv_gimbal);
+//		UART_network->handle<cvGimbalCommandPacket>(&cvAimbotCommandThread::handle_cv_gimbal);
+//		UART_network->handle<cvFiringCommandPacket>(&cvAimbotCommandThread::handle_cv_firing);
+//		UART_network->handle<cvAimCommandPacket>(&cvAimbotCommandThread::handle_cv_aim);
 
-//		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
-//		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
 
 //		gimbalJointThread = new gimbalJointPubThread();
 ////		imu = new imuThread();

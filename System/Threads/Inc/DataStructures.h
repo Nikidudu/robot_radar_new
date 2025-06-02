@@ -324,5 +324,111 @@ struct MaxChassisPowerData {
 	}
 };
 
+// Aimbot
+struct cvRobotModeData {
+	bool robot_mode;
+
+	char* toString(char* buffer) {
+		sprintf(buffer, "Robot mode: %d",
+				(int)robot_mode);
+		return buffer;
+	}
+
+	uint8_t* toArray(uint8_t* buffer) {
+		*(bool*)(buffer) = robot_mode;
+		return buffer;
+	}
+};
+
+struct cvCompetitionStatusData {
+	  uint16_t game_progress; // Which stage the competition is in
+	  uint16_t time_left; // Time left in competition (s)
+	  uint16_t red_base_hp; // HP of red base
+	  uint16_t blue_base_hp; // HP of blue base
+	  uint16_t red_outpost_hp; // HP of red outpost
+	  uint16_t blue_outpost_hp; // HP of red outpost
+	  uint16_t robot_id;
+	  uint16_t current_hp;
+
+	char* toString(char* buffer) {
+//		sprintf(buffer, "Game progress: %u \t Time left: %u \t Robot id: %u \t\n Hp: %u \t Central occupation: %u \t Remaining ammo: %u",
+//				game_progress, time_left, robot_id, current_hp, occupy_central, ammo);
+		return buffer;
+	}
+
+	uint8_t* toArray(uint8_t* buffer) {
+		*(uint16_t*)(buffer) = game_progress;
+		*(uint16_t*)(buffer + 2) = time_left;
+		*(uint16_t*)(buffer + 4) = red_base_hp;
+		*(uint16_t*)(buffer + 6) = blue_base_hp;
+		*(uint16_t*)(buffer + 8) = red_outpost_hp;
+		*(uint16_t*)(buffer + 10) = blue_outpost_hp;
+		*(uint16_t*)(buffer + 12) = robot_id;
+		*(uint16_t*)(buffer + 14) = current_hp;
+		return buffer;
+	}
+};
+
+struct cvGimbalCommandData {
+	float pitch;
+	float yaw;
+
+	char* toString(char* buffer) {
+		sprintf(buffer, "Pitch: %.3f \t Yaw: %.3f", pitch, yaw);
+		return buffer;
+	}
+
+	uint8_t* toArray(uint8_t* buffer) {
+		*(int*)(buffer) = pitch;
+		*(int*)(buffer + 4) = yaw;
+		return buffer;
+	}
+};
+
+struct cvFiringCommandData {
+	bool fire_state;
+
+	char* toString(char* buffer) {
+		sprintf(buffer, "Fire state: %d",
+				(int)fire_state);
+		return buffer;
+	}
+
+	uint8_t* toArray(uint8_t* buffer) {
+		*(bool*)(buffer) = fire_state;
+		return buffer;
+	}
+};
+
+struct cvAimCommandData {
+	bool aim_state;
+
+	char* toString(char* buffer) {
+		sprintf(buffer, "Aim state: %d",
+				(int)aim_state);
+		return buffer;
+	}
+
+	uint8_t* toArray(uint8_t* buffer) {
+		*(bool*)(buffer) = aim_state;
+		return buffer;
+	}
+};
+
+struct cvAimSendData {
+	bool aim_send;
+
+	char* toString(char* buffer) {
+		sprintf(buffer, "Aim state: %d",
+				(int)aim_send);
+		return buffer;
+	}
+
+	uint8_t* toArray(uint8_t* buffer) {
+		*(bool*)(buffer) = aim_send;
+		return buffer;
+	}
+};
+
 
 #endif /* UTILS_DATASTRUCTURES_H_ */

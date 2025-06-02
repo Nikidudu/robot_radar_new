@@ -256,7 +256,7 @@
 #define PITCH_MIN_ANG			-0.9
 #define PITCH_CONST				8000
 
-
+#define YAW_MOTOR_TYPE			TYPE_M3508
 #define YAW_M3508
 #define YAW_BELT
 #define YAW_BELT_GEAR_RATIO 	1

@@ -8,6 +8,8 @@
 #include "bsp_imu.h"
 #include "robot_config.h"
 #include "imu_processing_task.h"
+
+float imu_test[6];
 static volatile float q0 = 1.0f;
 static volatile float q1 = 0.0f;
 static volatile float q2 = 0.0f;
@@ -67,13 +69,22 @@ void gyro_data_ready(gyro_data_t gyro_data) {
 		gyro_proc_data.gx = gyro_data.gz;
 		gyro_proc_data.gy = gyro_data.gx;
 		gyro_proc_data.gz = gyro_data.gy;
+
+#elif IMU_ORIENTATION == 7
+
+        gyro_proc_data.gx = -gyro_data.gy; //flip neg as needed
+        gyro_proc_data.gy = gyro_data.gx;
+        gyro_proc_data.gz = gyro_data.gz;
+
 #else
 		gyro_proc_data.gx = gyro_data.gx;
 		gyro_proc_data.gy = gyro_data.gy;
 		gyro_proc_data.gz = gyro_data.gz;
 #endif
 	gyro_proc_data.last_gyro_update = gyro_data.last_gyro_update;
-
+	imu_test[3] = gyro_data.gx;
+	imu_test[4] = gyro_data.gy;
+	imu_test[5] = gyro_data.gz;
 	update_flag |= 1; //sets bit 0 to true
 	//only allows task to be run when all the data is new
 	if (update_flag == 0b111|| update_flag == 0b011) {
@@ -101,13 +112,20 @@ void accel_data_ready(accel_data_t accel_data) {
 		accel_proc_data.ax = accel_data.az;
 		accel_proc_data.ay = accel_data.ax;
 		accel_proc_data.az = accel_data.ay;
+#elif IMU_ORIENTATION == 7
+        accel_proc_data.ax = -accel_data.ay; //flip neg as needed
+        accel_proc_data.ay = accel_data.ax;
+        accel_proc_data.az = accel_data.az;
 #else
 		accel_proc_data.ax = accel_data.ax;
 		accel_proc_data.ay = accel_data.ay;
 		accel_proc_data.az = accel_data.az;
+
 #endif
 	accel_proc_data.last_accel_update = accel_data.last_accel_update;
-
+	imu_test[0] = accel_data.ax;
+	imu_test[1] = accel_data.ay;
+	imu_test[2] = accel_data.az;
 	update_flag |= 1 << 1; //sets bit 1 to true
 	//only allows task to be run when accel and gyro data are new
 	if (update_flag == 0b111 || update_flag == 0b011) {

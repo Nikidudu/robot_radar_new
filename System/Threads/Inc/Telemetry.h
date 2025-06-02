@@ -22,7 +22,6 @@
 #define MAKE_RELIABLE_MCU(PACKET) (PACKET).crc = (uint16_t)HAL_CRC_Calculate(&hcrc, (uint32_t*) &(PACKET), sizeof((PACKET)) - 2)
 #define IS_RELIABLE_MCU(PACKET) (PACKET).crc == (uint16_t)HAL_CRC_Calculate(&hcrc, (uint32_t*) &(PACKET), sizeof((PACKET)) - 2)
 
-
 class Telemetry {
 public:
 
@@ -35,8 +34,9 @@ private:
 };
 
 //extern NetworkBus* UART6_network;
-//extern NetworkBus* UART1_network;
+extern NetworkBus* UART_network;
 
 extern CANBus* CAN1_network;
 extern CANBus* CAN2_network;
+
 #endif /* CORE_INC_TELEMETRY_H_ */

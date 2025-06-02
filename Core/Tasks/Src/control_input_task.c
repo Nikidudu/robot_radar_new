@@ -12,6 +12,7 @@
 #include "control_keyboard.h"
 #include "control_remote.h"
 #include "control_sbc.h"
+#include "INS_task.h"
 
 //extern TaskHandle_t buzzing_task_handle;
 //extern TaskHandle_t gimbal_control_task_handle;
@@ -21,7 +22,7 @@
 extern motor_data_t g_can_motors[24];
 extern referee_limit_t g_referee_limiters;
 extern orientation_data_t imu_heading;
-
+extern INS_t INS;
 extern QueueHandle_t g_buzzing_task_msg;
 extern remote_cmd_t g_remote_cmd;
 extern ref_robot_dmg_t ref_dmg_data;
@@ -128,7 +129,8 @@ void control_input_task(void *argument) {
 					break;
 #ifdef HAS_SBC
 				case SBC_CTRL_MODE:
-					sbc_control_input();
+					//sbc_control_input();
+					nx_control_input();
 					break;
 					;
 #endif
@@ -171,7 +173,7 @@ void chassis_set_ctrl(float forward, float horizontal, float yaw){
 	chassis_ctrl_data.enabled = 1;
 	ramp(&(chassis_ctrl_data.horizontal), horizontal, CHASSIS_CTL_RAMP);
 	ramp(&(chassis_ctrl_data.forward), forward, CHASSIS_CTL_RAMP);
-//	ramp(&(chassis_ctrl_data.horizontal), horizontal, CHASSIS_CTL_RAMP);
+//	ramp(&(chassis_ctrl_data.yaw), yaw, CHASSIS_CTL_RAMP);
 	chassis_ctrl_data.horizontal = horizontal;
 	chassis_ctrl_data.forward = forward;
 	chassis_ctrl_data.yaw = yaw;
@@ -404,7 +406,7 @@ void dbus_reset() {
 		gimbal_ctrl_data.yaw = 0;
 	}
 	if (control_mode == 1) {
-		gimbal_ctrl_data.pitch = imu_heading.pit;
+		gimbal_ctrl_data.pitch = INS.Pitch;
 		gimbal_ctrl_data.yaw = imu_heading.yaw;
 		gimbal_ctrl_data.delta_yaw = 0;
 	}

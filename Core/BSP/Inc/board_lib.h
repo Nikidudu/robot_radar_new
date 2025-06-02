@@ -20,13 +20,15 @@ extern "C" {
 #include "bsp_referee.h"
 #include "bsp_can.h"
 #include "bsp_led.h"
+#include "bsp_oled.h"
 #include "bsp_imu.h"
 #include "bsp_buzzer.h"
+#include "bsp_gpio.h"
 #include "usbd_cdc_if.h"
 #include "bsp_usb_redir.h"
 #include "bsp_micros_timer.h"
-#include "bsp_servo.h"
-#include <crc8_crc16.h>
+#include "bsp_damiao.h"
+#include "CRC8_CRC16.h"
 
 
 #ifdef __cplusplus

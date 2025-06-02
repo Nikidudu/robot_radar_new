@@ -14,6 +14,7 @@ extern "C" {
 
 void map_lk_motor(uint16_t motor_id, motor_data_t* motor_data);
 void map_dji_motor(uint16_t motor_id, motor_data_t* motor_data);
+void map_dm_motor(uint16_t motor_id, motor_data_t* motor_data);
 
 void convert_raw_can_data(motor_data_t * can_motor_data, uint16_t motor_id, uint8_t* rx_buffer);
 void motor_send_can(motor_data_t motor_all[],uint8_t id_one,

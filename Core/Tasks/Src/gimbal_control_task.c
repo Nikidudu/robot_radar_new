@@ -12,8 +12,11 @@
 #include "can_msg_processor.h"
 #include "gimbal_control_task.h"
 #include "bsp_lk_motor.h"
+#include "INS_task.h"
+#include "bsp_damiao.h"
 #include "bsp_microswitch.h"
 
+extern uint8_t control_mode;
 extern uint8_t aimbot_mode;
 
 extern EventGroupHandle_t gimbal_event_group;
@@ -27,14 +30,12 @@ extern chassis_control_t chassis_ctrl_data;
 extern int32_t chassis_rpm;
 extern remote_cmd_t g_remote_cmd;
 static float rel_pitch_angle;
-uint8_t g_gimbal_state = 0;
 extern uint8_t gimbal_upper_bound;
 extern uint8_t gimbal_lower_bound;
 
 static float prev_pit;
 static float prev_yaw;
 float yaw_drift = 0.01;
-
 
 extern int g_spinspin_mode;
 #ifdef YAW_FEEDFORWARD
@@ -49,53 +50,26 @@ static pid_data_t g_yaw_ff_pid = {
 static float g_chassis_rot;
 float curr_rot;
 
-
-float calc_chassis_rot(motor_data_t *flmotor, motor_data_t *frmotor,
-		motor_data_t *brmotor, motor_data_t *blmotor) {
-//	curr_rot = (float)flmotor->raw_data.rpm;
-//	curr_rot += frmotor->raw_data.rpm;
-//			curr_rot -= brmotor->raw_data.rpm;
-//			curr_rot += blmotor->raw_data.rpm;
-	curr_rot = chassis_rpm * chassis_ctrl_data.yaw;
-	g_chassis_rot = (curr_rot * WHEEL_RADIUS )/ (CHASSIS_RADIUS * M3508_GEARBOX_RATIO * 4);
-	return g_chassis_rot;
-}
-
-uint8_t check_yaw(){
-	if (get_microseconds()- g_can_motors[YAW_MOTOR_ID-1].last_time[0] < 1000){
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
 /**
- *
- * FreeRTOS task for gimbal controls
- * Has HIGH2 priority
- *
+ * This function controls the gimbals based on IMU reading
+ * @param 	pitch_motor		Pointer to pitch motor struct
+ * 			yaw_motor		Pointer to yaw motor struct
+ * @note both pitch and yaw are currently on CAN2 with ID5 and 6.
+ * Need to check if having ID4 (i.e. 0x208) + having the launcher motors (ID 1-3, 0x201 to 0x203)
+ * still provides a fast enough response
  */
 void gimbal_control_task(void *argument) {
 	TickType_t start_time;
 	while (1) {
-#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
+#if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
 		lk_read_motor_sang(&g_pitch_motor);
 #endif
-		xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE,
-		portMAX_DELAY);
+		xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE, portMAX_DELAY);
 		start_time = xTaskGetTickCount();
+
 		if (gimbal_ctrl_data.enabled) {
-			calc_chassis_rot(&g_can_motors[FL_MOTOR_ID - 1],
-					&g_can_motors[FR_MOTOR_ID - 1],
-					&g_can_motors[BR_MOTOR_ID - 1],
-					&g_can_motors[BL_MOTOR_ID - 1]);
-#ifdef HALL_ZERO
-			if (check_yaw()){
-				g_gimbal_state = 1;
-			}
-#endif
-
-
 			if (gimbal_ctrl_data.imu_mode) {
 				gimbal_control(&g_pitch_motor,
 						g_can_motors + YAW_MOTOR_ID - 1);

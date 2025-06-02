@@ -51,8 +51,8 @@
 	// #define BUILD_WITH_CACHES
 //	#define FREERTOS_ENABLED
 #elif defined(BUILD_FOR_NUS24)
-//	#define BUILD_WITH_STMUART
-//	#define BUILD_WITH_NETWORK_BUS
+	#define BUILD_WITH_STMUART
+	#define BUILD_WITH_NETWORK_BUS
 //  #define BUILD_WITH_FDCAN
     #define BUILD_WITH_CAN
 //		#define BUILD_WITH_CAN_SOCKET_DRIVER

@@ -1,8 +1,8 @@
 /*
  * robot_config_sentry.h
  *
- *  Created on: Mar 20, 2025
- *      Author: cw
+ *  Created on: Mar 7, 2025
+ *      Author: Carlton
  */
 
 #ifndef ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_H_
@@ -11,8 +11,8 @@
 #include "motor_config.h"
 #include "hud_roburt.h"
 #define BULLET_17
-
-#define OVERHEAT_PROTECTION
+#define SENTRY
+#define OVERHEAT_PROTECTIONYAW
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
 #define IMU_ORIENTATION 7
@@ -32,8 +32,8 @@
 #define ZERO_ROLL
 
 /********************* CONTROL SENSITIVITIES ***********/
-#define REMOTE_YAW_SPEED 	 			0.1 			//Speed of gimbal yaw turning
-#define REMOTE_PITCH_SPEED 	 			-0.1//0.005		//Speed of gimbal pitch turning
+#define REMOTE_YAW_SPEED 	 			0.08 			//Speed of gimbal yaw turning
+#define REMOTE_PITCH_SPEED 	 			0.1//0.005		//Speed of gimbal pitch turning
 
 #define MOUSE_X_SENSITIVITY		(300 * REMOTE_YAW_SPEED)				//Speed of yaw turning with mouse, dependent on above speed
 #define MOUSE_Y_SENSITIVITY 	(200 * REMOTE_PITCH_SPEED)				//Speed of pitch turning with mouse,  dependent on above speed
@@ -202,7 +202,7 @@
 /*********************** CHASSIS CONFIGURATION ***********************/
 #define CHASSIS_KP  		8				// |
 #define CHASSIS_KI  		0.1				// | - CHASSIS WHEELS PID VALUES
-#define CHASSIS_KD  		1				// |
+#define CHASSIS_KD  		0.1				// |
 #define CHASSIS_INT_MAX  	5000				// |
 #define CHASSIS_MAX_CURRENT 12000//9000
 #define CHASSIS_MIN_CURRENT 0
@@ -211,10 +211,10 @@
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
 
-#define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
-#define CHASSIS_YAW_KP 		2//3.75//1//0.7//0.4
-#define CHASSIS_YAW_KI		0
-#define CHASSIS_YAW_KD 		0.2//0
+#define CHASSIS_YAW_MAX_RPM	1					//max RPM for chassis centering
+#define CHASSIS_YAW_KP 		1//3.75//1//0.7//0.4
+#define CHASSIS_YAW_KI		0.0001
+#define CHASSIS_YAW_KD 		3//0
 #define CHASSIS_YAW_MIN		0.1
 
 #define CHASSIS_TRANS_PRIO		0.85			//% of chassis speed to be prioritised for translation
@@ -233,58 +233,84 @@
  * the motors
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_ANGLE_KP	  		15//200
+#define PITCH_MOTOR_TYPE		TYPE_DM4310_MIT
+
+#ifndef PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+
+#define PITCH_ANGLE_KP	  		20//200
 #define PITCH_ANGLE_KI  		0
-#define PITCH_ANGLE_KD  		0
+#define PITCH_ANGLE_KD  		1
 #define PITCH_ANGLE_INT_MAX		0.025
 
 #define PITCH_MAX_RPM			25 //changed from 60
 
 #define PITCHRPM_KP				2//700
 #define PITCHRPM_KI				0
-#define PITCHRPM_KD				0
+#define PITCHRPM_KD				1
 #define PITCHRPM_INT_MAX		1000
 #define PITCH_MAX_CURRENT		5000
 
-#define PITCH_MOTOR_TYPE		TYPE_DM4310
-#define PITCH_CENTER			2071//3590
-#define PITCH_MAX_ANG			0.394
-#define PITCH_MIN_ANG			-0.281
+#else
+
+#define DM_PITCH_MIT_KP			2
+#define DM_PITCH_MIT_KI			0
+#define DM_PITCH_MIT_KD			100
+#define DM_PITCH_MIT_INT_MAX	0
+#define DM_PITCH_MIT_MAX_OUT	5
+
+#endif
+
+#define PITCH_CENTER			0
+#define PITCH_MAX_ANG			0.13
+#define PITCH_MIN_ANG			-0.70
 #define PITCH_CONST 			0
 
 
-#define YAW_MOTOR_TYPE		TYPE_DM4310
-#define YAW_ANGLE_KP			20//200
+#define YAW_MOTOR_TYPE			TYPE_DM4310_MIT
+
+#ifndef YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+#define YAW_ANGLE_KP			1
 #define YAW_ANGLE_KI			0
-#define YAW_ANGLE_KD			0
+#define YAW_ANGLE_KD			1
 #define YAW_ANGLE_INT_MAX		0.05
 #define YAW_MAX_RPM				85
-#define YAW_SPINSPIN_CONSTANT	5000
 
-#define YAWRPM_KP				10//600//400
+#define YAWRPM_KP				2//600//400
 #define YAWRPM_KI				0
 #define YAWRPM_KD				0
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
-#define YAW_CENTER 				0//2790//7870//
-#define YAW_MAX_ANG				5*PI
-#define YAW_MIN_ANG				5*-PI
+#else
+
+#define DM_YAW_MIT_KP			5
+#define DM_YAW_MIT_KI			0
+#define DM_YAW_MIT_KD			0
+#define DM_YAW_MIT_INT_MAX		0
+#define DM_YAW_MIT_MAX_OUT		45
+
+#endif
+
+#define YAW_SPINSPIN_CONSTANT	6
+#define YAW_CENTER 				0
+#define YAW_MAX_ANG				4*PI
+#define YAW_MIN_ANG				4*-PI
 
 /*********************** MOTOR CONFIGURATION *******************/
 //CAN ids for the motors, for motors on the CAN2 bus, add 12
 //ADD 4 TO GM6020 IDS i.e. flashing 5 times = ID 9
 //#define CHASSIS_MCU
 #ifndef CHASSIS_MCU
-#define FR_MOTOR_ID 		13
+#define FR_MOTOR_ID 		15
 #define FR_MOTOR_CAN_PTR	&hcan2
-#define FL_MOTOR_ID 		14
+#define FL_MOTOR_ID 		13
 #define FL_MOTOR_CAN_PTR	&hcan2
-#define BL_MOTOR_ID 		15
+#define BL_MOTOR_ID 		16
 #define BL_MOTOR_CAN_PTR	&hcan2
-#define BR_MOTOR_ID 		16
+#define BR_MOTOR_ID 		14
 #define BR_MOTOR_CAN_PTR	&hcan2
 #endif
+
 #define FEEDER_MOTOR_ID		4
 #define FEEDER_MOTOR_CAN_PTR	&hcan1
 #define LFRICTION_MOTOR_ID	2
@@ -294,10 +320,10 @@
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
-#define PITCH_MOTOR_ID 		8
+#define PITCH_MOTOR_ID 		0x81
 #define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
-#define YAW_MOTOR_ID 		20
+#define YAW_MOTOR_ID 		0x61
 #define YAW_MOTOR_CAN_PTR	&hcan2
 #endif
 
@@ -349,4 +375,4 @@
 #define TIMER_FREQ_MULT		10 //1000000/100000
 
 
-#endif /* ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_H_ */
+#endif ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_H_

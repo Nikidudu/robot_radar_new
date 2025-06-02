@@ -20,6 +20,8 @@
 #include "can_msg_processor.h"
 #include "bsp_lk_motor.h"
 #include "SuperCapCommThread.h"
+#include "dm4310_drv.h"
+#include "bsp_damiao.h"
 
 extern EventGroupHandle_t gimbal_event_group;
 extern EventGroupHandle_t chassis_event_group;
@@ -27,7 +29,9 @@ extern EventGroupHandle_t launcher_event_group;
 #define ANGLE_LPF 0
 #define SPEED_LPF 0
 extern motor_data_t g_can_motors[24];
-
+//extern motor_t motor[num];
+extern dm_motor_t dm_pitch_motor;
+extern dm_motor_t dm_yaw_motor;
 extern motor_map_t lk_motor_map[65];
 extern motor_map_t dji_motor_map[25];
 
@@ -176,9 +180,16 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 				if (dji_motor_map[RxHeader.StdId - 0x200].motor_data != NULL){
 					convert_raw_can_data(dji_motor_map[RxHeader.StdId - 0x200].motor_data, RxHeader.StdId, (uint8_t*)RxData);
 				}
-			}else {
+			} else {
+				if (RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94){
+					int fb_id = (RxData[0])&0x0F;
+					switch(fb_id){
+					case 1:
+						dm4310_fbdata(&dm_pitch_motor,&RxData[0]);
+						break;
+					}
 				//handle LK motor or other data
-				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
+				} else if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
 					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
 						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
 						BaseType_t xHigherPriorityTaskWoken, xResult;
@@ -212,8 +223,15 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 				if (dji_motor_map[RxHeader.StdId - 0x200+12].motor_data != NULL){
 					convert_raw_can_data(dji_motor_map[RxHeader.StdId - 0x200+12].motor_data, RxHeader.StdId+12, RxData);
 				}
-			} else{
-				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
+			} else {
+				if (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74){
+					int fb_id = (RxData[0])&0x0F;
+					switch(fb_id){
+					case(1):
+						dm4310_fbdata(&dm_yaw_motor,&RxData[0]);
+						break;
+						}
+				} else if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
 			//handle LK motor or other data
 					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
 						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
@@ -222,14 +240,13 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 						xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
 								&xHigherPriorityTaskWoken);
 					}
-			} else if (RxHeader.StdId == DEVC_NODE_ID){
-				supercapISR(RxData);
-			}
-			else{
-				uint8_t sender = getSenderID(hcan);
-				uint32_t length = RxHeader.DLC;
-				receiveCAN(sender, RxData, length);
-			}
+				} else if (RxHeader.StdId == DEVC_NODE_ID){
+					supercapISR(RxData);
+				} else {
+					uint8_t sender = getSenderID(hcan);
+					uint32_t length = RxHeader.DLC;
+					receiveCAN(sender, RxData, length);
+				}
 			}
 		//		HAL_CAN_ActivateNotification(hcan,
 		//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
@@ -339,4 +356,3 @@ uint8_t ROCANDriver::getSenderID(CAN_HandleTypeDef* can) {
 std::vector<ROCANDriver*> ROCANDriver::CANDriver_list;
 
 #endif
-

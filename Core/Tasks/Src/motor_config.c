@@ -44,10 +44,13 @@ motor_data_t feeder_motor;
 motor_data_t g_pitch_motor;
 motor_data_t yaw_motor;
 
+dm_motor_t dm_pitch_motor;
+dm_motor_t dm_yaw_motor;
+
+PID gimbal_pid_yaw;
+PID gimbal_pid_pitch;
 
 void motor_calib_task(void *argument) {
-//	can_start(&hcan1, 0x00000000, 0x00000000);
-//	can_start(&hcan2, 0x00000000, 0x00000000);
 	vTaskDelay(1000);
 	config_motors();
 
@@ -56,7 +59,6 @@ void motor_calib_task(void *argument) {
 	//shift function to master task.c probably
 	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
 			(UBaseType_t) 8, &motor_control_task_handle);
-
 
 #ifndef HALL_ZERO
 	hall_disable();
@@ -235,10 +237,9 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.min_raw_ticks = -4096;
 		motor->angle_data.raw_ticks_range = motor->angle_data.max_raw_ticks - motor->angle_data.min_raw_ticks;
 		motor->angle_data.ang_range = motor->angle_data.max_ang - motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+		map_dji_motor(motor->id, motor);
 		break;
+
 	case TYPE_M3508_NGEARBOX:
 		motor->angle_data.gearbox_ratio = 1;
 		motor->angle_pid.physical_max = M3508_MAX_RPM;
@@ -255,9 +256,8 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.max_ang = PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+
+		map_dji_motor(motor->id, motor);
 		break;
 
 	case TYPE_GM6020:
@@ -276,9 +276,8 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.min_ang = -PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+
+		map_dji_motor(motor->id, motor);
 		break;
 
 	case TYPE_GM6020_720:
@@ -297,10 +296,10 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.max_ang = 2 * PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+
+		map_dji_motor(motor->id, motor);
 		break;
+
 	case TYPE_M2006:
 	case TYPE_M2006_STEPS:
 	case TYPE_M2006_ANGLE:
@@ -319,10 +318,10 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.max_ang = PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-//		if (motor->last_time[0] != 0){
-			map_dji_motor(motor->id, motor);
-//		}
+
+		map_dji_motor(motor->id, motor);
 		break;
+
 	case TYPE_LK_MG5010E_SPD:
 	case TYPE_LK_MG5010E_ANG:
 	case TYPE_LK_MG5010E_MULTI_ANG:
@@ -342,12 +341,34 @@ void set_motor_config(motor_data_t *motor) {
 		map_lk_motor(motor->id, motor);
 		lk_set_pid(motor, 500000);
 		break;
+
 	default:
 		break;
 	}
-
 	motor->angle_data.init = 0;
+}
 
+// Only checks if pitch and yaw are damiao motors (for now)
+void dm_set_motor_config() {
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+  	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
+  	dm_pitch_motor.id = PITCH_MOTOR_ID;
+  	dm_pitch_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
+  	dm4310_enable(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
+
+    PID_Init(&gimbal_pid_pitch, DM_PITCH_MIT_KP, DM_PITCH_MIT_KI, DM_PITCH_MIT_KD,
+    		DM_PITCH_MIT_INT_MAX, DM_PITCH_MIT_MAX_OUT);
+#endif
+
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+  	memset(&dm_yaw_motor, 0, sizeof(dm_yaw_motor));
+  	dm_yaw_motor.id = YAW_MOTOR_ID;
+  	dm_yaw_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
+  	dm4310_enable(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
+
+    PID_Init(&gimbal_pid_yaw, DM_YAW_MIT_KP, DM_YAW_MIT_KI, DM_YAW_MIT_KD,
+    		DM_YAW_MIT_INT_MAX, DM_YAW_MIT_MAX_OUT);
+#endif
 }
 
 extern motor_data_t g_can_motors[24];
@@ -510,8 +531,7 @@ void config_motors() {
 	g_can_motors[motor_id].id = motor_id+1;
 #ifdef ANGLE_FEEDER
 	g_can_motors[motor_id].motor_type = TYPE_M3508_ANGLE;
-#endif
-#ifndef ANGLE_FEEDER
+#else
 	g_can_motors[motor_id].motor_type = TYPE_M2006;
 #endif
 	g_can_motors[motor_id].can = FEEDER_MOTOR_CAN_PTR;
@@ -531,7 +551,7 @@ void config_motors() {
 	set_motor_config(&g_can_motors[motor_id]);
 #endif
 
-#ifdef PITCH_MOTOR_ID
+#if defined(PITCH_MOTOR_ID) && PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 	g_pitch_motor.motor_type = PITCH_MOTOR_TYPE;
 	g_pitch_motor.id = PITCH_MOTOR_ID;
 	g_pitch_motor.angle_data.center_ang = PITCH_CENTER;
@@ -552,11 +572,9 @@ void config_motors() {
 	set_motor_config(&g_pitch_motor);
 #endif
 
-#ifdef YAW_MOTOR_ID
-
+#if defined(YAW_MOTOR_ID) && (YAW_MOTOR_TYPE != TYPE_DM4310_MIT)
 	motor_id = YAW_MOTOR_ID - 1;
 	g_can_motors[motor_id].id = YAW_MOTOR_ID;
-	g_can_motors[motor_id].can = YAW_MOTOR_CAN_PTR;
 	g_can_motors[motor_id].can = YAW_MOTOR_CAN_PTR;
 	g_can_motors[motor_id].angle_data.center_ang = YAW_CENTER;
 	g_can_motors[motor_id].angle_data.phy_max_ang = YAW_MAX_ANG;
@@ -572,6 +590,7 @@ void config_motors() {
 	g_can_motors[motor_id].rpm_pid.kd = YAWRPM_KD;
 	g_can_motors[motor_id].rpm_pid.int_max = YAWRPM_INT_MAX;
 	g_can_motors[motor_id].rpm_pid.max_out = YAW_MAX_CURRENT;
+	//need to change below for dm
 #ifndef YAW_M3508
 	g_can_motors[motor_id].motor_type = TYPE_GM6020;
 #else
@@ -702,15 +721,15 @@ uint16_t check_motors() {
 		}
 	}
 
-//	if (curr_time
-//			- g_can_motors[GFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-//		error |= 1 << 10;
-//
-//	} else {
-//		if (g_can_motors[GFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-//			motor_temp_bz(2, 5);
-//		}
-//	}
+	if (curr_time
+			- g_can_motors[GFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
+		error |= 1 << 10;
+
+	} else {
+		if (g_can_motors[GFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+			motor_temp_bz(2, 5);
+		}
+	}
 #endif
 
 	if (curr_time

@@ -21,7 +21,8 @@ extern motor_data_t g_can_motors[24];
 
  motor_map_t lk_motor_map[65];
  motor_map_t dji_motor_map[25];
-
+ //where is this number from lmao
+ motor_map_t dm_motor_map[15];
 
 #else
 motor_data_t g_can_motors[12];
@@ -42,75 +43,12 @@ void map_dji_motor(uint16_t motor_id, motor_data_t* motor_data){
 	}
 }
 
-/**
- * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING
- * converts the raw can data to the motor_data struct form as well
- */
-//void can_ISR(CAN_HandleTypeDef *hcan) {
-//
-//	CAN_RxHeaderTypeDef rx_msg_header;
-//	uint8_t rx_buffer[CAN_BUFFER_SIZE];
-//	//check which CAN bus received it
-//	can1_get_msg(hcan, &rx_msg_header, rx_buffer);
-//	//required because the 2 canbuses use seperate FIFOs for receive
-//	if (hcan->Instance == CAN1) {
-////		HAL_CAN_DeactivateNotification(hcan,
-////				CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO0_FULL
-////						| CAN_IT_RX_FIFO0_OVERRUN);
-//		if (rx_msg_header.StdId >= 0x200 && rx_msg_header.StdId <= 0x20E){
-//			if (dji_motor_map[rx_msg_header.StdId - 0x200].motor_data != NULL){
-//				convert_raw_can_data(dji_motor_map[rx_msg_header.StdId - 0x200].motor_data, rx_msg_header.StdId, rx_buffer);
-//			}
-//		}else {
-//			//handle LK motor or other data
-//			if (rx_msg_header.StdId > 0x140 && rx_msg_header.StdId <= 0x160){
-//				if (lk_motor_map[rx_msg_header.StdId - 0x140].motor_data != NULL){
-//					process_lk_motor(rx_buffer, lk_motor_map[rx_msg_header.StdId-0x140].motor_data);
-//					BaseType_t xHigherPriorityTaskWoken, xResult;
-//					xHigherPriorityTaskWoken = pdFALSE;
-//					xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
-//							&xHigherPriorityTaskWoken);
-//				}
-//			}
-//		}
-////		HAL_CAN_ActivateNotification(hcan,
-////				CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO0_FULL
-////						| CAN_IT_RX_FIFO0_OVERRUN);
-//	}
-//	else if (hcan->Instance == CAN2) {
-////		HAL_CAN_DeactivateNotification(hcan,
-////				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
-////						| CAN_IT_RX_FIFO1_OVERRUN);
-//		if (rx_msg_header.StdId >= 0x200 && rx_msg_header.StdId <= 0x20E){
-//		//StdId +12 to seperate the motors on CAN1 and CAN2
-//			if (dji_motor_map[rx_msg_header.StdId - 0x200+12].motor_data != NULL){
-//				convert_raw_can_data(dji_motor_map[rx_msg_header.StdId - 0x200+12].motor_data, rx_msg_header.StdId+12, rx_buffer);
-//			}
-//		} else if (rx_msg_header.StdId > 0x140 && rx_msg_header.StdId <= 0x160){
-//		//handle LK motor or other data
-//			if (lk_motor_map[rx_msg_header.StdId - 0x140].motor_data != NULL){
-//				process_lk_motor(rx_buffer, lk_motor_map[rx_msg_header.StdId-0x140].motor_data);
-//				BaseType_t xHigherPriorityTaskWoken, xResult;
-//				xHigherPriorityTaskWoken = pdFALSE;
-//				xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
-//						&xHigherPriorityTaskWoken);
-//			}
-//		}
-//		//		HAL_CAN_ActivateNotification(hcan,
-//		//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
-//		//						| CAN_IT_RX_FIFO1_OVERRUN);
-//	}
-//
-//}
-
-//todo rewrite full can processing code to make it more usable for stuff other than
-//dji motors
-//void process_can_data(uint8_t can_no, CAN_RxHeaderTypeDef rx_header, uint8_t* rx_data){
-//	switch(rx_header->StdId){
-//
-//	}
-//}
-
+void map_dm_motor(uint16_t motor_id, motor_data_t* motor_data){
+	if (motor_id > 0x200 && motor_id <= 0x20E){
+		dm_motor_map[motor_id-0x200].motor_id = motor_id;
+		dm_motor_map[motor_id-0x200].motor_data = motor_data;
+	}
+}
 
 /*
  * Converts raw CAN data over to the motor_data_t struct
@@ -229,10 +167,10 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b01000,
 					&xHigherPriorityTaskWoken);
 			break;
-//		case GFRICTION_MOTOR_ID:
-//			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b10000,
-//					&xHigherPriorityTaskWoken);
-//			break;
+		case GFRICTION_MOTOR_ID:
+			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b10000,
+					&xHigherPriorityTaskWoken);
+			break;
 #endif
 		case PITCH_MOTOR_ID:
 			xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
@@ -244,7 +182,6 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 			break;
 		default:
 			xResult = pdFAIL;
-			idnum = idnum;
 			//error handler
 			break;
 		}
@@ -274,21 +211,6 @@ void angle_offset(raw_data_t *motor_data, angle_data_t *angle_data) {
 	//make sure center angle is properly set with respect to the zero-ing angle
 	//YOUR ROBOT MUST HAVE A WAY TO ZERO THIS ANGLE AND IMPLEMENT A ZEROING FUNCTION AT STARTUP
 	//IF NOT IT WON'T WORK 							-wx
-//	int32_t abs_angle_diff = motor_data->angle[0] - motor_data->angle[1];
-//	//generally the motor won't exceed half a turn between each feedback
-//	if (abs_angle_diff > 4096) {
-//		abs_angle_diff -= 8192;
-//	} else if (abs_angle_diff < -4096) {
-//		abs_angle_diff += 8192;
-//	}
-//	angle_data->ticks += abs_angle_diff;
-//	while (angle_data->ticks > angle_data->max_ticks) {
-//		angle_data->ticks -= angle_data->tick_range;
-//	}
-//	while (angle_data->ticks < angle_data->min_ticks) {
-//		angle_data->ticks += angle_data->tick_range;
-//	}
-
 	temp_ang = angle_data->ticks - angle_data->center_ang;
 	if (temp_ang > angle_data->max_ticks) {
 		temp_ang -= angle_data->tick_range;

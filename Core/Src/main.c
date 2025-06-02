@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2025 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -45,6 +44,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -86,6 +86,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -101,9 +102,8 @@ int main(void)
   MX_CAN1_Init();
   MX_CAN2_Init();
   MX_TIM5_Init();
-  MX_TIM8_Init();
   MX_TIM10_Init();
-//  MX_USART1_UART_Init();
+  MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   MX_USART6_UART_Init();
   MX_SPI1_Init();
@@ -114,6 +114,7 @@ int main(void)
   MX_RNG_Init();
   MX_TIM2_Init();
   MX_CRC_Init();
+  MX_TIM8_Init();
   /* USER CODE BEGIN 2 */
   startup_task();
 //  MX_USB_DEVICE_Init();
@@ -121,8 +122,6 @@ int main(void)
 //  NVIC_SetPriority(SysTick_IRQn, 15);
 //  HAL_RNG_GenerateRandomNumber(hrng, random32bit)
   /* USER CODE END 2 */
-
-
 
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */

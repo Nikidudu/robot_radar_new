@@ -61,7 +61,7 @@ void launcher_control_task(void *argument) {
 	while (1) {
 		//event flags!
 #ifdef ACTIVE_GUIDANCE
-		xEventGroupWaitBits(launcher_event_group, 0b1111, pdTRUE, pdTRUE, portMAX_DELAY);
+		xEventGroupWaitBits(launcher_event_group, 0b11111, pdTRUE, pdTRUE, portMAX_DELAY);
 #else
 		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE, portMAX_DELAY);
 #endif
@@ -84,7 +84,7 @@ void launcher_control_task(void *argument) {
 			guidance_feeder(g_can_motors + LFRICTION_MOTOR_ID - 1,
 					g_can_motors + RFRICTION_MOTOR_ID - 1,
 					g_can_motors + BFRICTION_MOTOR_ID - 1,
-//					g_can_motors + GFRICTION_MOTOR_ID - 1,
+					g_can_motors + GFRICTION_MOTOR_ID - 1,
 					g_can_motors + FEEDER_MOTOR_ID - 1);
 #elif defined(ANGLE_FEEDER)
 			launcher_angle_control(g_can_motors + LFRICTION_MOTOR_ID - 1,
@@ -102,13 +102,13 @@ void launcher_control_task(void *argument) {
 			g_can_motors[FEEDER_MOTOR_ID - 1].output = 0;
 #ifdef ACTIVE_GUIDANCE
 			g_can_motors[BFRICTION_MOTOR_ID - 1].output = 0;
-//			g_can_motors[GFRICTION_MOTOR_ID - 1].output = 0;
+			g_can_motors[GFRICTION_MOTOR_ID - 1].output = 0;
 #endif
 		}
 		status_led(4, off_led);
 		//vTaskDelay(CHASSIS_DELAY);
 #ifdef ACTIVE_GUIDANCE
-		xEventGroupClearBits(launcher_event_group, 0b1111);
+		xEventGroupClearBits(launcher_event_group, 0b11111);
 #else
 		xEventGroupClearBits(launcher_event_group, 0b111);
 #endif
@@ -377,7 +377,6 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
 				feeder->raw_data.rpm, &feeder->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
-
 		break;
 
 	case FEEDER_JAM:
@@ -633,7 +632,7 @@ void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor
 }
 
 void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel,
-		 motor_data_t *feeder) {
+		motor_data_t *g_flywheel, motor_data_t *feeder) {
 
 	static uint32_t jam_start_time = 0;
 

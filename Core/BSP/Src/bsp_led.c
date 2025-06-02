@@ -65,6 +65,8 @@ void led_on(void){
 	htim5.Instance->CCR2 = 255;
 	htim5.Instance->CCR1 = 255;
 }
+void led_toggle(void){
+}
 
 void status_led(uint16_t led_no, uint8_t led_state)
 {

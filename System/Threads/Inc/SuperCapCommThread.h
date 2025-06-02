@@ -9,10 +9,10 @@
 #define THREADS_INC_SUPERCAP_COMM_THREAD_H_
 
 #include <stm32f4xx_hal.h>
-
 #include <main.h>
 #include <Thread.h>
 #include "DataStructures.h"
+
 #include "Telemetry.h"
 
 struct ref_msg_packet {
@@ -28,7 +28,6 @@ struct supercap_msg_packet {
 	uint8_t error;
 	uint8_t cap_energy;
 } __attribute__((packed));
-
 
 class SuperCapCommThread : public Thread {
 public:
