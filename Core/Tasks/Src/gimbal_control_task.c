@@ -120,39 +120,27 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 	uint8_t pit_lim = 0;
 	uint8_t yaw_lim = 0;
 	if (prev_yaw == imu_heading.yaw || prev_pit == imu_heading.pit) {
-		return;}
+		return;
+	}
+	pitch_control(pitch_motor);
+	yaw_control(yaw_motor);
+}
 
-#ifndef PITCH_ARM			// for robots that do not have a 4 bar linkage on the pitch motor to the pitch assembly
+void pitch_control(motor_data_t *pitch_motor) {
+#ifndef PITCH_ARM  // for robots that do not have a 4 bar linkage on the pitch motor to the pitch assembly
+
 #ifndef LEAD_SCREW
-	//	float rel_pitch_angle = pitch_motor->angle_data.adj_ang
-	//			+ gimbal_ctrl_data.pitch - imu_heading.pit;
-		rel_pitch_angle = pitch_motor->angle_data.adj_ang
-					+ gimbal_ctrl_data.pitch - imu_heading.pit;
-		if (rel_pitch_angle > pitch_motor->angle_data.phy_max_ang) {
-			rel_pitch_angle = pitch_motor->angle_data.phy_max_ang;
-			pit_lim = 1;
-		}
-		if (rel_pitch_angle < pitch_motor->angle_data.phy_min_ang) {
-			rel_pitch_angle = pitch_motor->angle_data.phy_min_ang;
-			pit_lim = 1;
-		}
-		if (pit_lim == 1) {
-			gimbal_ctrl_data.pitch = rel_pitch_angle + imu_heading.pit
-					- (pitch_motor->angle_data.adj_ang);
-		}
-
-		yangle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor,
-				imu_heading.pit, &prev_pit,1);
-	//	angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
-
-		int32_t temp_pit_output = pitch_motor->rpm_pid.output + PITCH_CONST;
-		temp_pit_output = (temp_pit_output < -20000) ? -20000 :
-							(temp_pit_output > 20000) ? 20000 : temp_pit_output;
-		;
-		pitch_motor->output = temp_pit_output;
+	calculate_direct_pitch(pitch_motor);
+#else
+	calculate_lead_screw_pitch(pitch_motor);
+#endif
 
 #else
+	 calculate_linkage_pitch(pitch_motor);
+#endif
+}
 
+void calculate_lead_screw_pitch(motor_data_t *pitch_motor) {
 	pitch_angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
 	pitch_motor->output = pitch_motor->rpm_pid.output;
 
@@ -172,8 +160,6 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 	double angle = imu_heading.pit * 180.0 / PI;
 	double pulseWidth2 = (angle + 90.0 / 270.0) * 2000 + 500;
 	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_3, pulseWidth2 / 10);
-
-#endif
 }
 
 uint8_t limit_pitch(float *rel_pitch_angle, motor_data_t *pitch_motor) {
@@ -252,11 +238,10 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 	if (pit_lim == 1) {
 		gimbal_ctrl_data.pitch = rel_pitch_angle;
 	}
-#if PITCH_MOTOR_TYPE < TYPE_LK_MG5010E_SPD	//check if motor is LK or DJI
+#if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
+    PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
 
-	angle_pid(rel_pitch_angle, pitch_motor->angle_data.adj_ang, pitch_motor);
-
-#else
 	//lazy max
 	//covnert radians back to degrees
 	int32_t pitch_ang = rel_pitch_angle * 57320;
@@ -266,8 +251,10 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 		vTaskDelay(1);
 	}
 	lk_motor_multturn_ang(&g_pitch_motor);
+#else
+	angle_pid(rel_pitch_angle, pitch_motor->angle_data.adj_ang, pitch_motor);
 #endif
-#endif
+}
 
 //#ifdef PITCH_MOTOR_INVERT
 //	pitch_motor->rpm_pid.output *=-1;
