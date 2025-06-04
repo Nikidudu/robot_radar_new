@@ -40,8 +40,13 @@ extern QueueHandle_t telem_motor_queue;
 extern int supercap_dash;
 
 static uint32_t lvl_max_speed = LV1_MAX_SPEED;
-static uint32_t lvl_max_accel = LV1_MAX_ACCEL;
+static double lvl_max_accel = LV1_MAX_ACCEL;
 static double lvl_max_spin = CHASSIS_YAW_MAX_RPM;
+static double spin_accel = SPIN_ACCELERATION;
+
+float act_forward = 0.0f;
+float act_horizontal = 0.0f;
+float act_yaw = 0.0f;
 
 void movement_control_task(void *argument) {
 	TickType_t start_time;
@@ -146,9 +151,10 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 
 	//rotate angle of the movement :)
 	//MA1513/MA1508E is useful!!
-	float act_forward = chassis_ctrl_data.forward * gear_speed.trans_mult;  //gear shifter multipliers
-	float act_horizontal = chassis_ctrl_data.horizontal * gear_speed.trans_mult;
-	float act_yaw = chassis_ctrl_data.yaw * gear_speed.spin_mult;
+
+	act_forward = rpm_ramp(chassis_ctrl_data.forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
+	act_horizontal = rpm_ramp(chassis_ctrl_data.horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
+	act_yaw = rpm_ramp(chassis_ctrl_data.yaw * gear_speed.spin_mult, act_yaw, &spin_accel);
 
 
 	float rel_forward = ((-act_horizontal * sin(-rel_angle))  //translation and rotation speed of chassis for chassis yaw angle relative to gimbal
@@ -181,25 +187,16 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 		}
 	}
 
-	int16_t rpms[4] = {
-	    motorfr->raw_data.rpm,
-	    motorfl->raw_data.rpm,
-	    motorbr->raw_data.rpm,
-	    motorbl->raw_data.rpm
-	};
-
-	rpm_ramp(rpms, &current_rpm, chassis_rpm, lvl_max_accel);
-
 	// translation rpm will not be more than chassis_rpm
 	int32_t avg_trans = 0;
 	for (uint8_t j = 0; j < 4; j++) {
 		if (g_spinspin_mode == 1) { // if spinning
 			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
-									+ yaw_rpm[j]) * current_rpm / (rpm_sum/4);  // for spinning modulate wheel rpm by dividing by average rpm
+									+ yaw_rpm[j]) * chassis_rpm / (rpm_sum/4);  // for spinning modulate wheel rpm by dividing by average rpm
 			avg_trans += fabs(translation_rpm[j]);
 		} else {
 			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
-						+ yaw_rpm[j]) * current_rpm / rpm_mult;					// for no spinning modulate wheel rpm by dividing by highest rpm
+						+ yaw_rpm[j]) * chassis_rpm / rpm_mult;					// for no spinning modulate wheel rpm by dividing by highest rpm
 			avg_trans += fabs(translation_rpm[j]);
 		}
 	}
@@ -306,33 +303,20 @@ void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, double *lvl_
 }
 
 
-void rpm_ramp(int16_t *rpms, int16_t* current_rpm, uint32_t chassis_rpm, uint32_t lvl_max_accel) {
-	int16_t maxRPM = rpms[0];
+float rpm_ramp(float target_value, float current_value, double *lvl_max_accel) {
+	double dt = CHASSIS_DELAY / 1000.0; // Converting dt to minutes
+	double accel = *lvl_max_accel; //Default Chassis_Accel_max is LV1_ACCEL_MAX
 
-	for (int i = 1; i < 4; i++) {
-	    if (rpms[i] > maxRPM) {
-	        maxRPM = rpms[i];
-	    }
-	}
+	double ramp_rate = accel * dt; //Calc ramp_rate from max_accel
+	float delta = target_value - current_value;
 
-	*current_rpm = maxRPM;
-	uint32_t target_rpm = chassis_rpm;
-	double dt = CHASSIS_DELAY / 1000.0 * 60.0; // Converting dt to minutes
-	uint32_t accel = lvl_max_accel; //1000 //Default Chassis_Accel_max is LV1_ACCEL_MAX
-
-	if (target_rpm > *current_rpm) {
-		*current_rpm += accel * dt;
-		if (*current_rpm > target_rpm) {
-			*current_rpm = target_rpm;
-		}
-	} else if (target_rpm < *current_rpm) {
-		*current_rpm -= accel * dt;
-		if (*current_rpm < target_rpm) {
-			*current_rpm = target_rpm;
-		}
-	}
-
-	*current_rpm = (*current_rpm > MAX_SPEED) ? MAX_SPEED : *current_rpm; //Max speed check for motor protection
+	if (target_value == 0) {
+		return 0; //Instantly stop the robot;
+	} else if (fabs(delta) < ramp_rate) {
+        return target_value;  // close enough, just snap to target
+    } else {
+        return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
+    }
 }
 
 #ifdef HALL_ZERO

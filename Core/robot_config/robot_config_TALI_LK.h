@@ -70,16 +70,27 @@
 #define LV9_MAX_SPEED			M3508_MAX_RPM
 #define LV10_MAX_SPEED			M3508_MAX_RPM
 
-#define LV1_MAX_ACCEL			4000
-#define LV2_MAX_ACCEL			1000
-#define LV3_MAX_ACCEL			1000
-#define LV4_MAX_ACCEL			1000
-#define LV5_MAX_ACCEL			1000
-#define LV6_MAX_ACCEL			1000
-#define LV7_MAX_ACCEL			1000
-#define LV8_MAX_ACCEL			1000
-#define LV9_MAX_ACCEL			1000
-#define LV10_MAX_ACCEL			1000
+/*	Acceleration Value Guide:
+ * 	0.05 - Very Slow Acceleration
+ * 	0.10 - Slow Acceleration
+ * 	0.20 - Moderate Acceleration
+ *  0.50 - Fast Acceleration
+ *  1.00 - Very Fast Acceleration
+ *  2.00 - Extremely Fast Acceleration
+ */
+//Chassis Acceleration
+#define LV1_MAX_ACCEL			1
+#define LV2_MAX_ACCEL			1
+#define LV3_MAX_ACCEL			1
+#define LV4_MAX_ACCEL			1
+#define LV5_MAX_ACCEL			1
+#define LV6_MAX_ACCEL			1
+#define LV7_MAX_ACCEL			1
+#define LV8_MAX_ACCEL			1
+#define LV9_MAX_ACCEL			1
+#define LV10_MAX_ACCEL			1
+
+#define SPIN_ACCELERATION		1 //Same guideline as chassis acceleration
 
 #define GEAR_DEFAULT			3
 
