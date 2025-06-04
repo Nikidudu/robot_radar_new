@@ -8,8 +8,8 @@
 #include <cvAimbotCommandThread.h>
 #include <Telemetry.h>
 #include "robot_config.h"
-#include "dm4310_drv.h"
 #include "INS_task.h"
+#include "bsp_damiao.h"
 extern motor_data_t g_can_motors[24];
 extern motor_data_t g_pitch_motor;
 

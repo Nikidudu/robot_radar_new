@@ -770,27 +770,48 @@ uint16_t check_motors() {
 	}
 #endif
 
-	if (curr_time
-			- g_pitch_motor.last_time[0] > MOTOR_TIMEOUT_MAX) {
-		error |= 1 << 7;
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
 
+	if (curr_time
+			- dm_pitch_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
+		error |= 1 << 7;
 	} else {
 		if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(3, 1);
 		}
 	}
-
+#else
 	if (curr_time
-			- g_can_motors[YAW_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << 8;
-
-	} else {
-		if (g_can_motors[YAW_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(3, 2);
+			- g_pitch_motor.last_time[0] > MOTOR_TIMEOUT_MAX) {
+		error |= 1 << 7;
+		} else {
+		if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {
+			motor_temp_bz(3, 1);
 		}
 	}
+#endif
+
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+	if (curr_time
+				- dm_yaw_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
+			error |= 1 << 8;
+		} else {
+			if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
+				motor_temp_bz(3, 2);
+			}
+		}
+#else
+	if (curr_time
+				- g_can_motors[YAW_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
+			error |= 1 << 8;
+
+		} else {
+			if (g_can_motors[YAW_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+				motor_temp_bz(3, 2);
+	}
+}
+#endif
 	return error;
 
 }
-
 

@@ -19,7 +19,6 @@
 #include "usb_task.h"
 #include "telemetry_task.h"
 #include "motor_control_task.h"
-#include "dm4310_drv.h"
 #include "INS_task.h"
 //#include "hud_task.h"
 #include "hud_new.h"

@@ -20,7 +20,6 @@
 #include "can_msg_processor.h"
 #include "bsp_lk_motor.h"
 #include "SuperCapCommThread.h"
-#include "dm4310_drv.h"
 #include "bsp_damiao.h"
 
 extern EventGroupHandle_t gimbal_event_group;

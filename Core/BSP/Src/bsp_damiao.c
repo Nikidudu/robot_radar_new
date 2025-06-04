@@ -211,6 +211,8 @@ void dm4310_fbdata(dm_motor_t *motor, uint8_t *rx_data)
     motor->para.tor = uint_to_float(motor->para.t_int, T_MIN, T_MAX, 12);  // (-18.0,18.0)
     motor->para.Tmos = (float)(rx_data[6]);
     motor->para.Tcoil = (float)(rx_data[7]);
+    motor->disconnect_time = get_microseconds();
+
 
 	//initialise task switching variables
 	BaseType_t xHigherPriorityTaskWoken, xResult;

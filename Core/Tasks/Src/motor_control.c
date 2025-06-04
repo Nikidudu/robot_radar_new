@@ -11,6 +11,7 @@
 
 //todo: clean this place
 void yaw_pid(double setpoint, double curr_pt, pid_data_t *pid) {
+
 	pid->last_time[1] = pid->last_time[0];
 	pid->last_time[0] = get_microseconds();
 //	if (pid->last_time[1]>= pid->last_time[0]) {

@@ -15,7 +15,6 @@
 #include "INS_task.h"
 #include "bsp_damiao.h"
 #include "bsp_microswitch.h"
-#include "dm4310_drv.h"
 
 extern uint8_t control_mode;
 extern uint8_t aimbot_mode;
