@@ -13,8 +13,8 @@
 //#include "robot_config_roburt.h"
 //#include "robot_config_kirby.h"
 
-//#include "robot_config_kirbee.h"
-#include "robot_config_sentry.h"
+#include "robot_config_kirbee.h"
+//#include "robot_config_sentry.h"
 //#include "robot_config_TALI_LK.h"
 
 //#include "robot_config_CF2.h"
@@ -31,7 +31,7 @@
 // COMMON CONFIGURATION
 
 #define SPINSPIN_RANDOM_DELAY 50
-#define MOTOR_ONLINE_CHECK 	1
+#define MOTOR_ONLINE_CHECK 	-1
 //1 for annoying beep sound, 0 for some error beeps every 3s, -1 for absolute peace and tranquility (with pancik
 #define ARM_SWITCH 			0			//set to 1 to enable remote up and down arming switch
 #define FIRING_DISABLE		0			//set to 1 to stop firing

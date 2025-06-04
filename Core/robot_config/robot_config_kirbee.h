@@ -70,6 +70,28 @@
 #define LV9_MAX_SPEED			M3508_MAX_RPM
 #define LV10_MAX_SPEED			M3508_MAX_RPM
 
+/*	Acceleration Value Guide:
+ * 	0.05 - Very Slow Acceleration
+ * 	0.10 - Slow Acceleration
+ * 	0.20 - Moderate Acceleration
+ *  0.50 - Fast Acceleration
+ *  1.00 - Very Fast Acceleration
+ *  2.00 - Extremely Fast Acceleration
+ */
+//Chassis Acceleration
+#define LV1_MAX_ACCEL			1
+#define LV2_MAX_ACCEL			1
+#define LV3_MAX_ACCEL			1
+#define LV4_MAX_ACCEL			1
+#define LV5_MAX_ACCEL			1
+#define LV6_MAX_ACCEL			1
+#define LV7_MAX_ACCEL			1
+#define LV8_MAX_ACCEL			1
+#define LV9_MAX_ACCEL			1
+#define LV10_MAX_ACCEL			1
+
+#define SPIN_ACCELERATION		1 //Same guideline as chassis acceleration
+
 #define GEAR_DEFAULT			3
 
 #define GEAR1_YAW_MULT			1//0.3
@@ -211,6 +233,57 @@
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
 
+// Yaw max rpm - max RPM for chassis centering
+#define LV1_CHASSIS_YAW_MAX_RPM		0.5
+#define LV1_CHASSIS_YAW_KP			0.7
+#define LV1_CHASSIS_YAW_KI			0
+#define LV1_CHASSIS_YAW_KD			0
+
+#define LV2_CHASSIS_YAW_MAX_RPM		0.5
+#define LV2_CHASSIS_YAW_KP			0.7
+#define LV2_CHASSIS_YAW_KI			0
+#define LV2_CHASSIS_YAW_KD			0
+
+#define LV3_CHASSIS_YAW_MAX_RPM		0.5
+#define LV3_CHASSIS_YAW_KP			0.7
+#define LV3_CHASSIS_YAW_KI			0
+#define LV3_CHASSIS_YAW_KD			0
+
+#define LV4_CHASSIS_YAW_MAX_RPM		0.5
+#define LV4_CHASSIS_YAW_KP			0.7
+#define LV4_CHASSIS_YAW_KI			0
+#define LV4_CHASSIS_YAW_KD			0
+
+#define LV5_CHASSIS_YAW_MAX_RPM		0.5
+#define LV5_CHASSIS_YAW_KP			0.7
+#define LV5_CHASSIS_YAW_KI			0
+#define LV5_CHASSIS_YAW_KD			0
+
+#define LV6_CHASSIS_YAW_MAX_RPM		0.5
+#define LV6_CHASSIS_YAW_KP			0.7
+#define LV6_CHASSIS_YAW_KI			0
+#define LV6_CHASSIS_YAW_KD			0
+
+#define LV7_CHASSIS_YAW_MAX_RPM		0.5
+#define LV7_CHASSIS_YAW_KP			0.7
+#define LV7_CHASSIS_YAW_KI			0
+#define LV7_CHASSIS_YAW_KD			0
+
+#define LV8_CHASSIS_YAW_MAX_RPM		0.5
+#define LV8_CHASSIS_YAW_KP			0.7
+#define LV8_CHASSIS_YAW_KI			0
+#define LV8_CHASSIS_YAW_KD			0
+
+#define LV9_CHASSIS_YAW_MAX_RPM		0.5
+#define LV9_CHASSIS_YAW_KP			0.7
+#define LV9_CHASSIS_YAW_KI			0
+#define LV9_CHASSIS_YAW_KD			0
+
+#define LV10_CHASSIS_YAW_MAX_RPM	0.5
+#define LV10_CHASSIS_YAW_KP			0.7
+#define LV10_CHASSIS_YAW_KI			0
+#define LV10_CHASSIS_YAW_KD			0
+
 #define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
 #define CHASSIS_YAW_KP 		0.45//3.75//1//0.7//0.4
 #define CHASSIS_YAW_KI		0.05
@@ -335,7 +408,7 @@
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
-#define PITCH_MOTOR_ID 		0x70
+#define PITCH_MOTOR_ID 		0x81
 #define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
 #define YAW_MOTOR_ID 		20//0x61
