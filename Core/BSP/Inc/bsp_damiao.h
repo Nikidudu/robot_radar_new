@@ -77,6 +77,7 @@ typedef struct {
     float tor;          // Torque
     float Tmos;         // MOSFET temperature
     float Tcoil;        // Coil temperature
+    uint16_t disconnect_time; // Time since last feedback in ms
 } dm_motor_para_t;
 
 typedef struct {
