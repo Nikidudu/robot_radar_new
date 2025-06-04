@@ -21,7 +21,7 @@ extern gun_control_t launcher_ctrl_data;
 extern gimbal_control_t gimbal_ctrl_data;
 extern uint8_t g_safety_toggle;
 extern uint8_t launcher_safety_toggle;
-float remote_idle = 3;
+float remote_deadzone = 3;
 
 
 void remote_control_input() {
@@ -97,7 +97,7 @@ void remote_gimbal_input() {
 		gimbal_ctrl_data.enabled = 0;
 	} else {
 		gimbal_ctrl_data.enabled = 1;
-		if (fabs(g_remote_cmd.right_x) < remote_idle)
+		if (fabs(g_remote_cmd.right_x) < remote_deadzone)
 		{
 			g_remote_cmd.right_x = 0;
 		}

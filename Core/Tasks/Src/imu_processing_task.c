@@ -93,9 +93,6 @@ void gyro_data_ready(gyro_data_t gyro_data) {
 }
 
 void accel_data_ready(accel_data_t accel_data) {
-#ifdef ZERO_ROLL
-	accel_data.ay = 0;
-#endif
 #if IMU_ORIENTATION == 2
 		accel_proc_data.ax = accel_data.az;
 		accel_proc_data.ay = accel_data.ay;
@@ -121,6 +118,9 @@ void accel_data_ready(accel_data_t accel_data) {
 		accel_proc_data.ay = accel_data.ay;
 		accel_proc_data.az = accel_data.az;
 
+#endif
+#ifdef ZERO_ROLL
+	accel_proc_data.ay = 0;
 #endif
 	accel_proc_data.last_accel_update = accel_data.last_accel_update;
 	imu_test[0] = accel_data.ax;
