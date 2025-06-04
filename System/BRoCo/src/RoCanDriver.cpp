@@ -65,7 +65,7 @@ void ROCANDriver::init() {
 	else if (can == &hcan2)
 		MX_CAN2_Init();
 	/* Start the FDCan line */
-	MX_CAN2_Init();
+	//MX_CAN2_Init();
 	filterConfig(0, 0);
 	TxHeaderConfig();
 	TxHeaderConfigID(0);
@@ -181,15 +181,7 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					convert_raw_can_data(dji_motor_map[RxHeader.StdId - 0x200].motor_data, RxHeader.StdId, (uint8_t*)RxData);
 				}
 			} else {
-				if (RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94){
-					int fb_id = (RxData[0])&0x0F;
-					switch(fb_id){
-					case 1:
-						dm4310_fbdata(&dm_pitch_motor,&RxData[0]);
-						break;
-					}
-				//handle LK motor or other data
-				} else if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
+				 if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
 					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
 						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
 						BaseType_t xHigherPriorityTaskWoken, xResult;
@@ -199,7 +191,16 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					}
 				} else if (RxHeader.StdId == DEVC_NODE_ID){
 					supercapISR(RxData);
+				} else if ((RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94)|| RxHeader.StdId == PITCH_MOTOR_ID){
+					int fb_id = (RxData[0])&0x0F;
+					switch(fb_id){
+					case 1:
+						dm4310_fbdata(&dm_pitch_motor,&RxData[0]);
+						break;
+					}
+				//handle LK motor or other data
 				} else {
+					// should not run here
 					uint8_t sender = getSenderID(hcan);
 					uint32_t length = RxHeader.DLC;
 					receiveCAN(sender, RxData, length);
@@ -224,14 +225,7 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					convert_raw_can_data(dji_motor_map[RxHeader.StdId - 0x200+12].motor_data, RxHeader.StdId+12, RxData);
 				}
 			} else {
-				if (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74){
-					int fb_id = (RxData[0])&0x0F;
-					switch(fb_id){
-					case(1):
-						dm4310_fbdata(&dm_yaw_motor,&RxData[0]);
-						break;
-						}
-				} else if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
+				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
 			//handle LK motor or other data
 					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
 						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
@@ -242,6 +236,13 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					}
 				} else if (RxHeader.StdId == DEVC_NODE_ID){
 					supercapISR(RxData);
+				} else if ((RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74) || RxHeader.StdId == YAW_MOTOR_ID){
+					int fb_id = (RxData[0])&0x0F;
+					switch(fb_id){
+					case(1):
+						dm4310_fbdata(&dm_yaw_motor,&RxData[0]);
+						break;
+						}
 				} else {
 					uint8_t sender = getSenderID(hcan);
 					uint32_t length = RxHeader.DLC;

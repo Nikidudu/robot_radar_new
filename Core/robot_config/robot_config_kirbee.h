@@ -112,7 +112,7 @@
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
 #define YAW_INVERT  			-1				//1 to invert control -1 to disable
-#define PITCH_INVERT  			1				//1 to invert control -1 to disable
+#define PITCH_INVERT  			-1				//1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
 #define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
@@ -253,9 +253,9 @@
 
 #else
 
-#define DM_PITCH_KP			17
+#define DM_PITCH_KP			9
 #define DM_PITCH_KI			0
-#define DM_PITCH_KD			30
+#define DM_PITCH_KD			28
 #define DM_PITCH_INT_MAX	0
 #define DM_PITCH_MAX_OUT	3
 #define DM_PITCH_MODE		0	// 0 - MIT, 1 - Position, 2 - Speed
@@ -269,8 +269,8 @@
 #endif
 
 #define PITCH_CENTER			0
-#define PITCH_MAX_ANG			0.12
-#define PITCH_MIN_ANG			-0.25
+#define PITCH_MAX_ANG			0.2
+#define PITCH_MIN_ANG			-0.255
 #define PITCH_CONST 			0.17
 
 
@@ -335,7 +335,7 @@
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
-#define PITCH_MOTOR_ID 		0x81
+#define PITCH_MOTOR_ID 		0x70
 #define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
 #define YAW_MOTOR_ID 		20//0x61

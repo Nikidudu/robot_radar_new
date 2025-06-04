@@ -308,7 +308,3 @@ void ChassisSpdCmdThread::send_commands_chassis(chassisSpeedCommandPacket* packe
 //		portYIELD();
 //	}
 //}
-
-
-
-

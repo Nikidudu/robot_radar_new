@@ -193,7 +193,8 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 	dm_pitch_motor.ctrl.tor_set += 1.1;
 #else
 	yaw_pid(target_pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
-	dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output + PITCH_CONST;
+	dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output +
+			(-0.8841*imu_heading.pit*imu_heading.pit - 0.8798*imu_heading.pit + 1.3045);
 #endif
 
 #else
@@ -261,7 +262,7 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 //#endif
 
 void yaw_control(motor_data_t *yaw_motor) {
-#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
 	dm4310_set(&dm_yaw_motor);
 	float turn_ang = imu_heading.yaw - prev_yaw;
 

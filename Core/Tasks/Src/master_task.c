@@ -83,10 +83,13 @@ void master_task(void* argument){
 
 	/* add threads, ... */
 	//todo: adjust priorities
-	//Threads creation
+	//Threads creation\
+
+#ifdef SENTRY
 	xTaskCreate(INS_task, "INS_task",
 	        configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 	        &INS_task_handle);
+#endif
 
 	xTaskCreate(imu_processing_task, "IMU_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,
