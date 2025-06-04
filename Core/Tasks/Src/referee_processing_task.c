@@ -20,12 +20,16 @@ extern TaskHandle_t referee_processing_task_handle;
 extern DMA_HandleTypeDef hdma_usart6_rx;
 referee_limit_t g_referee_limiters;
 static ref_msg_t g_ref_msg_buffer;
+
 ref_game_state_t ref_game_state;
 uint32_t ref_game_state_txno = 0;
+
 ref_game_robot_HP_t ref_robot_hp;
 uint32_t ref_robot_hp_txno = 0;
+
 ref_game_robot_data2_t ref_robot_data;
 uint32_t ref_robot_data_txno = 0;
+
 ref_robot_power_data_t ref_power_data;
 uint32_t ref_power_data_txno = 0;
 

@@ -25,7 +25,6 @@
 //nothing uses roll.....yet
 #define IMU_ROLL_INVERT		1
 //#define IST8310
-#define REF_POWER_LIM
 #define G_X_OFFSET		-7
 #define G_Y_OFFSET 		-16
 #define G_Z_OFFSET	 	5
@@ -46,29 +45,11 @@
 /*********************** REFEREE SYSTEM CONFIGURATION *******************/
 #define OVERHEAT_TIME			100
 
+// No level tuning required for sentry
 #define LV1_FEEDER				1200//800//480//480
 #define	LV1_PROJECTILE			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
 #define LV1_MAX_SPEED			4000//4500//M3508_MAX_RPM
-#define LV1_MAX_CURRENT			16384
-
-#define LV2_FEEDER				1200//840
-#define	LV2_PROJECTILE			20.5//12
-#define LV2_MAX_SPEED			4750//5250//8000
-#define LV2_MAX_CURRENT			16384
-
-#define LV3_FEEDER				1200//840
-#define	LV3_PROJECTILE			20.5//12
-#define LV3_MAX_SPEED			5250//6000//9000
-#define LV3_MAX_CURRENT			16384
-
-#define LVL_TUNING
-#define LV4_MAX_SPEED			6000//6750
-#define LV5_MAX_SPEED			6750//7500
-#define LV6_MAX_SPEED			7500//8250
-#define LV7_MAX_SPEED			M3508_MAX_RPM
-#define LV8_MAX_SPEED			M3508_MAX_RPM
-#define LV9_MAX_SPEED			M3508_MAX_RPM
-#define LV10_MAX_SPEED			M3508_MAX_RPM
+#define LV1_MAX_ACCEL			1000
 
 #define GEAR_DEFAULT			3
 

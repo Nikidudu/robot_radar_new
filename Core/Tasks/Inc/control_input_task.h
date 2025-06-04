@@ -15,6 +15,7 @@ extern "C" {
 
 void control_input_task(void *argument);
 float chassis_center_yaw();
+void chassis_centering_config();
 void chassis_set_ctrl(float forward, float horizontal, float yaw);
 void chassis_kill_ctrl();
 uint8_t gimbal_aim_at_damaged_plate();
