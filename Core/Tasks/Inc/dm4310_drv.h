@@ -12,7 +12,6 @@ extern "C" {
 // Main task function
 void dm_motor_control_task(void *argument);
 
-#define FEEDFORWARD_CONST 0.3
 #define LIMIT(x,min,max) (x)=(((x)<=(min))?(min):(((x)>=(max))?(max):(x)))
 
 #ifndef ABS

@@ -303,6 +303,7 @@
 #define DM_YAW_MIT_POS			0
 #define DM_YAW_MIT_VEL			0
 #define DM_YAW_MIT_TOR			0
+#define FEEDFORWARD_CONST 		0.3
 
 #endif
 

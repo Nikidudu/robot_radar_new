@@ -271,7 +271,7 @@
 #define PITCH_CENTER			0
 #define PITCH_MAX_ANG			0.2
 #define PITCH_MIN_ANG			-0.255
-#define PITCH_CONST 			0.17
+#define PITCH_CONST 			0
 
 
 //#define YAW_MOTOR_TYPE			TYPE_DM4310_MIT
