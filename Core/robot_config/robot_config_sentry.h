@@ -51,6 +51,8 @@
 #define LV1_MAX_SPEED			4000//4500//M3508_MAX_RPM
 #define LV1_MAX_ACCEL			1000
 
+#define SPIN_ACCELERATION		1 //Same guideline as chassis acceleration
+
 #define GEAR_DEFAULT			3
 
 #define GEAR1_YAW_MULT			1//0.3

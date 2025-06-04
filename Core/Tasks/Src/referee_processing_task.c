@@ -151,6 +151,7 @@ void referee_processing_task(void *argument) {
 
 
 		status_led(5, on_led);
+#ifdef LVL_TUNING
 		if (ref_robot_data.robot_level == 1) {
 			g_referee_limiters.feeding_speed = LV1_FEEDER;
 			g_referee_limiters.projectile_speed = LV1_PROJECTILE;
@@ -173,40 +174,7 @@ void referee_processing_task(void *argument) {
 			g_referee_limiters.feeding_speed = LV1_FEEDER;
 			g_referee_limiters.projectile_speed = LV1_PROJECTILE;
 		}
-		if (ref_robot_data.robot_level != 0) {
-			static uint32_t prev_power_tx_no = 0;
-			if (prev_power_tx_no != ref_power_data_txno){
-				prev_power_tx_no = ref_power_data_txno;
-				float temp_buffer = 1;					 // if buffer>30J, multiplier = 1
-				if (ref_power_data.buffer_energy < 30){  // if buffer<30J, multiplier = x/34 + BUFFER_MIN
-					temp_buffer = ((float)ref_power_data.buffer_energy/34) + BUFFER_MIN;
-					temp_buffer = (temp_buffer > 1) ? 1 : temp_buffer;
-				}
-	#ifdef CHASSIS_POWER_BUFFER_LIMITER
-				g_referee_limiters.wheel_buffer_limit = temp_buffer; // wheel_buffer_limit is a multiplier for motor pid output
-	#else
-				g_referee_limiters.wheel_buffer_limit = 1;
-	#endif
-
-				static float prev_chassis_power;
-				float max_power = CHASSIS_MAX_POWER;
-				float curr_chassis_power = prev_chassis_power * CHASSIS_POWER_LPF + ref_power_data.chassis_power * (1-CHASSIS_POWER_LPF);	//filter on chassis power
-				prev_chassis_power = ref_power_data.chassis_power;
-				if (ref_robot_data.chassis_power_limit < CHASSIS_MAX_POWER){ //set max_power to referee system max power
-					max_power = ref_robot_data.chassis_power_limit;
-
-				}
-				float temp_power = (float) ((curr_chassis_power)/(max_power - CHASSIS_POWER_MARGIN)); //instantaneous chassis power divided by in-game max chassis power
-	//			temp_power = (temp_power > 1) ? 1 : temp_power;										  //eg if instantaneous is 160W, game limit is 80W, temp_power = 2
-				g_referee_limiters.wheel_power_limit = temp_power;
-	//			arm_sqrt_f32(temp_power, &referee_limiters.wheel_power_limit);
-			}
-		} else {
-			g_referee_limiters.wheel_buffer_limit = 1;
-			g_referee_limiters.wheel_power_limit = 1;
-
-		}
-		vTaskDelay(2);
+#endif
 	}
 }
 
