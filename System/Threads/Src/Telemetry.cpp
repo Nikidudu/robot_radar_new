@@ -6,7 +6,6 @@
  */
 
 #include "Telemetry.h"
-#include "dummy_thread.h"
 
 #include "typedefs.h"
 
@@ -31,7 +30,6 @@ CANBus* CAN2_network = nullptr;
 STMUARTDriver* UART_line = nullptr;
 NetworkBus* UART_network = nullptr;
 
-dummyThread* dummy = nullptr;
 SuperCapCommThread* supercap_thread = nullptr;
 cvGimbalThread* cv_gimbal_thread = nullptr;
 cvAimbotCommandThread* cv_aimbot_command_thread = nullptr;
