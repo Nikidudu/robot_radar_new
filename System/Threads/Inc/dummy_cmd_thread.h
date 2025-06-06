@@ -26,6 +26,9 @@ public:
 
 	static void handle_dummy_cmd(uint8_t sender_id, dummyPacket* packet);
 
+private:
+	uint32_t last_receive_time;
+
 };
 
 
