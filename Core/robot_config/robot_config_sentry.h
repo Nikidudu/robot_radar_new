@@ -236,9 +236,9 @@
 
 #else
 
-#define DM_PITCH_KP			2
+#define DM_PITCH_KP			10
 #define DM_PITCH_KI			0
-#define DM_PITCH_KD			100
+#define DM_PITCH_KD			50
 #define DM_PITCH_INT_MAX	0
 #define DM_PITCH_MAX_OUT	5
 #define DM_PITCH_MODE			0	// 0 - MIT, 1 - Position, 2 - Speed
@@ -252,8 +252,8 @@
 #endif
 
 #define PITCH_CENTER			0
-#define PITCH_MAX_ANG			0.13
-#define PITCH_MIN_ANG			-0.70
+#define PITCH_MAX_ANG			0.283
+#define PITCH_MIN_ANG			-0.51
 #define PITCH_CONST 			0
 
 

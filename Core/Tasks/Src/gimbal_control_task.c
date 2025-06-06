@@ -179,8 +179,10 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 	float target_pitch = gimbal_ctrl_data.pitch;
 
     if (target_pitch > dm_pitch_motor.angle_data.phy_max_ang) {
+    	gimbal_ctrl_data.pitch = dm_pitch_motor.angle_data.phy_max_ang;
         target_pitch = dm_pitch_motor.angle_data.phy_max_ang;
     } else if(target_pitch < dm_pitch_motor.angle_data.phy_min_ang) {
+    	gimbal_ctrl_data.pitch = dm_pitch_motor.angle_data.phy_min_ang;
         target_pitch = dm_pitch_motor.angle_data.phy_min_ang;
     }
 

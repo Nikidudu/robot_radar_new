@@ -251,8 +251,15 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 			l_flywheel->output = l_flywheel->rpm_pid.output + FRICTION_OFFSET * FRICTION_INVERT;
 			r_flywheel->output = r_flywheel->rpm_pid.output - FRICTION_OFFSET * FRICTION_INVERT;
 		} else {
-			l_flywheel->output = 0;
-			r_flywheel->output = 0;
+//			speed_pid(0,l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
+//			speed_pid(0,r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
+//			l_flywheel->output = l_flywheel->rpm_pid.output;
+//			r_flywheel->output = r_flywheel->rpm_pid.output;
+//			l_flywheel->output = -2;
+//			r_flywheel->output = 2;
+			int32_t deceleration_rate = 300; //Find good value
+			l_flywheel->output = flywheel_ramp(0, l_flywheel->output, deceleration_rate);
+			r_flywheel->output = flywheel_ramp(0, r_flywheel->output, deceleration_rate);
 		}
 		break;
 
@@ -267,8 +274,12 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 		break;
 
 	default:
-		l_flywheel->output = 0;
-		r_flywheel->output = 0;
+		l_flywheel->output = 2;
+		r_flywheel->output = -2;
+//		speed_pid(0,l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
+//		speed_pid(0,r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
+//		l_flywheel->output = l_flywheel->rpm_pid.output;
+//		r_flywheel->output = r_flywheel->rpm_pid.output;
 		break;
 	}
 
@@ -552,6 +563,16 @@ void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 	}
 }
 #endif
+
+int32_t flywheel_ramp(int32_t target_value, int32_t current_value, int32_t ramp_rate){
+	int32_t delta = target_value - current_value;
+
+	if (fabs(delta) < ramp_rate) {
+        return target_value;  // close enough, just snap to target
+    } else {
+        return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
+    }
+}
 
 void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel) {
 	int16_t friction_wheel_speed = g_referee_limiters.projectile_speed
