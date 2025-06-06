@@ -332,7 +332,7 @@ void control_mode_change(int16_t left_dial_input) {
 				case KEYBOARD_CTRL_MODE:
 				case REMOTE_CTRL_MODE:
 					control_mode = SBC_CTRL_MODE;
-					temp_msg = control_sbc;
+					temp_msg = song;
 					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
 					break;
 				default:
