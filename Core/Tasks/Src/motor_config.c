@@ -775,6 +775,7 @@ uint16_t check_motors() {
 	if (curr_time
 			- dm_pitch_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 7;
+		dm4310_enable(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
 	} else {
 		if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(3, 1);
@@ -795,6 +796,7 @@ uint16_t check_motors() {
 	if (curr_time
 				- dm_yaw_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
 			error |= 1 << 8;
+			dm4310_enable(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
 		} else {
 			if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
 				motor_temp_bz(3, 2);
