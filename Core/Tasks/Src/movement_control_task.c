@@ -201,6 +201,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 		}
 	}
 
+	// maybe better to change the values of PID here instead of center_yaw()?
 	speed_pid(translation_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
 	total_power += fabs(motorfr->rpm_pid.output);
 	speed_pid(translation_rpm[1], motorfl->raw_data.rpm, &motorfl->rpm_pid);
@@ -216,7 +217,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	motorbr->output = motorbr->rpm_pid.output;
 }
 
-void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, double *lvl_max_spin) {
+void level_config(uint32_t *lvl_max_speed, double *lvl_max_accel, double *lvl_max_spin) {
 	static uint8_t prev_robot_level = 0;
 
 	// Hopefully with this, we can adjust pid values without it being overwritten all the time
