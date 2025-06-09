@@ -210,7 +210,8 @@ void dm4310_fbdata(dm_motor_t *motor, uint8_t *rx_data)
     motor->para.vel = uint_to_float(motor->para.v_int, V_MIN, V_MAX, 12); // (-45.0,45.0)
     motor->para.tor = uint_to_float(motor->para.t_int, T_MIN, T_MAX, 12);  // (-18.0,18.0)
     motor->para.Tmos = (float)(rx_data[6]);
-    motor->para.Tcoil = (float)(rx_data[7]);
+  //  motor->para.Tcoil = (float)(rx_data[7]);
+    motor->para.Tcoil = 80.0;
     motor->disconnect_time = get_microseconds();
 
 
