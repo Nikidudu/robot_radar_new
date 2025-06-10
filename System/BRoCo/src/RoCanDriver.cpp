@@ -190,7 +190,7 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					}
 				} else if (RxHeader.StdId == DEVC_NODE_ID){
 					supercapISR(RxData);
-				} else if ((RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94)|| (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74)){
+				} else if ((RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94)|| (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x75)){
 					int fb_id = (RxData[0])&0x0F;
 					switch(fb_id){
 					case 1:
