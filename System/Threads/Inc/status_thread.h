@@ -15,6 +15,12 @@
 
 #include "Telemetry.h"
 
+typedef enum
+{
+	RED_TEAM		= 1,
+	BLUE_TEAM		= 2,
+} team_colour;
+
 class statusThread: public Thread {
 public:
 
@@ -29,7 +35,10 @@ private:
 	uint32_t last_ref_game_state_txno = 0;
 	uint32_t last_ref_robot_data_txno = 0;
 	uint32_t last_ref_robot_hp_txno = 0;
+	uint32_t last_ref_event_txno = 0;
+	uint32_t last_game_result_txno = 0;
 
+	uint8_t team_colour = RED_TEAM; // 1 for red, 2 for blue
 };
 
 extern statusThread* statusInstance;

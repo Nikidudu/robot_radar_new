@@ -47,6 +47,13 @@ uint32_t ref_shoot_data_txno = 0;
 
 ref_magazine_data_t ref_mag_data;
 uint32_t ref_mag_data_txno = 0;
+
+ref_game_event_data_t ref_event_data;
+uint32_t ref_event_data_txno = 0;
+
+ref_game_result_t ref_game_result_data;
+uint32_t ref_game_result_txno = 0;
+
 uint8_t g_ref_tx_seq = 0;
 
 uint8_t ref_buffer[2];
@@ -129,6 +136,16 @@ void referee_processing_task(void *argument) {
 								sizeof(ref_magazine_data_t));
 						ref_mag_data_txno++;
 						//add in the memcpys here
+						break;
+					case REF_GAME_EVENT_CMD_ID:
+						memcpy(&ref_event_data, &g_ref_msg_buffer.data,
+								sizeof(ref_game_event_data_t));
+						ref_event_data_txno++;
+						break;
+					case REF_GAME_RESULT_ID:
+						memcpy(&ref_game_result_data, &g_ref_msg_buffer.data,
+								sizeof(ref_game_winner_t));
+						ref_game_result_txno++;
 						break;
 					default:
 						break;

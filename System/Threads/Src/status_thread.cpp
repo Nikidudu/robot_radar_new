@@ -18,6 +18,10 @@ extern ref_game_robot_data2_t ref_robot_data;
 extern uint32_t ref_robot_data_txno;
 extern ref_game_robot_HP_t ref_robot_hp;
 extern uint32_t ref_robot_hp_txno;
+extern ref_game_event_data_t ref_event_data;
+extern uint32_t ref_event_data_txno;
+extern ref_game_result_t ref_game_result_data;
+extern uint32_t ref_game_result_txno;
 
 extern cvAimbotCommandThread* cvAimbotCommandInstance;
 
@@ -26,12 +30,6 @@ statusThread* statusInstance = nullptr;
 // Declare your data with the proper data structure defined in DataStructures.h
 static cvCompetitionStatusData status_data;
 static cvCompetitionStatusPacket status_packet;
-
-static cvRobotModeData robot_mode_data;
-static cvRobotModePacket robot_mode_packet;
-
-static cvAimSendPacket aimsend_packet;
-static cvAimSendData aimsend_data;
 
 extern uint8_t control_mode;
 
@@ -51,36 +49,45 @@ void statusThread::loop()
 		status_data.robot_id = ref_robot_data.robot_id;
 		status_data.current_hp = ref_robot_data.current_HP;
 		last_ref_robot_data_txno = ref_robot_data_txno;
+
+		// Determining team colour (red if id < 100, else blue )
+		team_colour = (status_data.robot_id < 100) ? RED_TEAM : BLUE_TEAM;
 	}
 
 	if (last_ref_robot_hp_txno != ref_robot_hp_txno) {
-		status_data.red_base_hp = ref_robot_hp.red_base_HP;
-		status_data.blue_base_hp = ref_robot_hp.blu_base_HP;
-		status_data.red_outpost_hp = 0; // To wait till referee system upgrade
-		status_data.blue_outpost_hp = 0; // To wait till referee system upgrade
+	    status_data.red_hero_hp = ref_robot_hp.red_1_HP;
+	    status_data.red_standard_hp = ref_robot_hp.red_3_HP;
+	    status_data.red_sentry_hp = ref_robot_hp.red_7_HP;
+
+	    status_data.blue_hero_hp = ref_robot_hp.blu_1_HP;
+	    status_data.blue_standard_hp = ref_robot_hp.blu_3_HP;
+	    status_data.blue_sentry_hp = ref_robot_hp.blu_7_HP;
+
+	    last_ref_robot_hp_txno = ref_robot_hp_txno;
 	}
 
-	if (control_mode == SBC_CTRL_MODE) {
-		robot_mode_data.robot_mode = true;
-	} else {
-		robot_mode_data.robot_mode = false;
+	if (last_ref_event_txno != ref_event_data_txno) {
+	    status_data.resupply_occupation = ref_event_data.event_type & RMUL_RESUPPLY_MASK;
+	    status_data.central_occupation = ref_event_data.event_type & RMUL_CENTRAL_MASK;
+	    last_ref_event_txno = ref_event_data_txno;
 	}
 
-	robot_mode_data.toArray((uint8_t*) &robot_mode_packet);
-	MAKE_RELIABLE(robot_mode_packet);
-	UART_network->send(&robot_mode_packet);
+	if (last_game_result_txno != ref_game_result_txno) {
+		status_data.win_state = false;
+		// during competition result calculation period
+		if (status_data.game_progress == 5) {
+			if ((team_colour == RED_TEAM && ref_game_result_data.winner == RED_WIN) ||
+				(team_colour == BLUE_TEAM && ref_game_result_data.winner == BLUE_WIN)) {
+				status_data.win_state = true;
+			}
+		}
+
+		last_game_result_txno++;
+	}
 
 	status_data.toArray((uint8_t*) &status_packet);
 	MAKE_RELIABLE(status_packet);
 	UART_network->send(&status_packet);
-
-	aimsend_data.aim_send = true;
-	// Send aim_state directly
-
-	aimsend_data.toArray((uint8_t*) &aimsend_packet);
-	MAKE_RELIABLE(aimsend_packet);
-	UART_network->send(&aimsend_packet);
-
 
 	osDelay(500);
 
