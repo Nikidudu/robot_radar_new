@@ -194,6 +194,7 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					int fb_id = (RxData[0])&0x0F;
 					switch(fb_id){
 					case 1:
+					case 5:
 						dm4310_fbdata(&dm_pitch_motor,&RxData[0]);
 						break;
 					}

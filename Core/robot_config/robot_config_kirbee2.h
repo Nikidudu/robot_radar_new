@@ -341,9 +341,9 @@
 
 #endif
 
-#define PITCH_CENTER			0
-#define PITCH_MAX_ANG			0.2
-#define PITCH_MIN_ANG			-0.255
+#define PITCH_CENTER			-2.43
+#define PITCH_MAX_ANG			-2.18
+#define PITCH_MIN_ANG			-2.51
 #define PITCH_CONST 			0
 
 
@@ -380,7 +380,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	5000//6
-#define YAW_CENTER 				3282
+#define YAW_CENTER 				559
 #define YAW_MAX_ANG				5*PI
 #define YAW_MIN_ANG				5*-PI
 
