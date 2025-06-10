@@ -40,9 +40,9 @@ extern QueueHandle_t telem_motor_queue;
 extern int supercap_dash;
 
 static float lvl_max_speed = LV1_MAX_SPEED;
-static double lvl_max_accel = LV1_MAX_ACCEL;
-static float lvl_max_spin = 1.0f;
-static double spin_accel = SPIN_ACCELERATION;
+static float lvl_max_accel = LV1_MAX_ACCEL;
+static float lvl_max_spin = LV1_CHASSIS_YAW_MAX_RPM;
+static float spin_accel = SPIN_ACCELERATION;
 
 float act_forward = 0.0f;
 float act_horizontal = 0.0f;
@@ -154,9 +154,10 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	float speed_limit = lvl_max_speed;
 	float spin_limit = lvl_max_spin;
 
-	float limit_forward = (chassis_ctrl_data.forward >= speed_limit) ? speed_limit : chassis_ctrl_data.forward;
-	float limit_horizontal = (chassis_ctrl_data.horizontal >= speed_limit) ? speed_limit : chassis_ctrl_data.horizontal;
-	float limit_yaw = (chassis_ctrl_data.yaw >= spin_limit) ? spin_limit : chassis_ctrl_data.yaw;
+	float limit_forward = fmaxf(-speed_limit, fminf(chassis_ctrl_data.forward, speed_limit));
+	float limit_horizontal = fmaxf(-speed_limit, fminf(chassis_ctrl_data.horizontal, speed_limit));
+	float limit_yaw = fmaxf(-spin_limit, fminf(chassis_ctrl_data.yaw, spin_limit));
+	//Clamp the values between -limit to limit
 
 	act_forward = rpm_ramp(limit_forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
 	act_horizontal = rpm_ramp(limit_horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
@@ -223,8 +224,8 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	motorbr->output = motorbr->rpm_pid.output;
 }
 
-void level_config(uint32_t *lvl_max_speed, double *lvl_max_accel, double *lvl_max_spin) {
-	static uint8_t prev_robot_level = 0;
+void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin) {
+	static uint8_t prev_robot_level = -1;
 
 	// Hopefully with this, we can adjust pid values without it being overwritten all the time
 	if (prev_robot_level == ref_robot_data.robot_level) return;
@@ -310,7 +311,7 @@ void level_config(uint32_t *lvl_max_speed, double *lvl_max_accel, double *lvl_ma
 }
 
 
-float rpm_ramp(float target_value, float current_value, double *lvl_max_accel) {
+float rpm_ramp(float target_value, float current_value, float *lvl_max_accel) {
 	double dt = CHASSIS_DELAY / 1000.0; // Converting dt to minutes
 	double accel = *lvl_max_accel; //Default Chassis_Accel_max is LV1_ACCEL_MAX
 

@@ -61,7 +61,7 @@
 
 
 /* Speed Value Guide:
- * Values are percentages of the max speed.
+ * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed
  */
 #define LV1_MAX_SPEED			0.5
