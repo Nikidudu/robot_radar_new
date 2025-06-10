@@ -306,8 +306,8 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 
 #endif
 
-	*lvl_max_speed = (*lvl_max_speed < MIN_SPEED) ? MIN_SPEED : *lvl_max_speed;
-	*lvl_max_speed = (*lvl_max_speed > MAX_SPEED) ? MAX_SPEED : *lvl_max_speed; // Cap the max speed of motor
+	*lvl_max_speed = (*lvl_max_speed < 0) ? 0 : *lvl_max_speed; //Make sure is within 0 - 1 since it is a percentage
+	*lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
 }
 
 
