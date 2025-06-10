@@ -59,16 +59,21 @@
 #define	LV2_PROJECTILE			16.5
 #define	LV3_PROJECTILE			16.5
 
-#define LV1_MAX_SPEED			M3508_MAX_RPM
-#define LV2_MAX_SPEED			M3508_MAX_RPM
-#define LV3_MAX_SPEED			M3508_MAX_RPM
-#define LV4_MAX_SPEED			M3508_MAX_RPM
-#define LV5_MAX_SPEED			M3508_MAX_RPM
-#define LV6_MAX_SPEED			M3508_MAX_RPM
-#define LV7_MAX_SPEED			M3508_MAX_RPM
-#define LV8_MAX_SPEED			M3508_MAX_RPM
-#define LV9_MAX_SPEED			M3508_MAX_RPM
-#define LV10_MAX_SPEED			M3508_MAX_RPM
+
+/* Speed Value Guide:
+ * Values are percentages of the max speed.
+ * E.g. 0.5 = 50% max speed
+ */
+#define LV1_MAX_SPEED			0.5
+#define LV2_MAX_SPEED			1
+#define LV3_MAX_SPEED			1
+#define LV4_MAX_SPEED			1
+#define LV5_MAX_SPEED			1
+#define LV6_MAX_SPEED			1
+#define LV7_MAX_SPEED			1
+#define LV8_MAX_SPEED			1
+#define LV9_MAX_SPEED			1
+#define LV10_MAX_SPEED			1
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
@@ -79,7 +84,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			1
+#define LV1_MAX_ACCEL			2
 #define LV2_MAX_ACCEL			1
 #define LV3_MAX_ACCEL			1
 #define LV4_MAX_ACCEL			1
@@ -90,7 +95,7 @@
 #define LV9_MAX_ACCEL			1
 #define LV10_MAX_ACCEL			1
 
-#define SPIN_ACCELERATION		1 //Same guideline as chassis acceleration
+#define SPIN_ACCELERATION		2 //Same guideline as chassis acceleration
 
 #define GEAR_DEFAULT			3
 
@@ -241,12 +246,12 @@
 #define CHASSIS_SPINSPIN_MIN_RAMP 0.002
 
 // Yaw max rpm - max RPM for chassis centering
-#define LV1_CHASSIS_YAW_MAX_RPM		0.5
+#define LV1_CHASSIS_YAW_MAX_RPM		1
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0
 #define LV1_CHASSIS_YAW_KD			0
 
-#define LV2_CHASSIS_YAW_MAX_RPM		0.5
+#define LV2_CHASSIS_YAW_MAX_RPM		1
 #define LV2_CHASSIS_YAW_KP			0.7
 #define LV2_CHASSIS_YAW_KI			0
 #define LV2_CHASSIS_YAW_KD			0

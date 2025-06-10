@@ -45,15 +45,6 @@ uint8_t launcher_safety_toggle = (ARM_SWITCH | LAUNCHER_SAFETY);
 uint32_t reset_debounce_time = 0;
 uint32_t reset_start_time = 0;
 
-void ramp(float *curr_val, float target_val, float max_ramp){
-	if ((target_val - *curr_val) > max_ramp ){
-		*curr_val += max_ramp;
-	} else if (target_val - *curr_val < -max_ramp){
-		*curr_val -= max_ramp;
-	} else {
-		*curr_val = target_val;
-	}
-}
 
 
 void control_input_task(void *argument) {
@@ -254,9 +245,6 @@ void chassis_centering_config() {
 
 void chassis_set_ctrl(float forward, float horizontal, float yaw){
 	chassis_ctrl_data.enabled = 1;
-	ramp(&(chassis_ctrl_data.horizontal), horizontal, CHASSIS_CTL_RAMP);
-	ramp(&(chassis_ctrl_data.forward), forward, CHASSIS_CTL_RAMP);
-//	ramp(&(chassis_ctrl_data.yaw), yaw, CHASSIS_CTL_RAMP);
 	chassis_ctrl_data.horizontal = horizontal;
 	chassis_ctrl_data.forward = forward;
 	chassis_ctrl_data.yaw = yaw;

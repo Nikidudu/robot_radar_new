@@ -39,9 +39,9 @@ float motor_yaw_mult[4];
 extern QueueHandle_t telem_motor_queue;
 extern int supercap_dash;
 
-static uint32_t lvl_max_speed = LV1_MAX_SPEED;
+static float lvl_max_speed = LV1_MAX_SPEED;
 static double lvl_max_accel = LV1_MAX_ACCEL;
-static double lvl_max_spin = CHASSIS_YAW_MAX_RPM;
+static float lvl_max_spin = 1.0f;
 static double spin_accel = SPIN_ACCELERATION;
 
 float act_forward = 0.0f;
@@ -147,14 +147,20 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	// Setting translational and rotational speed and acceleration base on robot level
 	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
-	uint32_t chassis_rpm = lvl_max_speed;
+	uint32_t chassis_rpm = M3508_MAX_RPM;
 
 	//rotate angle of the movement :)
 	//MA1513/MA1508E is useful!!
+	float speed_limit = lvl_max_speed;
+	float spin_limit = lvl_max_spin;
 
-	act_forward = rpm_ramp(chassis_ctrl_data.forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
-	act_horizontal = rpm_ramp(chassis_ctrl_data.horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
-	act_yaw = rpm_ramp(chassis_ctrl_data.yaw * gear_speed.spin_mult, act_yaw, &spin_accel);
+	float limit_forward = (chassis_ctrl_data.forward >= speed_limit) ? speed_limit : chassis_ctrl_data.forward;
+	float limit_horizontal = (chassis_ctrl_data.horizontal >= speed_limit) ? speed_limit : chassis_ctrl_data.horizontal;
+	float limit_yaw = (chassis_ctrl_data.yaw >= spin_limit) ? spin_limit : chassis_ctrl_data.yaw;
+
+	act_forward = rpm_ramp(limit_forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
+	act_horizontal = rpm_ramp(limit_horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
+	act_yaw = rpm_ramp(limit_yaw * gear_speed.spin_mult, act_yaw, &spin_accel);
 
 
 	float rel_forward = ((-act_horizontal * sin(-rel_angle))  //translation and rotation speed of chassis for chassis yaw angle relative to gimbal
@@ -172,10 +178,10 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	translation_rpm[3] = ((rel_forward * BR_VY_MULT)
 			+ (rel_horizontal * BR_VX_MULT));
 
-	yaw_rpm[0] = rel_yaw * motor_yaw_mult[0] * lvl_max_spin;  //calculate theoretical wheel rpm for yaw
-	yaw_rpm[1] = rel_yaw * motor_yaw_mult[1] * lvl_max_spin;
-	yaw_rpm[2] = rel_yaw * motor_yaw_mult[2] * lvl_max_spin;
-	yaw_rpm[3] = rel_yaw * motor_yaw_mult[3] * lvl_max_spin;
+	yaw_rpm[0] = rel_yaw * motor_yaw_mult[0] * CHASSIS_YAW_MAX_RPM;  //calculate theoretical wheel rpm for yaw
+	yaw_rpm[1] = rel_yaw * motor_yaw_mult[1] * CHASSIS_YAW_MAX_RPM;
+	yaw_rpm[2] = rel_yaw * motor_yaw_mult[2] * CHASSIS_YAW_MAX_RPM; //See if this changes spin spin mode speed.
+	yaw_rpm[3] = rel_yaw * motor_yaw_mult[3] * CHASSIS_YAW_MAX_RPM;
 
 	float rpm_mult = 1;
 	float rpm_sum = 0;
@@ -319,6 +325,8 @@ float rpm_ramp(float target_value, float current_value, double *lvl_max_accel) {
         return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
     }
 }
+
+
 
 #ifdef HALL_ZERO
 void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
