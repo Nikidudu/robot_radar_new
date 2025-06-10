@@ -19,6 +19,26 @@
 extern TaskHandle_t buzzing_task_handle;
 extern QueueHandle_t g_buzzing_task_msg;
 
+// Terraria Day Theme
+// https://musescore.com/user/2712811/scores/5189219
+#define TEMPO 150
+const uint16_t melody[] = 
+{
+		NOTE_G5, REST, NOTE_FS5, NOTE_B4, REST, NOTE_B4, NOTE_C5, NOTE_E5,
+		NOTE_D5, NOTE_G4, REST, NOTE_G4, REST, NOTE_G4, NOTE_D5, NOTE_G5,
+		NOTE_A5, REST, NOTE_B5, REST, NOTE_G3, NOTE_D4, NOTE_G4,
+		NOTE_B4, REST, NOTE_C5
+};
+
+const float note_length[] =
+{
+		2, 2, 2, 2, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 2, 2,
+		2, 4, 2, 4, 1, 1, 2,
+		2, 4, 2, 4
+};
+
+/*
 //Chocobo Theme
 //https://musescore.com/user/11062931/scores/4675676
 #define TEMPO 120
@@ -69,6 +89,7 @@ const float note_length[] =
 		2, 1, 1, 2, 2, 4, 4,
 		8
 };
+*/
 
 //Never gonna give you up~
 //https://musescore.com/chlorondria/never-gonna-give-you-up
