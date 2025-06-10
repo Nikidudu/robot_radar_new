@@ -40,15 +40,12 @@ typedef struct {
 aimbot_offset_t aimbot_offset;
 extern motor_data_t g_can_motors[24];
 
+// Only safety toggle logic here
 void nx_control_input() {
-	// Use remote input to control the chassis
+	// Movement command by nav
 	nx_remote_chassis_input();
-
-	// Use remote input to enable / disable the gimbal
-	// Firing command by the aimbot
+	// Movement command by aimbot
 	nx_gimbal_input();
-
-	// Use remote input to enable / disable the launcher
 	// Firing command by the aimbot
 	nx_launcher_input();
 }
@@ -58,23 +55,6 @@ void nx_remote_chassis_input() {
 		chassis_kill_ctrl();
 	} else {
 		chassis_ctrl_data.enabled = 1;
-		float horizontal_input = 0.0;
-		float forward_input = 0.0;
-		float yaw_input = 0.0;
-
-		forward_input = (float) g_remote_cmd.left_y / RC_LIMITS;
-		horizontal_input = (float) g_remote_cmd.left_x / RC_LIMITS;
-		if (g_remote_cmd.left_switch == ge_LSW_STANDBY){
-			if (abs(g_remote_cmd.side_dial) > 50 ){
-				yaw_input = (float)g_remote_cmd.side_dial * CHASSIS_SPINSPIN_MAX/660;
-			} else {
-				yaw_input = chassis_center_yaw();
-			}
-		}else {
-			yaw_input = chassis_center_yaw();
-		}
-
-		chassis_set_ctrl(forward_input, horizontal_input, yaw_input);
 	}
 }
 

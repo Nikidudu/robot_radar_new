@@ -6,15 +6,17 @@
  */
 
 #include <dummy_cmd_thread.h>
+#include <spd_cmd_thread.h>
 #include <Telemetry.h>
 
 static uint8_t test_nums[3];
 
-#define AUTO_SPIN				false
+#define AUTO_SPIN				true
 #define AUTO_SPINSPIN_TIMEOUT 	1000 // in ms
 
 extern int g_spinspin_mode;
 dummyCmdThread* dummyCmdInstance = nullptr;
+extern ChassisSpdCmdThread* chassisSpeedInstance;
 
 dummyCmdThread::~dummyCmdThread(){
 }
@@ -42,8 +44,11 @@ void dummyCmdThread::loop() {
 	*/
 
 	// To add competition state check later on
+	// Only enable spinning if no command received. To disable spinning, use speed command thread
 	if ((HAL_GetTick() - last_receive_time > AUTO_SPINSPIN_TIMEOUT)) {
-		g_spinspin_mode = 1;
+		if (chassisSpeedInstance) {
+			chassisSpeedInstance->set_spinspin(true);
+		}
 	}
 
 #endif
