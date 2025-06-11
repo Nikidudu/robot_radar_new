@@ -147,7 +147,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	// Setting translational and rotational speed and acceleration base on robot level
 	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
-	uint32_t chassis_rpm = M3508_MAX_RPM;
+	float chassis_rpm = M3508_MAX_RPM;
 
 	//rotate angle of the movement :)
 	//MA1513/MA1508E is useful!!
@@ -199,7 +199,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	for (uint8_t j = 0; j < 4; j++) {
 		if (g_spinspin_mode == 1) { // if spinning
 			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
-									+ yaw_rpm[j]) * chassis_rpm / (rpm_sum/4);  // for spinning modulate wheel rpm by dividing by average rpm
+									+ yaw_rpm[j]) * chassis_rpm / (rpm_sum / 4);  // for spinning modulate wheel rpm by dividing by average rpm
 			avg_trans += fabs(translation_rpm[j]);
 		} else {
 			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
