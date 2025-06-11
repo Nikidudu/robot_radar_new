@@ -130,6 +130,7 @@ RELIABLE_PACKET(cvCompetitionStatusPacket,
   uint16_t blue_sentry_hp;
   uint8_t central_occupation;
   uint8_t resupply_occupation;
+  bool win_state;
 )
 
 // Aimbot packets

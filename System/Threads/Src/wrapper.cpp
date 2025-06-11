@@ -5,7 +5,7 @@
  *      Author: cw
  */
 
-#include "telemetry.h"
+#include "Telemetry.h"
 #include "wrapper.h"
 
 void telemetry_setup_wrapper() {

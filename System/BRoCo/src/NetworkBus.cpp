@@ -24,6 +24,11 @@ NetworkBus::NetworkBus(IODriver* driver) : IOBus(driver, network_frame, sizeof(n
     define<dummyPacket>(4);
 //    define<imuPacket>(5);
     define<chassisSpeedCommandPacket>(6);
+
+    define<cvCompetitionStatusPacket>(7);
+    define<cvGimbalCommandPacket>(8);
+    define<cvFiringCommandPacket>(9);
+    define<cvAimCommandPacket>(10);
 //    define<gimbalAngleCommandPacket>(7);
 //    define<LeftTriggerPositionPacket>(8);
 //    define<RightTriggerPositionPacket>(9);
