@@ -775,6 +775,9 @@ uint16_t check_motors() {
 	if (curr_time
 			- dm_pitch_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 7;
+	  	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
+	  	dm_pitch_motor.id = PITCH_MOTOR_ID;
+	  	dm_pitch_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
 		dm4310_enable(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
 	} else {
 		if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {

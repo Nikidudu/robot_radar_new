@@ -268,8 +268,15 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 		break;
 
 	default:
-		l_flywheel->output = 0;
-		r_flywheel->output = 0;
+//		l_flywheel->output = 0;
+//		r_flywheel->output = 0;
+		// runs flywheels at 50% speed even during stand_by
+		speed_pid(friction_wheel_speed * FRICTION_INVERT * 0.5,
+				l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
+		speed_pid(-friction_wheel_speed * FRICTION_INVERT  * 0.5,
+				r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
+		l_flywheel->output = l_flywheel->rpm_pid.output;
+		r_flywheel->output = r_flywheel->rpm_pid.output;
 		break;
 	}
 

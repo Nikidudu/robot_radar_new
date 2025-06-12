@@ -616,6 +616,6 @@ void dmmapyawfbdata(dm_motor_t *yaw_motor) {
 
 void dmmappitchfbdata(dm_motor_t *pitch_motor) {
 	float pos = pitch_motor->para.pos;
-    g_pitch_motor.angle_data.adj_ang = pos;
-    dm_pitch_motor.angle_data.adj_ang = pos;
+    g_pitch_motor.angle_data.adj_ang = pos - dm_pitch_motor.angle_data.center_ang;
+    dm_pitch_motor.angle_data.adj_ang = pos - dm_pitch_motor.angle_data.center_ang;
 }
