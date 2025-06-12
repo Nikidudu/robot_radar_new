@@ -206,8 +206,7 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 	dm_pitch_motor.ctrl.tor_set = 0.4842f*imu_heading.pit - 2.3124f - dm_pitch_motor.angle_pid.output;
 	dm_pitch_motor.ctrl.tor_set += 1.1;
 #else
-	float rel_pitch_angle = dm_pitch_motor.angle_data.adj_ang
-				+ gimbal_ctrl_data.pitch - imu_heading.pit;
+	float rel_pitch_angle = gimbal_ctrl_data.pitch;
 
 	if (rel_pitch_angle > dm_pitch_motor.angle_data.phy_max_ang) {
 		rel_pitch_angle = dm_pitch_motor.angle_data.phy_max_ang;
@@ -218,8 +217,7 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 		pit_lim = 1;
 	}
 	if (pit_lim == 1) {
-		gimbal_ctrl_data.pitch = rel_pitch_angle + imu_heading.pit
-				- (dm_pitch_motor.angle_data.adj_ang);
+		gimbal_ctrl_data.pitch = rel_pitch_angle;
 	}
 
 	yaw_pid(gimbal_ctrl_data.pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
