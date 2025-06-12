@@ -35,6 +35,8 @@ uint32_t zeroing_start_time = 0;
 int16_t current_rpm;
 
 float motor_yaw_mult[4];
+float debug5;
+float debug6;
 
 extern QueueHandle_t telem_motor_queue;
 extern int supercap_dash;
@@ -197,16 +199,16 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	// translation rpm will not be more than chassis_rpm
 	int32_t avg_trans = 0;
 	for (uint8_t j = 0; j < 4; j++) {
-		if (g_spinspin_mode == 1) { // if spinning
-			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
-									+ yaw_rpm[j]) * chassis_rpm / (rpm_sum / 4);  // for spinning modulate wheel rpm by dividing by average rpm
-			avg_trans += fabs(translation_rpm[j]);
-		} else {
+//		if (g_spinspin_mode == 1) { // if spinning
+//			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
+//									+ yaw_rpm[j]) * chassis_rpm / (rpm_sum / 4);  // for spinning modulate wheel rpm by dividing by average rpm
+//			avg_trans += fabs(translation_rpm[j]);
+//		} else {
 			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
 						+ yaw_rpm[j]) * chassis_rpm / rpm_mult;					// for no spinning modulate wheel rpm by dividing by highest rpm
 			avg_trans += fabs(translation_rpm[j]);
 		}
-	}
+//	}
 
 	// maybe better to change the values of PID here instead of center_yaw()?
 	speed_pid(translation_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
