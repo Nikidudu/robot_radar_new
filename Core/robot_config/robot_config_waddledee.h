@@ -5,8 +5,8 @@
  *      Author: gskang
  */
 
-#ifndef ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE2_H_
-#define ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE2_H_
+#ifndef ROBOT_CONFIG_ROBOT_CONFIG_WADDLEDEE_H_
+#define ROBOT_CONFIG_ROBOT_CONFIG_WADDLEDEE_H_
 
 #include "motor_config.h"
 #include "hud_roburt.h"
@@ -347,8 +347,8 @@
 #endif
 
 #define PITCH_CENTER			-2.43
-#define PITCH_MAX_ANG			-2.18
-#define PITCH_MIN_ANG			-2.57
+#define PITCH_MAX_ANG			0.642272413
+#define PITCH_MIN_ANG			-0.468030512
 #define PITCH_CONST 			0
 
 
@@ -467,4 +467,4 @@
 #define TIMER_FREQ			1000000 //Cannot be too high if not the ISRs overload the CPU
 #define TIMER_FREQ_MULT		10 //1000000/100000
 
-#endif /* ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE2_H_ */
+#endif /* ROBOT_CONFIG_ROBOT_CONFIG_WADDLEDEE_H_ */

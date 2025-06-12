@@ -51,6 +51,8 @@ void motor_calib_task(void* argument);
 void motor_calib_task(void *argument);
 void set_motor_config(motor_data_t *motor);
 void config_motors();
+void dm_set_pitch_motor();
+void dm_set_yaw_motor();
 void bz_buzzer(uint8_t high, uint8_t low);
 void motor_temp_bz(uint8_t hi, uint8_t low);
 uint16_t check_motors();
