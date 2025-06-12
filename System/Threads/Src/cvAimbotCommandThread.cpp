@@ -43,7 +43,7 @@ void cvAimbotCommandThread::init() {
 }
 
 void cvAimbotCommandThread::loop() {
-//	if (control_mode == SBC_CTRL_MODE) {
+	if (control_mode == SBC_CTRL_MODE) {
 		gimbal_data_yaw = yaw * 2;
 		gimbal_data_pitch = pitch;
 
@@ -57,7 +57,7 @@ void cvAimbotCommandThread::loop() {
 			launcher_ctrl_data.firing = 0;
 			yaw = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
 		}
-//	}
+	}
 
 	osDelay(2);
 	portYIELD();

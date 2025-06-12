@@ -47,10 +47,11 @@
 #define OVERHEAT_TIME			100
 
 // No level tuning required for sentry
-#define LV1_FEEDER				1200//800//480//480
-#define	LV1_PROJECTILE			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
-#define LV1_MAX_SPEED			4000//4500//M3508_MAX_RPM
-#define LV1_MAX_ACCEL			1000
+#define LV1_FEEDER					1200//800//480//480
+#define	LV1_PROJECTILE				20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
+#define LV1_MAX_SPEED				0.28//4500//M3508_MAX_RPM
+#define LV1_MAX_ACCEL				0.7
+#define LVL1_CHASSIS_YAW_MAX_RPM	1
 
 #define SPIN_ACCELERATION		1 //Same guideline as chassis acceleration
 
@@ -195,11 +196,11 @@
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
 
-#define CHASSIS_YAW_MAX_RPM	1					//max RPM for chassis centering
-#define CHASSIS_YAW_KP 		0.5//3.75//1//0.7//0.4
+#define CHASSIS_YAW_MAX_RPM	0.4					//max RPM for chassis centering
+#define CHASSIS_YAW_KP 		7//3.75//1//0.7//0.4
 #define CHASSIS_YAW_KI		0.0001
 #define CHASSIS_YAW_KD 		3//0
-#define CHASSIS_YAW_MIN		0.1
+#define CHASSIS_YAW_MIN		0.0
 
 #define CHASSIS_TRANS_PRIO		0.85			//% of chassis speed to be prioritised for translation
 #define CHASSIS_YAW_PRIO		(1-CHASSIS_TRANS_PRIO)
@@ -252,9 +253,9 @@
 
 #endif
 
-#define PITCH_CENTER			0
-#define PITCH_MAX_ANG			0.13
-#define PITCH_MIN_ANG			-0.70
+#define PITCH_CENTER			0.392513275
+#define PITCH_MAX_ANG			5
+#define PITCH_MIN_ANG			-5
 #define PITCH_CONST 			0
 
 
@@ -292,7 +293,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	6
-#define YAW_CENTER 				0.9
+#define YAW_CENTER 				-2.26514912
 #define YAW_MAX_ANG				4*PI
 #define YAW_MIN_ANG				4*-PI
 
@@ -375,4 +376,4 @@
 #define TIMER_FREQ_MULT		10 //1000000/100000
 
 
-#endif ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_H_
+#endif /*ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_H_*/

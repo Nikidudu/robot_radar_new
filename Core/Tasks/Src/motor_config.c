@@ -348,32 +348,42 @@ void set_motor_config(motor_data_t *motor) {
 // Only checks if pitch and yaw are damiao motors (for now)
 void dm_set_motor_config() {
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
-  	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
-  	dm_pitch_motor.id = PITCH_MOTOR_ID;
-  	dm_pitch_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
-  	dm4310_enable(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
+	dm_set_pitch_motor();
+#endif
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+	dm_set_yaw_motor();
+#endif
+}
+
+void dm_set_pitch_motor(){
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
+	dm_pitch_motor.id = PITCH_MOTOR_ID;
+	dm_pitch_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
+	dm4310_enable(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
 
 //    PID_Init(&gimbal_pid_pitch, DM_PITCH_MIT_KP, DM_PITCH_MIT_KI, DM_PITCH_MIT_KD,
 //    		DM_PITCH_MIT_INT_MAX, DM_PITCH_MIT_MAX_OUT);
 
-    dm_pitch_motor.angle_pid.kp = DM_PITCH_KP;
-    dm_pitch_motor.angle_pid.ki = DM_PITCH_KI;
-    dm_pitch_motor.angle_pid.kd = DM_PITCH_KD;
-    dm_pitch_motor.angle_pid.int_max = DM_PITCH_INT_MAX;
-    dm_pitch_motor.angle_pid.max_out = DM_PITCH_MAX_OUT;
+	dm_pitch_motor.angle_pid.kp = DM_PITCH_KP;
+	dm_pitch_motor.angle_pid.ki = DM_PITCH_KI;
+	dm_pitch_motor.angle_pid.kd = DM_PITCH_KD;
+	dm_pitch_motor.angle_pid.int_max = DM_PITCH_INT_MAX;
+	dm_pitch_motor.angle_pid.max_out = DM_PITCH_MAX_OUT;
 
-    dm_pitch_motor.cmd.kp_set = DM_PITCH_MIT_KP;
-    dm_pitch_motor.cmd.kd_set = DM_PITCH_MIT_KD;
-    dm_pitch_motor.cmd.pos_set = DM_PITCH_MIT_POS;
-    dm_pitch_motor.cmd.vel_set = DM_PITCH_MIT_VEL;
-    dm_pitch_motor.cmd.tor_set = DM_PITCH_MIT_TOR;
+	dm_pitch_motor.cmd.kp_set = DM_PITCH_MIT_KP;
+	dm_pitch_motor.cmd.kd_set = DM_PITCH_MIT_KD;
+	dm_pitch_motor.cmd.pos_set = DM_PITCH_MIT_POS;
+	dm_pitch_motor.cmd.vel_set = DM_PITCH_MIT_VEL;
+	dm_pitch_motor.cmd.tor_set = DM_PITCH_MIT_TOR;
 
-    dm_pitch_motor.angle_data.center_ang = PITCH_CENTER;
-    dm_pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
-    dm_pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
-
+	dm_pitch_motor.angle_data.center_ang = PITCH_CENTER;
+	dm_pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
+	dm_pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
 #endif
+}
 
+void dm_set_yaw_motor() {
 #if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
   	memset(&dm_yaw_motor, 0, sizeof(dm_yaw_motor));
   	dm_yaw_motor.id = YAW_MOTOR_ID;
@@ -398,7 +408,6 @@ void dm_set_motor_config() {
     dm_yaw_motor.angle_data.center_ang = YAW_CENTER;
     dm_yaw_motor.angle_data.phy_max_ang = YAW_MAX_ANG;
     dm_yaw_motor.angle_data.phy_min_ang = YAW_MIN_ANG;
-
 #endif
 }
 
@@ -775,6 +784,7 @@ uint16_t check_motors() {
 	if (curr_time
 			- dm_pitch_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 7;
+		dm_set_pitch_motor();
 	} else {
 		if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(3, 1);
@@ -795,6 +805,7 @@ uint16_t check_motors() {
 	if (curr_time
 				- dm_yaw_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
 			error |= 1 << 8;
+			dm_set_yaw_motor();
 		} else {
 			if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
 				motor_temp_bz(3, 2);
@@ -814,4 +825,3 @@ uint16_t check_motors() {
 	return error;
 
 }
-
