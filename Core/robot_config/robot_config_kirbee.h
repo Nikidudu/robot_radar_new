@@ -83,7 +83,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			0.5//2.0
+#define LV1_MAX_ACCEL			2.0
 #define LV2_MAX_ACCEL			2.0
 #define LV3_MAX_ACCEL			2.0
 #define LV4_MAX_ACCEL			2.0
@@ -131,7 +131,7 @@
 #define CHASSIS_POWER_DELTA_LIM 0.3   // limit change for the automatic rpm adjusting code
 
 
-#define PROJECTILE_SPEED_RATIO	355//360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define PROJECTILE_SPEED_RATIO	340//355//360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		-8								//projectiles per round of the feeder
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
