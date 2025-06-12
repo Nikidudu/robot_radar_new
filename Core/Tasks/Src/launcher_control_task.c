@@ -258,6 +258,7 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 
 	case WHEEL_CLEARING:
 	case WHEEL_FIRING:
+		// kirbee flywheel rpm: 7200
 		speed_pid(friction_wheel_speed * FRICTION_INVERT,
 				l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
 		speed_pid(-friction_wheel_speed * FRICTION_INVERT,

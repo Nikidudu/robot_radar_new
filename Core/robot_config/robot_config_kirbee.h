@@ -131,7 +131,7 @@
 #define CHASSIS_POWER_DELTA_LIM 0.3   // limit change for the automatic rpm adjusting code
 
 
-#define PROJECTILE_SPEED_RATIO	360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define PROJECTILE_SPEED_RATIO	355								//rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		-8								//projectiles per round of the feeder
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
@@ -345,8 +345,8 @@
 #endif
 
 #define PITCH_CENTER			0.392513275
-#define PITCH_MAX_ANG			0.6
-#define PITCH_MIN_ANG			-0.05
+#define PITCH_MAX_ANG			1.1570729
+#define PITCH_MIN_ANG			0.20819363
 #define PITCH_CONST 			0
 
 
