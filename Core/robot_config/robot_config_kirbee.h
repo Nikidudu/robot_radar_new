@@ -63,7 +63,7 @@
  * E.g. 0.5 = 50% max speed
  */
 #define LVL_TUNING
-#define LV1_MAX_SPEED 		    0.20
+#define LV1_MAX_SPEED 		    0.38//0.20
 #define LV2_MAX_SPEED  			0.22
 #define LV3_MAX_SPEED			0.24
 #define LV4_MAX_SPEED			0.26
@@ -83,7 +83,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			2.0
+#define LV1_MAX_ACCEL			0.5//2.0
 #define LV2_MAX_ACCEL			2.0
 #define LV3_MAX_ACCEL			2.0
 #define LV4_MAX_ACCEL			2.0
@@ -227,7 +227,7 @@
 /*********************** CHASSIS CONFIGURATION ***********************/
 #define CHASSIS_KP  		4				// |
 #define CHASSIS_KI  		0.1				// | - CHASSIS WHEELS PID VALUES
-#define CHASSIS_KD  		0.4				// |
+#define CHASSIS_KD  		0.8				// |
 #define CHASSIS_INT_MAX  	5000				// |
 #define CHASSIS_MAX_CURRENT 6000//9000
 #define CHASSIS_MIN_CURRENT 0
@@ -239,8 +239,8 @@
 // Yaw max rpm - max RPM for chassis centering
 #define LV1_CHASSIS_YAW_MAX_RPM		0.4
 #define LV1_CHASSIS_YAW_KP			0.7
-#define LV1_CHASSIS_YAW_KI			0
-#define LV1_CHASSIS_YAW_KD			0
+#define LV1_CHASSIS_YAW_KI			0.02
+#define LV1_CHASSIS_YAW_KD			8
 
 #define LV2_CHASSIS_YAW_MAX_RPM		0.4
 #define LV2_CHASSIS_YAW_KP			0.7
@@ -345,8 +345,8 @@
 #endif
 
 #define PITCH_CENTER			0.392513275
-#define PITCH_MAX_ANG			1.25
-#define PITCH_MIN_ANG			-0.05
+#define PITCH_MAX_ANG			1.0
+#define PITCH_MIN_ANG			-0.55
 #define PITCH_CONST 			0
 
 
@@ -354,9 +354,9 @@
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #define YAW_ANGLE_KP			120
-#define YAW_ANGLE_KI			0
-#define YAW_ANGLE_KD			10
-#define YAW_ANGLE_INT_MAX		0.05
+#define YAW_ANGLE_KI			0.02
+#define YAW_ANGLE_KD			800
+#define YAW_ANGLE_INT_MAX		0.1
 #define YAW_MAX_RPM				85
 
 #define YAWRPM_KP				1200//600//400
