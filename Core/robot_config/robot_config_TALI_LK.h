@@ -39,7 +39,7 @@
 #define REMOTE_PITCH_SPEED 	 			-0.1//0.005		//Speed of gimbal pitch turning
 
 #define MOUSE_X_SENSITIVITY		(300 * REMOTE_YAW_SPEED)				//Speed of yaw turning with mouse, dependent on above speed
-#define MOUSE_Y_SENSITIVITY 	(200 * REMOTE_PITCH_SPEED)				//Speed of pitch turning with mouse,  dependent on above speed
+#define MOUSE_Y_SENSITIVITY 	(400 * REMOTE_PITCH_SPEED)				//Speed of pitch turning with mouse,  dependent on above speed
 
 
 #define OVERHEAT_MARGIN 0
