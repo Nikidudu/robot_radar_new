@@ -43,7 +43,7 @@ extern int supercap_dash;
 
 static float lvl_max_speed = LV1_MAX_SPEED;
 static float lvl_max_accel = LV1_MAX_ACCEL;
-static float lvl_max_spin = LV1_CHASSIS_YAW_MAX_RPM;
+static float lvl_max_spin = LVL1_CHASSIS_YAW_MAX_RPM;
 static float spin_accel = SPIN_ACCELERATION;
 
 float act_forward = 0.0f;
