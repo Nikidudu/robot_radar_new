@@ -14,9 +14,9 @@
 //#include "robot_config_kirby.h"
 
 //#include "robot_config_kirbee.h"
-#include "robot_config_kirbee2.h"
+//#include "robot_config_kirbee2.h"
 //#include "robot_config_sentry.h"
-//#include "robot_config_TALI_LK.h"
+#include "robot_config_TALI_LK.h"
 
 //#include "robot_config_CF2.h"
 //#include "robot_config_DS.h"
