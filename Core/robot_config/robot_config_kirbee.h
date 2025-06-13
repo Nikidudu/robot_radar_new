@@ -63,7 +63,7 @@
  * E.g. 0.5 = 50% max speed
  */
 #define LVL_TUNING
-#define LV1_MAX_SPEED 		    0.38//0.20
+#define LV1_MAX_SPEED 		    0.38//0.20 // for 1v1
 #define LV2_MAX_SPEED  			0.22
 #define LV3_MAX_SPEED			0.24
 #define LV4_MAX_SPEED			0.26
@@ -83,7 +83,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			2.0
+#define LV1_MAX_ACCEL			1.5 // for 1v1
 #define LV2_MAX_ACCEL			2.0
 #define LV3_MAX_ACCEL			2.0
 #define LV4_MAX_ACCEL			2.0
@@ -131,7 +131,7 @@
 #define CHASSIS_POWER_DELTA_LIM 0.3   // limit change for the automatic rpm adjusting code
 
 
-#define PROJECTILE_SPEED_RATIO	340//355//360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define PROJECTILE_SPEED_RATIO	335//340//355//360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		-8								//projectiles per round of the feeder
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
@@ -240,7 +240,7 @@
 #define LV1_CHASSIS_YAW_MAX_RPM		0.4
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0.02
-#define LV1_CHASSIS_YAW_KD			8
+#define LV1_CHASSIS_YAW_KD			8 // for 1v1
 
 #define LV2_CHASSIS_YAW_MAX_RPM		0.4
 #define LV2_CHASSIS_YAW_KP			0.7
