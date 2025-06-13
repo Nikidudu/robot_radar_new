@@ -239,7 +239,7 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 				} else if (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74){
 					int fb_id = (RxData[0])&0x0F;
 					switch(fb_id){
-					case(1):
+					case 1:
 						dm4310_fbdata(&dm_yaw_motor,&RxData[0]);
 						break;
 						}

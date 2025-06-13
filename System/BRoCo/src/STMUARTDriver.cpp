@@ -18,6 +18,7 @@
 #include <inttypes.h>
 #include "stdio.h"
 #include <algorithm>
+#include "board_settings.h"
 
 
 static STMUARTDriver* instance;
@@ -138,6 +139,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size) {
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
+	if (huart != SBC_UART_HANDLE) return;
+
 	STMUARTDriver* driver = (instance)->getInstance(huart);
 	if (driver != nullptr){
 		while(xSemaphoreTakeFromISR(driver->getSemaphore(), nullptr)); // Clear semaphore

@@ -12,6 +12,7 @@
 #include "tim.h"
 #include "spi.h"
 #include "can.h"
+#include "board_settings.h"
 
 #include "SuperCapCommThread.h"
 #include "cvGimbalThread.h"
@@ -19,8 +20,6 @@
 #include "status_thread.h"
 #include "spd_cmd_thread.h"
 #include "dummy_cmd_thread.h"
-
-
 
 ROCANDriver* CAN1_driver = nullptr;
 CANBus* CAN1_network = nullptr;
@@ -45,7 +44,7 @@ extern gimbal_control_t gimbal_ctrl_data;
 
 void Telemetry::setup() {
 //		 UART line(s) initialization
-		UART_line = new STMUARTDriver(&huart1);
+		UART_line = new STMUARTDriver(&SBC_UART);
 		UART_network = new NetworkBus(UART_line);
 
 		// CANFD network initialization
