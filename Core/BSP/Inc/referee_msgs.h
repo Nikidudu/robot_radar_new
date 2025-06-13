@@ -59,7 +59,6 @@ typedef enum
 	BLUE_WIN		= 2,
 } ref_game_winner_t;
 
-
 #define REF_GAME_RESULT_ID 0x0002
 typedef struct __packed //0002
 {
@@ -97,6 +96,8 @@ typedef struct __packed //0x0004
 
 
 #define REF_GAME_EVENT_CMD_ID 0x0101
+#define RMUL_RESUPPLY_MASK 0x4  // Bit 2
+#define RMUL_CENTRAL_MASK 0x600000  // Bits 21 and 22
 typedef struct __packed //0101
 {
     uint32_t event_type;

@@ -55,7 +55,7 @@ void ChassisSpdCmdThread::init(){
 void ChassisSpdCmdThread::loop() {
 //	if (g_remote_cmd.left_switch == ge_RSW_SHUTDOWN && manual_mode){
 	if (control_mode == SBC_CTRL_MODE) {
-		if (g_remote_cmd.left_switch != ge_LSW_CONFIG) { // Safety kill
+		if (g_remote_cmd.right_switch != ge_RSW_ALL_ON) { // Safety kill
 //			manual_mode = false;
 			V_horz = 0;
 			V_lat = 0;
@@ -74,9 +74,7 @@ void ChassisSpdCmdThread::loop() {
 			if (!beyblade_mode)
 				V_yaw = chassis_center_yaw();
 			else
-				V_yaw = 1;
-			g_spinspin_mode = beyblade_mode;
-
+				V_yaw = beyblade_mode;
 
 			chassis_set_ctrl(V_horz, V_lat, V_yaw);
 //			gimbal_set_yaw_speed(gimbal_yaw);
@@ -308,3 +306,7 @@ void ChassisSpdCmdThread::send_commands_chassis(chassisSpeedCommandPacket* packe
 //		portYIELD();
 //	}
 //}
+
+void ChassisSpdCmdThread::set_spinspin(bool beyblade_mode) {
+	this->beyblade_mode = beyblade_mode;
+}

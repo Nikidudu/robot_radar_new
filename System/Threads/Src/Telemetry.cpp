@@ -12,6 +12,7 @@
 #include "tim.h"
 #include "spi.h"
 #include "can.h"
+#include "board_settings.h"
 
 #include "SuperCapCommThread.h"
 #include "cvGimbalThread.h"
@@ -19,8 +20,6 @@
 #include "status_thread.h"
 #include "spd_cmd_thread.h"
 #include "dummy_cmd_thread.h"
-
-
 
 ROCANDriver* CAN1_driver = nullptr;
 CANBus* CAN1_network = nullptr;
@@ -45,7 +44,7 @@ extern gimbal_control_t gimbal_ctrl_data;
 
 void Telemetry::setup() {
 //		 UART line(s) initialization
-		UART_line = new STMUARTDriver(&huart1);
+		UART_line = new STMUARTDriver(&SBC_UART);
 		UART_network = new NetworkBus(UART_line);
 
 		// CANFD network initialization
@@ -57,26 +56,27 @@ void Telemetry::setup() {
 //		dummy = new dummyThread();
 //		supercap_thread = new SuperCapCommThread();
 //		supercap_thread = new SuperCapCommThread();
-
-//		cv_gimbal_thread = new cvGimbalThread();
-//		cv_aimbot_command_thread = new cvAimbotCommandThread();
-//		status_thread = new statusThread();
-//
-//		CAN1_network->handle<dummyPacket>(&dummyThread::handle_dummy);
 //		CAN1_network->handle<SuperCapDataPacket>(&SuperCapCommThread::handle_supercap);
 
-//		UART_network->handle<cvGimbalCommandPacket>(&cvAimbotCommandThread::handle_cv_gimbal);
-//		UART_network->handle<cvFiringCommandPacket>(&cvAimbotCommandThread::handle_cv_firing);
-//		UART_network->handle<cvAimCommandPacket>(&cvAimbotCommandThread::handle_cv_aim);
+		// To send real-time data to mini PC
+		status_thread = new statusThread();
 
+		/* Aimbot threads
+		 * One thread handles the callback for 3 packets
+		 * cvGimbalCommandPacket - Pitch and yaw control
+		 * cvFiringCommandPacket - Firing control
+		 * cvAimCommandPacket -
+		 */
+		cv_aimbot_command_thread = new cvAimbotCommandThread();
+		UART_network->handle<cvGimbalCommandPacket>(&cvAimbotCommandThread::handle_cv_gimbal);
+		UART_network->handle<cvFiringCommandPacket>(&cvAimbotCommandThread::handle_cv_firing);
+		UART_network->handle<cvAimCommandPacket>(&cvAimbotCommandThread::handle_cv_aim);
 
+		// Sentry nav threads
 //		gimbalJointThread = new gimbalJointPubThread();
 //		imu = new imuThread();
 		speedCmdThread = new ChassisSpdCmdThread();
 		dummy_cmd = new dummyCmdThread();
-
-
-//		status = new statusThread();
 
 		UART_network->handle<chassisSpeedCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spd_commands);
 //		UART1_network->handle<gimbalAngleCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_spd_commands);

@@ -119,6 +119,7 @@ void accel_data_ready(accel_data_t accel_data) {
 		accel_proc_data.az = accel_data.az;
 
 #endif
+
 #ifdef ZERO_ROLL
 	accel_proc_data.ay = 0;
 #endif

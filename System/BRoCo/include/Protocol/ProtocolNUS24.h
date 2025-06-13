@@ -116,22 +116,24 @@ RELIABLE_IDENTIFIABLE_PACKET(MaxChassisPowerPacket,
   uint8_t max_chassis_power;
 )
 
-// Aimbot packets
-RELIABLE_PACKET(cvRobotModePacket,
-  bool robot_mode; // [0: Manual control mode, 1: Aimbot mode]
-)
 
 RELIABLE_PACKET(cvCompetitionStatusPacket,
   uint16_t game_progress; // Which stage the competition is in
   uint16_t time_left; // Time left in competition (s)
-  uint16_t red_base_hp; // HP of red base
-  uint16_t blue_base_hp; // HP of blue base
-  uint16_t red_outpost_hp; // HP of red outpost
-  uint16_t blue_outpost_hp; // HP of red outpost
   uint16_t robot_id;
   uint16_t current_hp;
+  uint16_t red_hero_hp;
+  uint16_t red_standard_hp;
+  uint16_t red_sentry_hp;
+  uint16_t blue_hero_hp;
+  uint16_t blue_standard_hp;
+  uint16_t blue_sentry_hp;
+  uint8_t central_occupation;
+  uint8_t resupply_occupation;
+  bool win_state;
 )
 
+// Aimbot packets
 RELIABLE_PACKET(cvGimbalCommandPacket,
   float yaw;
   float pitch;
@@ -144,7 +146,5 @@ RELIABLE_PACKET(cvFiringCommandPacket,
 RELIABLE_PACKET(cvAimCommandPacket,
   bool aim_state; // [0: Stop aiming, 1: Start aiming]
 )
-
-RELIABLE_PACKET(cvAimSendPacket, bool aim_send;)
 
 #endif /* BROCO_INCLUDE_PROTOCOL_PROTOCOLNUS24_H_ */

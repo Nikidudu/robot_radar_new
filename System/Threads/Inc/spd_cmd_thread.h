@@ -41,6 +41,8 @@ public:
 //	void send_commands_pitch_gimbal(gimbalAnglePitchCommandPacket* packet);
 //	void send_commands_yaw_gimbal(gimbalAngleYawCommandPacket* packet);
 
+	void set_spinspin(bool beyblade_mode);
+
 	void init();
 	void loop();
 

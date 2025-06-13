@@ -324,51 +324,55 @@ struct MaxChassisPowerData {
 	}
 };
 
-// Aimbot
-struct cvRobotModeData {
-	bool robot_mode;
-
-	char* toString(char* buffer) {
-		sprintf(buffer, "Robot mode: %d",
-				(int)robot_mode);
-		return buffer;
-	}
-
-	uint8_t* toArray(uint8_t* buffer) {
-		*(bool*)(buffer) = robot_mode;
-		return buffer;
-	}
-};
-
 struct cvCompetitionStatusData {
 	  uint16_t game_progress; // Which stage the competition is in
 	  uint16_t time_left; // Time left in competition (s)
-	  uint16_t red_base_hp; // HP of red base
-	  uint16_t blue_base_hp; // HP of blue base
-	  uint16_t red_outpost_hp; // HP of red outpost
-	  uint16_t blue_outpost_hp; // HP of red outpost
 	  uint16_t robot_id;
 	  uint16_t current_hp;
 
+	  uint16_t red_hero_hp;
+	  uint16_t red_standard_hp;
+	  uint16_t red_sentry_hp;
+	  uint16_t blue_hero_hp;
+	  uint16_t blue_standard_hp;
+	  uint16_t blue_sentry_hp;
+
+	  /* Occupation status of the Central Buff Point
+	   * a value of 0 indicates that it is not occupied;
+	   * a value of 1 indicates that it is occupied by the own side;
+	   * a value of 2 indicates that it is occupied by the opponent;
+	   * a value of 3 indicates that it is occupied by both sides */
+	  uint8_t central_occupation;
+	  uint8_t resupply_occupation; // own side resupply occupation state
+
+	  bool win_state;
+
 	char* toString(char* buffer) {
-//		sprintf(buffer, "Game progress: %u \t Time left: %u \t Robot id: %u \t\n Hp: %u \t Central occupation: %u \t Remaining ammo: %u",
-//				game_progress, time_left, robot_id, current_hp, occupy_central, ammo);
 		return buffer;
 	}
 
 	uint8_t* toArray(uint8_t* buffer) {
 		*(uint16_t*)(buffer) = game_progress;
 		*(uint16_t*)(buffer + 2) = time_left;
-		*(uint16_t*)(buffer + 4) = red_base_hp;
-		*(uint16_t*)(buffer + 6) = blue_base_hp;
-		*(uint16_t*)(buffer + 8) = red_outpost_hp;
-		*(uint16_t*)(buffer + 10) = blue_outpost_hp;
-		*(uint16_t*)(buffer + 12) = robot_id;
-		*(uint16_t*)(buffer + 14) = current_hp;
+		*(uint16_t*)(buffer + 4) = robot_id;
+		*(uint16_t*)(buffer + 6) = current_hp;
+
+		*(uint16_t*)(buffer + 8) = red_hero_hp;
+		*(uint16_t*)(buffer + 10) = red_standard_hp;
+		*(uint16_t*)(buffer + 12) = red_sentry_hp;
+		*(uint16_t*)(buffer + 14) = blue_hero_hp;
+		*(uint16_t*)(buffer + 16) = blue_standard_hp;
+		*(uint16_t*)(buffer + 18) = blue_sentry_hp;
+
+		*(uint16_t*)(buffer + 19) = blue_standard_hp;
+		*(uint16_t*)(buffer + 20) = blue_sentry_hp;
+		*(bool*)(buffer + 21) = win_state;
+
 		return buffer;
 	}
 };
 
+// Aimbot commands
 struct cvGimbalCommandData {
 	float pitch;
 	float yaw;
@@ -415,20 +419,6 @@ struct cvAimCommandData {
 	}
 };
 
-struct cvAimSendData {
-	bool aim_send;
-
-	char* toString(char* buffer) {
-		sprintf(buffer, "Aim state: %d",
-				(int)aim_send);
-		return buffer;
-	}
-
-	uint8_t* toArray(uint8_t* buffer) {
-		*(bool*)(buffer) = aim_send;
-		return buffer;
-	}
-};
 
 
 #endif /* UTILS_DATASTRUCTURES_H_ */
