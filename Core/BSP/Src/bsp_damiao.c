@@ -298,17 +298,23 @@ void enable_motor_mode(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode
     data[6] = 0xFF;
     data[7] = 0xFC;
     
-    if (HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0)
-    {
-        // Abort any pending messages to free the mailbox
-        HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX0);
-        HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX1);
-        HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX2);
-    }
-    
-	HAL_StatusTypeDef status = HAL_ERROR;
-	if (status == HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox))
-		status = HAL_ERROR; // HIHIHIH
+//    for (int i = 0; i < 5; i++) {
+
+//		if (HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0)
+//		{
+//			// Abort any pending messages to free the mailbox
+//			HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX0);
+//			HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX1);
+//			HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX2);
+//		}
+
+		HAL_StatusTypeDef status = HAL_ERROR;
+		if (status == HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox))
+			status = HAL_ERROR; // HIHIHIH
+//    }
+
+//    can_send_msg(hcan, motor_id + mode_id, 8, data);
+
 }
 
 /**
