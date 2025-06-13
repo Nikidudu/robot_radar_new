@@ -39,10 +39,10 @@ float motor_yaw_mult[4];
 extern QueueHandle_t telem_motor_queue;
 extern int supercap_dash;
 
-static uint32_t lvl_max_speed = LV1_MAX_SPEED;
-static double lvl_max_accel = LV1_MAX_ACCEL;
-static double lvl_max_spin = CHASSIS_YAW_MAX_RPM;
-static double spin_accel = SPIN_ACCELERATION;
+static float lvl_max_speed = LV1_MAX_SPEED;
+static float lvl_max_accel = LV1_MAX_ACCEL;
+static float lvl_max_spin = LV1_CHASSIS_YAW_MAX_RPM;
+static float spin_accel = SPIN_ACCELERATION;
 
 float act_forward = 0.0f;
 float act_horizontal = 0.0f;
@@ -147,15 +147,18 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	// Setting translational and rotational speed and acceleration base on robot level
 	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
-	uint32_t chassis_rpm = lvl_max_speed;
+	double chassis_rpm = M3508_MAX_RPM * lvl_max_speed;
 
 	//rotate angle of the movement :)
 	//MA1513/MA1508E is useful!!
 
-	act_forward = rpm_ramp(chassis_ctrl_data.forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
-	act_horizontal = rpm_ramp(chassis_ctrl_data.horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
-	act_yaw = rpm_ramp(chassis_ctrl_data.yaw * gear_speed.spin_mult, act_yaw, &spin_accel);
+//	act_forward = rpm_ramp(chassis_ctrl_data.forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
+//	act_horizontal = rpm_ramp(chassis_ctrl_data.horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
+//	act_yaw = rpm_ramp(chassis_ctrl_data.yaw * gear_speed.spin_mult, act_yaw, &spin_accel);
 
+	float act_forward = chassis_ctrl_data.forward * gear_speed.trans_mult;  //gear shifter multipliers
+	float act_horizontal = chassis_ctrl_data.horizontal * gear_speed.trans_mult;
+	float act_yaw = chassis_ctrl_data.yaw * gear_speed.spin_mult;
 
 	float rel_forward = ((-act_horizontal * sin(-rel_angle))  //translation and rotation speed of chassis for chassis yaw angle relative to gimbal
 			+ (act_forward * cos(-rel_angle)));
@@ -216,8 +219,11 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	motorbr->output = motorbr->rpm_pid.output;
 }
 
-void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, double *lvl_max_spin) {
-	static uint8_t prev_robot_level = 0;
+double max_speed_tune = 0;
+double max_spin_tune = 0;
+
+void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin) {
+	static uint8_t prev_robot_level = -1;
 
 	// Hopefully with this, we can adjust pid values without it being overwritten all the time
 	if (prev_robot_level == ref_robot_data.robot_level) return;
@@ -298,8 +304,8 @@ void level_config(uint32_t *lvl_max_speed, uint32_t *lvl_max_accel, double *lvl_
 
 #endif
 
-	*lvl_max_speed = (*lvl_max_speed < MIN_SPEED) ? MIN_SPEED : *lvl_max_speed;
-	*lvl_max_speed = (*lvl_max_speed > MAX_SPEED) ? MAX_SPEED : *lvl_max_speed; // Cap the max speed of motor
+	*lvl_max_speed = (*lvl_max_speed < 0) ? 0 : *lvl_max_speed; //Make sure is within 0 - 1 since it is a percentage
+	*lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
 }
 
 
