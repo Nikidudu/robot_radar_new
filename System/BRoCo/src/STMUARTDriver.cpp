@@ -132,6 +132,8 @@ UART_HandleTypeDef* STMUARTDriver::getHuart() {
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size) {
+	if (huart != SBC_UART_HANDLE) return;
+
 	STMUARTDriver* driver =  (instance)->getInstance(huart);
 	if (driver != nullptr){
 		xSemaphoreGiveFromISR(driver->getSemaphore(), nullptr);
