@@ -64,7 +64,7 @@ void movement_control_task(void *argument) {
 
 #ifndef CHASSIS_MCU
 
-		// prevents motors from moving if 1 motor disconnectsAdd commentMore actions
+		// prevents motors from moving if 1 motor disconnects
 		g_can_motors[FR_MOTOR_ID - 1].output = 0;
 		g_can_motors[FL_MOTOR_ID - 1].output = 0;
 		g_can_motors[BL_MOTOR_ID - 1].output = 0;
