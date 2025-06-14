@@ -220,19 +220,6 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 		gimbal_ctrl_data.pitch = rel_pitch_angle;
 	}
 
-//	float target_pitch = gimbal_ctrl_data.pitch;
-//	float current_motor_pitch = dm_pitch_motor.angle_data.adj_ang;
-//	float rel_pitch_angle = current_motor_pitch + target_pitch;
-//
-//	if (rel_pitch_angle > dm_pitch_motor.angle_data.phy_max_ang) {
-//	    rel_pitch_angle = dm_pitch_motor.angle_data.phy_max_ang;
-//	    gimbal_ctrl_data.pitch = rel_pitch_angle - current_motor_pitch;
-//	}
-//	if (rel_pitch_angle < dm_pitch_motor.angle_data.phy_min_ang) {
-//	    rel_pitch_angle = dm_pitch_motor.angle_data.phy_min_ang;
-//	    gimbal_ctrl_data.pitch = rel_pitch_angle - current_motor_pitch;
-//	}
-
 	yaw_pid(gimbal_ctrl_data.pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
 	dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output +
 			(-0.8841*imu_heading.pit*imu_heading.pit - 0.8798*imu_heading.pit + 1.3045);

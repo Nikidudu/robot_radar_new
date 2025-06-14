@@ -13,7 +13,6 @@ extern motor_data_t g_can_motors[24];
 extern motor_data_t g_pitch_motor;
 extern EventGroupHandle_t gimbal_event_group;
 
-
 void dm4310_motor_init(void)
 {
 // this function has been implemented in motor_config. should no longer be used
@@ -213,7 +212,6 @@ void dm4310_fbdata(dm_motor_t *motor, uint8_t *rx_data)
     motor->para.Tcoil = (float)(rx_data[7]);
     motor->disconnect_time = get_microseconds();
 
-
 	//initialise task switching variables
 	BaseType_t xHigherPriorityTaskWoken, xResult;
 	xHigherPriorityTaskWoken = pdFALSE;
@@ -300,21 +298,18 @@ void enable_motor_mode(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode
     
 //    for (int i = 0; i < 5; i++) {
 
-//		if (HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0)
-//		{
-//			// Abort any pending messages to free the mailbox
-//			HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX0);
-//			HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX1);
-//			HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX2);
-//		}
+		if (HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0)
+		{
+			// Abort any pending messages to free the mailbox
+			HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX0);
+			HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX1);
+			HAL_CAN_AbortTxRequest(hcan, CAN_TX_MAILBOX2);
+		}
 
 		HAL_StatusTypeDef status = HAL_ERROR;
-		if (status == HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox))
+	if (status == HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox)){
 			status = HAL_ERROR; // HIHIHIH
-//    }
-
-//    can_send_msg(hcan, motor_id + mode_id, 8, data);
-
+    }
 }
 
 /**
