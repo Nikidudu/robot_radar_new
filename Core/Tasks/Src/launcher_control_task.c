@@ -243,17 +243,27 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 
 	switch (flywheel_state) {
 	case WHEEL_STANDBY:
-		if (FRICTION_SB_SPIN_ON == 2 || (FRICTION_SB_SPIN_ON == 1 && ref_game_state.game_progress == 4)){
-			speed_pid( FRICTION_SB_SPIN * FRICTION_INVERT,
-					l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
-			speed_pid(-FRICTION_SB_SPIN * FRICTION_INVERT,
-					r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
-			l_flywheel->output = l_flywheel->rpm_pid.output + FRICTION_OFFSET * FRICTION_INVERT;
-			r_flywheel->output = r_flywheel->rpm_pid.output - FRICTION_OFFSET * FRICTION_INVERT;
-		} else {
-			l_flywheel->output = 0;
-			r_flywheel->output = 0;
-		}
+//		if (FRICTION_SB_SPIN_ON == 2 || (FRICTION_SB_SPIN_ON == 1 && ref_game_state.game_progress == 4)){
+//			speed_pid( FRICTION_SB_SPIN * FRICTION_INVERT,
+//					l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
+//			speed_pid(-FRICTION_SB_SPIN * FRICTION_INVERT,
+//					r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
+//			l_flywheel->output = l_flywheel->rpm_pid.output + FRICTION_OFFSET * FRICTION_INVERT;
+//			r_flywheel->output = r_flywheel->rpm_pid.output - FRICTION_OFFSET * FRICTION_INVERT;
+//		} else {
+//			l_flywheel->output = 0;
+//			r_flywheel->output = 0;
+//		}
+
+		// runs flywheels at 50% speed even during stand_by
+		speed_pid(friction_wheel_speed * FRICTION_INVERT * 0.5,
+				l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
+		speed_pid(-friction_wheel_speed * FRICTION_INVERT  * 0.5,
+				r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
+		l_flywheel->output = l_flywheel->rpm_pid.output;
+		r_flywheel->output = r_flywheel->rpm_pid.output;
+		break;
+
 		break;
 
 	case WHEEL_CLEARING:
@@ -268,16 +278,8 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 		break;
 
 	default:
-//		l_flywheel->output = 0;
-//		r_flywheel->output = 0;
-		// runs flywheels at 50% speed even during stand_by
-		speed_pid(friction_wheel_speed * FRICTION_INVERT * 0.5,
-				l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
-		speed_pid(-friction_wheel_speed * FRICTION_INVERT  * 0.5,
-				r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
-		l_flywheel->output = l_flywheel->rpm_pid.output;
-		r_flywheel->output = r_flywheel->rpm_pid.output;
-		break;
+		l_flywheel->output = 0;
+		r_flywheel->output = 0;
 	}
 
 }
