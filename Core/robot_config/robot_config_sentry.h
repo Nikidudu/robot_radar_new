@@ -49,7 +49,7 @@
 // No level tuning required for sentry
 #define LV1_FEEDER					1200//800//480//480
 #define	LV1_PROJECTILE				20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
-#define LV1_MAX_SPEED				0.8//4500//M3508_MAX_RPM
+#define LV1_MAX_SPEED				0.6//4500//M3508_MAX_RPM
 #define LV1_MAX_ACCEL				0.5
 #define LV1_CHASSIS_YAW_MAX_RPM		1
 
@@ -196,7 +196,7 @@
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
 
-#define CHASSIS_YAW_MAX_RPM	0.4					//max RPM for chassis centering
+#define CHASSIS_YAW_MAX_RPM	0.6				//max RPM for chassis centering
 #define CHASSIS_YAW_KP 		7//3.75//1//0.7//0.4
 #define CHASSIS_YAW_KI		0.0001
 #define CHASSIS_YAW_KD 		3//0
@@ -293,7 +293,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	6
-#define YAW_CENTER 				-2.26514912
+#define YAW_CENTER 				3.068
 #define YAW_MAX_ANG				4*PI
 #define YAW_MIN_ANG				4*-PI
 
