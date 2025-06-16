@@ -65,7 +65,7 @@
  */
 #define SCALE 					0.9
 #define LVL_TUNING
-#define LV1_MAX_SPEED 		    0.25 * SCALE
+#define LV1_MAX_SPEED 		    0.34//0.25 * SCALE //for 1v1
 #define LV2_MAX_SPEED  			0.26 * SCALE
 #define LV3_MAX_SPEED			0.27 * SCALE
 #define LV4_MAX_SPEED			0.28 * SCALE
@@ -85,7 +85,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			1.5
+#define LV1_MAX_ACCEL			2.5//1.5 //for 1v1
 #define LV2_MAX_ACCEL			1.5
 #define LV3_MAX_ACCEL			1.5
 #define LV4_MAX_ACCEL			1.5
@@ -240,10 +240,10 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 // Yaw max rpm - max RPM for chassis centering
-#define LV1_CHASSIS_YAW_MAX_RPM		0.6
+#define LV1_CHASSIS_YAW_MAX_RPM		0.4
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0
-#define LV1_CHASSIS_YAW_KD			0
+#define LV1_CHASSIS_YAW_KD			8//0 //for 1v1
 
 #define LV2_CHASSIS_YAW_MAX_RPM		0.6
 #define LV2_CHASSIS_YAW_KP			0.7
