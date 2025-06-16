@@ -4,6 +4,7 @@
  *  Created on: Mar 19, 2025
  *      Author: cw
  */
+#ifdef BUILD_WITH_STMUART
 
 #include <status_thread.h>
 #include "referee_msgs.h"
@@ -86,3 +87,5 @@ void statusThread::loop()
 
 	portYIELD();
 }
+
+#endif

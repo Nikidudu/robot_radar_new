@@ -28,8 +28,8 @@ CANBus* CAN1_network = nullptr;
 ROCANDriver* CAN2_driver = nullptr;
 CANBus* CAN2_network = nullptr;
 
-STMUARTDriver* UART_line = nullptr;
-NetworkBus* UART_network = nullptr;
+//STMUARTDriver* UART_line = nullptr;
+//NetworkBus* UART_network = nullptr;
 
 dummyThread* dummy = nullptr;
 SuperCapCommThread* supercap_thread = nullptr;

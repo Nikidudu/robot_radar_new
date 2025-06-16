@@ -5,6 +5,8 @@
  *      Author: cw
  */
 
+#ifdef BUILD_WITH_STMUART
+
 #include <cvAimbotCommandThread.h>
 #include <Telemetry.h>
 #include "robot_config.h"
@@ -106,3 +108,5 @@ void cvAimbotCommandThread::handle_cv_aim(uint8_t sender_id, cvAimCommandPacket*
 void cvAimbotCommandThread::send_command_aim(cvAimCommandPacket* packet) {
 	aim_state = packet->aim_state;
 }
+
+#endif

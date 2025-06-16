@@ -34,7 +34,7 @@ private:
 };
 
 //extern NetworkBus* UART6_network;
-extern NetworkBus* UART_network;
+//extern NetworkBus* UART_network;
 
 extern CANBus* CAN1_network;
 extern CANBus* CAN2_network;

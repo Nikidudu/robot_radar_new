@@ -4,6 +4,7 @@
  *  Created on: Feb 13, 2024
  *      Author: cw
  */
+#ifdef BUILD_WITH_STMUART
 
 #include <dummy_thread.h>
 #include <Telemetry.h>
@@ -57,3 +58,5 @@ void dummyThread::handle_dummy(uint8_t sender_id, dummyPacket* packet) {
 
 
 }
+
+#endif

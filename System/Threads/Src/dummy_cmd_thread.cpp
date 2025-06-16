@@ -5,6 +5,8 @@
  *      Author: JL
  */
 
+#ifdef BUILD_WITH_STMUART
+
 #include <dummy_cmd_thread.h>
 #include <Telemetry.h>
 
@@ -36,3 +38,5 @@ void dummyCmdThread::handle_dummy_cmd(uint8_t sender_id, dummyPacket* packet) {
 	test_nums[1] = packet->num2;
 	test_nums[2] = packet->num3;
 }
+
+#endif

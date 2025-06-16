@@ -4,6 +4,7 @@
  *  Created on: May 16, 2025
  *      Author: Yassine, JL
  */
+#ifdef BUILD_WITH_STMUART
 
 #include <spd_cmd_thread.h>
 #include <Telemetry.h>
@@ -308,3 +309,5 @@ void ChassisSpdCmdThread::send_commands_chassis(chassisSpeedCommandPacket* packe
 //		portYIELD();
 //	}
 //}
+
+#endif

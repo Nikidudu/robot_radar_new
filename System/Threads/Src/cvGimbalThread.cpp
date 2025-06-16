@@ -4,7 +4,7 @@
  *  Created on: Dec 15, 2024
  *      Author: cw
  */
-
+#ifdef BUILD_WITH_STMUART
 
 #include <cvGimbalThread.h>
 #include <Telemetry.h>
@@ -33,3 +33,5 @@ void cvGimbalThread::handle_cv_gimbal(uint8_t sender_id, cvGimbalCommandPacket* 
 	    gimbal_ctrl_data.pitch = packet->pitch;//+ g_pitch_motor.angle_data.adj_ang;
 	}
 }
+
+#endif
