@@ -319,25 +319,25 @@ void set_motor_config(motor_data_t *motor) {
 		map_dji_motor(motor->id, motor);
 		break;
 
-	case TYPE_LK_MG5010E_SPD:
-	case TYPE_LK_MG5010E_ANG:
-	case TYPE_LK_MG5010E_MULTI_ANG:
-		motor->angle_data.gearbox_ratio = 10;
-		motor->angle_pid.physical_max = 100;
-		motor->rpm_pid.physical_max = LK_MG5010E_MAX_RPM;
-		motor->angle_data.min_ticks = -180000;
-		motor->angle_data.max_ticks = 180000;
-		motor->angle_data.tick_range = motor->angle_data.max_ticks - motor->angle_data.min_ticks;
-		motor->angle_data.max_raw_ticks = 180000;
-		motor->angle_data.min_raw_ticks = -180000;
-		motor->angle_data.raw_ticks_range = motor->angle_data.max_raw_ticks - motor->angle_data.min_raw_ticks;
-		motor->angle_data.max_ang = PI;
-		motor->angle_data.min_ang = -PI;
-		motor->angle_data.ang_range = motor->angle_data.max_ang
-				- motor->angle_data.min_ang;
-		map_lk_motor(motor->id, motor);
-		lk_set_pid(motor, 500000);
-		break;
+//	case TYPE_LK_MG5010E_SPD:
+//	case TYPE_LK_MG5010E_ANG:
+//	case TYPE_LK_MG5010E_MULTI_ANG:
+//		motor->angle_data.gearbox_ratio = 10;
+//		motor->angle_pid.physical_max = 100;
+//		motor->rpm_pid.physical_max = LK_MG5010E_MAX_RPM;
+//		motor->angle_data.min_ticks = -180000;
+//		motor->angle_data.max_ticks = 180000;
+//		motor->angle_data.tick_range = motor->angle_data.max_ticks - motor->angle_data.min_ticks;
+//		motor->angle_data.max_raw_ticks = 180000;
+//		motor->angle_data.min_raw_ticks = -180000;
+//		motor->angle_data.raw_ticks_range = motor->angle_data.max_raw_ticks - motor->angle_data.min_raw_ticks;
+//		motor->angle_data.max_ang = PI;
+//		motor->angle_data.min_ang = -PI;
+//		motor->angle_data.ang_range = motor->angle_data.max_ang
+//				- motor->angle_data.min_ang;
+//		map_lk_motor(motor->id, motor);
+//		lk_set_pid(motor, 500000);
+//		break;
 
 	default:
 		break;

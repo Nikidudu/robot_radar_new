@@ -31,7 +31,7 @@ extern motor_data_t g_can_motors[24];
 //extern motor_t motor[num];
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
-extern motor_map_t lk_motor_map[65];
+//extern motor_map_t lk_motor_map[65];
 extern motor_map_t dji_motor_map[25];
 
 //#include <can_message_processor.h>
@@ -180,15 +180,16 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					convert_raw_can_data(dji_motor_map[RxHeader.StdId - 0x200].motor_data, RxHeader.StdId, (uint8_t*)RxData);
 				}
 			} else {
-				 if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
-					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
-						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
-						BaseType_t xHigherPriorityTaskWoken, xResult;
-						xHigherPriorityTaskWoken = pdFALSE;
-						xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
-								&xHigherPriorityTaskWoken);
-					}
-				} else if (RxHeader.StdId == DEVC_NODE_ID){
+//				 if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
+//					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
+//						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
+//						BaseType_t xHigherPriorityTaskWoken, xResult;
+//						xHigherPriorityTaskWoken = pdFALSE;
+//						xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
+//								&xHigherPriorityTaskWoken);
+//					}
+//				}
+				if (RxHeader.StdId == DEVC_NODE_ID){
 					supercapISR(RxData);
 				} else if ((RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94)|| (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x75)){
 					int fb_id = (RxData[0])&0x0F;
@@ -225,16 +226,17 @@ void ROCANDriver::ISR(CAN_HandleTypeDef *hcan){
 					convert_raw_can_data(dji_motor_map[RxHeader.StdId - 0x200+12].motor_data, RxHeader.StdId+12, RxData);
 				}
 			} else {
-				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
-			//handle LK motor or other data
-					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
-						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
-						BaseType_t xHigherPriorityTaskWoken, xResult;
-						xHigherPriorityTaskWoken = pdFALSE;
-						xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
-								&xHigherPriorityTaskWoken);
-					}
-				} else if (RxHeader.StdId == DEVC_NODE_ID){
+//				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160){
+//			//handle LK motor or other data
+//					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL){
+//						process_lk_motor(RxData, lk_motor_map[RxHeader.StdId-0x140].motor_data);
+//						BaseType_t xHigherPriorityTaskWoken, xResult;
+//						xHigherPriorityTaskWoken = pdFALSE;
+//						xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
+//								&xHigherPriorityTaskWoken);
+//					}
+//				}
+				if (RxHeader.StdId == DEVC_NODE_ID){
 					supercapISR(RxData);
 				} else if (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74){
 					int fb_id = (RxData[0])&0x0F;

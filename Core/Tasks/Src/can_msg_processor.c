@@ -19,7 +19,7 @@ extern EventGroupHandle_t launcher_event_group;
 #ifndef CHASSIS_MCU
 extern motor_data_t g_can_motors[24];
 
- motor_map_t lk_motor_map[65];
+// motor_map_t lk_motor_map[65];
  motor_map_t dji_motor_map[25];
  //where is this number from lmao
  motor_map_t dm_motor_map[15];
@@ -29,12 +29,12 @@ motor_data_t g_can_motors[12];
 #endif
 
 
-void map_lk_motor(uint16_t motor_id, motor_data_t* motor_data){
-	if (motor_id > 0x140 && motor_id <= 0x160){
-		lk_motor_map[motor_id-0x140].motor_data = motor_data;
-		lk_motor_map[motor_id-0x140].motor_id = motor_id;
-	}
-}
+//void map_lk_motor(uint16_t motor_id, motor_data_t* motor_data){
+//	if (motor_id > 0x140 && motor_id <= 0x160){
+//		lk_motor_map[motor_id-0x140].motor_data = motor_data;
+//		lk_motor_map[motor_id-0x140].motor_id = motor_id;
+//	}
+//}
 
 void map_dji_motor(uint16_t motor_id, motor_data_t* motor_data){
 	if (motor_id <= 24){
