@@ -47,8 +47,8 @@ extern gimbal_control_t gimbal_ctrl_data;
 
 void Telemetry::setup() {
 //		 UART line(s) initialization
-		UART_line = new STMUARTDriver(&huart1);
-		UART_network = new NetworkBus(UART_line);
+//		UART_line = new STMUARTDriver(&huart1);
+//		UART_network = new NetworkBus(UART_line);
 
 		// CANFD network initialization
 		CAN1_driver = new ROCANDriver(&hcan1, DEVC_NODE_ID);
@@ -57,7 +57,7 @@ void Telemetry::setup() {
 //		CAN2_driver = new ROCANDriver(&hcan2, CURRENT_NODE_ID);
 //		CAN2_network = new CANBus(CAN2_driver);
 //		dummy = new dummyThread();
-//		supercap_thread = new SuperCapCommThread();
+		supercap_thread = new SuperCapCommThread();
 //		supercap_thread = new SuperCapCommThread();
 
 //		cv_gimbal_thread = new cvGimbalThread();
@@ -74,19 +74,19 @@ void Telemetry::setup() {
 
 //		gimbalJointThread = new gimbalJointPubThread();
 //		imu = new imuThread();
-		speedCmdThread = new ChassisSpdCmdThread();
-		dummy_cmd = new dummyCmdThread();
+//		speedCmdThread = new ChassisSpdCmdThread();
+//		dummy_cmd = new dummyCmdThread();
 
 
 //		status = new statusThread();
 
-		UART_network->handle<chassisSpeedCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spd_commands);
+//		UART_network->handle<chassisSpeedCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spd_commands);
 //		UART1_network->handle<gimbalAngleCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_spd_commands);
 //		UART1_network->handle<gimbalAnglePitchCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_pitch_command);
 //		UART1_network->handle<gimbalAngleYawCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_yaw_command);
 //		UART1_network->handle<FrontFiringPacket>(&ChassisSpdCmdThread::handle_launcher_front_firing_commands);
 //		UART1_network->handle<ChassisSpinCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spin_command);
-		UART_network->handle<dummyPacket>(&dummyCmdThread::handle_dummy_cmd);
+//		UART_network->handle<dummyPacket>(&dummyCmdThread::handle_dummy_cmd);
 
 
 }
