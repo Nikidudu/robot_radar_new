@@ -85,7 +85,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			2.5//1.5 //for 1v1
+#define LV1_MAX_ACCEL			3.5//2.5//1.5 //for 1v1
 #define LV2_MAX_ACCEL			1.5
 #define LV3_MAX_ACCEL			1.5
 #define LV4_MAX_ACCEL			1.5
