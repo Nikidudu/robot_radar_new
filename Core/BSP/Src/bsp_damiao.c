@@ -14,27 +14,6 @@ extern motor_data_t g_pitch_motor;
 extern EventGroupHandle_t gimbal_event_group;
 
 
-void dm4310_motor_init(void)
-{
-// this function has been implemented in motor_config. should no longer be used
-
-	#if PITCH_MOTOR_TYPE == TYPE_DM4310
-		memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
-		dm_pitch_motor.id = 0x81;
-		dm_pitch_motor.ctrl.mode = 0;
-		dm4310_enable(&hcan1, &dm_pitch_motor);
-		vTaskDelay(3);
-	#endif
-
-	#if YAW_MOTOR_TYPE == TYPE_DM4310
-		memset(&dm_yaw_motor, 0, sizeof(dm_yaw_motor));
-		dm_yaw_motor.id = 0x61;
-		dm_yaw_motor.ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
-		dm4310_enable(&hcan2, &dm_yaw_motor);
-		vTaskDelay(3);
-	#endif
-}
-
 /** ************************************************************************
  * @brief:       dm4310_enable: Enables the control mode of the DM4310 motor
  * @param[in]:   hcan:    Pointer to a CAN_HandleTypeDef structure
@@ -206,7 +185,7 @@ void dm4310_fbdata(dm_motor_t *motor, uint8_t *rx_data)
     motor->para.p_int=(rx_data[1]<<8)|rx_data[2];
     motor->para.v_int=(rx_data[3]<<4)|(rx_data[4]>>4);
     motor->para.t_int=((rx_data[4]&0xF)<<8)|rx_data[5];
-    motor->para.pos = uint_to_float(motor->para.p_int, P_MIN, P_MAX, 16); // (-12.5,12.5)
+    motor->para.pos = uint_to_float(motor->para.p_int, -PI, PI, 16); // (-12.5,12.5)
     motor->para.vel = uint_to_float(motor->para.v_int, V_MIN, V_MAX, 12); // (-45.0,45.0)
     motor->para.tor = uint_to_float(motor->para.t_int, T_MIN, T_MAX, 12);  // (-18.0,18.0)
     motor->para.Tmos = (float)(rx_data[6]);
@@ -605,10 +584,7 @@ float dm_yaw_encoder_mod(float raw_angle) {
 }
 
 void dmmapyawfbdata(dm_motor_t *yaw_motor) {
-	float adj_ang = dm_yaw_encoder_mod(yaw_motor->para.pos - dm_yaw_motor.angle_data.center_ang);
-	// maps from 0 to 2PI TO 0 to 8192
-	//float mapped_value = (temp / (2 * PI)) * 8192;
-//	debug4 = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+	float adj_ang = yaw_motor->para.pos - dm_yaw_motor.angle_data.center_ang;
     g_can_motors[dm_yaw_motor.id - 1].angle_data.adj_ang = adj_ang;
     g_can_motors[dm_yaw_motor.id - 1].raw_data.torque = yaw_motor->para.tor;
     dm_yaw_motor.angle_data.adj_ang = adj_ang;

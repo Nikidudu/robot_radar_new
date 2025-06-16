@@ -49,8 +49,8 @@
 // No level tuning required for sentry
 #define LV1_FEEDER					1200//800//480//480
 #define	LV1_PROJECTILE				20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
-#define LV1_MAX_SPEED				0.6//4500//M3508_MAX_RPM
-#define LV1_MAX_ACCEL				0.5
+#define LV1_MAX_SPEED				0.31//4500//M3508_MAX_RPM
+#define LV1_MAX_ACCEL				1
 #define LV1_CHASSIS_YAW_MAX_RPM		1
 
 #define SPIN_ACCELERATION		1 //Same guideline as chassis acceleration
@@ -186,8 +186,8 @@
 
 /*********************** CHASSIS CONFIGURATION ***********************/
 #define CHASSIS_KP  		8				// |
-#define CHASSIS_KI  		0.1				// | - CHASSIS WHEELS PID VALUES
-#define CHASSIS_KD  		0.1				// |
+#define CHASSIS_KI  		0//0.1				// | - CHASSIS WHEELS PID VALUES
+#define CHASSIS_KD  		10				// |
 #define CHASSIS_INT_MAX  	5000				// |
 #define CHASSIS_MAX_CURRENT 12000//9000
 #define CHASSIS_MIN_CURRENT 0
@@ -197,9 +197,9 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 #define CHASSIS_YAW_MAX_RPM	0.6				//max RPM for chassis centering
-#define CHASSIS_YAW_KP 		7//3.75//1//0.7//0.4
-#define CHASSIS_YAW_KI		0.0001
-#define CHASSIS_YAW_KD 		3//0
+#define CHASSIS_YAW_KP 		3//7//3.75//1//0.7//0.4
+#define CHASSIS_YAW_KI		0//0.0001
+#define CHASSIS_YAW_KD 		1//5//0
 #define CHASSIS_YAW_MIN		0.0
 
 #define CHASSIS_TRANS_PRIO		0.85			//% of chassis speed to be prioritised for translation
@@ -276,7 +276,7 @@
 
 #else
 
-#define DM_YAW_KP			5
+#define DM_YAW_KP			7
 #define DM_YAW_KI			0
 #define DM_YAW_KD			0
 #define DM_YAW_INT_MAX		0

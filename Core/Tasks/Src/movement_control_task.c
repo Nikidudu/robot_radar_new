@@ -145,7 +145,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 			+ abs(motorbl->raw_data.rpm)) / 4;
 
 	// Setting translational and rotational speed and acceleration base on robot level
-	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
+//	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
 	double chassis_rpm = M3508_MAX_RPM * lvl_max_speed;
 
