@@ -63,7 +63,7 @@
  * E.g. 0.5 = 50% max speed
  */
 #define LVL_TUNING
-#define LV1_MAX_SPEED 		    0.38//0.20 // for 1v1
+#define LV1_MAX_SPEED 		    0.34//0.20 // for 1v1
 #define LV2_MAX_SPEED  			0.22
 #define LV3_MAX_SPEED			0.24
 #define LV4_MAX_SPEED			0.26
@@ -83,7 +83,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			3.5//1.5 // for 1v1
+#define LV1_MAX_ACCEL			2.5//1.5 // for 1v1
 #define LV2_MAX_ACCEL			2.0
 #define LV3_MAX_ACCEL			2.0
 #define LV4_MAX_ACCEL			2.0
