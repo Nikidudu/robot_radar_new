@@ -6,7 +6,7 @@
  */
 
  #include <SuperCapCommThread.h>
- //#include <supercap_def.h>
+ #include <supercap_def.h>
  #include <Telemetry.h>
  #include "referee_msgs.h"
  
@@ -24,6 +24,8 @@
  extern ref_game_robot_data2_t ref_robot_data;
  extern ref_game_state_t ref_game_state;
  
+ int supercap_enabled = 1;
+
  SuperCapCommThread::~SuperCapCommThread(){
  }
  
@@ -33,6 +35,14 @@
  
  void SuperCapCommThread::loop()
  {
+	 // Disable use of supercap if charge falls below threshold
+	 // DOES NOT DISABLE THE SUPERCAP
+	 if (charging_state < SUPERCAP_DISABLE_THRESHOLD) {
+		 supercap_enabled = 0;
+	 } else if (!supercap_enabled && charging_state > SUPERCAP_DISABLE_THRESHOLD) {
+		 supercap_enabled = 1;
+	 }
+
 	 txMsg.enable_module = enable_supercap_module;
 	 txMsg.reset = reset_supercap_module;
 	 if (reset_supercap_module)
@@ -53,6 +63,7 @@
 		 enable_supercap_module = false;
 	 else
 		 enable_supercap_module = true;
+
 	 osDelay(100);
  
 	 portYIELD();
@@ -69,7 +80,6 @@
  
  void supercapISR(uint8_t* rxdata){
 	 supercap_msg_packet *supercap_packet = (struct supercap_msg_packet*)rxdata;
-	 uint8_t i = 0;
 	 chassis_power = supercap_packet->chassis_power;
 	 charging_state = supercap_packet->cap_energy*100/255;
  }

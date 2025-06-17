@@ -18,6 +18,8 @@
 #include "typedefs.h"
 #include "arm_math.h"
 
+ #include <supercap_def.h>
+
 static uint16_t g_client_id = 0;
 extern ref_game_robot_data_t ref_robot_data;
 extern uint8_t g_ref_tx_seq;
@@ -482,7 +484,7 @@ void draw_gearing(uint8_t modify, uint32_t x_coords) {
 
 uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
-	graphic_data->color = (charging_state/100.0 > 0.2) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = (charging_state > SUPERCAP_ENABLE_THRESHOLD) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'S';
 	graphic_data->graphic_name[1] = 'U';
@@ -493,7 +495,14 @@ uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 
 	graphic_data->graphic_type = GRAPHIC_TYPE_ARC;
 	graphic_data->details_a = 270; // Start angle
-	int curr_lvl = (int)(charging_state/100.0 * ANGLE_LIMIT) ? (int)(charging_state/100.0 * ANGLE_LIMIT) : 1;
+
+	// Show supercap charge, where 0% = min charge and 100% = max charge
+	int supercap_range = 100 - SUPERCAP_DISABLE_THRESHOLD;
+	float mapped_charging_state = fmaxf(0.0f, fminf(1.0f,
+	    (float)(charging_state - SUPERCAP_DISABLE_THRESHOLD) / (float)supercap_range));
+
+	int curr_lvl = fmaxf(1, (int)(mapped_charging_state * ANGLE_LIMIT));
+
 	graphic_data->details_b = 270 + curr_lvl; // End angle
 
 	graphic_data->width = 30; //line width
