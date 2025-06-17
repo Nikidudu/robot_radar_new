@@ -25,6 +25,7 @@
  extern ref_game_state_t ref_game_state;
  
  int supercap_enabled = 1;
+ uint32_t supercap_last_receive_time = 0;
 
  SuperCapCommThread::~SuperCapCommThread(){
  }
@@ -43,7 +44,7 @@
 		 supercap_enabled = 1;
 	 }
 
-	if ((HAL_GetTick() - last_receive_time > SUPERCAP_TIMEOUT)) {
+	if ((HAL_GetTick() - supercap_last_receive_time > SUPERCAP_TIMEOUT)) {
 		reset_supercap_module = true;
 	}
 
@@ -86,5 +87,5 @@
 	 supercap_msg_packet *supercap_packet = (struct supercap_msg_packet*)rxdata;
 	 chassis_power = supercap_packet->chassis_power;
 	 charging_state = supercap_packet->cap_energy*100/255;
-	 last_receive_time = HAL_GetTick();
+	 supercap_last_receive_time = HAL_GetTick();
  }

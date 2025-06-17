@@ -53,8 +53,6 @@ private:
 
 	ref_msg_packet txMsg;
 	supercap_msg_packet rxMsg;
-
-	uint32_t last_receive_time;
 };
 
 void supercapISR(uint8_t* rxdata);
