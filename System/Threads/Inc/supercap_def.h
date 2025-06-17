@@ -13,4 +13,6 @@
 // Energy threshold above which supercap usage is re-enabled (%)
 #define SUPERCAP_ENABLE_THRESHOLD     40
 
+#define SUPERCAP_TIMEOUT				5000 // ms
+
 #endif /* THREADS_INC_SUPERCAP_DEF_H_ */

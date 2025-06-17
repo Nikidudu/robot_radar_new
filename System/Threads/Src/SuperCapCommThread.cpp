@@ -43,6 +43,10 @@
 		 supercap_enabled = 1;
 	 }
 
+	if ((HAL_GetTick() - last_receive_time > SUPERCAP_TIMEOUT)) {
+		reset_supercap_module = true;
+	}
+
 	 txMsg.enable_module = enable_supercap_module;
 	 txMsg.reset = reset_supercap_module;
 	 if (reset_supercap_module)
@@ -82,4 +86,5 @@
 	 supercap_msg_packet *supercap_packet = (struct supercap_msg_packet*)rxdata;
 	 chassis_power = supercap_packet->chassis_power;
 	 charging_state = supercap_packet->cap_energy*100/255;
+	 last_receive_time = HAL_GetTick();
  }
