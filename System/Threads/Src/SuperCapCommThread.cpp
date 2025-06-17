@@ -48,8 +48,8 @@
 		reset_supercap_module = true;
 	}
 
-	 txMsg.enable_module = enable_supercap_module;
-	 txMsg.reset = reset_supercap_module;
+	 txMsg.enable_module = 1;
+	 txMsg.reset = false;
 	 if (reset_supercap_module)
 		 reset_supercap_module = false;
 	 txMsg.pow_limit = ref_robot_data.chassis_power_limit;

@@ -108,7 +108,7 @@ void control_input_task(void *argument) {
 				switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
 
-					keyboard_gear_shifter(&gear_speed);
+//					keyboard_gear_shifter(&gear_speed);
 					set_gear();
 					keyboard_control_input();
 					break;
