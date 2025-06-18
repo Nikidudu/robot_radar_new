@@ -32,6 +32,7 @@ extern int g_spinspin_mode;
 int prev_spinspin = 0;
 
 extern int supercap_dash;
+int prev_supercap_dash = 0;
 
 extern int aimbot_mode;
 int prev_aimbot = 0;
@@ -260,8 +261,12 @@ void draw_char(uint8_t modify) {
 		}
 #endif
 #ifdef AIMBOT
-		if (prev_aimbot != aimbot_mode) {
-			prev_aimbot = aimbot_mode;
+//		if (prev_aimbot != aimbot_mode) {
+//			prev_aimbot = aimbot_mode;
+//			draw_aimbot(modify, aimbot_coords);
+//		}
+		if (prev_supercap_dash != supercap_dash) {
+			prev_supercap_dash = supercap_dash;
 			draw_aimbot(modify, aimbot_coords);
 		}
 #endif
@@ -277,7 +282,9 @@ void draw_char(uint8_t modify) {
 		draw_spin_char(modify, spin_coords);
 #endif
 #ifdef AIMBOT
-		prev_aimbot = aimbot_mode;
+//		prev_aimbot = aimbot_mode;
+//		draw_aimbot(modify, aimbot_coords);
+		prev_supercap_dash = supercap_dash;
 		draw_aimbot(modify, aimbot_coords);
 #endif
 #ifdef GEARING
@@ -520,13 +527,18 @@ void draw_aimbot(uint8_t modify, uint32_t x_coords) {
 	uint8_t char_len = 0;
 	char char_buffer[30];
 
-	char_len = aimbot_mode ?
-			snprintf((char*) char_buffer, 30, "AIM ON") :
-			snprintf((char*) char_buffer, 30, "AIM OFF");
+	char_len = supercap_dash ?
+			snprintf((char*) char_buffer, 30, "SUP ON") :
+			snprintf((char*) char_buffer, 30, "SUP OFF");
+
+//	char_len = aimbot_mode ?
+//			snprintf((char*) char_buffer, 30, "AIM ON") :
+//			snprintf((char*) char_buffer, 30, "AIM OFF");
 	curr_pos = draw_char_header(tx_buffer, char_len);
 
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
-	graphic_data->color = aimbot_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = supercap_dash ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+//	graphic_data->color = aimbot_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'A';

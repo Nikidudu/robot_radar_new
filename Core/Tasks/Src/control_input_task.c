@@ -113,7 +113,7 @@ void control_input_task(void *argument) {
 					keyboard_control_input();
 					break;
 				case REMOTE_CTRL_MODE:
-					remote_gear_shifter(&gear_speed);
+//					remote_gear_shifter(&gear_speed);
 					set_gear();
 					remote_control_input();
 					break;
@@ -161,7 +161,7 @@ float chassis_center_yaw() {
 }
 
 void chassis_centering_config() {
-//	static uint8_t prev_robot_level = 0;
+	static uint8_t prev_robot_level = -1;
 //
 //	// Hopefully with this, we can adjust pid values without it being overwritten all the time
 //	if (prev_robot_level == ref_robot_data.robot_level) return;
@@ -240,11 +240,11 @@ void chassis_centering_config() {
 	yaw_pid_data.kd = CHASSIS_YAW_KD;
 #endif
 
-	if (supercap_dash && supercap_enabled) {
-		yaw_pid_data.kp = SUPERCAP_CHASSIS_YAW_KP;
-		yaw_pid_data.ki = SUPERCAP_CHASSIS_YAW_KI;
-		yaw_pid_data.kd  = SUPERCAP_CHASSIS_YAW_KD;
-	}
+//	if (supercap_dash && supercap_enabled) {
+//		yaw_pid_data.kp = SUPERCAP_CHASSIS_YAW_KP;
+//		yaw_pid_data.ki = SUPERCAP_CHASSIS_YAW_KI;
+//		yaw_pid_data.kd  = SUPERCAP_CHASSIS_YAW_KD;
+//	}
 }
 
 

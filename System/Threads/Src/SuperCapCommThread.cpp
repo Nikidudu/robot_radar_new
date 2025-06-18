@@ -48,8 +48,8 @@
 		reset_supercap_module = true;
 	}
 
-	 txMsg.enable_module = 1; //enable_supercap_module;
-	 txMsg.reset = false; //reset_supercap_module;
+	 txMsg.enable_module = enable_supercap_module;
+	 txMsg.reset = reset_supercap_module;
 	 if (reset_supercap_module)
 		 reset_supercap_module = false;
 	 txMsg.pow_limit = ref_robot_data.chassis_power_limit;
@@ -86,6 +86,6 @@
  void supercapISR(uint8_t* rxdata){
 	 supercap_msg_packet *supercap_packet = (struct supercap_msg_packet*)rxdata;
 	 chassis_power = supercap_packet->chassis_power;
-	 charging_state = supercap_packet->cap_energy*100/255;
+	 charging_state = supercap_packet->cap_energy * 100 / 255;
 	 supercap_last_receive_time = HAL_GetTick();
  }

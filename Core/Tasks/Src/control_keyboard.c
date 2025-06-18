@@ -102,11 +102,12 @@ void keyboard_chassis_input() {
 			}
 
 			if (g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT) {
-				supercap_dash = 1;
-			} else {
-				supercap_dash = 0;
+				if (supercap_dash == 1) {
+					supercap_dash = 0;
+				} else if (supercap_dash == 0) {
+					supercap_dash = 1;
+				}
 			}
-
 
 			if (g_remote_cmd.mouse_right) {
 				aimbot_mode = 1;
