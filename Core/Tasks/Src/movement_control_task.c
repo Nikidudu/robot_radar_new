@@ -162,6 +162,10 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	float speed_limit = lvl_max_speed;
 	float spin_limit = lvl_max_spin;
 
+	if (g_spinspin_mode == 0) {
+		speed_limit += 0.05; //Increase speed by 0.05 when spinspin mode is deactivated
+	}
+
 	float limit_forward = fmaxf(-speed_limit, fminf(chassis_ctrl_data.forward, speed_limit));
 	float limit_horizontal = fmaxf(-speed_limit, fminf(chassis_ctrl_data.horizontal, speed_limit));
 	float limit_yaw = fmaxf(-spin_limit, fminf(chassis_ctrl_data.yaw, spin_limit));

@@ -64,17 +64,16 @@
  * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed
  */
-#define SCALE 					1.23
-#define LV1_MAX_SPEED			0.08 * SCALE
-#define LV2_MAX_SPEED		    0.09 * SCALE
-#define LV3_MAX_SPEED			0.10 * SCALE
-#define LV4_MAX_SPEED			0.11 * SCALE
-#define LV5_MAX_SPEED			0.12 * SCALE
-#define LV6_MAX_SPEED			0.13 * SCALE
-#define LV7_MAX_SPEED			0.14 * SCALE
-#define LV8_MAX_SPEED			0.145 * SCALE
-#define LV9_MAX_SPEED			0.150 * SCALE
-#define LV10_MAX_SPEED			0.155 * SCALE
+#define LV1_MAX_SPEED			0.12
+#define LV2_MAX_SPEED		    0.13
+#define LV3_MAX_SPEED			0.14
+#define LV4_MAX_SPEED			0.145
+#define LV5_MAX_SPEED			0.16
+#define LV6_MAX_SPEED			0.17
+#define LV7_MAX_SPEED			0.175
+#define LV8_MAX_SPEED			0.175
+#define LV9_MAX_SPEED			0.18
+#define LV10_MAX_SPEED			0.181
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
@@ -247,7 +246,7 @@
 #define CHASSIS_SPINSPIN_MIN_RAMP 0.002
 
 // Yaw max rpm - max RPM for chassis centering
-#define LV1_CHASSIS_YAW_MAX_RPM		0.7
+#define LV1_CHASSIS_YAW_MAX_RPM		0.8
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0
 #define LV1_CHASSIS_YAW_KD			0
