@@ -59,14 +59,15 @@
 #define	LV3_PROJECTILE			20.5//12
 #define LV3_MAX_CURRENT			16384
 
-
+#define SUPER_CAP_OFFSET		2
 /* Speed Value Guide:
  * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed
  */
+// for power values
 #define SCALE 					0.7
 #define LVL_TUNING
-#define LV1_MAX_SPEED 		    0.24 * SCALE //0.34//for 1v1// 0.15
+#define LV1_MAX_SPEED 		    0.24 * SCALE //0.34//for 1v1
 #define LV2_MAX_SPEED  			0.25 * SCALE
 #define LV3_MAX_SPEED			0.26 * SCALE
 #define LV4_MAX_SPEED			0.27 * SCALE
@@ -76,6 +77,17 @@
 #define LV8_MAX_SPEED			0.33 * SCALE
 #define LV9_MAX_SPEED			0.35 * SCALE
 #define LV10_MAX_SPEED			0.36 * SCALE
+// supercap boosted values
+#define LV11_MAX_SPEED			0.30//0.15//0.12
+#define LV12_MAX_SPEED		    0.32//0.16//0.13
+#define LV13_MAX_SPEED			0.34//0.17//0.14
+#define LV14_MAX_SPEED			0.35//0.18//0.145
+#define LV15_MAX_SPEED			0.36//0.19//0.16
+#define LV16_MAX_SPEED			0.36//0.20//0.17
+#define LV17_MAX_SPEED			0.36//0.21//0.175
+#define LV18_MAX_SPEED			0.36//0.22//0.175
+#define LV19_MAX_SPEED			0.36//0.23//0.18
+#define LV20_MAX_SPEED			0.36//0.24//0.181
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
@@ -135,7 +147,7 @@
 #define CHASSIS_POWER_DELTA_LIM 0.3   // limit change for the automatic rpm adjusting code
 
 
-#define PROJECTILE_SPEED_RATIO	340//355//360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define PROJECTILE_SPEED_RATIO	310//355//360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		-8								//projectiles per round of the feeder
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/

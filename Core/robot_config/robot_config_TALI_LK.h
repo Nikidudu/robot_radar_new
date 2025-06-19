@@ -59,7 +59,7 @@
 #define	LV2_PROJECTILE			16.5
 #define	LV3_PROJECTILE			16.5
 
-
+#define SUPER_CAP_OFFSET		-2
 /* Speed Value Guide:
  * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed

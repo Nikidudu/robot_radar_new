@@ -9,6 +9,7 @@
  #include <supercap_def.h>
  #include <Telemetry.h>
  #include "referee_msgs.h"
+#include "robot_config.h"
  
  uint8_t enable_supercap_module = true;
  uint8_t reset_supercap_module = false;
@@ -52,7 +53,7 @@
 	 txMsg.reset = false;
 	 if (reset_supercap_module)
 		 reset_supercap_module = false;
-	 txMsg.pow_limit = ref_robot_data.chassis_power_limit - 2; // -n cuz supercap not very accurate
+	 txMsg.pow_limit = ref_robot_data.chassis_power_limit + SUPER_CAP_OFFSET; // -n cuz supercap not very accurate
 	 txMsg.energy_buffer = 100;
 	 uint32_t TxMailbox;  // Declare TxMailbox here
  
