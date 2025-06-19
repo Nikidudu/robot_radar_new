@@ -9,7 +9,7 @@
 #define ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE_H_
 
 #include "motor_config.h"
-#include "hud_roburt.h"
+#include "hud_kirbee.h"
 #define BULLET_17
 
 #define OVERHEAT_PROTECTION
@@ -73,7 +73,6 @@
 #define LV8_MAX_SPEED			0.34
 #define LV9_MAX_SPEED			0.36
 #define LV10_MAX_SPEED			0.38
-#define SUPERCAP_MAX_SPEED		0.38
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
@@ -94,7 +93,6 @@
 #define LV8_MAX_ACCEL			0.5
 #define LV9_MAX_ACCEL			0.5
 #define LV10_MAX_ACCEL			0.5
-#define SUPERCAP_MAX_ACCEL		0.5
 #define SPIN_ACCELERATION		1.0 //Same guideline as chassis acceleration
 
 #define GEAR_DEFAULT			3
@@ -288,11 +286,6 @@
 #define LV10_CHASSIS_YAW_KP			0.7
 #define LV10_CHASSIS_YAW_KI			0
 #define LV10_CHASSIS_YAW_KD			0
-
-#define SUPERCAP_CHASSIS_YAW_MAX_RPM	0.4
-#define SUPERCAP_CHASSIS_YAW_KP			0.7
-#define SUPERCAP_CHASSIS_YAW_KI			0
-#define SUPERCAP_CHASSIS_YAW_KD			0
 
 #define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
 #define CHASSIS_YAW_KP 		0.45//3.75//1//0.7//0.4

@@ -235,7 +235,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 }
 
 void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin) {
-	static uint8_t prev_robot_level = -1;
+//	static uint8_t prev_robot_level = -1;
 
 //	// Hopefully with this, we can adjust pid values without it being overwritten all the time
 //	if (prev_robot_level == ref_robot_data.robot_level) return;
@@ -324,14 +324,6 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	*lvl_max_spin  = CHASSIS_YAW_MAX_RPM;
 
 #endif
-
-	// If shift is pressed and supercap have sufficent charge, dash
-//	if (supercap_dash && supercap_enabled) {
-//		*lvl_max_speed = SUPERCAP_MAX_SPEED;
-//		*lvl_max_accel = SUPERCAP_MAX_ACCEL;
-//		*lvl_max_spin  = SUPERCAP_CHASSIS_YAW_MAX_RPM;
-//	}
-
 	*lvl_max_speed = (*lvl_max_speed < 0) ? 0 : *lvl_max_speed; //Make sure is within 0 - 1 since it is a percentage
 	*lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
 }

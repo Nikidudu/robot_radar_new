@@ -7,8 +7,6 @@
 
 #ifndef ROBOT_CONFIG_HUD_WADDLEDEE_H_
 #define ROBOT_CONFIG_HUD_WADDLEDEE_H_
-
-
 #include "hud_constants.h"
 
 // GRAPHICS SELECTION
@@ -16,8 +14,8 @@
 #define HUD
 #define SPINSPIN
 #define GEARING
-#define SUPERCAP
-#define AIMBOT
+#define SUPERCAP // Either supercap or aimbot (they use the same space to draw)
+//#define AIMBOT
 #define CROSSHAIR
 #define CROSSHAIR_TWO_COLOUR
 #define PITCH_ANG
@@ -87,7 +85,5 @@
 
 #define MOTOR_FAULT_START 	750
 #define MOTOR_FAULT_GAP		50
-
-
 
 #endif /* ROBOT_CONFIG_HUD_WADDLEDEE_H_ */

@@ -9,7 +9,7 @@
 #define TASKS_INC_ROBOT_CONFIG_ALI_H_
 
 #include "motor_config.h"
-#include "hud_roburt.h"
+#include "hud_tali.h"
 //#define BOARD_DOWN
 
 //#define OVERHEAT_PROTECTION
@@ -75,7 +75,6 @@
 #define LV8_MAX_SPEED			0.145 * SCALE
 #define LV9_MAX_SPEED			0.150 * SCALE
 #define LV10_MAX_SPEED			0.155 * SCALE
-#define SUPERCAP_MAX_SPEED		0.200 * SCALE
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
@@ -96,7 +95,6 @@
 #define LV8_MAX_ACCEL			0.5
 #define LV9_MAX_ACCEL			0.5
 #define LV10_MAX_ACCEL			0.5
-#define SUPERCAP_MAX_ACCEL		0.5
 
 #define SPIN_ACCELERATION		1.0 //Same guideline as chassis acceleration
 
@@ -298,11 +296,6 @@
 #define LV10_CHASSIS_YAW_KP			0.7
 #define LV10_CHASSIS_YAW_KI			0
 #define LV10_CHASSIS_YAW_KD			0
-
-#define SUPERCAP_CHASSIS_YAW_MAX_RPM	0.8
-#define SUPERCAP_CHASSIS_YAW_KP			0.7
-#define SUPERCAP_CHASSIS_YAW_KI			0
-#define SUPERCAP_CHASSIS_YAW_KD			0
 
 // Default values
 #define CHASSIS_YAW_MAX_RPM	0.5

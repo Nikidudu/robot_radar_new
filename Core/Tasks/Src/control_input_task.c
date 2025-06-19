@@ -161,14 +161,19 @@ float chassis_center_yaw() {
 }
 
 void chassis_centering_config() {
-	static uint8_t prev_robot_level = -1;
+//	static uint8_t prev_robot_level = -1;
 //
 //	// Hopefully with this, we can adjust pid values without it being overwritten all the time
 //	if (prev_robot_level == ref_robot_data.robot_level) return;
 //	prev_robot_level = ref_robot_data.robot_level;
 
+	uint8_t curr_level = ref_robot_data.robot_level;
+
 #ifdef LVL_TUNING
-	switch (ref_robot_data.robot_level) {
+	if (supercap_dash && supercap_enabled) {
+		curr_level += 4;
+	}
+	switch (curr_level) {
 		case 1:
 			yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
@@ -224,6 +229,10 @@ void chassis_centering_config() {
 			break;
 
 		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
 			yaw_pid_data.kp = LV10_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV10_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV10_CHASSIS_YAW_KD;
@@ -239,12 +248,6 @@ void chassis_centering_config() {
 	yaw_pid_data.ki = CHASSIS_YAW_KI;
 	yaw_pid_data.kd = CHASSIS_YAW_KD;
 #endif
-
-//	if (supercap_dash && supercap_enabled) {
-//		yaw_pid_data.kp = SUPERCAP_CHASSIS_YAW_KP;
-//		yaw_pid_data.ki = SUPERCAP_CHASSIS_YAW_KI;
-//		yaw_pid_data.kd  = SUPERCAP_CHASSIS_YAW_KD;
-//	}
 }
 
 

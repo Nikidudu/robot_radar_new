@@ -1,12 +1,12 @@
 /*
- * hud_roburt.h
+ * hud_kirbee.h
  *
- *  Created on: May 26, 2024
- *      Author: wx
+ *  Created on: Jun 19, 2025
+ *      Author: gskan
  */
 
-#ifndef ROBOT_CONFIG_HUD_ROBURT_H_
-#define ROBOT_CONFIG_HUD_ROBURT_H_
+#ifndef ROBOT_CONFIG_HUD_KIRBEE_H_
+#define ROBOT_CONFIG_HUD_KIRBEE_H_
 #include "hud_constants.h"
 
 // GRAPHICS SELECTION
@@ -86,5 +86,4 @@
 #define MOTOR_FAULT_START 	750
 #define MOTOR_FAULT_GAP		50
 
-
-#endif /* ROBOT_CONFIG_HUD_ROBURT_H_ */
+#endif /* ROBOT_CONFIG_HUD_KIRBEE_H_ */

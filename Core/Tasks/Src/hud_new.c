@@ -17,8 +17,7 @@
 #include "hud_constants.h"
 #include "typedefs.h"
 #include "arm_math.h"
-
- #include <supercap_def.h>
+#include "supercap_def.h"
 
 static uint16_t g_client_id = 0;
 extern ref_game_robot_data_t ref_robot_data;
@@ -153,6 +152,9 @@ void set_top_coordinates() {
 #ifdef AIMBOT
 	top_graphics++;
 #endif
+#ifdef SUPERCAP
+	top_graphics++;
+#endif
 
 	switch (top_graphics) {
 		case 1:
@@ -178,6 +180,9 @@ void set_top_coordinates() {
 	gear_coords = x_coordinates[index++];
 #endif
 #ifdef AIMBOT
+	aimbot_coords = x_coordinates[index++];
+#endif
+#ifdef SUPERCAP
 	aimbot_coords = x_coordinates[index++];
 #endif
 
@@ -261,10 +266,12 @@ void draw_char(uint8_t modify) {
 		}
 #endif
 #ifdef AIMBOT
-//		if (prev_aimbot != aimbot_mode) {
-//			prev_aimbot = aimbot_mode;
-//			draw_aimbot(modify, aimbot_coords);
-//		}
+		if (prev_aimbot != aimbot_mode) {
+			prev_aimbot = aimbot_mode;
+			draw_aimbot(modify, aimbot_coords);
+		}
+#endif
+#ifdef SUPERCAP
 		if (prev_supercap_dash != supercap_dash) {
 			prev_supercap_dash = supercap_dash;
 			draw_aimbot(modify, aimbot_coords);
@@ -282,8 +289,10 @@ void draw_char(uint8_t modify) {
 		draw_spin_char(modify, spin_coords);
 #endif
 #ifdef AIMBOT
-//		prev_aimbot = aimbot_mode;
-//		draw_aimbot(modify, aimbot_coords);
+		prev_aimbot = aimbot_mode;
+		draw_aimbot(modify, aimbot_coords);
+#endif
+#ifdef SUPERCAP
 		prev_supercap_dash = supercap_dash;
 		draw_aimbot(modify, aimbot_coords);
 #endif
@@ -522,23 +531,29 @@ uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 }
 
 void draw_aimbot(uint8_t modify, uint32_t x_coords) {
+	// now also used to draw supercap ON/OFF
 	uint8_t tx_buffer[256];
 	uint8_t curr_pos = 0;
 	uint8_t char_len = 0;
 	char char_buffer[30];
-
+	graphic_data_struct_t* graphic_data;
+#ifdef SUPERCAP
 	char_len = supercap_dash ?
-			snprintf((char*) char_buffer, 30, "SUP ON") :
-			snprintf((char*) char_buffer, 30, "SUP OFF");
-
-//	char_len = aimbot_mode ?
-//			snprintf((char*) char_buffer, 30, "AIM ON") :
-//			snprintf((char*) char_buffer, 30, "AIM OFF");
+			snprintf((char*) char_buffer, 30, "CAP ON") :
+			snprintf((char*) char_buffer, 30, "CAP OFF");
 	curr_pos = draw_char_header(tx_buffer, char_len);
-
-	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
+	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
 	graphic_data->color = supercap_dash ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
-//	graphic_data->color = aimbot_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+
+#endif
+#ifdef AIMBOT
+	char_len = aimbot_mode ?
+			snprintf((char*) char_buffer, 30, "AIM ON") :
+			snprintf((char*) char_buffer, 30, "AIM OFF");
+	curr_pos = draw_char_header(tx_buffer, char_len);
+	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
+	graphic_data->color = aimbot_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+#endif
 
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'A';
