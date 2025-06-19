@@ -52,7 +52,7 @@
 	 txMsg.reset = false;
 	 if (reset_supercap_module)
 		 reset_supercap_module = false;
-	 txMsg.pow_limit = ref_robot_data.chassis_power_limit - 3; // -3 cuz supercap not very accurate
+	 txMsg.pow_limit = ref_robot_data.chassis_power_limit - 2; // -n cuz supercap not very accurate
 	 txMsg.energy_buffer = 100;
 	 uint32_t TxMailbox;  // Declare TxMailbox here
  

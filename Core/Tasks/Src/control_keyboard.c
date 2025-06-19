@@ -66,6 +66,9 @@ void keyboard_gear_shifter(speed_shift_t *gear_speed) {
 }
 
 void keyboard_chassis_input() {
+	static uint8_t shift_prev_state = 0;
+	static uint32_t shift_last_change_time = 0;
+	const uint32_t debounce_time = 100;  // debounce threshold in ms
 	if (g_safety_toggle || g_remote_cmd.right_switch != ge_RSW_ALL_ON) {
 		chassis_ctrl_data.enabled = 0;
 		chassis_ctrl_data.horizontal = 0;
@@ -100,13 +103,14 @@ void keyboard_chassis_input() {
 			if (g_remote_cmd.keyboard_keys & KEY_OFFSET_D) {
 				horizontal_input += KEYBD_MAX_SPD;
 			}
-
 			if (g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT) {
-				if (supercap_dash == 1) {
-					supercap_dash = 0;
-				} else if (supercap_dash == 0) {
-					supercap_dash = 1;
-				}
+			    if (shift_prev_state == 0 && HAL_GetTick() - shift_last_change_time > debounce_time) {
+			        supercap_dash ^= 1;  // toggle 0 ↔ 1
+			        shift_prev_state = 1;
+			        shift_last_change_time = HAL_GetTick();
+			    }
+			} else {
+			    shift_prev_state = 0;  // reset when key is released
 			}
 
 			if (g_remote_cmd.mouse_right) {
