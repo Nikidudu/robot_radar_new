@@ -359,13 +359,13 @@
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #define YAW_ANGLE_KP			120
 #define YAW_ANGLE_KI			0
-#define YAW_ANGLE_KD			10
+#define YAW_ANGLE_KD			1000
 #define YAW_ANGLE_INT_MAX		0.05
 #define YAW_MAX_RPM				85
 
 #define YAWRPM_KP				1200//600//400
 #define YAWRPM_KI				0
-#define YAWRPM_KD				0
+#define YAWRPM_KD				10
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
