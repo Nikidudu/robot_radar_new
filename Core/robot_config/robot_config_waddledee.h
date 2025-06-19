@@ -64,18 +64,18 @@
  * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed
  */
-#define SCALE 					0.9
+#define SCALE 					0.7
 #define LVL_TUNING
-#define LV1_MAX_SPEED 		    0.25 * SCALE //0.34//for 1v1
-#define LV2_MAX_SPEED  			0.26 * SCALE
-#define LV3_MAX_SPEED			0.27 * SCALE
-#define LV4_MAX_SPEED			0.28 * SCALE
+#define LV1_MAX_SPEED 		    0.24 * SCALE //0.34//for 1v1// 0.15
+#define LV2_MAX_SPEED  			0.25 * SCALE
+#define LV3_MAX_SPEED			0.26 * SCALE
+#define LV4_MAX_SPEED			0.27 * SCALE
 #define LV5_MAX_SPEED			0.29 * SCALE
 #define LV6_MAX_SPEED			0.30 * SCALE
-#define LV7_MAX_SPEED			0.31 * SCALE
-#define LV8_MAX_SPEED			0.32 * SCALE
-#define LV9_MAX_SPEED			0.33 * SCALE
-#define LV10_MAX_SPEED			0.34 * SCALE
+#define LV7_MAX_SPEED			0.32 * SCALE
+#define LV8_MAX_SPEED			0.33 * SCALE
+#define LV9_MAX_SPEED			0.35 * SCALE
+#define LV10_MAX_SPEED			0.36 * SCALE
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
@@ -86,7 +86,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			2.0//3.5//2.5//1.5 //for 1v1
+#define LV1_MAX_ACCEL			1.5//3.5//2.5//1.5 //for 1v1
 #define LV2_MAX_ACCEL			1.5
 #define LV3_MAX_ACCEL			1.5
 #define LV4_MAX_ACCEL			1.5
@@ -135,7 +135,7 @@
 #define CHASSIS_POWER_DELTA_LIM 0.3   // limit change for the automatic rpm adjusting code
 
 
-#define PROJECTILE_SPEED_RATIO	360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define PROJECTILE_SPEED_RATIO	340//355//360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		-8								//projectiles per round of the feeder
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
@@ -241,17 +241,17 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 // Yaw max rpm - max RPM for chassis centering
-#define LV1_CHASSIS_YAW_MAX_RPM		0.6
+#define LV1_CHASSIS_YAW_MAX_RPM		0.35
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0
 #define LV1_CHASSIS_YAW_KD			8//0 //for 1v1
 
-#define LV2_CHASSIS_YAW_MAX_RPM		0.6
+#define LV2_CHASSIS_YAW_MAX_RPM		0.45
 #define LV2_CHASSIS_YAW_KP			0.7
 #define LV2_CHASSIS_YAW_KI			0
 #define LV2_CHASSIS_YAW_KD			8
 
-#define LV3_CHASSIS_YAW_MAX_RPM		0.6
+#define LV3_CHASSIS_YAW_MAX_RPM		0.55
 #define LV3_CHASSIS_YAW_KP			0.7
 #define LV3_CHASSIS_YAW_KI			0
 #define LV3_CHASSIS_YAW_KD			8
