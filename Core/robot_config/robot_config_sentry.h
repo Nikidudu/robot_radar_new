@@ -48,7 +48,7 @@
 
 // No level tuning required for sentry
 #define LV1_FEEDER					1200//800//480//480
-#define	LV1_PROJECTILE				20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
+#define	LV1_PROJECTILE				20//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
 #define LV1_MAX_SPEED				0.31//4500//M3508_MAX_RPM
 #define LV1_MAX_ACCEL				1
 #define LV1_CHASSIS_YAW_MAX_RPM		1

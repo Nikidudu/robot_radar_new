@@ -585,6 +585,9 @@ float dm_yaw_encoder_mod(float raw_angle) {
 
 void dmmapyawfbdata(dm_motor_t *yaw_motor) {
 	float adj_ang = yaw_motor->para.pos - dm_yaw_motor.angle_data.center_ang;
+
+	while (adj_ang < -PI) { adj_ang += 2*PI; }
+	while (adj_ang > PI) { adj_ang -= 2*PI; }
     g_can_motors[dm_yaw_motor.id - 1].angle_data.adj_ang = adj_ang;
     g_can_motors[dm_yaw_motor.id - 1].raw_data.torque = yaw_motor->para.tor;
     dm_yaw_motor.angle_data.adj_ang = adj_ang;

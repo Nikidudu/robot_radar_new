@@ -36,10 +36,8 @@ void cvAimbotCommandThread::init() {
 	cvAimbotCommandInstance = this;
 	yaw = 0.0f;
 	pitch = 0.0f;
-	aim_state = true;
+	aim_state = false;
 	fire_state = false;
-
-	// Optionally: initialize UART telemetry
 }
 
 void cvAimbotCommandThread::loop() {
@@ -51,11 +49,6 @@ void cvAimbotCommandThread::loop() {
 			gimbal_ctrl_data.delta_yaw = yaw * 2; // + g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
 			gimbal_ctrl_data.pitch = pitch + INS.Pitch;
 			launcher_ctrl_data.firing = fire_state;
-		} else {
-			gimbal_ctrl_data.pitch = 0;
-			gimbal_ctrl_data.delta_yaw = 0;
-			launcher_ctrl_data.firing = 0;
-			yaw = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
 		}
 	}
 
