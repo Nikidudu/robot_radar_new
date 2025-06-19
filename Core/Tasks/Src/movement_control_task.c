@@ -248,7 +248,7 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 
 #ifdef LVL_TUNING
 	if (supercap_dash && supercap_enabled) {
-		curr_level += 4;
+		curr_level += 10;
 	}
 
 	switch (curr_level) {
@@ -307,11 +307,67 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 			break;
 
 		case 10:
-		case 11:
-		case 12:
-		case 13:
-		case 14:
 			*lvl_max_speed = LV10_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 11:
+			*lvl_max_speed = LV11_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 12:
+			*lvl_max_speed = LV12_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 13:
+			*lvl_max_speed = LV13_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 14:
+			*lvl_max_speed = LV14_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 15:
+			*lvl_max_speed = LV15_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 16:
+			*lvl_max_speed = LV16_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 17:
+			*lvl_max_speed = LV17_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 18:
+			*lvl_max_speed = LV18_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 19:
+			*lvl_max_speed = LV19_MAX_SPEED;
+			*lvl_max_accel = LV10_MAX_ACCEL;
+			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+			break;
+
+		case 20:
+			*lvl_max_speed = LV20_MAX_SPEED;
 			*lvl_max_accel = LV10_MAX_ACCEL;
 			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
 			break;
