@@ -37,6 +37,7 @@ speed_shift_t gear_speed;
 int g_spinspin_mode = 0;
 int supercap_dash = 0;
 int aimbot_mode = 0;
+extern int supercap_enabled;
 
 uint8_t control_mode = CONTROL_DEFAULT;
 uint8_t g_safety_toggle = ARM_SWITCH;
@@ -44,8 +45,6 @@ uint8_t launcher_safety_toggle = (ARM_SWITCH | LAUNCHER_SAFETY);
 
 uint32_t reset_debounce_time = 0;
 uint32_t reset_start_time = 0;
-
-
 
 void control_input_task(void *argument) {
 	TickType_t start_time;
@@ -109,12 +108,12 @@ void control_input_task(void *argument) {
 				switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
 
-					keyboard_gear_shifter(&gear_speed);
+//					keyboard_gear_shifter(&gear_speed);
 					set_gear();
 					keyboard_control_input();
 					break;
 				case REMOTE_CTRL_MODE:
-					remote_gear_shifter(&gear_speed);
+//					remote_gear_shifter(&gear_speed);
 					set_gear();
 					remote_control_input();
 					break;
@@ -162,14 +161,19 @@ float chassis_center_yaw() {
 }
 
 void chassis_centering_config() {
-	static uint8_t prev_robot_level = -1;
+//	static uint8_t prev_robot_level = -1;
+//
+//	// Hopefully with this, we can adjust pid values without it being overwritten all the time
+//	if (prev_robot_level == ref_robot_data.robot_level) return;
+//	prev_robot_level = ref_robot_data.robot_level;
 
-	// Hopefully with this, we can adjust pid values without it being overwritten all the time
-	if (prev_robot_level == ref_robot_data.robot_level) return;
-	prev_robot_level = ref_robot_data.robot_level;
+	uint8_t curr_level = ref_robot_data.robot_level;
 
 #ifdef LVL_TUNING
-	switch (ref_robot_data.robot_level) {
+	if (supercap_dash && supercap_enabled) {
+		curr_level += 4;
+	}
+	switch (curr_level) {
 		case 1:
 			yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
@@ -225,6 +229,10 @@ void chassis_centering_config() {
 			break;
 
 		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
 			yaw_pid_data.kp = LV10_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV10_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV10_CHASSIS_YAW_KD;

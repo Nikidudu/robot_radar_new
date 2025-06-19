@@ -9,7 +9,8 @@
 #define ROBOT_CONFIG_ROBOT_CONFIG_WADDLEDEE_H_
 
 #include "motor_config.h"
-#include "hud_roburt.h"
+//#include "hud_roburt.h"
+#include "hud_waddledee.h"
 #define BULLET_17
 
 #define OVERHEAT_PROTECTION
@@ -65,7 +66,7 @@
  */
 #define SCALE 					0.9
 #define LVL_TUNING
-#define LV1_MAX_SPEED 		    0.34//0.25 * SCALE //for 1v1
+#define LV1_MAX_SPEED 		    0.25 * SCALE //0.34//for 1v1
 #define LV2_MAX_SPEED  			0.26 * SCALE
 #define LV3_MAX_SPEED			0.27 * SCALE
 #define LV4_MAX_SPEED			0.28 * SCALE
@@ -240,7 +241,7 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 // Yaw max rpm - max RPM for chassis centering
-#define LV1_CHASSIS_YAW_MAX_RPM		0.4
+#define LV1_CHASSIS_YAW_MAX_RPM		0.6
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0
 #define LV1_CHASSIS_YAW_KD			8//0 //for 1v1
@@ -248,49 +249,49 @@
 #define LV2_CHASSIS_YAW_MAX_RPM		0.6
 #define LV2_CHASSIS_YAW_KP			0.7
 #define LV2_CHASSIS_YAW_KI			0
-#define LV2_CHASSIS_YAW_KD			0
+#define LV2_CHASSIS_YAW_KD			8
 
 #define LV3_CHASSIS_YAW_MAX_RPM		0.6
 #define LV3_CHASSIS_YAW_KP			0.7
 #define LV3_CHASSIS_YAW_KI			0
-#define LV3_CHASSIS_YAW_KD			0
+#define LV3_CHASSIS_YAW_KD			8
 
 #define LV4_CHASSIS_YAW_MAX_RPM		0.6
 #define LV4_CHASSIS_YAW_KP			0.7
 #define LV4_CHASSIS_YAW_KI			0
-#define LV4_CHASSIS_YAW_KD			0
+#define LV4_CHASSIS_YAW_KD			8
 
 #define LV5_CHASSIS_YAW_MAX_RPM		0.6
 #define LV5_CHASSIS_YAW_KP			0.7
 #define LV5_CHASSIS_YAW_KI			0
-#define LV5_CHASSIS_YAW_KD			0
+#define LV5_CHASSIS_YAW_KD			8
 
 #define LV6_CHASSIS_YAW_MAX_RPM		0.6
 #define LV6_CHASSIS_YAW_KP			0.7
 #define LV6_CHASSIS_YAW_KI			0
-#define LV6_CHASSIS_YAW_KD			0
+#define LV6_CHASSIS_YAW_KD			8
 
 #define LV7_CHASSIS_YAW_MAX_RPM		0.6
 #define LV7_CHASSIS_YAW_KP			0.7
 #define LV7_CHASSIS_YAW_KI			0
-#define LV7_CHASSIS_YAW_KD			0
+#define LV7_CHASSIS_YAW_KD			8
 
 #define LV8_CHASSIS_YAW_MAX_RPM		0.6
 #define LV8_CHASSIS_YAW_KP			0.7
 #define LV8_CHASSIS_YAW_KI			0
-#define LV8_CHASSIS_YAW_KD			0
+#define LV8_CHASSIS_YAW_KD			8
 
 #define LV9_CHASSIS_YAW_MAX_RPM		0.6
 #define LV9_CHASSIS_YAW_KP			0.7
 #define LV9_CHASSIS_YAW_KI			0
-#define LV9_CHASSIS_YAW_KD			0
+#define LV9_CHASSIS_YAW_KD			8
 
 #define LV10_CHASSIS_YAW_MAX_RPM	0.6
 #define LV10_CHASSIS_YAW_KP			0.7
 #define LV10_CHASSIS_YAW_KI			0
-#define LV10_CHASSIS_YAW_KD			0
+#define LV10_CHASSIS_YAW_KD			8
 
-#define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
+#define CHASSIS_YAW_MAX_RPM	0.75				//max RPM for chassis centering
 #define CHASSIS_YAW_KP 		0.45//3.75//1//0.7//0.4
 #define CHASSIS_YAW_KI		0.05
 #define CHASSIS_YAW_KD 		2//0

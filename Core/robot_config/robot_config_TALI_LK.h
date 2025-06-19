@@ -9,7 +9,7 @@
 #define TASKS_INC_ROBOT_CONFIG_ALI_H_
 
 #include "motor_config.h"
-#include "hud_roburt.h"
+#include "hud_tali.h"
 //#define BOARD_DOWN
 
 //#define OVERHEAT_PROTECTION

@@ -17,6 +17,7 @@
 #include "hud_constants.h"
 #include "typedefs.h"
 #include "arm_math.h"
+#include "supercap_def.h"
 
 static uint16_t g_client_id = 0;
 extern ref_game_robot_data_t ref_robot_data;
@@ -30,6 +31,7 @@ extern int g_spinspin_mode;
 int prev_spinspin = 0;
 
 extern int supercap_dash;
+int prev_supercap_dash = 0;
 
 extern int aimbot_mode;
 int prev_aimbot = 0;
@@ -150,6 +152,9 @@ void set_top_coordinates() {
 #ifdef AIMBOT
 	top_graphics++;
 #endif
+#ifdef SUPERCAP
+	top_graphics++;
+#endif
 
 	switch (top_graphics) {
 		case 1:
@@ -175,6 +180,9 @@ void set_top_coordinates() {
 	gear_coords = x_coordinates[index++];
 #endif
 #ifdef AIMBOT
+	aimbot_coords = x_coordinates[index++];
+#endif
+#ifdef SUPERCAP
 	aimbot_coords = x_coordinates[index++];
 #endif
 
@@ -263,6 +271,12 @@ void draw_char(uint8_t modify) {
 			draw_aimbot(modify, aimbot_coords);
 		}
 #endif
+#ifdef SUPERCAP
+		if (prev_supercap_dash != supercap_dash) {
+			prev_supercap_dash = supercap_dash;
+			draw_aimbot(modify, aimbot_coords);
+		}
+#endif
 #ifdef GEARING
 		if (prev_gear != gear_speed.curr_gear) {
 			prev_gear = gear_speed.curr_gear;
@@ -276,6 +290,10 @@ void draw_char(uint8_t modify) {
 #endif
 #ifdef AIMBOT
 		prev_aimbot = aimbot_mode;
+		draw_aimbot(modify, aimbot_coords);
+#endif
+#ifdef SUPERCAP
+		prev_supercap_dash = supercap_dash;
 		draw_aimbot(modify, aimbot_coords);
 #endif
 #ifdef GEARING
@@ -482,7 +500,7 @@ void draw_gearing(uint8_t modify, uint32_t x_coords) {
 
 uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
-	graphic_data->color = (charging_state/100.0 > 0.2) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = (charging_state > SUPERCAP_ENABLE_THRESHOLD) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'S';
 	graphic_data->graphic_name[1] = 'U';
@@ -493,7 +511,14 @@ uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 
 	graphic_data->graphic_type = GRAPHIC_TYPE_ARC;
 	graphic_data->details_a = 270; // Start angle
-	int curr_lvl = (int)(charging_state/100.0 * ANGLE_LIMIT) ? (int)(charging_state/100.0 * ANGLE_LIMIT) : 1;
+
+	// Show supercap charge, where 0% = min charge and 100% = max charge
+	int supercap_range = 100 - SUPERCAP_DISABLE_THRESHOLD;
+	float mapped_charging_state = fmaxf(0.0f, fminf(1.0f,
+	    (float)(charging_state - SUPERCAP_DISABLE_THRESHOLD) / (float)supercap_range));
+
+	int curr_lvl = fmaxf(1, (int)(mapped_charging_state * ANGLE_LIMIT));
+
 	graphic_data->details_b = 270 + curr_lvl; // End angle
 
 	graphic_data->width = 30; //line width
@@ -506,18 +531,29 @@ uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 }
 
 void draw_aimbot(uint8_t modify, uint32_t x_coords) {
+	// now also used to draw supercap ON/OFF
 	uint8_t tx_buffer[256];
 	uint8_t curr_pos = 0;
 	uint8_t char_len = 0;
 	char char_buffer[30];
+	graphic_data_struct_t* graphic_data;
+#ifdef SUPERCAP
+	char_len = supercap_dash ?
+			snprintf((char*) char_buffer, 30, "CAP ON") :
+			snprintf((char*) char_buffer, 30, "CAP OFF");
+	curr_pos = draw_char_header(tx_buffer, char_len);
+	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
+	graphic_data->color = supercap_dash ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 
+#endif
+#ifdef AIMBOT
 	char_len = aimbot_mode ?
 			snprintf((char*) char_buffer, 30, "AIM ON") :
 			snprintf((char*) char_buffer, 30, "AIM OFF");
 	curr_pos = draw_char_header(tx_buffer, char_len);
-
-	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
+	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
 	graphic_data->color = aimbot_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+#endif
 
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'A';

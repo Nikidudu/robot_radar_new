@@ -39,7 +39,6 @@ float debug5;
 float debug6;
 
 extern QueueHandle_t telem_motor_queue;
-extern int supercap_dash;
 
 static float lvl_max_speed = LV1_MAX_SPEED;
 static float lvl_max_accel = LV1_MAX_ACCEL;
@@ -49,6 +48,9 @@ static float spin_accel = SPIN_ACCELERATION;
 float act_forward = 0.0f;
 float act_horizontal = 0.0f;
 float act_yaw = 0.0f;
+
+extern int supercap_dash;
+extern int supercap_enabled;
 
 void movement_control_task(void *argument) {
 	TickType_t start_time;
@@ -237,14 +239,19 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 }
 
 void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin) {
-	static uint8_t prev_robot_level = -1;
+//	static uint8_t prev_robot_level = -1;
 
-	// Hopefully with this, we can adjust pid values without it being overwritten all the time
-	if (prev_robot_level == ref_robot_data.robot_level) return;
-	prev_robot_level = ref_robot_data.robot_level;
+//	// Hopefully with this, we can adjust pid values without it being overwritten all the time
+//	if (prev_robot_level == ref_robot_data.robot_level) return;
+//	prev_robot_level = ref_robot_data.robot_level;
+	uint8_t curr_level = ref_robot_data.robot_level;
 
 #ifdef LVL_TUNING
-	switch (ref_robot_data.robot_level) {
+	if (supercap_dash && supercap_enabled) {
+		curr_level += 4;
+	}
+
+	switch (curr_level) {
 		case 1:
 			*lvl_max_speed = LV1_MAX_SPEED;
 			*lvl_max_accel = LV1_MAX_ACCEL;
@@ -300,6 +307,10 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 			break;
 
 		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
 			*lvl_max_speed = LV10_MAX_SPEED;
 			*lvl_max_accel = LV10_MAX_ACCEL;
 			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
@@ -317,7 +328,6 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	*lvl_max_spin  = CHASSIS_YAW_MAX_RPM;
 
 #endif
-
 	*lvl_max_speed = (*lvl_max_speed < 0) ? 0 : *lvl_max_speed; //Make sure is within 0 - 1 since it is a percentage
 	*lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
 }

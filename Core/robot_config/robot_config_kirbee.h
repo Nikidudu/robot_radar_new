@@ -9,7 +9,7 @@
 #define ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE_H_
 
 #include "motor_config.h"
-#include "hud_roburt.h"
+#include "hud_kirbee.h"
 #define BULLET_17
 
 #define OVERHEAT_PROTECTION
