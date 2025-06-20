@@ -9,7 +9,8 @@
 #include <Telemetry.h>
 #include "typedefs.h"
 #include "robot_config.h"
-
+#include <cmath>
+#include <algorithm>
 
 extern remote_cmd_t g_remote_cmd;
 extern gimbal_control_t	gimbal_ctrl_data;
@@ -21,6 +22,9 @@ extern int g_spinspin_mode;
 //extern uint8_t set_launcher;
 static float test_vals[3];
 
+double global_dt = 0.0;
+
+
 ChassisSpdCmdThread* chassisSpeedInstance = nullptr;
 
 ChassisSpdCmdThread::~ChassisSpdCmdThread(){
@@ -29,12 +33,14 @@ ChassisSpdCmdThread::~ChassisSpdCmdThread(){
 void ChassisSpdCmdThread::init(){
 	chassisSpeedInstance = this;
 
+	curr_receive_time = 0;
+	last_receive_time = 0;
+
 	V_horz = 0;
 	V_lat = 0;
 	V_yaw = 0;
 
 	beyblade_mode = false;
-
 
 	gimbal_pitch = 0;
 	gimbal_yaw = 0;
@@ -77,14 +83,19 @@ void ChassisSpdCmdThread::loop() {
 				V_yaw = beyblade_mode;
 
 			chassis_set_ctrl(V_horz, V_lat, V_yaw);
+
+			double dt = (curr_receive_time - last_receive_time) / 1000.0;
+			gimbal_ctrl_data.delta_yaw = gimbal_yaw * dt * 4.0;
+			gimbal_ctrl_data.delta_yaw = fmaxf(-1.0, fminf(gimbal_ctrl_data.delta_yaw, 1.0));
 //			gimbal_set_yaw_speed(gimbal_yaw);
 //			gimbal_set_pitch_speed(gimbal_pitch);
 //			set_launcher = front_or_back;
 //			launcher_ctrl_data.firing = fire_front_launcher;
 		}
-		portYIELD();
 	}
 
+	osDelay(1);
+	portYIELD();
 //	else {
 //		V_horz = 0;
 //		V_lat = 0;
@@ -212,9 +223,15 @@ void ChassisSpdCmdThread::send_commands_chassis(chassisSpeedCommandPacket* packe
 //		gimbal_yaw = 0;
 //		control_reset();
 	} else {
-		V_horz = -0.7071 * (packet->V_horz) + 0.7071 * (packet->V_lat);
-		V_lat = -0.7071 + (packet->V_horz) - 0.7071 * (packet->V_lat);
+//		V_horz = -0.7071 * (packet->V_horz) + 0.7071 * (packet->V_lat);
+//		V_lat = -0.7071 + (packet->V_horz) - 0.7071 * (packet->V_lat);
+		V_horz = packet->V_horz;
+		V_lat = packet->V_lat;
 		gimbal_yaw = packet->V_yaw;
+
+		last_receive_time = curr_receive_time;
+		curr_receive_time = HAL_GetTick();
+
 		test_vals[0] = V_horz;
 		test_vals[1] = V_lat;
 		test_vals[2] = gimbal_yaw;

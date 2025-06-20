@@ -48,9 +48,9 @@ public:
 
 
 private:
-
-
-
+	uint32_t curr_receive_time;
+	uint32_t last_receive_time;
+	bool updated_yaw;
 
 	bool beyblade_mode;
 	float V_horz; // Horizontal speed. In the direction of the X axis.
