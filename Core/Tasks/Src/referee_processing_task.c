@@ -69,6 +69,27 @@ void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart){
 	}
 }
 
+void queue_clear(queue_t *queue) {
+    if (queue == NULL) {
+        return;
+    }
+
+    queue->last_byte_pos = 0;
+    queue->curr_byte_pos = 0;
+    queue->last_time = HAL_GetTick();
+}
+
+void referee_uart_recovery(void) {
+    __HAL_DMA_DISABLE(&hdma_usart6_rx);
+    HAL_UART_AbortReceive(&REFEREE_UART);
+    __HAL_UART_CLEAR_FLAG(&REFEREE_UART,
+        UART_FLAG_PE | UART_FLAG_FE | UART_FLAG_NE | UART_FLAG_ORE);
+    REFEREE_UART.RxState = HAL_UART_STATE_READY;
+    queue_clear(&referee_uart_q);
+    vTaskDelay(10);
+    ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
+}
+
 void referee_processing_task(void *argument) {
 	g_referee_limiters.robot_level = 0;
 	ref_processing_status_t proc_status;
@@ -159,9 +180,7 @@ void referee_processing_task(void *argument) {
 			}
 		}
 		if (!has_data){
-		    __HAL_DMA_DISABLE(&hdma_usart6_rx);
-			ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
-
+		    referee_uart_recovery();
 		}
 
 		status_led(5, off_led);
