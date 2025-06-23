@@ -116,6 +116,13 @@ RELIABLE_IDENTIFIABLE_PACKET(MaxChassisPowerPacket,
   uint8_t max_chassis_power;
 )
 
+RELIABLE_PACKET(chassisSpinCommandPacket,
+  bool spinning_state;
+)
+
+RELIABLE_PACKET(leftTriggerPositionPacket,
+ uint8_t trigger_pos; // [0: Undefined mode, 1: Sentry mode, 2: Predator mode, 3: Idle mode]
+)
 
 RELIABLE_PACKET(competitionStatusPacket,
   uint16_t game_progress; // Which stage the competition is in
@@ -145,12 +152,20 @@ RELIABLE_PACKET(cvGimbalCommandPacket,
   float pitch;
 )
 
-RELIABLE_PACKET(cvFiringCommandPacket,
+RELIABLE_PACKET(firingCommandPacket,
   bool fire_state; // [0: Stop firing, 1: Start firing]
 )
 
-RELIABLE_PACKET(cvAimCommandPacket,
+RELIABLE_PACKET(aimCommandPacket,
   bool aim_state; // [0: Stop aiming, 1: Start aiming]
+)
+
+RELIABLE_PACKET(cvDetectedPacket,
+  bool detected_state; // [0: Nothing detected, 1: Target detected]
+)
+
+RELIABLE_PACKET(isNavigatingPacket,
+  bool navigating_state; // [0: Not navigating, 1: Is navigating]
 )
 
 #endif /* BROCO_INCLUDE_PROTOCOL_PROTOCOLNUS24_H_ */

@@ -25,12 +25,12 @@ public:
 	void loop();
 
 	static void handle_cv_gimbal(uint8_t sender_id, cvGimbalCommandPacket* packet);
-	static void handle_cv_firing(uint8_t sender_id, cvFiringCommandPacket* packet);
-	static void handle_cv_aim(uint8_t sender_id, cvAimCommandPacket* packet);
+	static void handle_cv_firing(uint8_t sender_id, firingCommandPacket* packet);
+	static void handle_cv_aim(uint8_t sender_id, aimCommandPacket* packet);;
 
 	void send_command_gimbal(cvGimbalCommandPacket* packet);
-	void send_command_firing(cvFiringCommandPacket* packet);
-	void send_command_aim(cvAimCommandPacket* packet);
+	void send_command_firing(firingCommandPacket* packet);
+	void send_command_aim(aimCommandPacket* packet);
 
 	bool aim_state;
 

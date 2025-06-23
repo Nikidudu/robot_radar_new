@@ -32,6 +32,8 @@ REGISTER(chassisSpeedCommandPacket)
 REGISTER(SuperCapDataPacket)
 REGISTER(MaxChassisPowerPacket)
 
+REGISTER(leftTriggerPositionPacket)
+
 // Aimbot
 REGISTER(competitionStatusPacket)
 REGISTER(occupationStatusPacket)
@@ -40,4 +42,34 @@ REGISTER(winStatusPacket)
 REGISTER(cvGimbalCommandPacket)
 REGISTER(cvFiringCommandPacket)
 REGISTER(cvAimCommandPacket)
+#endif
+
+#ifdef PROTOCOL_25
+//REGISTER(IMUPacket)
+//REGISTER(gimbalJointsPacket)
+//REGISTER(chassisJointsPacket)
+REGISTER(dummyPacket)
+//REGISTER(imuPacket)
+//REGISTER(gimbalAngleCommandPacket)
+REGISTER(leftTriggerPositionPacket)
+//REGISTER(RightTriggerPositionPacket)
+//REGISTER(gimbalAngleYawCommandPacket)
+//REGISTER(gimbalAnglePitchCommandPacket)
+
+REGISTER(competitionStatusPacket)
+REGISTER(occupationStatusPacket)
+REGISTER(winStatusPacket)
+//REGISTER(SideDialPacket)
+// REGISTER(SuperCapDataPacket)
+// REGISTER(MaxChassisPowerPacket)
+
+// MCU
+REGISTER(chassisSpeedCommandPacket)
+REGISTER(chassisSpinCommandPacket)
+REGISTER(isNavigatingPacket)
+
+REGISTER(cvGimbalCommandPacket)
+REGISTER(firingCommandPacket)
+REGISTER(aimCommandPacket)
+
 #endif

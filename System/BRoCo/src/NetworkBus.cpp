@@ -18,30 +18,25 @@ NetworkBus::NetworkBus(IODriver* driver) : IOBus(driver, network_frame, sizeof(n
 
 	// Sentry
 
-//    define<IMUPacket>(1);
+   // define<IMUPacket>(1);
 //    define<chassisJointsPacket>(2);
 //    define<gimbalJointsPacket>(3);
-    define<dummyPacket>(4);
+   define<dummyPacket>(4);
 //    define<imuPacket>(5);
-    define<chassisSpeedCommandPacket>(6);
-
-    define<cvGimbalCommandPacket>(8);
-    define<cvFiringCommandPacket>(9);
-    define<cvAimCommandPacket>(10);
-    define<competitionStatusPacket>(11);
-    define<occupationStatusPacket>(19);
-    define<winStatusPacket>(20);
-
+   define<chassisSpeedCommandPacket>(6);
 //    define<gimbalAngleCommandPacket>(7);
-//    define<LeftTriggerPositionPacket>(8);
+   define<leftTriggerPositionPacket>(8);
 //    define<RightTriggerPositionPacket>(9);
-//    define<ChassisSpinCommandPacket>(10);
-//    define<FrontFiringPacket>(11);
-//    define<BackFiringPacket>(12);
-//    define<RobotStatusPacket>(13);
-//    define<gimbalAngleYawCommandPacket>(14);
-//    define<gimbalAnglePitchCommandPacket>(15);
-//    define<SideDialPacket>(16);
+   define<chassisSpinCommandPacket>(10);
+   define<competitionStatusPacket>(11);
+   define<cvGimbalCommandPacket>(12);
+   define<firingCommandPacket>(13);
+   define<cvDetectedPacket>(14);
+//    define<SideDialPacket>(15);
+   define<aimCommandPacket>(16);
+   define<isNavigatingPacket>(17);
+   define<occupationStatusPacket>(19);
+   define<winStatusPacket>(20);
 }
 
 
