@@ -10,7 +10,7 @@
 #define BUILD_BUILD_H_
 
 
-#define PROTOCOL_25
+#define PROTOCOL_24
 #define BUILD_FOR_NUS24
 
 

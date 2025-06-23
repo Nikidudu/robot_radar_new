@@ -69,9 +69,9 @@ RELIABLE_PACKET(chassisSpeedCommandPacket,
 //  float yaw;
 //)
 //
-//RELIABLE_PACKET(LeftTriggerPositionPacket,
-//  uint8_t trigger_pos; // [0: Attack mode, 1: Balance mode, 2: Sandbox mode]
-//)
+RELIABLE_PACKET(leftTriggerPositionPacket,
+  uint8_t trigger_pos; // [0: Attack mode, 1: Balance mode, 2: Sandbox mode]
+)
 //
 //RELIABLE_PACKET(RightTriggerPositionPacket,
 //  uint8_t trigger_pos; // [0: Sentry control mode, 1: Manual control mode, 2: Sentry down]
@@ -105,6 +105,13 @@ RELIABLE_PACKET(chassisSpeedCommandPacket,
 //RELIABLE_PACKET(SideDialPacket,
 //  bool robot_mode;  // [0: Attack mode, 1: Balance mode]
 //)
+RELIABLE_PACKET(isNavigatingPacket,
+  bool navigating_state; // [0: Not navigating, 1: Is navigating]
+)
+
+RELIABLE_PACKET(chassisSpinCommandPacket,
+  bool spinning_state;
+)
 
 RELIABLE_IDENTIFIABLE_PACKET(SuperCapDataPacket,
   float V_cap;
@@ -116,13 +123,6 @@ RELIABLE_IDENTIFIABLE_PACKET(MaxChassisPowerPacket,
   uint8_t max_chassis_power;
 )
 
-RELIABLE_PACKET(chassisSpinCommandPacket,
-  bool spinning_state;
-)
-
-RELIABLE_PACKET(leftTriggerPositionPacket,
- uint8_t trigger_pos; // [0: Undefined mode, 1: Sentry mode, 2: Predator mode, 3: Idle mode]
-)
 
 RELIABLE_PACKET(competitionStatusPacket,
   uint16_t game_progress; // Which stage the competition is in
@@ -158,14 +158,6 @@ RELIABLE_PACKET(firingCommandPacket,
 
 RELIABLE_PACKET(aimCommandPacket,
   bool aim_state; // [0: Stop aiming, 1: Start aiming]
-)
-
-RELIABLE_PACKET(cvDetectedPacket,
-  bool detected_state; // [0: Nothing detected, 1: Target detected]
-)
-
-RELIABLE_PACKET(isNavigatingPacket,
-  bool navigating_state; // [0: Not navigating, 1: Is navigating]
 )
 
 #endif /* BROCO_INCLUDE_PROTOCOL_PROTOCOLNUS24_H_ */

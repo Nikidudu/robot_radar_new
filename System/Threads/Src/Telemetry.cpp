@@ -15,7 +15,6 @@
 #include "board_settings.h"
 
 #include "SuperCapCommThread.h"
-#include "cvGimbalThread.h"
 #include "cvAimbotCommandThread.h"
 #include "status_thread.h"
 #include "spd_cmd_thread.h"
@@ -30,7 +29,6 @@ STMUARTDriver* UART_line = nullptr;
 NetworkBus* UART_network = nullptr;
 
 SuperCapCommThread* supercap_thread = nullptr;
-cvGimbalThread* cv_gimbal_thread = nullptr;
 cvAimbotCommandThread* cv_aimbot_command_thread = nullptr;
 statusThread* status_thread = nullptr;
 
@@ -69,8 +67,8 @@ void Telemetry::setup() {
 		 */
 		cv_aimbot_command_thread = new cvAimbotCommandThread();
 		UART_network->handle<cvGimbalCommandPacket>(&cvAimbotCommandThread::handle_cv_gimbal);
-		UART_network->handle<cvFiringCommandPacket>(&cvAimbotCommandThread::handle_cv_firing);
-		UART_network->handle<cvAimCommandPacket>(&cvAimbotCommandThread::handle_cv_aim);
+		UART_network->handle<firingCommandPacket>(&cvAimbotCommandThread::handle_cv_firing);
+		UART_network->handle<aimCommandPacket>(&cvAimbotCommandThread::handle_cv_aim);
 
 		// Sentry nav threads
 //		gimbalJointThread = new gimbalJointPubThread();

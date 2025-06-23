@@ -29,13 +29,18 @@ statusThread* statusInstance = nullptr;
 
 // Declare your data with the proper data structure defined in DataStructures.h
 static competitionStatusData competition_data;
-static occupationStatusData occupation_data;
-static winStatusData win_data;
-
 static competitionStatusPacket competition_packet;
+
+static occupationStatusData occupation_data;
 static occupationStatusPacket occupation_packet;
+
+static winStatusData win_data;
 static winStatusPacket win_packet;
 
+static LeftTriggerPositionData left_trigger_data;
+static leftTriggerPositionPacket left_trigger_packet;
+
+extern remote_cmd_t g_remote_cmd;
 extern uint8_t control_mode;
 
 statusThread::~statusThread(){}
@@ -90,9 +95,12 @@ void statusThread::loop()
 		last_game_result_txno++;
 	}
 
+	left_trigger_data.trigger_position = g_remote_cmd.left_switch;
+
 	competition_data.toArray((uint8_t*) &competition_packet);
 	occupation_data.toArray((uint8_t*) &occupation_packet);
 	win_data.toArray((uint8_t*) &win_packet);
+	left_trigger_data.toArray((uint8_t*) &left_trigger_packet);
 
 	MAKE_RELIABLE(competition_packet);
 	UART_network->send(&competition_packet);
@@ -102,6 +110,7 @@ void statusThread::loop()
 
 	MAKE_RELIABLE(win_packet);
 	UART_network->send(&win_packet);
+
 	osDelay(500);
 
 	portYIELD();

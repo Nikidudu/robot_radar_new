@@ -73,7 +73,7 @@ void cvAimbotCommandThread::send_command_gimbal(cvGimbalCommandPacket* packet) {
 	pitch = PITCH_INVERT * packet->pitch;
 }
 
-void cvAimbotCommandThread::handle_cv_firing(uint8_t sender_id, cvFiringCommandPacket* packet) {
+void cvAimbotCommandThread::handle_cv_firing(uint8_t sender_id, firingCommandPacket* packet) {
 	if(!(IS_RELIABLE(*packet))) {
 		return;
 	}
@@ -85,11 +85,11 @@ void cvAimbotCommandThread::handle_cv_firing(uint8_t sender_id, cvFiringCommandP
 	cvAimbotCommandInstance->send_command_firing(packet);
 }
 
-void cvAimbotCommandThread::send_command_firing(cvFiringCommandPacket* packet) {
+void cvAimbotCommandThread::send_command_firing(firingCommandPacket* packet) {
 	fire_state = packet->fire_state;
 }
 
-void cvAimbotCommandThread::handle_cv_aim(uint8_t sender_id, cvAimCommandPacket* packet) {
+void cvAimbotCommandThread::handle_cv_aim(uint8_t sender_id, aimCommandPacket* packet) {
 	if(!(IS_RELIABLE(*packet))) {
 		return;
 	}
@@ -101,6 +101,6 @@ void cvAimbotCommandThread::handle_cv_aim(uint8_t sender_id, cvAimCommandPacket*
 	cvAimbotCommandInstance->send_command_aim(packet);
 }
 //
-void cvAimbotCommandThread::send_command_aim(cvAimCommandPacket* packet) {
+void cvAimbotCommandThread::send_command_aim(aimCommandPacket* packet) {
 	aim_state = packet->aim_state;
 }

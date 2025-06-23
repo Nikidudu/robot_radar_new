@@ -31,7 +31,6 @@ NetworkBus::NetworkBus(IODriver* driver) : IOBus(driver, network_frame, sizeof(n
    define<competitionStatusPacket>(11);
    define<cvGimbalCommandPacket>(12);
    define<firingCommandPacket>(13);
-   define<cvDetectedPacket>(14);
 //    define<SideDialPacket>(15);
    define<aimCommandPacket>(16);
    define<isNavigatingPacket>(17);

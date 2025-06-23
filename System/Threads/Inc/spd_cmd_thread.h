@@ -26,13 +26,11 @@ public:
 
 	static void handle_chassis_spd_commands(uint8_t sender_id, chassisSpeedCommandPacket* packet);
 	static void handle_chassis_spin_commmands(uint8_t sender_id, chassisSpinCommandPacket* packet);
-	static void handle_navigate_commands(uint8_t sender_id, isNavigatingPacket* packet);
+	static void handle_navigation_commands(uint8_t sender_id, isNavigatingPacket* packet);
 
 	void send_chassis_spd_commands(chassisSpeedCommandPacket* packet);
-	void send_chassis_spin_commands(chassisSpinCommandPacket* packet);
-	void send_navigate_commands(isNavigatingPacket* packet);
-
 	void set_spinspin(bool beyblade_mode);
+	void send_navigation_commands(bool is_navigating);
 
 	void init();
 	void loop();
@@ -41,12 +39,14 @@ public:
 private:
 	uint32_t curr_receive_time;
 	uint32_t last_receive_time;
-	bool updated_yaw;
 
+	bool is_navigating;
 	bool beyblade_mode;
 	float V_horz; // Horizontal speed. In the direction of the X axis.
 	float V_lat;  // Lateral speed. In the direction of the Y axis.
 	float V_yaw; // Chassis yaw axis. Not used in beyblade mode.
+
+	float gimbal_yaw;
 };
 
 extern ChassisSpdCmdThread* chassisSpeedInstance;
