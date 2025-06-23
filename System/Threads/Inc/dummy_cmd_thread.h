@@ -28,6 +28,7 @@ public:
 
 private:
 	uint32_t last_receive_time;
+	uint32_t data = 0;
 
 };
 

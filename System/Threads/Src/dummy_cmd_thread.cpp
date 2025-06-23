@@ -18,6 +18,9 @@ extern int g_spinspin_mode;
 dummyCmdThread* dummyCmdInstance = nullptr;
 extern ChassisSpdCmdThread* chassisSpeedInstance;
 
+static dummyPacket dummy_packet;
+static dummyData dummy_data;
+
 dummyCmdThread::~dummyCmdThread(){
 }
 
@@ -27,9 +30,9 @@ void dummyCmdThread::init() {
 }
 
 void dummyCmdThread::loop() {
-//	test_num[0] = packet->num1;
-//	test_num[1] = packet->num2;
-//	test_num[2] = packet->num3;
+	dummy_data.num[0] = this->data++;
+	dummy_data.num[1] = this->data++;
+	dummy_data.num[2] = this->data++;
 
 #if AUTO_SPIN
 	/*
@@ -52,8 +55,11 @@ void dummyCmdThread::loop() {
 	}
 
 #endif
+	dummy_data.toArray((uint8_t*) &dummy_packet);
+	MAKE_RELIABLE(dummy_packet);
+	UART_network->send(&dummy_packet);
 
-	osDelay(1);
+	osDelay(100);
 	portYIELD();
 }
 

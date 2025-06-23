@@ -32,7 +32,6 @@ NetworkBus::NetworkBus(IODriver* driver) : IOBus(driver, network_frame, sizeof(n
     define<occupationStatusPacket>(19);
     define<winStatusPacket>(20);
 
-
 //    define<gimbalAngleCommandPacket>(7);
 //    define<LeftTriggerPositionPacket>(8);
 //    define<RightTriggerPositionPacket>(9);
