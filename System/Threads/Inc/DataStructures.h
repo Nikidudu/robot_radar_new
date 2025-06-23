@@ -364,8 +364,8 @@ struct occupationStatusData {
 	   * a value of 1 indicates that it is occupied by the own side;
 	   * a value of 2 indicates that it is occupied by the opponent;
 	   * a value of 3 indicates that it is occupied by both sides */
-	  uint8_t central_occupation;
-	  uint8_t resupply_occupation; // own side resupply occupation state
+	  uint16_t central_occupation;
+	  uint16_t resupply_occupation; // own side resupply occupation state
 
 	  bool win_state;
 
@@ -374,8 +374,8 @@ struct occupationStatusData {
 	}
 
 	uint8_t* toArray(uint8_t* buffer) {
-		*(uint8_t*)(buffer) = central_occupation;
-		*(uint8_t*)(buffer + 1) = resupply_occupation;
+		*(uint16_t*)(buffer) = central_occupation;
+		*(uint16_t*)(buffer + 2) = resupply_occupation;
 
 		return buffer;
 	}
