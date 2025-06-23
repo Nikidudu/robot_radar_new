@@ -111,6 +111,9 @@ void statusThread::loop()
 	MAKE_RELIABLE(win_packet);
 	UART_network->send(&win_packet);
 
+	MAKE_RELIABLE(left_trigger_packet);
+	UART_network->send(&left_trigger_packet);
+
 	osDelay(500);
 
 	portYIELD();

@@ -61,16 +61,16 @@ void ChassisSpdCmdThread::loop() {
 		}
 
 		else {
+			double dt = (curr_receive_time - last_receive_time) / 1000.0;
+			gimbal_ctrl_data.delta_yaw = gimbal_yaw * dt * 4.0;
+			gimbal_ctrl_data.delta_yaw = fmaxf(-1.0, fminf(gimbal_ctrl_data.delta_yaw, 1.0));
+
 			if (!beyblade_mode)
 				V_yaw = chassis_center_yaw();
 			else
 				V_yaw = beyblade_mode;
 
 			chassis_set_ctrl(V_horz, V_lat, V_yaw);
-
-			double dt = (curr_receive_time - last_receive_time) / 1000.0;
-			gimbal_ctrl_data.delta_yaw = gimbal_yaw * dt * 4.0;
-			gimbal_ctrl_data.delta_yaw = fmaxf(-1.0, fminf(gimbal_ctrl_data.delta_yaw, 1.0));
 		}
 	}
 

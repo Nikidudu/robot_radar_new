@@ -74,17 +74,12 @@ void Telemetry::setup() {
 //		gimbalJointThread = new gimbalJointPubThread();
 //		imu = new imuThread();
 		speedCmdThread = new ChassisSpdCmdThread();
-		dummy_cmd = new dummyCmdThread();
-
 		UART_network->handle<chassisSpeedCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spd_commands);
-//		UART1_network->handle<gimbalAngleCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_spd_commands);
-//		UART1_network->handle<gimbalAnglePitchCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_pitch_command);
-//		UART1_network->handle<gimbalAngleYawCommandPacket>(&ChassisSpdCmdThread::handle_gimbal_yaw_command);
-//		UART1_network->handle<FrontFiringPacket>(&ChassisSpdCmdThread::handle_launcher_front_firing_commands);
-//		UART1_network->handle<ChassisSpinCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spin_command);
+		UART_network->handle<chassisSpinCommandPacket>(&ChassisSpdCmdThread::handle_chassis_spin_commmands);
+		UART_network->handle<isNavigatingPacket>(&ChassisSpdCmdThread::handle_navigation_commands);
+
+		dummy_cmd = new dummyCmdThread();
 		UART_network->handle<dummyPacket>(&dummyCmdThread::handle_dummy_cmd);
-
-
 }
 
 void Telemetry::set_id(uint32_t id) {
