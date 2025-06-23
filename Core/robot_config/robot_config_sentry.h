@@ -13,7 +13,7 @@
 #define BULLET_17
 #define SENTRY
 #define HAS_SBC
-#define OVERHEAT_PROTECTIONYAW
+#define OVERHEAT_PROTECTION
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
 #define IMU_ORIENTATION 7
@@ -293,7 +293,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	6
-#define YAW_CENTER 				-2.54702282
+#define YAW_CENTER 				0.03
 #define YAW_MAX_ANG				4*PI
 #define YAW_MIN_ANG				4*-PI
 
