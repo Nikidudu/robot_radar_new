@@ -58,7 +58,7 @@
 #define	LV3_PROJECTILE			20.5//12
 #define LV3_MAX_CURRENT			16384
 
-#define SUPER_CAP_OFFSET		0
+#define SUPER_CAP_OFFSET		-6
 /* Speed Value Guide:
  * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed
@@ -75,16 +75,16 @@
 #define LV9_MAX_SPEED			0.36
 #define LV10_MAX_SPEED			0.38
 // supercap boosted values
-#define LV11_MAX_SPEED			0.34
-#define LV12_MAX_SPEED		    0.34
-#define LV13_MAX_SPEED			0.34
-#define LV14_MAX_SPEED			0.34
-#define LV15_MAX_SPEED			0.34
-#define LV16_MAX_SPEED			0.34
-#define LV17_MAX_SPEED			0.34
-#define LV18_MAX_SPEED			0.34
-#define LV19_MAX_SPEED			0.34
-#define LV20_MAX_SPEED			0.34
+#define LV11_MAX_SPEED			1
+#define LV12_MAX_SPEED		    1
+#define LV13_MAX_SPEED			1
+#define LV14_MAX_SPEED			1
+#define LV15_MAX_SPEED			1
+#define LV16_MAX_SPEED			1
+#define LV17_MAX_SPEED			1
+#define LV18_MAX_SPEED			1
+#define LV19_MAX_SPEED			1
+#define LV20_MAX_SPEED			1
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
@@ -95,7 +95,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			2.0//2.5//1.5 // for 1v1
+#define LV1_MAX_ACCEL			1.5//2.5//1.5 // for 1v1
 #define LV2_MAX_ACCEL			2.0
 #define LV3_MAX_ACCEL			2.0
 #define LV4_MAX_ACCEL			2.0
@@ -104,7 +104,7 @@
 #define LV7_MAX_ACCEL			0.5
 #define LV8_MAX_ACCEL			0.5
 #define LV9_MAX_ACCEL			0.5
-#define LV10_MAX_ACCEL			0.5
+#define LV10_MAX_ACCEL			1.5
 #define SPIN_ACCELERATION		1.0 //Same guideline as chassis acceleration
 
 #define GEAR_DEFAULT			3
@@ -249,10 +249,10 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 // Yaw max rpm - max RPM for chassis centering
-#define LV1_CHASSIS_YAW_MAX_RPM		0.4
+#define LV1_CHASSIS_YAW_MAX_RPM		0.6
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0.02
-#define LV1_CHASSIS_YAW_KD			8 // for 1v1
+#define LV1_CHASSIS_YAW_KD			8//30 // for 1v1
 
 #define LV2_CHASSIS_YAW_MAX_RPM		0.4
 #define LV2_CHASSIS_YAW_KP			0.7
@@ -294,10 +294,10 @@
 #define LV9_CHASSIS_YAW_KI			0
 #define LV9_CHASSIS_YAW_KD			0
 
-#define LV10_CHASSIS_YAW_MAX_RPM	0.4
+#define LV10_CHASSIS_YAW_MAX_RPM	0.6
 #define LV10_CHASSIS_YAW_KP			0.7
-#define LV10_CHASSIS_YAW_KI			0
-#define LV10_CHASSIS_YAW_KD			0
+#define LV10_CHASSIS_YAW_KI			0.02
+#define LV10_CHASSIS_YAW_KD			8
 
 #define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
 #define CHASSIS_YAW_KP 		0.45//3.75//1//0.7//0.4
@@ -365,13 +365,13 @@
 //#define YAW_MOTOR_TYPE			TYPE_DM4310_MIT
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
-#define YAW_ANGLE_KP			120
+#define YAW_ANGLE_KP			60
 #define YAW_ANGLE_KI			0.02
-#define YAW_ANGLE_KD			800
+#define YAW_ANGLE_KD			120
 #define YAW_ANGLE_INT_MAX		0.1
 #define YAW_MAX_RPM				85
 
-#define YAWRPM_KP				1200//600//400
+#define YAWRPM_KP				2000//600//400
 #define YAWRPM_KI				0
 #define YAWRPM_KD				0
 #define YAWRPM_INT_MAX			5000
