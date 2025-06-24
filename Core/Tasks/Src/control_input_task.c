@@ -151,7 +151,7 @@ void control_input_task(void *argument) {
 //			kill_can();
 			control_reset();
 			launcher_safety_toggle = LAUNCHER_SAFETY;
-			g_safety_toggle = 1;
+//			g_safety_toggle = 1;
 
 		}
 		vTaskDelayUntil(&start_time, CONTROL_DELAY);

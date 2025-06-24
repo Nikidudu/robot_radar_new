@@ -324,7 +324,7 @@ struct MaxChassisPowerData {
 	}
 };
 
-struct cvCompetitionStatusData {
+struct competitionStatusData {
 	  uint16_t game_progress; // Which stage the competition is in
 	  uint16_t time_left; // Time left in competition (s)
 	  uint16_t robot_id;
@@ -336,16 +336,6 @@ struct cvCompetitionStatusData {
 	  uint16_t blue_hero_hp;
 	  uint16_t blue_standard_hp;
 	  uint16_t blue_sentry_hp;
-
-	  /* Occupation status of the Central Buff Point
-	   * a value of 0 indicates that it is not occupied;
-	   * a value of 1 indicates that it is occupied by the own side;
-	   * a value of 2 indicates that it is occupied by the opponent;
-	   * a value of 3 indicates that it is occupied by both sides */
-	  uint8_t central_occupation;
-	  uint8_t resupply_occupation; // own side resupply occupation state
-
-	  bool win_state;
 
 	char* toString(char* buffer) {
 		return buffer;
@@ -364,13 +354,46 @@ struct cvCompetitionStatusData {
 		*(uint16_t*)(buffer + 16) = blue_standard_hp;
 		*(uint16_t*)(buffer + 18) = blue_sentry_hp;
 
-		*(uint16_t*)(buffer + 19) = blue_standard_hp;
-		*(uint16_t*)(buffer + 20) = blue_sentry_hp;
-		*(bool*)(buffer + 21) = win_state;
+		return buffer;
+	}
+};
+
+struct occupationStatusData {
+	  /* Occupation status of the Central Buff Point
+	   * a value of 0 indicates that it is not occupied;
+	   * a value of 1 indicates that it is occupied by the own side;
+	   * a value of 2 indicates that it is occupied by the opponent;
+	   * a value of 3 indicates that it is occupied by both sides */
+	  uint8_t central_occupation;
+	  uint8_t resupply_occupation; // own side resupply occupation state
+
+	  bool win_state;
+
+	char* toString(char* buffer) {
+		return buffer;
+	}
+
+	uint8_t* toArray(uint8_t* buffer) {
+		*(uint8_t*)(buffer) = central_occupation;
+		*(uint8_t*)(buffer + 1) = resupply_occupation;
 
 		return buffer;
 	}
 };
+
+struct winStatusData {
+	  bool win_state;
+
+	char* toString(char* buffer) {
+		return buffer;
+	}
+
+	uint8_t* toArray(uint8_t* buffer) {
+		*(bool*)(buffer) = win_state;
+		return buffer;
+	}
+};
+
 
 // Aimbot commands
 struct cvGimbalCommandData {

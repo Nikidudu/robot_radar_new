@@ -117,7 +117,7 @@ RELIABLE_IDENTIFIABLE_PACKET(MaxChassisPowerPacket,
 )
 
 
-RELIABLE_PACKET(cvCompetitionStatusPacket,
+RELIABLE_PACKET(competitionStatusPacket,
   uint16_t game_progress; // Which stage the competition is in
   uint16_t time_left; // Time left in competition (s)
   uint16_t robot_id;
@@ -128,8 +128,14 @@ RELIABLE_PACKET(cvCompetitionStatusPacket,
   uint16_t blue_hero_hp;
   uint16_t blue_standard_hp;
   uint16_t blue_sentry_hp;
+)
+
+RELIABLE_PACKET(occupationStatusPacket,
   uint8_t central_occupation;
   uint8_t resupply_occupation;
+)
+
+RELIABLE_PACKET(winStatusPacket,
   bool win_state;
 )
 

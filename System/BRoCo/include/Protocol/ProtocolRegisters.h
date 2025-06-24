@@ -33,7 +33,9 @@ REGISTER(SuperCapDataPacket)
 REGISTER(MaxChassisPowerPacket)
 
 // Aimbot
-REGISTER(cvCompetitionStatusPacket)
+REGISTER(competitionStatusPacket)
+REGISTER(occupationStatusPacket)
+REGISTER(winStatusPacket)
 
 REGISTER(cvGimbalCommandPacket)
 REGISTER(cvFiringCommandPacket)
