@@ -64,8 +64,10 @@
  * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed
  */
-// for power values
-#define SCALE 					0.7
+
+// SCALE for power values: 0.7
+// SCALE for HP values: 0.45
+#define SCALE 					0.45
 #define LVL_TUNING
 #define LV1_MAX_SPEED 		    0.24 * SCALE //0.34//for 1v1
 #define LV2_MAX_SPEED  			0.25 * SCALE
