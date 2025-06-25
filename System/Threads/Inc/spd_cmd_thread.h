@@ -35,8 +35,6 @@ public:
 	void init();
 	void loop();
 
-
-private:
 	uint32_t curr_receive_time;
 	uint32_t last_receive_time;
 
@@ -47,6 +45,9 @@ private:
 	float V_yaw; // Chassis yaw axis. Not used in beyblade mode.
 
 	float gimbal_yaw;
+
+private:
+
 };
 
 extern ChassisSpdCmdThread* chassisSpeedInstance;

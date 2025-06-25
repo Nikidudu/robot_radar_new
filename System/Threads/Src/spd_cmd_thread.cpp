@@ -23,7 +23,21 @@ extern int g_spinspin_mode;
 static float test_vals[3];
 
 double global_dt = 0.0;
+extern uint8_t g_rc_check;
 
+uint8_t g_is_navigating = false;
+
+typedef struct {
+    uint32_t curr_receive_time;
+    uint32_t last_receive_time;
+    bool is_navigating;
+    bool beyblade_mode;
+    float V_horz;  // Horizontal speed. In the direction of the X axis.
+    float V_lat;   // Lateral speed. In the direction of the Y axis.
+    float V_yaw;   // Chassis yaw axis. Not used in beyblade mode.
+} nav_state_t;
+
+nav_state_t g_nav_state;
 
 ChassisSpdCmdThread* chassisSpeedInstance = nullptr;
 
@@ -48,10 +62,20 @@ void ChassisSpdCmdThread::init(){
 }
 
 void ChassisSpdCmdThread::loop() {
+    g_nav_state.curr_receive_time = curr_receive_time;
+    g_nav_state.last_receive_time = last_receive_time;
+    g_nav_state.is_navigating = is_navigating;
+    g_nav_state.beyblade_mode = beyblade_mode;
+    g_nav_state.V_horz = V_horz;
+    g_nav_state.V_lat = V_lat;
+    g_nav_state.V_yaw = V_yaw;
+
+    g_is_navigating = is_navigating;
+
 //	if (g_remote_cmd.left_switch == ge_RSW_SHUTDOWN && manual_mode){
 	if (control_mode == SBC_CTRL_MODE) {
 		// kill control if right switch is not at the bottom
-		if (g_remote_cmd.right_switch != ge_RSW_ALL_ON) { // Safety kill
+		if (g_remote_cmd.right_switch != ge_RSW_ALL_ON || !g_rc_check) { // Safety kill
 			V_horz = 0;
 			V_lat = 0;
 			V_yaw = 0;
@@ -61,20 +85,23 @@ void ChassisSpdCmdThread::loop() {
 		}
 
 		else {
-			double dt = (curr_receive_time - last_receive_time) / 1000.0;
-			gimbal_ctrl_data.delta_yaw = gimbal_yaw * dt * 4.0;
-			gimbal_ctrl_data.delta_yaw = fmaxf(-1.0, fminf(gimbal_ctrl_data.delta_yaw, 1.0));
+			if (is_navigating) {
+//				double dt = (curr_receive_time - last_receive_time) / 1000.0;
+//				gimbal_ctrl_data.delta_yaw = gimbal_yaw * dt;
 
-			if (!beyblade_mode)
-				V_yaw = chassis_center_yaw();
-			else
-				V_yaw = beyblade_mode;
+				gimbal_ctrl_data.yaw = gimbal_yaw;
 
-			chassis_set_ctrl(V_horz, V_lat, V_yaw);
+				if (!beyblade_mode)
+					V_yaw = chassis_center_yaw();
+				else
+					V_yaw = beyblade_mode;
+
+				chassis_set_ctrl(V_horz, V_lat, V_yaw);
+			}
 		}
 	}
 
-	osDelay(3);
+	osDelay(25);
 	portYIELD();
 
 }
@@ -124,20 +151,14 @@ void ChassisSpdCmdThread::handle_navigation_commands(uint8_t sender_id, isNaviga
 }
 
 void ChassisSpdCmdThread::send_chassis_spd_commands(chassisSpeedCommandPacket* packet){
-	if (g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
-		this->V_horz = 0;
-		this->V_lat = 0;
-		this->V_yaw = 0;
-	} else {
-		this->V_horz = packet->V_horz;
-		this->V_lat = packet->V_lat;
-		this->V_yaw = packet->V_yaw;
+	this->V_horz = packet->V_horz;
+	this->V_lat = packet->V_lat;
+	this->gimbal_yaw = packet->V_yaw;
 
-		last_receive_time = curr_receive_time;
-		curr_receive_time = HAL_GetTick();
+	last_receive_time = curr_receive_time;
+	curr_receive_time = HAL_GetTick();
 
-		portYIELD();
-	}
+	portYIELD();
 }
 
 void ChassisSpdCmdThread::set_spinspin(bool beyblade_mode) {

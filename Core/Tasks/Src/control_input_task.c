@@ -45,6 +45,8 @@ uint8_t launcher_safety_toggle = (ARM_SWITCH | LAUNCHER_SAFETY);
 uint32_t reset_debounce_time = 0;
 uint32_t reset_start_time = 0;
 
+uint8_t g_rc_check;
+
 void ramp(float *curr_val, float target_val, float max_ramp){
 	if ((target_val - *curr_val) > max_ramp ){
 		*curr_val += max_ramp;
@@ -86,6 +88,8 @@ void control_input_task(void *argument) {
 	uint32_t last_song = 0;
 	while (1) {
 		rc_check = ulTaskNotifyTake(pdTRUE, 200);
+		g_rc_check = rc_check;
+
 		if (rc_check) {
 			status_led(1, on_led);
 			start_time = xTaskGetTickCount();
