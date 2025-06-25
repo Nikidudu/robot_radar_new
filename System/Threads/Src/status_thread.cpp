@@ -22,6 +22,9 @@ extern ref_game_event_data_t ref_event_data;
 extern uint32_t ref_event_data_txno;
 extern ref_game_result_t ref_game_result_data;
 extern uint32_t ref_game_result_txno;
+extern ref_rfid_status_t ref_rfid_status_data;
+extern uint32_t ref_rfid_status_txno;
+
 
 extern cvAimbotCommandThread* cvAimbotCommandInstance;
 
@@ -79,6 +82,8 @@ void statusThread::loop()
 	if (last_ref_event_txno != ref_event_data_txno) {
 		occupation_data.resupply_occupation = ref_event_data.event_type & RMUL_RESUPPLY_MASK;
 		occupation_data.central_occupation = ref_event_data.event_type & RMUL_CENTRAL_MASK;
+		occupation_data.self_central_occupation = ref_rfid_status_data.rfid_buff & REF_RFID_RMUL_CENTRAL;
+		occupation_data.self_resupply_occupation = ref_rfid_status_data.rfid_buff & REF_RFID_RMUL_RESUPPLY;
 	    last_ref_event_txno = ref_event_data_txno;
 	}
 

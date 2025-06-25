@@ -140,6 +140,8 @@ RELIABLE_PACKET(competitionStatusPacket,
 RELIABLE_PACKET(occupationStatusPacket,
   uint16_t central_occupation;
   uint16_t resupply_occupation;
+  uint16_t self_central_occupation;
+  uint16_t self_resupply_occupation;
 )
 
 RELIABLE_PACKET(winStatusPacket,

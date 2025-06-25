@@ -249,6 +249,8 @@ typedef struct __packed //0x0208
 #define REF_RFID_OUTPOST_ZONE 		(1<<4)
 #define REF_RFID_REGEN_ZONE			(1<<6)
 #define REF_RFID_ENGI_REGEN			(1<<7)
+#define REF_RFID_RMUL_RESUPPLY		(1<<19)
+#define REF_RFID_RMUL_CENTRAL		(1<<23)
 
 #define REF_ROBOT_RFID_BUFF_DATA_CMD_ID 0x0209
 typedef struct __packed //0x209
