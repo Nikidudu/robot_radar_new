@@ -88,8 +88,8 @@ void ChassisSpdCmdThread::loop() {
 			if (is_navigating) {
 //				double dt = (curr_receive_time - last_receive_time) / 1000.0;
 //				gimbal_ctrl_data.delta_yaw = gimbal_yaw * dt;
+				gimbal_ctrl_data.yaw = gimbal_yaw * 2;
 
-				gimbal_ctrl_data.yaw = gimbal_yaw;
 
 				if (!beyblade_mode)
 					V_yaw = chassis_center_yaw();

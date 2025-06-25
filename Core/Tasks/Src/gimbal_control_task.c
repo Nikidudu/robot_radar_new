@@ -41,6 +41,9 @@ static float prev_pit;
 static float prev_yaw;
 float yaw_drift = 0.01;
 
+extern uint8_t g_is_navigating;
+extern uint8_t g_is_aiming;
+
 extern int g_spinspin_mode;
 #ifdef YAW_FEEDFORWARD
 static pid_data_t g_yaw_ff_pid = {
@@ -290,6 +293,12 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 
 void yaw_control(motor_data_t *yaw_motor) {
 #if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+#ifdef SENTRY
+	static uint8_t prev_control_mode = 0;
+	// is_navigating and is_aiming flag will always be inverse
+	// using is_navigating flag to determine mode change
+	static uint8_t prev_sentry_mode = 0;
+
 	dm4310_set(&dm_yaw_motor);
 	float turn_ang = imu_heading.yaw - prev_yaw;
 
@@ -303,19 +312,28 @@ void yaw_control(motor_data_t *yaw_motor) {
 	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
 	gimbal_ctrl_data.delta_yaw -= turn_ang;
 
-//	if (gimbal_ctrl_data.delta_yaw > 1.5 * PI) {
-//		gimbal_ctrl_data.delta_yaw = 1.5 * PI;
-//	}
-//	if (gimbal_ctrl_data.delta_yaw < -1.5 * PI) {
-//		gimbal_ctrl_data.delta_yaw = -1.5 * PI;
-//	}
+	// Reset gimbal control each time mode is changed
+	if ((prev_control_mode != control_mode) || (prev_sentry_mode != g_is_navigating)) {
+		gimbal_ctrl_data.delta_yaw = 0;
+		gimbal_ctrl_data.yaw = 0;
+	}
 
-	 yaw_pid(0, -gimbal_ctrl_data.delta_yaw, &dm_yaw_motor.angle_pid);
+	prev_control_mode = control_mode;
+	prev_sentry_mode = g_is_navigating;
+
+	// Use velocity control for navigation, and relative angle control for others
+	if (control_mode == SBC_CTRL_MODE && g_is_navigating) {
+		dm_yaw_motor.ctrl.vel_set = gimbal_ctrl_data.yaw +
+				chassis_ctrl_data.yaw * (YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);;
+	} else {
+		yaw_pid(0, -gimbal_ctrl_data.delta_yaw, &dm_yaw_motor.angle_pid);
+		dm_yaw_motor.ctrl.vel_set = dm_yaw_motor.angle_pid.output +
+				chassis_ctrl_data.yaw * (YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
+	}
+
 	 xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
-
-	 dm_yaw_motor.ctrl.vel_set = dm_yaw_motor.angle_pid.output +
-			chassis_ctrl_data.yaw * (YAW_SPINSPIN_CONSTANT/CHASSIS_SPINSPIN_MAX);
 	 dm_yaw_motor.ctrl.tor_set = FEEDFORWARD_CONST * dm_yaw_motor.para.vel;
+#endif
 #else
 	uint8_t yaw_lim = 0;
 	float rel_yaw_angle = yaw_motor->angle_data.adj_ang + gimbal_ctrl_data.yaw
