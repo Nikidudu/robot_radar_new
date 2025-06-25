@@ -785,11 +785,13 @@ uint16_t check_motors() {
 			- dm_pitch_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 7;
 		dm_set_pitch_motor();
-	} else if (dm_pitch_motor.para.state != 9) {
-		// pitch motor not accepting data from dev c
-		error |= 1 << 7;
-		dm_set_pitch_motor();
-	} else {
+	}
+//	else if (dm_pitch_motor.para.state != 9) {
+//		// pitch motor not accepting data from dev c
+//		error |= 1 << 7;
+//		dm_set_pitch_motor();
+//	}
+	else {
 		if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(3, 1);
 		}
@@ -810,15 +812,17 @@ uint16_t check_motors() {
 				- dm_yaw_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
 			error |= 1 << 8;
 			dm_set_yaw_motor();
-		} else if (dm_yaw_motor.para.state != 9) {
-			// yaw motor not accepting data from dev c
-			error |= 1 << 7;
-			dm_set_yaw_motor();
-		} else {
-			if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
-				motor_temp_bz(3, 2);
-			}
 		}
+//	else if (dm_yaw_motor.para.state != 9) {
+//		// yaw motor not accepting data from dev c
+//		error |= 1 << 8;
+//		dm_set_yaw_motor();
+//	}
+	else {
+		if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
+			motor_temp_bz(3, 2);
+		}
+	}
 #else
 	if (curr_time
 				- g_can_motors[YAW_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
