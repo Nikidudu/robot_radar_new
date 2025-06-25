@@ -107,9 +107,7 @@ void control_input_task(void *argument) {
 
 				switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
-#ifdef ROBOT_CONFIG_ROBOT_CONFIG_WADDLEDEE_H_
-					keyboard_gear_shifter(&gear_speed);
-#endif
+//					keyboard_gear_shifter(&gear_speed);
 					set_gear();
 					keyboard_control_input();
 					break;
