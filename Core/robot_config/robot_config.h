@@ -43,8 +43,8 @@
 
 //if no overrides in the respective configs
 #ifndef CONTROL_DEFAULT
-//#define CONTROL_DEFAULT 		KEYBOARD_CTRL_MODE
-#define CONTROL_DEFAULT			REMOTE_CTRL_MODE
+#define CONTROL_DEFAULT 		KEYBOARD_CTRL_MODE
+//#define CONTROL_DEFAULT			REMOTE_CTRL_MODE
 
 //#define CONTROL_DEFAULT			SBC_CTRL_MODE
 #endif
