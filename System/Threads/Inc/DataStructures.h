@@ -366,8 +366,6 @@ struct occupationStatusData {
 	   * a value of 3 indicates that it is occupied by both sides */
 	  uint16_t central_occupation;
 	  uint16_t resupply_occupation; // own side resupply occupation state
-	  uint16_t self_central_occupation;
-	  uint16_t self_resupply_occupation;
 
 	char* toString(char* buffer) {
 		return buffer;
@@ -376,8 +374,6 @@ struct occupationStatusData {
 	uint8_t* toArray(uint8_t* buffer) {
 		*(uint16_t*)(buffer) = central_occupation;
 		*(uint16_t*)(buffer + 2) = resupply_occupation;
-		*(uint16_t*)(buffer + 4) = self_central_occupation;
-		*(uint16_t*)(buffer + 6) = self_resupply_occupation;
 
 		return buffer;
 	}

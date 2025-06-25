@@ -37,6 +37,7 @@ private:
 	uint32_t last_ref_robot_hp_txno = 0;
 	uint32_t last_ref_event_txno = 0;
 	uint32_t last_game_result_txno = 0;
+	uint32_t last_ref_rfid_status_txno = 0;
 
 	uint8_t team_colour = RED_TEAM; // 1 for red, 2 for blue
 };
