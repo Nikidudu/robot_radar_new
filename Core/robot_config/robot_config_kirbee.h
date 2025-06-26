@@ -104,7 +104,8 @@
 #define LV7_MAX_ACCEL			0.5
 #define LV8_MAX_ACCEL			0.5
 #define LV9_MAX_ACCEL			0.5
-#define LV10_MAX_ACCEL			1.5
+#define LV10_MAX_ACCEL			2
+
 #define SPIN_ACCELERATION		1.0 //Same guideline as chassis acceleration
 
 #define GEAR_DEFAULT			3
@@ -249,7 +250,7 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 // Yaw max rpm - max RPM for chassis centering
-#define LV1_CHASSIS_YAW_MAX_RPM		0.6
+#define LV1_CHASSIS_YAW_MAX_RPM		0.8//0.6
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0.02
 #define LV1_CHASSIS_YAW_KD			8//30 // for 1v1
