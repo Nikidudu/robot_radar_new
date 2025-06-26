@@ -147,10 +147,10 @@
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
 #define YAW_INVERT  			-1				//1 to invert control -1 to disable
-#define PITCH_INVERT  			1				//1 to invert control -1 to disable
+#define PITCH_INVERT  			-1				//1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
-#define	MOUSE_Y_INVERT			1				//Set to -1 if it needs to be inverted
+#define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
 
 #define MOUSE_LIMIT 			200
 
@@ -267,7 +267,7 @@
 #define LV2_CHASSIS_YAW_KI			0
 #define LV2_CHASSIS_YAW_KD			0
 
-#define LV3_CHASSIS_YAW_MAX_RPM		0.5
+#define LV3_CHASSIS_YAW_MAX_RPM		0.75
 #define LV3_CHASSIS_YAW_KP			0.7
 #define LV3_CHASSIS_YAW_KI			0
 #define LV3_CHASSIS_YAW_KD			0
@@ -341,9 +341,9 @@
 #define PITCH_MAX_CURRENT		20000
 
 #define PITCH_MOTOR_TYPE		TYPE_LK_MG5010E_MULTI_ANG
-#define PITCH_CENTER			541387//91000
-#define PITCH_MAX_ANG			5.5
-#define PITCH_MIN_ANG			-6
+#define PITCH_CENTER			210579//91000
+#define PITCH_MAX_ANG			1
+#define PITCH_MIN_ANG			-0.9
 #define PITCH_CONST				8000
 
 #define YAW_MOTOR_TYPE			TYPE_M3508
