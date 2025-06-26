@@ -65,15 +65,15 @@
  */
 #define LVL_TUNING
 #define LV1_MAX_SPEED 		    0.34//0.20 // for 1v1
-#define LV2_MAX_SPEED  			0.22
-#define LV3_MAX_SPEED			0.24
-#define LV4_MAX_SPEED			0.26
-#define LV5_MAX_SPEED			0.28
-#define LV6_MAX_SPEED			0.30
-#define LV7_MAX_SPEED			0.32
+#define LV2_MAX_SPEED  			0.34
+#define LV3_MAX_SPEED			0.34
+#define LV4_MAX_SPEED			0.34
+#define LV5_MAX_SPEED			0.34
+#define LV6_MAX_SPEED			0.34
+#define LV7_MAX_SPEED			0.34
 #define LV8_MAX_SPEED			0.34
-#define LV9_MAX_SPEED			0.36
-#define LV10_MAX_SPEED			0.38
+#define LV9_MAX_SPEED			0.34
+#define LV10_MAX_SPEED			0.34
 // supercap boosted values
 #define LV11_MAX_SPEED			1
 #define LV12_MAX_SPEED		    1
