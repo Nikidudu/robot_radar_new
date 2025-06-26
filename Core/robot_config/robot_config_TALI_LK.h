@@ -141,7 +141,7 @@
 #define CHASSIS_POWER_LPF 0.02
 #define CHASSIS_POWER_DELTA_LIM 0.1
 
-#define PROJECTILE_SPEED_RATIO	365								//rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define PROJECTILE_SPEED_RATIO	375//365								//rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		5								//projectiles per round of the feeder
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
@@ -341,7 +341,7 @@
 #define PITCH_MAX_CURRENT		20000
 
 #define PITCH_MOTOR_TYPE		TYPE_LK_MG5010E_MULTI_ANG
-#define PITCH_CENTER			91000
+#define PITCH_CENTER			210579//91000
 #define PITCH_MAX_ANG			1
 #define PITCH_MIN_ANG			-0.9
 #define PITCH_CONST				8000
