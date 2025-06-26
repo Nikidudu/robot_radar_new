@@ -133,6 +133,17 @@
 #define LV9_MAX_ACCEL			1
 #define LV10_MAX_ACCEL			2
 
+//#define LV1_MAX_ACCEL			1.5//2.5//1.5 // for 1v1
+//#define LV2_MAX_ACCEL			2.0
+//#define LV3_MAX_ACCEL			2.0
+//#define LV4_MAX_ACCEL			2.0
+//#define LV5_MAX_ACCEL			0.7
+//#define LV6_MAX_ACCEL			0.5
+//#define LV7_MAX_ACCEL			0.5
+//#define LV8_MAX_ACCEL			0.5
+//#define LV9_MAX_ACCEL			0.5
+//#define LV10_MAX_ACCEL		2
+
 #define SPIN_ACCELERATION		1.0 //Same guideline as chassis acceleration
 
 #define GEAR_DEFAULT			3
