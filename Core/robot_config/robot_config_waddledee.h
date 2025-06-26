@@ -69,7 +69,7 @@
 // SCALE for HP values: 0.45
 #define SCALE 					0.45
 #define LVL_TUNING
-#define LV1_MAX_SPEED 		    0.24 * SCALE //0.34//for 1v1
+#define LV1_MAX_SPEED 		    0.24 * SCALE
 #define LV2_MAX_SPEED  			0.25 * SCALE
 #define LV3_MAX_SPEED			0.26 * SCALE
 #define LV4_MAX_SPEED			0.27 * SCALE
@@ -80,16 +80,16 @@
 #define LV9_MAX_SPEED			0.35 * SCALE
 #define LV10_MAX_SPEED			0.36 * SCALE
 // supercap boosted values
-#define LV11_MAX_SPEED			0.30//0.15//0.12
-#define LV12_MAX_SPEED		    0.32//0.16//0.13
-#define LV13_MAX_SPEED			0.34//0.17//0.14
-#define LV14_MAX_SPEED			0.35//0.18//0.145
-#define LV15_MAX_SPEED			0.36//0.19//0.16
-#define LV16_MAX_SPEED			0.36//0.20//0.17
-#define LV17_MAX_SPEED			0.36//0.21//0.175
-#define LV18_MAX_SPEED			0.36//0.22//0.175
-#define LV19_MAX_SPEED			0.36//0.23//0.18
-#define LV20_MAX_SPEED			0.36//0.24//0.181
+#define LV11_MAX_SPEED			0.30
+#define LV12_MAX_SPEED		    0.32
+#define LV13_MAX_SPEED			0.34
+#define LV14_MAX_SPEED			0.35
+#define LV15_MAX_SPEED			0.36
+#define LV16_MAX_SPEED			0.36
+#define LV17_MAX_SPEED			0.36
+#define LV18_MAX_SPEED			0.36
+#define LV19_MAX_SPEED			0.36
+#define LV20_MAX_SPEED			0.36
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
@@ -109,7 +109,7 @@
 #define LV7_MAX_ACCEL			1
 #define LV8_MAX_ACCEL			1
 #define LV9_MAX_ACCEL			1
-#define LV10_MAX_ACCEL			1
+#define LV10_MAX_ACCEL			2
 
 #define SPIN_ACCELERATION		1.0 //Same guideline as chassis acceleration
 
@@ -379,7 +379,7 @@
 
 #define YAWRPM_KP				2000//600//400
 #define YAWRPM_KI				0
-#define YAWRPM_KD				10
+#define YAWRPM_KD				0
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
@@ -401,7 +401,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	5000//6
-#define YAW_CENTER 				559
+#define YAW_CENTER 				4662
 #define YAW_MAX_ANG				5*PI
 #define YAW_MIN_ANG				5*-PI
 
