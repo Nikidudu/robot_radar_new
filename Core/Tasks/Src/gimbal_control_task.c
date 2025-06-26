@@ -355,6 +355,13 @@ void yaw_control(motor_data_t *yaw_motor) {
 //	{
 //		gimbal_ctrl_data.delta_yaw = 0;
 //	}
+	if (gimbal_ctrl_data.delta_yaw > PI){
+		gimbal_ctrl_data.delta_yaw = PI;
+	}
+	if (gimbal_ctrl_data.delta_yaw < -PI){
+		gimbal_ctrl_data.delta_yaw = -PI;
+	}
+
 	yangle_pid(gimbal_ctrl_data.delta_yaw, 0, yaw_motor,
 			imu_heading.yaw, &prev_yaw,0);
 	xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
