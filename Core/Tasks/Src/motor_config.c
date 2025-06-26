@@ -792,7 +792,7 @@ uint16_t check_motors() {
 		dm_set_pitch_motor();
 	}
 	else {
-		if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {
+		if (dm_pitch_motor.para.Tcoil > HITEMP_WARNING) {
 			motor_temp_bz(3, 1);
 		}
 	}
