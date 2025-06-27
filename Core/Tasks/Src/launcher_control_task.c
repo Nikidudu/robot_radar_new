@@ -61,9 +61,9 @@ void launcher_control_task(void *argument) {
 	while (1) {
 		//event flags!
 #ifdef ACTIVE_GUIDANCE
-		xEventGroupWaitBits(launcher_event_group, 0b11111, pdTRUE, pdTRUE, portMAX_DELAY);
+//		xEventGroupWaitBits(launcher_event_group, 0b11111, pdTRUE, pdTRUE, portMAX_DELAY);
 #else
-		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE, portMAX_DELAY);
+//		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE, portMAX_DELAY);
 #endif
 		status_led(4, on_led);
 		launcher_ctrl_time = xTaskGetTickCount();

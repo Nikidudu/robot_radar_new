@@ -70,7 +70,7 @@ void gimbal_control_task(void *argument) {
     PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
 		lk_read_motor_sang(&g_pitch_motor);
 #endif
-		xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE, portMAX_DELAY);
+//		xEventGroupWaitBits(gimbal_event_group, 0b11, pdTRUE, pdFALSE, portMAX_DELAY);
 		start_time = xTaskGetTickCount();
 
 		if (gimbal_ctrl_data.enabled) {

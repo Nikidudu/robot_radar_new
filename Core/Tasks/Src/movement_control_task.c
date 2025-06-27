@@ -74,10 +74,11 @@ void movement_control_task(void *argument) {
 
 		EventBits_t motor_bits;
 		//wait for all motors to have updated data before PID is allowed to run
-		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE,
-		pdTRUE,
-		portMAX_DELAY);
-		if (motor_bits == 0b1111) {
+//		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE,
+//		pdTRUE,
+//		portMAX_DELAY);
+//		if (motor_bits == 0b1111) {
+		if (1) {
 			status_led(3, on_led);
 			start_time = xTaskGetTickCount();
 			if (chassis_ctrl_data.enabled) {
