@@ -99,16 +99,16 @@
 #define LV9_MAX_SPEED			0.35 * SCALE
 #define LV10_MAX_SPEED			0.36 * SCALE
 // supercap boosted values
-#define LV11_MAX_SPEED			0.27//0.30
-#define LV12_MAX_SPEED		    0.28//0.32
-#define LV13_MAX_SPEED			0.29//0.34
-#define LV14_MAX_SPEED			0.30//0.35
-#define LV15_MAX_SPEED			0.31//0.36
-#define LV16_MAX_SPEED			0.31//0.36
-#define LV17_MAX_SPEED			0.31//0.36
-#define LV18_MAX_SPEED			0.31//0.36
-#define LV19_MAX_SPEED			0.31//0.36
-#define LV20_MAX_SPEED			0.31//0.36
+#define LV11_MAX_SPEED			0.30
+#define LV12_MAX_SPEED		    0.32
+#define LV13_MAX_SPEED			0.34
+#define LV14_MAX_SPEED			0.35
+#define LV15_MAX_SPEED			0.36
+#define LV16_MAX_SPEED			0.36
+#define LV17_MAX_SPEED			0.36
+#define LV18_MAX_SPEED			0.36
+#define LV19_MAX_SPEED			0.36
+#define LV20_MAX_SPEED			0.36
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration

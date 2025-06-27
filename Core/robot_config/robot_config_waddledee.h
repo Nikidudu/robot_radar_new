@@ -80,16 +80,16 @@
 #define LV9_MAX_SPEED			0.35 * SCALE
 #define LV10_MAX_SPEED			0.36 * SCALE
 // supercap boosted values
-#define LV11_MAX_SPEED			0.27
-#define LV12_MAX_SPEED		    0.28
-#define LV13_MAX_SPEED			0.29
-#define LV14_MAX_SPEED			0.30
-#define LV15_MAX_SPEED			0.31
-#define LV16_MAX_SPEED			0.31
-#define LV17_MAX_SPEED			0.31
-#define LV18_MAX_SPEED			0.31
-#define LV19_MAX_SPEED			0.31
-#define LV20_MAX_SPEED			0.31
+#define LV11_MAX_SPEED			0.30//0.27
+#define LV12_MAX_SPEED		    0.32//0.28
+#define LV13_MAX_SPEED			0.34//0.29
+#define LV14_MAX_SPEED			0.35//0.30
+#define LV15_MAX_SPEED			0.36//0.31
+#define LV16_MAX_SPEED			0.36//0.31
+#define LV17_MAX_SPEED			0.36
+#define LV18_MAX_SPEED			0.36
+#define LV19_MAX_SPEED			0.36
+#define LV20_MAX_SPEED			0.36
 
 //#define LV1_MAX_SPEED 		    0.34
 //#define LV2_MAX_SPEED  			0.34
@@ -293,47 +293,47 @@
 #define LV1_CHASSIS_YAW_KI			0
 #define LV1_CHASSIS_YAW_KD			8//0 //for 1v1
 
-#define LV2_CHASSIS_YAW_MAX_RPM		0.40
+#define LV2_CHASSIS_YAW_MAX_RPM		0.45
 #define LV2_CHASSIS_YAW_KP			0.7
 #define LV2_CHASSIS_YAW_KI			0
 #define LV2_CHASSIS_YAW_KD			8
 
-#define LV3_CHASSIS_YAW_MAX_RPM		0.45
+#define LV3_CHASSIS_YAW_MAX_RPM		0.55
 #define LV3_CHASSIS_YAW_KP			0.7
 #define LV3_CHASSIS_YAW_KI			0
 #define LV3_CHASSIS_YAW_KD			8
 
-#define LV4_CHASSIS_YAW_MAX_RPM		0.5
+#define LV4_CHASSIS_YAW_MAX_RPM		0.6
 #define LV4_CHASSIS_YAW_KP			0.7
 #define LV4_CHASSIS_YAW_KI			0
 #define LV4_CHASSIS_YAW_KD			8
 
-#define LV5_CHASSIS_YAW_MAX_RPM		0.5
+#define LV5_CHASSIS_YAW_MAX_RPM		0.6
 #define LV5_CHASSIS_YAW_KP			0.7
 #define LV5_CHASSIS_YAW_KI			0
 #define LV5_CHASSIS_YAW_KD			8
 
-#define LV6_CHASSIS_YAW_MAX_RPM		0.5
+#define LV6_CHASSIS_YAW_MAX_RPM		0.6
 #define LV6_CHASSIS_YAW_KP			0.7
 #define LV6_CHASSIS_YAW_KI			0
 #define LV6_CHASSIS_YAW_KD			8
 
-#define LV7_CHASSIS_YAW_MAX_RPM		0.5
+#define LV7_CHASSIS_YAW_MAX_RPM		0.6
 #define LV7_CHASSIS_YAW_KP			0.7
 #define LV7_CHASSIS_YAW_KI			0
 #define LV7_CHASSIS_YAW_KD			8
 
-#define LV8_CHASSIS_YAW_MAX_RPM		0.5
+#define LV8_CHASSIS_YAW_MAX_RPM		0.6
 #define LV8_CHASSIS_YAW_KP			0.7
 #define LV8_CHASSIS_YAW_KI			0
 #define LV8_CHASSIS_YAW_KD			8
 
-#define LV9_CHASSIS_YAW_MAX_RPM		0.5
+#define LV9_CHASSIS_YAW_MAX_RPM		0.6
 #define LV9_CHASSIS_YAW_KP			0.7
 #define LV9_CHASSIS_YAW_KI			0
 #define LV9_CHASSIS_YAW_KD			8
 
-#define LV10_CHASSIS_YAW_MAX_RPM	0.5
+#define LV10_CHASSIS_YAW_MAX_RPM	0.6
 #define LV10_CHASSIS_YAW_KP			0.7
 #define LV10_CHASSIS_YAW_KI			0
 #define LV10_CHASSIS_YAW_KD			8
