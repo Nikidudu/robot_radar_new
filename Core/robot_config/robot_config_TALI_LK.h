@@ -64,16 +64,16 @@
  * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed
  */
-#define LV1_MAX_SPEED			0.09//0.15//0.12
-#define LV2_MAX_SPEED		    0.10//0.16//0.13
-#define LV3_MAX_SPEED			0.11//0.17//0.14
-#define LV4_MAX_SPEED			0.115//0.18//0.145
-#define LV5_MAX_SPEED			0.12//0.19//0.16
-#define LV6_MAX_SPEED			0.125//0.20//0.17
-#define LV7_MAX_SPEED			0.13//0.21//0.175
-#define LV8_MAX_SPEED			0.135//0.22//0.175
-#define LV9_MAX_SPEED			0.14//0.23//0.18
-#define LV10_MAX_SPEED			0.145//0.24//0.181
+#define LV1_MAX_SPEED			0.07//0.09//0.15//0.12
+#define LV2_MAX_SPEED		    0.08//0.10//0.16//0.13
+#define LV3_MAX_SPEED			0.09//0.11//0.17//0.14
+#define LV4_MAX_SPEED			0.1//0.115//0.18//0.145
+#define LV5_MAX_SPEED			0.105//0.12//0.19//0.16
+#define LV6_MAX_SPEED			0.11//0.125//0.20//0.17
+#define LV7_MAX_SPEED			0.12//0.13//0.21//0.175
+#define LV8_MAX_SPEED			0.125//0.135//0.22//0.175
+#define LV9_MAX_SPEED			0.13//0.14//0.23//0.18
+#define LV10_MAX_SPEED			0.135//0.145//0.24//0.181
 // supercap boosted values
 #define LV11_MAX_SPEED			0.20//0.15//0.12
 #define LV12_MAX_SPEED		    0.21//0.16//0.13
