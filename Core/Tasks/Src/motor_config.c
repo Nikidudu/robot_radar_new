@@ -788,13 +788,19 @@ uint16_t check_motors() {
 		dm_set_pitch_motor();
 	} else if (dm_pitch_motor.para.state != 9) {
 		// pitch motor not accepting data from dev c
-		error |= 1 << 7;
-		dm_set_pitch_motor();
+        dm_pitch_motor.para.disconnect_time++;
+		if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
+			error |= 1 << 7;
+			dm_set_pitch_motor();
+		}
+
+//		dm_set_pitch_motor();
 	}
 	else {
 		if (dm_pitch_motor.para.Tcoil > HITEMP_WARNING) {
 			motor_temp_bz(3, 1);
 		}
+        dm_pitch_motor.para.disconnect_time = 0;
 	}
 #else
 	if (curr_time
@@ -814,12 +820,18 @@ uint16_t check_motors() {
 		dm_set_yaw_motor();
 	} else if (dm_yaw_motor.para.state != 9) {
 		// yaw motor not accepting data from dev c
-		error |= 1 << 7;
-		dm_set_yaw_motor();
+        dm_yaw_motor.para.disconnect_time++;
+		if (dm_yaw_motor.para.state != 9 && dm_yaw_motor.para.disconnect_time > 100) {
+			error |= 1 << 7;
+			dm_set_yaw_motor();
+		}
+
+//		dm_set_yaw_motor();
 	} else {
 		if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
 			motor_temp_bz(3, 2);
 		}
+        dm_yaw_motor.para.disconnect_time = 0;
 	}
 #else
 	if (curr_time
