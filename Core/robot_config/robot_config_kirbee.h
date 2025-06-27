@@ -63,52 +63,52 @@
  * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed
  */
-#define LVL_TUNING
-#define LV1_MAX_SPEED 		    0.34//0.20 // for 1v1
-#define LV2_MAX_SPEED  			0.34
-#define LV3_MAX_SPEED			0.34
-#define LV4_MAX_SPEED			0.34
-#define LV5_MAX_SPEED			0.34
-#define LV6_MAX_SPEED			0.34
-#define LV7_MAX_SPEED			0.34
-#define LV8_MAX_SPEED			0.34
-#define LV9_MAX_SPEED			0.34
-#define LV10_MAX_SPEED			0.34
-// supercap boosted values
-#define LV11_MAX_SPEED			1
-#define LV12_MAX_SPEED		    1
-#define LV13_MAX_SPEED			1
-#define LV14_MAX_SPEED			1
-#define LV15_MAX_SPEED			1
-#define LV16_MAX_SPEED			1
-#define LV17_MAX_SPEED			1
-#define LV18_MAX_SPEED			1
-#define LV19_MAX_SPEED			1
-#define LV20_MAX_SPEED			1
-
-//#define SCALE 					0.45
 //#define LVL_TUNING
-//#define LV1_MAX_SPEED 		    0.24 * SCALE
-//#define LV2_MAX_SPEED  			0.25 * SCALE
-//#define LV3_MAX_SPEED			0.26 * SCALE
-//#define LV4_MAX_SPEED			0.27 * SCALE
-//#define LV5_MAX_SPEED			0.29 * SCALE
-//#define LV6_MAX_SPEED			0.30 * SCALE
-//#define LV7_MAX_SPEED			0.32 * SCALE
-//#define LV8_MAX_SPEED			0.33 * SCALE
-//#define LV9_MAX_SPEED			0.35 * SCALE
-//#define LV10_MAX_SPEED			0.36 * SCALE
+//#define LV1_MAX_SPEED 		    0.34//0.20 // for 1v1
+//#define LV2_MAX_SPEED  			0.34
+//#define LV3_MAX_SPEED			0.34
+//#define LV4_MAX_SPEED			0.34
+//#define LV5_MAX_SPEED			0.34
+//#define LV6_MAX_SPEED			0.34
+//#define LV7_MAX_SPEED			0.34
+//#define LV8_MAX_SPEED			0.34
+//#define LV9_MAX_SPEED			0.34
+//#define LV10_MAX_SPEED			0.34
 //// supercap boosted values
-//#define LV11_MAX_SPEED			0.30
-//#define LV12_MAX_SPEED		    0.32
-//#define LV13_MAX_SPEED			0.34
-//#define LV14_MAX_SPEED			0.35
-//#define LV15_MAX_SPEED			0.36
-//#define LV16_MAX_SPEED			0.36
-//#define LV17_MAX_SPEED			0.36
-//#define LV18_MAX_SPEED			0.36
-//#define LV19_MAX_SPEED			0.36
-//#define LV20_MAX_SPEED			0.36
+//#define LV11_MAX_SPEED			1
+//#define LV12_MAX_SPEED		    1
+//#define LV13_MAX_SPEED			1
+//#define LV14_MAX_SPEED			1
+//#define LV15_MAX_SPEED			1
+//#define LV16_MAX_SPEED			1
+//#define LV17_MAX_SPEED			1
+//#define LV18_MAX_SPEED			1
+//#define LV19_MAX_SPEED			1
+//#define LV20_MAX_SPEED			1
+
+#define SCALE 					0.45
+#define LVL_TUNING
+#define LV1_MAX_SPEED 		    0.24 * SCALE
+#define LV2_MAX_SPEED  			0.25 * SCALE
+#define LV3_MAX_SPEED			0.26 * SCALE
+#define LV4_MAX_SPEED			0.27 * SCALE
+#define LV5_MAX_SPEED			0.29 * SCALE
+#define LV6_MAX_SPEED			0.30 * SCALE
+#define LV7_MAX_SPEED			0.32 * SCALE
+#define LV8_MAX_SPEED			0.33 * SCALE
+#define LV9_MAX_SPEED			0.35 * SCALE
+#define LV10_MAX_SPEED			0.36 * SCALE
+// supercap boosted values
+#define LV11_MAX_SPEED			0.30
+#define LV12_MAX_SPEED		    0.32
+#define LV13_MAX_SPEED			0.34
+#define LV14_MAX_SPEED			0.35
+#define LV15_MAX_SPEED			0.36
+#define LV16_MAX_SPEED			0.36
+#define LV17_MAX_SPEED			0.36
+#define LV18_MAX_SPEED			0.36
+#define LV19_MAX_SPEED			0.36
+#define LV20_MAX_SPEED			0.36
 
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
@@ -119,27 +119,27 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
-#define LV1_MAX_ACCEL			1.5//2.5//1.5 // for 1v1
-#define LV2_MAX_ACCEL			2.0
-#define LV3_MAX_ACCEL			2.0
-#define LV4_MAX_ACCEL			2.0
-#define LV5_MAX_ACCEL			0.7
-#define LV6_MAX_ACCEL			0.5
-#define LV7_MAX_ACCEL			0.5
-#define LV8_MAX_ACCEL			0.5
-#define LV9_MAX_ACCEL			0.5
-#define LV10_MAX_ACCEL			2
-
-//#define LV1_MAX_ACCEL			1.5//3.5//2.5//1.5 //for 1v1
-//#define LV2_MAX_ACCEL			1.5
-//#define LV3_MAX_ACCEL			1.5
-//#define LV4_MAX_ACCEL			1.5
-//#define LV5_MAX_ACCEL			1
-//#define LV6_MAX_ACCEL			1
-//#define LV7_MAX_ACCEL			1
-//#define LV8_MAX_ACCEL			1
-//#define LV9_MAX_ACCEL			1
+//#define LV1_MAX_ACCEL			1.5//2.5//1.5 // for 1v1
+//#define LV2_MAX_ACCEL			2.0
+//#define LV3_MAX_ACCEL			2.0
+//#define LV4_MAX_ACCEL			2.0
+//#define LV5_MAX_ACCEL			0.7
+//#define LV6_MAX_ACCEL			0.5
+//#define LV7_MAX_ACCEL			0.5
+//#define LV8_MAX_ACCEL			0.5
+//#define LV9_MAX_ACCEL			0.5
 //#define LV10_MAX_ACCEL			2
+
+#define LV1_MAX_ACCEL			1.5//3.5//2.5//1.5 //for 1v1
+#define LV2_MAX_ACCEL			1.5
+#define LV3_MAX_ACCEL			1.5
+#define LV4_MAX_ACCEL			1.5
+#define LV5_MAX_ACCEL			1
+#define LV6_MAX_ACCEL			1
+#define LV7_MAX_ACCEL			1
+#define LV8_MAX_ACCEL			1
+#define LV9_MAX_ACCEL			1
+#define LV10_MAX_ACCEL			2
 
 #define SPIN_ACCELERATION		1.0 //Same guideline as chassis acceleration
 
@@ -285,105 +285,105 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 // Yaw max rpm - max RPM for chassis centering
-#define LV1_CHASSIS_YAW_MAX_RPM		0.8//0.6
-#define LV1_CHASSIS_YAW_KP			0.7
-#define LV1_CHASSIS_YAW_KI			0.02
-#define LV1_CHASSIS_YAW_KD			8//30 // for 1v1
-
-#define LV2_CHASSIS_YAW_MAX_RPM		0.4
-#define LV2_CHASSIS_YAW_KP			0.7
-#define LV2_CHASSIS_YAW_KI			0
-#define LV2_CHASSIS_YAW_KD			0
-
-#define LV3_CHASSIS_YAW_MAX_RPM		0.4
-#define LV3_CHASSIS_YAW_KP			0.7
-#define LV3_CHASSIS_YAW_KI			0
-#define LV3_CHASSIS_YAW_KD			0
-
-#define LV4_CHASSIS_YAW_MAX_RPM		0.4
-#define LV4_CHASSIS_YAW_KP			0.7
-#define LV4_CHASSIS_YAW_KI			0
-#define LV4_CHASSIS_YAW_KD			0
-
-#define LV5_CHASSIS_YAW_MAX_RPM		0.4
-#define LV5_CHASSIS_YAW_KP			0.7
-#define LV5_CHASSIS_YAW_KI			0
-#define LV5_CHASSIS_YAW_KD			0
-
-#define LV6_CHASSIS_YAW_MAX_RPM		0.4
-#define LV6_CHASSIS_YAW_KP			0.7
-#define LV6_CHASSIS_YAW_KI			0
-#define LV6_CHASSIS_YAW_KD			0
-
-#define LV7_CHASSIS_YAW_MAX_RPM		0.4
-#define LV7_CHASSIS_YAW_KP			0.7
-#define LV7_CHASSIS_YAW_KI			0
-#define LV7_CHASSIS_YAW_KD			0
-
-#define LV8_CHASSIS_YAW_MAX_RPM		0.4
-#define LV8_CHASSIS_YAW_KP			0.7
-#define LV8_CHASSIS_YAW_KI			0
-#define LV8_CHASSIS_YAW_KD			0
-
-#define LV9_CHASSIS_YAW_MAX_RPM		0.4
-#define LV9_CHASSIS_YAW_KP			0.7
-#define LV9_CHASSIS_YAW_KI			0
-#define LV9_CHASSIS_YAW_KD			0
-
-#define LV10_CHASSIS_YAW_MAX_RPM	0.8
-#define LV10_CHASSIS_YAW_KP			0.7
-#define LV10_CHASSIS_YAW_KI			0.02
-#define LV10_CHASSIS_YAW_KD			8
-
-//#define LV1_CHASSIS_YAW_MAX_RPM		0.35
+//#define LV1_CHASSIS_YAW_MAX_RPM		0.8//0.6
 //#define LV1_CHASSIS_YAW_KP			0.7
-//#define LV1_CHASSIS_YAW_KI			0
-//#define LV1_CHASSIS_YAW_KD			8//0 //for 1v1
+//#define LV1_CHASSIS_YAW_KI			0.02
+//#define LV1_CHASSIS_YAW_KD			8//30 // for 1v1
 //
-//#define LV2_CHASSIS_YAW_MAX_RPM		0.45
+//#define LV2_CHASSIS_YAW_MAX_RPM		0.4
 //#define LV2_CHASSIS_YAW_KP			0.7
 //#define LV2_CHASSIS_YAW_KI			0
-//#define LV2_CHASSIS_YAW_KD			8
+//#define LV2_CHASSIS_YAW_KD			0
 //
-//#define LV3_CHASSIS_YAW_MAX_RPM		0.55
+//#define LV3_CHASSIS_YAW_MAX_RPM		0.4
 //#define LV3_CHASSIS_YAW_KP			0.7
 //#define LV3_CHASSIS_YAW_KI			0
-//#define LV3_CHASSIS_YAW_KD			8
+//#define LV3_CHASSIS_YAW_KD			0
 //
-//#define LV4_CHASSIS_YAW_MAX_RPM		0.6
+//#define LV4_CHASSIS_YAW_MAX_RPM		0.4
 //#define LV4_CHASSIS_YAW_KP			0.7
 //#define LV4_CHASSIS_YAW_KI			0
-//#define LV4_CHASSIS_YAW_KD			8
+//#define LV4_CHASSIS_YAW_KD			0
 //
-//#define LV5_CHASSIS_YAW_MAX_RPM		0.6
+//#define LV5_CHASSIS_YAW_MAX_RPM		0.4
 //#define LV5_CHASSIS_YAW_KP			0.7
 //#define LV5_CHASSIS_YAW_KI			0
-//#define LV5_CHASSIS_YAW_KD			8
+//#define LV5_CHASSIS_YAW_KD			0
 //
-//#define LV6_CHASSIS_YAW_MAX_RPM		0.6
+//#define LV6_CHASSIS_YAW_MAX_RPM		0.4
 //#define LV6_CHASSIS_YAW_KP			0.7
 //#define LV6_CHASSIS_YAW_KI			0
-//#define LV6_CHASSIS_YAW_KD			8
+//#define LV6_CHASSIS_YAW_KD			0
 //
-//#define LV7_CHASSIS_YAW_MAX_RPM		0.6
+//#define LV7_CHASSIS_YAW_MAX_RPM		0.4
 //#define LV7_CHASSIS_YAW_KP			0.7
 //#define LV7_CHASSIS_YAW_KI			0
-//#define LV7_CHASSIS_YAW_KD			8
+//#define LV7_CHASSIS_YAW_KD			0
 //
-//#define LV8_CHASSIS_YAW_MAX_RPM		0.6
+//#define LV8_CHASSIS_YAW_MAX_RPM		0.4
 //#define LV8_CHASSIS_YAW_KP			0.7
 //#define LV8_CHASSIS_YAW_KI			0
-//#define LV8_CHASSIS_YAW_KD			8
+//#define LV8_CHASSIS_YAW_KD			0
 //
-//#define LV9_CHASSIS_YAW_MAX_RPM		0.6
+//#define LV9_CHASSIS_YAW_MAX_RPM		0.4
 //#define LV9_CHASSIS_YAW_KP			0.7
 //#define LV9_CHASSIS_YAW_KI			0
-//#define LV9_CHASSIS_YAW_KD			8
+//#define LV9_CHASSIS_YAW_KD			0
 //
-//#define LV10_CHASSIS_YAW_MAX_RPM	0.6
+//#define LV10_CHASSIS_YAW_MAX_RPM	0.8
 //#define LV10_CHASSIS_YAW_KP			0.7
-//#define LV10_CHASSIS_YAW_KI			0
+//#define LV10_CHASSIS_YAW_KI			0.02
 //#define LV10_CHASSIS_YAW_KD			8
+
+#define LV1_CHASSIS_YAW_MAX_RPM		0.35
+#define LV1_CHASSIS_YAW_KP			0.7
+#define LV1_CHASSIS_YAW_KI			0
+#define LV1_CHASSIS_YAW_KD			8//0 //for 1v1
+
+#define LV2_CHASSIS_YAW_MAX_RPM		0.45
+#define LV2_CHASSIS_YAW_KP			0.7
+#define LV2_CHASSIS_YAW_KI			0
+#define LV2_CHASSIS_YAW_KD			8
+
+#define LV3_CHASSIS_YAW_MAX_RPM		0.55
+#define LV3_CHASSIS_YAW_KP			0.7
+#define LV3_CHASSIS_YAW_KI			0
+#define LV3_CHASSIS_YAW_KD			8
+
+#define LV4_CHASSIS_YAW_MAX_RPM		0.6
+#define LV4_CHASSIS_YAW_KP			0.7
+#define LV4_CHASSIS_YAW_KI			0
+#define LV4_CHASSIS_YAW_KD			8
+
+#define LV5_CHASSIS_YAW_MAX_RPM		0.6
+#define LV5_CHASSIS_YAW_KP			0.7
+#define LV5_CHASSIS_YAW_KI			0
+#define LV5_CHASSIS_YAW_KD			8
+
+#define LV6_CHASSIS_YAW_MAX_RPM		0.6
+#define LV6_CHASSIS_YAW_KP			0.7
+#define LV6_CHASSIS_YAW_KI			0
+#define LV6_CHASSIS_YAW_KD			8
+
+#define LV7_CHASSIS_YAW_MAX_RPM		0.6
+#define LV7_CHASSIS_YAW_KP			0.7
+#define LV7_CHASSIS_YAW_KI			0
+#define LV7_CHASSIS_YAW_KD			8
+
+#define LV8_CHASSIS_YAW_MAX_RPM		0.6
+#define LV8_CHASSIS_YAW_KP			0.7
+#define LV8_CHASSIS_YAW_KI			0
+#define LV8_CHASSIS_YAW_KD			8
+
+#define LV9_CHASSIS_YAW_MAX_RPM		0.6
+#define LV9_CHASSIS_YAW_KP			0.7
+#define LV9_CHASSIS_YAW_KI			0
+#define LV9_CHASSIS_YAW_KD			8
+
+#define LV10_CHASSIS_YAW_MAX_RPM	0.6
+#define LV10_CHASSIS_YAW_KP			0.7
+#define LV10_CHASSIS_YAW_KI			0
+#define LV10_CHASSIS_YAW_KD			8
 
 #define CHASSIS_YAW_MAX_RPM	0.75					//max RPM for chassis centering
 #define CHASSIS_YAW_KP 		0.45//3.75//1//0.7//0.4
