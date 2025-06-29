@@ -14,102 +14,122 @@
 #include "lqr_k.h"
 #include "balancing_chassis_task.h"
 
-Target target = {0};
-extern LegPos leftLegPos, rightLegPos;
-extern Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
-StateVar stateVar;
+// ========== ROBOT TARGET AND STATE VARIABLES ==========
+Target target = {0};  // Robot control targets (position, speed, leg length, etc.)
+extern LegPos leftLegPos, rightLegPos;  // Leg position data from leg task
+extern Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;  // Motor data
+StateVar stateVar; // Robot state variables (phi, dPhi, x, dx, theta, dTheta)
+
+// ========== EXTERNAL REFERENCES ==========
 extern motor_t motor[num];
-extern remote_cmd_t g_remote_cmd;
-extern motor_data_t g_can_motors[24];
-extern float dm_set_tor[4];
-extern float mf_set_tor[2];
-CascadePID yawPID;
-PID rollPID;
-PID legAnglePID, LlegLengthPID, RlegLengthPID;
-PID leftLegJumpPID, rightLegJumpPID;
-//PID spinPID;
-PID LcushionPID, RcushionPID;
-PID leftWheelPID, rightWheelPID;
-int chassis_state = 0;
-int ground_state = 0;
-float yaw_angle_offset = 2.14f;
-float max_Tp = 5.0f;
-extern INS_t INS;
-float spin_speed = 0.0f;
-extern float filtered_v;
-extern float filtered_x;
-float LFN;
-float RFN;
-float LFTP;
-float RFTP;
-int robot_ready = 0; // 1 ready, 0 not ready
+extern remote_cmd_t g_remote_cmd;  // Remote control commands
+extern motor_data_t g_can_motors[24];  // CAN motor data array
+extern float dm_set_tor[4];  // Torque commands for DM8009 joint motors
+extern float mf_set_tor[2];  // Torque commands for MF9025 wheel motors
+
+// ========== PID CONTROLLERS ==========
+CascadePID yawPID;  // Cascade PID for yaw control (gimbal alignment)
+PID rollPID;        // Roll stabilization PID
+PID legAnglePID, LlegLengthPID, RlegLengthPID;  // Leg control PIDs
+PID leftLegJumpPID, rightLegJumpPID;            // Jump sequence control PIDs
+PID LcushionPID, RcushionPID;                   // Landing cushion PIDs
+PID leftWheelPID, rightWheelPID;                // Wheel spin control PIDs
+
+// ========== ROBOT STATE CONTROL ==========
+int chassis_state = 0;  // Current chassis state machine state
+int ground_state = 0;   // Ground contact detection state
+float max_Tp = 5.0f;    // Maximum torque limit
+extern INS_t INS;       // IMU sensor data
+float spin_speed = 0.0f;  // Commanded robot spin speed
+extern float filtered_v;  // Filtered robot velocity
+extern float filtered_x;  // Filtered robot position
+
+// ========== FORCE CALCULATION VARIABLES ==========
+float LFN;  // Left leg normal force
+float RFN;  // Right leg normal force
+float LFTP; // Left leg tangential force
+float RFTP; // Right leg tangential force
+
+int robot_ready = 0; // Robot readiness flag: 1=ready, 0=not ready
+
+// ========== MANUAL CONTROL PIDs ==========
 PID manual_left_F, manual_left_Tp, manual_right_F, manual_right_Tp;
+
+// ========== LQR CONTROL SYSTEM ==========
 float kRatio[2][6] = {{1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f},
-                      {1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f}};
-float phi_mul = 1.0f;
-float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;
-double kRes[12] = {0}, k[2][6] = {0};
-float LlqrOutT;
-float LlqrOutTp;
-float RlqrOutT;
-float RlqrOutTp;
-float F_gravity = 0.0f;
-float F_gravity_left = 0.0f;
-float F_gravity_right = 0.0f;
-float F_roll = 0.0f;
-float F_inertia = 0.0f;
-float F_inertia_right = 0.0f;
-float left_ankle_rad = 0.0f;
-float right_ankle_rad = 0.0f;
+                      {1.0f, 0.8f, 1.0f, 1.0f, 1.0f, 1.0f}};  // LQR gain scaling ratios
+float phi_mul = 1.0f;      // Pitch angle multiplication factor
+float lqrTpRatio = 1.0f, lqrTRatio = 1.0f;  // LQR output scaling ratios
+double kRes[12] = {0}, k[2][6] = {0};  // LQR gain matrices
 
-float LFN_filtered = 0.0f;
-float RFN_filtered = 0.0f;
-float Average_FN = 0.0f;
-float Average_Accel = 0.0f;
-const float alpha = 0.5f; // Smoothing factor
-int spin_toggle = 0;
-int jump_state = 0;
-float k_jump_time = 0.185f;
-float k_retract_time = 0.11f;
-uint32_t jump_time_l = 0;
-uint32_t jump_time_r = 0;
-int jump_state_l = 0;
-int jump_state_r = 0;
-extern uint8_t joint_motor_online;
-uint8_t gimbal_direction_toggle = 0;
-float filtered_adj_ang = 0.0f;
-PID angleFilterPID;  // PID instance for filtering the angle measurement
-int error6900 = 0;
-int error2777 = 0;
-int staircase_toggle = 0;
-uint8_t staircase_state = 0;
-uint8_t staircase_detect = 0; // if 1 means robot hit the staircase edge
-float threshold_variation;
-float filtered_angle = 0.0f;
-const float angle_alpha = 0.15f; // Smoothing factor (0.0-1.0), lower = more filtering
-float filtered_LdTheta = 0.0f;
-float filtered_RdTheta = 0.0f;
-const float dTheta_alpha = 1.0f; // Smoothing factor for angular velocity values
+// LQR control outputs
+float LlqrOutT;    // Left leg LQR normal force output
+float LlqrOutTp;   // Left leg LQR tangential force output
+float RlqrOutT;    // Right leg LQR normal force output
+float RlqrOutTp;   // Right leg LQR tangential force output
 
-// Define state transition matrix (F), covariance (P), process noise (Q), and measurement noise (R)
-float angleKF_F[1] = {1.0f};    // Simple model where next state is the same as the current state
-float angleKF_P[1] = {1.0f};    // Initial covariance
-float angleKF_Q[1] = {0.01f};   // Process noise (small, since angle is relatively stable)
-float angleKF_R[1] = {5.0f};    // Measurement noise (adjust based on sensor noise level)
-const float angleKF_H[1] = {1.0f}; // Measurement model
-float forward = 0.0f;
-float backward = 0.0f;
-float left = 0.0f;
-float right = 0.0f;
-extern uint8_t control_mode;
-extern uint8_t imu_online_ping[2];
-uint8_t working_mode = 0; //0 default dancing 1 jumping mode
-float left_leg_Tp_feedforward = 0;
-float right_leg_Tp_feedforward = 0;
-float leglength_cmd = 0.12f;
-static uint8_t spin_keyboard_toggle = 0;
-static uint8_t last_q_state = 0;
+// ========== FORCE COMPENSATION VARIABLES ==========
+float F_gravity = 0.0f;        // Gravity compensation force
+float F_gravity_left = 0.0f;   // Left leg gravity compensation
+float F_gravity_right = 0.0f;  // Right leg gravity compensation
+float F_roll = 0.0f;           // Roll compensation force
+float F_inertia = 0.0f;        // Inertial force compensation
+float left_ankle_rad = 0.0f;   // Left ankle joint angle
+float right_ankle_rad = 0.0f;  // Right ankle joint angle
 
+// ========== FORCE FILTERING ==========
+float LFN_filtered = 0.0f;   // Filtered left normal force
+float RFN_filtered = 0.0f;   // Filtered right normal force
+float Average_FN = 0.0f;     // Average normal force for ground detection
+const float alpha = 0.5f;    // Force filtering coefficient
+
+// ========== MOTION CONTROL FLAGS ==========
+int spin_toggle = 0;         // Spin mode activation flag
+int jump_state = 0;          // Jump sequence state machine
+uint32_t jump_time_l = 0;    // Left leg jump timing counter
+uint32_t jump_time_r = 0;    // Right leg jump timing counter
+int jump_state_l = 0;        // Left leg jump state
+int jump_state_r = 0;        // Right leg jump state
+
+// ========== HARDWARE STATUS ==========
+extern uint8_t joint_motor_online;  // Joint motor online status
+uint8_t gimbal_direction_toggle = 0; // Gimbal direction control flag
+
+// ========== GIMBAL CONTROL ==========
+int error6900 = 0;  // Error for gimbal position 6900 (0 degrees)
+int error2777 = 0;  // Error for gimbal position 2777 (180 degrees)
+
+// ========== STAIRCASE MODE ==========
+int staircase_toggle = 0;      // Staircase mode toggle flag
+uint8_t staircase_state = 0;   // Staircase climbing state
+uint8_t staircase_detect = 0;  // Staircase edge detection flag
+float threshold_variation;      // Dynamic ground detection threshold
+
+// ========== ANGLE FILTERING ==========
+float filtered_angle = 0.0f;                // Filtered gimbal angle
+const float angle_alpha = 0.15f;            // Angle filter coefficient
+const float dTheta_alpha = 1.0f;            // Angular velocity filter coefficient
+
+// ========== MOVEMENT COMMANDS ==========
+float forward = 0.0f;          // Forward movement command
+float keyboard_cmd = 0;        // Raw keyboard command
+float addSpeedSlope = 0;       // Speed ramping variable
+
+// ========== SYSTEM CONTROL ==========
+extern uint8_t control_mode;   // Control mode (keyboard/remote)
+extern uint8_t imu_online_ping[2];  // IMU online status
+uint8_t working_mode = 0;      // 0=dancing mode, 1=jumping mode
+
+// ========== CONFIGURATION ==========
+float leglength_cmd = 0.12f;  // Target leg length command
+static uint8_t spin_keyboard_toggle = 0;  // Keyboard spin toggle state
+static uint8_t last_q_state = 0;         // Previous Q key state for edge detection
+
+// ========== FUNCTION IMPLEMENTATIONS ==========
+
+/**
+ * @brief Initialize all PID controllers with their respective gains
+ */
 void Ctrl_Init()
 {
     // Robot main PID initialization
@@ -123,28 +143,33 @@ void Ctrl_Init()
     PID_Init(&rollPID, 100, 0.0, 2.0, -50.0, 50.0);
     PID_Init(&yawPID.outer, 0.0045, 0.0, 0.0, -3.0, 3.0);
     PID_Init(&yawPID.inner, 3.5, 0.0, 0.0, -3.0, 3.0);
-//    PID_Init(&spinPID, 3.0, 0.0, 0.1, -2.0, 2.0);
     PID_Init(&leftWheelPID, 50.0, 0.0, 0.3, -10.0, 10.0);
     PID_Init(&rightWheelPID, 50.0, 0.0, 0.3, -10.0, 10.0);
-
 }
 
 #define MAX_ANGLE 8191
 #define HALF_RANGE (MAX_ANGLE / 2)
+
+/**
+ * @brief Calculate shortest angular error between current and target positions
+ * @param current Current encoder position
+ * @param target Target encoder position
+ * @return Shortest angular error
+ */
 int computeError(int current, int target) {
     return ((current - target + HALF_RANGE) % MAX_ANGLE) - HALF_RANGE;
 }
-float keyboard_cmd = 0;
-float addSpeedSlope = 0;
+
+/**
+ * @brief Main control target update task
+ * Processes user input and updates robot movement targets with smooth ramping
+ */
 void Ctrl_TargetUpdateTask()
 {
-
-
     TickType_t xLastWakeTime = xTaskGetTickCount();
     float speedSlopeStep = 0.4f;
     float legLengthSlope = 0.0015f;
     float keyboardSlopeStep = 0.001f;
-//    float speedCmdSlope = 0.016f;
 
     while (1)
     {
@@ -172,12 +197,6 @@ void Ctrl_TargetUpdateTask()
 
     	forward = keyboard_cmd + addSpeedSlope*3.0f;
 
-    	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_A) {
-    		left = KEYBD_MAX_SPD;
-    	}
-    	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_D) {
-    		right = -KEYBD_MAX_SPD;
-    	}
         float desiredSpeedCmd;
         if (fabs(error6900) < fabs(error2777)){
             if (control_mode == KEYBOARD_CTRL_MODE){
@@ -220,25 +239,8 @@ void Ctrl_TargetUpdateTask()
             }
         }
 
-//        if (desiredSpeedCmd == 0.0f) {
-//            target.speedCmd = 0.0f;
-//        }
-//        else if ((desiredSpeedCmd > 0 && target.speedCmd < 0) ||
-//                 (desiredSpeedCmd < 0 && target.speedCmd > 0)) {
-//            target.speedCmd = 0.0f;
-//        }
-//        else if (fabs(desiredSpeedCmd - target.speedCmd) < speedCmdSlope) {
-//            target.speedCmd = desiredSpeedCmd;
-//        }
-//        else {
-//            if (desiredSpeedCmd > target.speedCmd)
-//                target.speedCmd += speedCmdSlope;
-//            else
-//                target.speedCmd -= speedCmdSlope;
-//        }
         target.speedCmd = desiredSpeedCmd;
 
-        //g_remote_cmd.keyboard_keys & KEY_OFFSET_Q;
         if (control_mode == KEYBOARD_CTRL_MODE){
         	uint8_t current_q_state = (g_remote_cmd.keyboard_keys & KEY_OFFSET_Q) ? 1 : 0;
         	// Edge detection - only toggle when key changes from not pressed to pressed
@@ -259,9 +261,6 @@ void Ctrl_TargetUpdateTask()
         		spin_speed = 0;
         	}
         }
-
-
-        
 
         if(g_remote_cmd.left_switch == 3){
         	working_mode = 1;
@@ -286,7 +285,6 @@ void Ctrl_TargetUpdateTask()
         		}
         	}
         }
-
 
         float legLength = (leftLegPos.length + rightLegPos.length) / 2;
         speedSlopeStep = -(legLength - 0.15f) * 0.03f + 1.0f;
@@ -331,10 +329,6 @@ void Ctrl_TargetUpdateTask()
         	else
         		target.legLength -= legLengthSlope;
         }
-//        target.legLength = 0.17f + ((float)g_remote_cmd.left_x / 660)*0.15f;
-//        if (target.legLength < 0.115f) {
-//        	target.legLength = 0.115f;
-//        }
         
         vTaskDelayUntil(&xLastWakeTime, 5);
     }
@@ -419,18 +413,10 @@ void state_update() {
     stateVar.Ltheta = leftLegPos.angle - M_PI_2 - INS.Pitch;
     stateVar.LdTheta = (stateVar.Ltheta - last_Ltheta)/0.005f;
     last_Ltheta = stateVar.Ltheta;
-    // Apply low-pass filter to left leg angular velocity
-    //float raw_LdTheta = leftLegPos.dAngle - (-INS.Gyro[1]);
-    //filtered_LdTheta = dTheta_alpha * raw_LdTheta + (1.0f - dTheta_alpha) * filtered_LdTheta;
-    //stateVar.LdTheta = filtered_LdTheta;
 
     stateVar.Rtheta = rightLegPos.angle - M_PI_2 - INS.Pitch;
     stateVar.RdTheta = (stateVar.Rtheta - last_Rtheta)/0.005f;
     last_Rtheta = stateVar.Rtheta;
-    // Apply low-pass filter to right leg angular velocity
-//    float raw_RdTheta = rightLegPos.dAngle - (-INS.Gyro[1]);
-//    filtered_RdTheta = dTheta_alpha * raw_RdTheta + (1.0f - dTheta_alpha) * filtered_RdTheta;
-//    stateVar.RdTheta = filtered_RdTheta;
 
     stateVar.legLength = (leftLegPos.length + rightLegPos.length) / 2;
     stateVar.dLegLength = (leftLegPos.dLength + rightLegPos.dLength) / 2;
@@ -511,37 +497,7 @@ void calculate_T_TP(int touching_ground){
     RlqrOutTp = k[1][0] * Rx[0] + k[1][1] * Rx[1] + k[1][2] * Rx[2] + k[1][3] * Rx[3] + k[1][4] * Rx[4] + k[1][5] * Rx[5];
 }
 
-void gimbal_auto_front(){ // Find shortest distance to align robot gimbal and body
-    // Apply low-pass filter to raw angle data
-//    filtered_angle = angle_alpha * g_can_motors[19].raw_data.angle[0] + (1.0f - angle_alpha) * filtered_angle;
-    
-    // Check for keyboard input for 90/-90 degree centering
-//    if ((g_remote_cmd.keyboard_keys & KEY_OFFSET_A) || (g_remote_cmd.keyboard_keys & KEY_OFFSET_D)) {
-//        // Find shortest path to either 90 or -90 degrees
-//        if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 0){
-//            gimbal_direction_toggle = 1;
-//        }else if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 1){
-//            gimbal_direction_toggle = 0;
-//        }
-//        if (gimbal_direction_toggle == 1){
-//            g_can_motors[19].angle_data.center_ang = 1367; // -90 degrees
-//        }else{
-//            g_can_motors[19].angle_data.center_ang = 4839; // 90 degrees
-//        }
-//    }
-//    else {
-        // Use filtered angle for direction toggle logic for 0/180 degrees
-//        if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 0){
-//            gimbal_direction_toggle = 1;
-//        }else if(fabs(g_can_motors[19].angle_data.adj_ang) > M_PI_2 && gimbal_direction_toggle == 1){
-//            gimbal_direction_toggle = 0;
-//        }
-//        if (gimbal_direction_toggle == 1){
-//            g_can_motors[19].angle_data.center_ang = 2777;
-//        }else{
-//            g_can_motors[19].angle_data.center_ang = 6905;
-//        }
-
+void gimbal_auto_front(){
 }
 
 void balancing_chassis_task(void *argument) {
@@ -577,9 +533,7 @@ void balancing_chassis_task(void *argument) {
             chassis_state = 1;
         }
         
-//        gimbal_auto_front(); // Align gimbal 0 or 180
         filtered_angle = angle_alpha * g_can_motors[19].raw_data.angle[0] + (1.0f - angle_alpha) * filtered_angle;
-//        F_gravity = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*8.0f*9.81f);
         F_gravity = 0.35*BODY_MASS*9.81f;
         F_roll = (BODY_MASS + LEG_MASS) * 9.81f * arm_sin_f32(INS.Roll);
         left_ankle_rad = acos((-(leftLegPos.length*leftLegPos.length) + (UPPER_LEG_LENGTH*UPPER_LEG_LENGTH) + (LOWER_LEG_LENGTH*LOWER_LEG_LENGTH))/(2.0f*UPPER_LEG_LENGTH*LOWER_LEG_LENGTH));
@@ -591,7 +545,6 @@ void balancing_chassis_task(void *argument) {
         	right_ankle_rad = 0.2f;
         }
         F_inertia = (0.5f*BODY_MASS + 8.0f*LEG_MASS)*(((leftLegPos.length+rightLegPos.length)/2.0f)*INS.Gyro[2]*filtered_v)/(2.0f*RADIUS_BETWEEN_2LEG);
-//        F_inertia_right = (0.5f*BODY_MASS + LEG_MASS)*(rightLegPos.length*INS.Gyro[2]*filtered_v)/(2.0f*RADIUS_BETWEEN_2LEG);
         F_gravity_left = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*(F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(left_ankle_rad) - F_roll + F_inertia));
         F_gravity_right = fabs(cos((stateVar.Ltheta + stateVar.Rtheta)/2)*(F_gravity + (0.15*BODY_MASS) * 9.81f *arm_sin_f32(right_ankle_rad) + F_roll - F_inertia));
 
@@ -638,10 +591,8 @@ void balancing_chassis_task(void *argument) {
                 error2777 = computeError(filtered_angle, 2777);
 
                 if (fabs(error6900) < fabs(error2777)) {
-//                    PID_Compute(&yawPID, target.yawAngle, error6900, dt, 0);
                     PID_CascadeCalc(&yawPID,target.yawAngle, error6900,INS.Gyro[2],dt);
                 } else {
-//                    PID_Compute(&yawPID, target.yawAngle, error2777, dt, 0);
                     PID_CascadeCalc(&yawPID,target.yawAngle, error2777,INS.Gyro[2],dt);
                 }
                 mf_set_tor[0] = -LlqrOutT * lqrTRatio + yawPID.output;
@@ -711,17 +662,12 @@ void balancing_chassis_task(void *argument) {
                 	error6900 = computeError(filtered_angle, 6900);
                 	error2777 = computeError(filtered_angle, 2777);
                 }
-//                error6900 = computeError(filtered_angle, 6900);
-//                error2777 = computeError(filtered_angle, 2777);
 
                 if (fabs(spin_speed) > 0) {
                     if (spin_toggle == 0) {
                         spin_toggle = 1;
                     }
                     target.position = stateVar.x;
-//                    PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm, 0.005, 0);
-//                    left_leg_Tp_feedforward = leftWheel.torque * leftLegPos.length;
-//                    right_leg_Tp_feedforward = rightWheel.torque * rightLegPos.length;
                     mf_set_tor[0] = -LlqrOutT * lqrTRatio + leftWheelPID.output*leftLegPos.length;
                     mf_set_tor[1] = -RlqrOutT * lqrTRatio + rightWheelPID.output*rightLegPos.length;
                 } else {
@@ -784,7 +730,6 @@ void balancing_chassis_task(void *argument) {
                 dm_set_tor[1] = -rightJointTorque[0];
                 dm_set_tor[2] = -rightJointTorque[1];
 
-                // Check ground state
                 ground_state = ground_detect(leftForce, leftTp, stateVar.Ltheta, leftLegPos.length,
                                               rightForce, rightTp, stateVar.Rtheta, rightLegPos.length);
 
@@ -907,7 +852,7 @@ void balancing_chassis_task(void *argument) {
                 }
                 break;
                 
-            case 6: // Staircase mode
+            case 6: // Staircase mode (Staircase mode is currently changed to dancing mode)
                 calculate_T_TP(1);
                 if (staircase_detect != 0) {
                     chassis_state = 7;
@@ -925,7 +870,6 @@ void balancing_chassis_task(void *argument) {
                         spin_toggle = 1;
                     }
                     target.position = stateVar.x;
-//                    PID_Compute(&spinPID, spin_speed, g_can_motors[19].raw_data.rpm, 0.005, 0);
                     mf_set_tor[0] = -LlqrOutT * lqrTRatio + leftWheelPID.output*leftLegPos.length;
                     mf_set_tor[1] = -RlqrOutT * lqrTRatio + rightWheelPID.output*rightLegPos.length;
                 } else {
@@ -959,8 +903,6 @@ void balancing_chassis_task(void *argument) {
                 dm_set_tor[1] = -rightJointTorque[0];
                 dm_set_tor[2] = -rightJointTorque[1];
 
-//                staircase_detect = ground_detect_staircase(leftForce, leftTp, stateVar.Ltheta, leftLegPos.length,
-//                                                         rightForce, rightTp, stateVar.Rtheta, rightLegPos.length);
                 break;
                 
             case 7: // Staircase detect - crossing edge

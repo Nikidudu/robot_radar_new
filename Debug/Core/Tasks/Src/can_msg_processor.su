@@ -1,4 +1,4 @@
 ../Core/Tasks/Src/can_msg_processor.c:38:6:map_dji_motor	16	static
 ../Core/Tasks/Src/can_msg_processor.c:132:6:convert_raw_can_data	64	static,ignoring_inline_asm
-../Core/Tasks/Src/can_msg_processor.c:260:6:angle_offset	24	static
-../Core/Tasks/Src/can_msg_processor.c:293:6:motor_calc_odometry	32	static
+../Core/Tasks/Src/can_msg_processor.c:259:6:angle_offset	24	static
+../Core/Tasks/Src/can_msg_processor.c:292:6:motor_calc_odometry	32	static

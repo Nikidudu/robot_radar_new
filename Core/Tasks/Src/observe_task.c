@@ -1,7 +1,9 @@
 /**
   *********************************************************************
   * @file      observe_task.c/h
-  * @brief     �������ǶԻ����˶��ٶȹ��ƣ��������ƴ�
+  * @brief     State observer implementation using Kalman filter for robot motion
+  * @details   Estimates robot velocity and position using wheel speeds, leg motion,
+  *           and IMU acceleration data through Kalman filtering
   * @note       
   * @history
   *
@@ -52,6 +54,12 @@ float filtered_x;
 
 float vel_acc[2]; 
 uint32_t OBSERVE_TIME=5;//����������3ms
+
+/**
+ * @brief  Main observer task function
+ * @param  argument: Not used
+ * @retval None
+ */
 void 	Observe_task(void *argument)
 {
 	while(INS.ins_flag==0)
@@ -85,6 +93,11 @@ void 	Observe_task(void *argument)
 	}
 }
 
+/**
+ * @brief  Initialize the Kalman filter for state estimation
+ * @param  EstimateKF: Pointer to Kalman filter structure
+ * @retval None
+ */
 void xvEstimateKF_Init(KalmanFilter_t *EstimateKF)
 {
     Kalman_Filter_Init(EstimateKF, 2, 0, 2);	// ״̬����2ά û�п����� ��������2ά
@@ -97,6 +110,13 @@ void xvEstimateKF_Init(KalmanFilter_t *EstimateKF)
 
 }
 
+/**
+ * @brief  Update Kalman filter with new measurements
+ * @param  EstimateKF: Pointer to Kalman filter structure
+ * @param  acc: Acceleration measurement from IMU
+ * @param  vel: Velocity measurement from wheel encoders
+ * @retval None
+ */
 void xvEstimateKF_Update(KalmanFilter_t *EstimateKF ,float acc,float vel)
 {   	
     //�������˲�������ֵ����

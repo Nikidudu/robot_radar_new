@@ -1,3 +1,12 @@
+/**
+************************************************************************
+* @file:        dm4310_drv.c
+* @brief:       Driver for DM4310 motor control and MF motor control
+* @details:     This file implements the control logic for DM4310 motors and MF motors,
+*               including initialization, communication, and feedback handling.
+************************************************************************
+**/
+
 #include "dm4310_drv.h"
 #include <string.h>
 #include "board_lib.h"
@@ -9,29 +18,45 @@
 
 /**
 ************************************************************************
-* @brief:      	dm4310_enable: ����DM4310�������ģʽ����
-* @param[in]:   hcan:    ָ��CAN_HandleTypeDef�ṹ��ָ��
-* @param[in]:   motor:   ָ��motor_t�ṹ��ָ�룬������������Ϣ�Ϳ��Ʋ���
+* @brief:      	dm4310_enable: DM4310ģʽ
+* @param[in]:   hcan:    ָCAN_HandleTypeDefṹָ
+* @param[in]:   motor:   ָmotor_tṹָ룬ϢͿƲ
 * @retval:     	void
-* @details:    	���ݵ������ģʽ������Ӧ��ģʽ��ͨ��CAN���߷�����������
-*               ֧�ֵĿ���ģʽ����λ��ģʽ��λ���ٶȿ���ģʽ���ٶȿ���ģʽ
+* @details:    	ݵģʽӦģʽͨCAN߷
+*               ֵ֧Ŀģʽλģʽλٶȿģʽٶȿģʽ
 ************************************************************************
 **/
+// CAN communication variables
 uint32_t dm_mailbox[3];
 CAN_TxHeaderTypeDef dm_TxHeader;
-CAN_RxHeaderTypeDef dm_RxHeader;
-uint8_t RxData[8];
+
+// Motor structures
 motor_t MF_motor[2];
 motor_t motor[num];
 Motor leftJoint[2], rightJoint[2], leftWheel, rightWheel;
+
+// Torque command arrays
 float dm_set_tor[4] = {0};
 float mf_set_tor[2] = {0};
 float pitch_set_tor = 0;
+
 extern int chassis_state;
 uint8_t joint_motor_online = 0;
 
 float dm_task_dt = 0;
 
+/**
+************************************************************************
+* @brief:      Motor control task function
+* @param[in]:  argument - Task argument (unused)
+* @retval:     void
+* @details:    Main control loop for motor control:
+*              1. Initializes motors and parameters
+*              2. Updates motor commands and feedback
+*              3. Monitors motor status and handles errors
+*              4. Maintains communication with motors
+************************************************************************
+**/
 void dm_motor_control_task(void *argument) {
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	uint32_t dm_task_lastTick = HAL_GetTick();
@@ -152,18 +177,26 @@ void dm_motor_control_task(void *argument) {
         	dm4310_enable(&hcan2, &motor[Motor4]);
         	dm4310_enable(&hcan1, &motor[Motor5]);
         	DWT_Delay(0.0002);
-        	enableMFMotor(&hcan2, 0x141);
-        	DWT_Delay(0.0002);
-        	enableMFMotor(&hcan2, 0x142);
-        	DWT_Delay(0.0002);
 //        	dm4310_motor_init();
         }
     }
 }
 
+/**
+************************************************************************
+* @brief:      Motor initialization function
+* @param[in]:  None
+* @retval:     void
+* @details:    Initializes all motors (DM4310 and MF) with default parameters:
+*              1. Clears all motor structures
+*              2. Sets motor IDs and control modes
+*              3. Initializes torque settings
+*              4. Enables motors in appropriate modes
+************************************************************************
+**/
 void dm4310_motor_init(void)
-  {
-  	// ��ʼ��Motor1��Motor2�ĵ���ṹ
+{
+  	// Initialize motor structures with zeros
   	memset(&motor[Motor1], 0, sizeof(motor[Motor1]));
   	memset(&motor[Motor2], 0, sizeof(motor[Motor2]));
   	memset(&motor[Motor3], 0, sizeof(motor[Motor3]));
@@ -171,49 +204,37 @@ void dm4310_motor_init(void)
   	memset(&MF_motor[0], 0, sizeof(MF_motor[0]));
   	memset(&MF_motor[1], 0, sizeof(MF_motor[1]));
   	memset(&motor[Motor5], 0, sizeof(motor[Motor5]));
-//  	memset(&motor[Motor6], 0, sizeof(motor[Motor6]));
 
-  	// ����Motor1�ĵ����Ϣ
+  	// Configure Motor1 (Left Joint 1)
   	motor[Motor1].id = 0x81;
-  	motor[Motor1].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+  	motor[Motor1].ctrl.mode = 0;		// MIT mode for precise torque control
   	motor[Motor1].ctrl.tor_set = 0.0f;
-//  	motor[Motor1].ctrl.vel_set = 3.0f;
-//  	motor[Motor1].ctrl.pos_set = 0.0f;
 
+  	// Configure Motor2 (Right Joint 1)
   	motor[Motor2].id = 0x82;
-  	motor[Motor2].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+  	motor[Motor2].ctrl.mode = 0;		// MIT mode for precise torque control
   	motor[Motor2].ctrl.tor_set = 0.0f;
-//  	motor[Motor2].ctrl.vel_set = 3.0f;
-//  	motor[Motor2].ctrl.pos_set = 0.0f;
-//
-  	motor[Motor3].id = 0x83;
-  	motor[Motor3].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
-  	motor[Motor3].ctrl.tor_set = 0.0f;
-//  	motor[Motor3].ctrl.vel_set = 3.0f;
-//  	motor[Motor3].ctrl.pos_set = 0.0f;
 
+  	// Configure Motor3 (Right Joint 2)
+  	motor[Motor3].id = 0x83;
+  	motor[Motor3].ctrl.mode = 0;		// MIT mode for precise torque control
+  	motor[Motor3].ctrl.tor_set = 0.0f;
+
+  	// Configure Motor4 (Left Joint 2)
   	motor[Motor4].id = 0x84;
-  	motor[Motor4].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+  	motor[Motor4].ctrl.mode = 0;		// MIT mode for precise torque control
   	motor[Motor4].ctrl.tor_set = 0.0f;
-//  	motor[Motor4].ctrl.vel_set = 3.0f;
-//  	motor[Motor4].ctrl.pos_set = 0.0f;
+
+  	// Configure Motor5 (Pitch Motor)
   	motor[Motor5].id = 0x85;
-  	motor[Motor5].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
+  	motor[Motor5].ctrl.mode = 0;		// MIT mode for precise torque control
   	motor[Motor5].ctrl.tor_set = 0.0f;
-//  	motor[Motor4].ctrl.vel_set = 3.0f;
-//  	motor[Motor4].ctrl.pos_set = 0.0f;
-//
-//  	motor[Motor5].id = 0x05;
-//  	motor[Motor5].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
-//  	motor[Motor5].ctrl.vel_set = 1.0f;
-//  	motor[Motor5].ctrl.kd_set = 1.0f;
-//
-//  	motor[Motor6].id = 0x06;
-//  	motor[Motor6].ctrl.mode = 0;		// 0: MITģʽ   1: λ���ٶ�ģʽ   2: �ٶ�ģʽ
-//  	motor[Motor6].ctrl.vel_set = 1.0f;
-//  	motor[Motor6].ctrl.kd_set = 1.0f;
-  	MF_motor[0].ctrl.tor_set = 0.0f;
-  	MF_motor[1].ctrl.tor_set = 0.0f;
+
+  	// Initialize MF motors (Wheels)
+  	MF_motor[0].ctrl.tor_set = 0.0f;  // Left wheel
+  	MF_motor[1].ctrl.tor_set = 0.0f;  // Right wheel
+
+  	// Enable all motors with appropriate delays
   	dm4310_enable(&hcan2, &motor[Motor1]);
   	vTaskDelay(1);
   	dm4310_enable(&hcan2, &motor[Motor2]);
@@ -224,19 +245,13 @@ void dm4310_motor_init(void)
   	vTaskDelay(1);
   	dm4310_enable(&hcan1, &motor[Motor5]);
   	vTaskDelay(1);
-  	enableMFMotor(&hcan2, 0x141);
-  	enableMFMotor(&hcan2, 0x142);
+  	enableMFMotor(&hcan2, 0x141);  // Enable left wheel
+  	enableMFMotor(&hcan2, 0x142);  // Enable right wheel
+
+  	// Mark MF motors as initialized
   	MF_motor[0].initialized = 1;
   	MF_motor[1].initialized = 1;
-
-//  	save_pos_zero(&hcan2, 0x81, 0);
-//  	vTaskDelay(1);
-//  	save_pos_zero(&hcan2, 0x82, 0);
-//  	vTaskDelay(1);
-//  	save_pos_zero(&hcan2, 0x83, 0);
-//  	vTaskDelay(1);
-//  	save_pos_zero(&hcan2, 0x84, 0);
-  }
+}
 
 // Callback function to handle CAN receive interrupt
 //void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
@@ -261,7 +276,16 @@ void dm4310_motor_init(void)
 ////    	}
 //}
 
-void enableMFMotor(CAN_HandleTypeDef* hcan,int id) {
+/**
+************************************************************************
+* @brief:      Enable MF motor
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  id - CAN ID of the motor to enable
+* @retval:     void
+* @details:    Sends enable command to MF motor via CAN bus
+************************************************************************
+**/
+void enableMFMotor(CAN_HandleTypeDef* hcan, int id) {
 	uint8_t data[8];
 	dm_TxHeader.DLC = 0x08;  //The Data Bytes of the data. For the C620, it is 8 bytes of data.
 	dm_TxHeader.IDE = CAN_ID_STD;  //Standard CAN BUS transmission
@@ -278,10 +302,18 @@ void enableMFMotor(CAN_HandleTypeDef* hcan,int id) {
 	data[7] = 0x00;
 
 	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
-
 }
 
-void disableMFMotor(CAN_HandleTypeDef* hcan,int id) {
+/**
+************************************************************************
+* @brief:      Disable MF motor
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  id - CAN ID of the motor to disable
+* @retval:     void
+* @details:    Sends disable command to MF motor via CAN bus
+************************************************************************
+**/
+void disableMFMotor(CAN_HandleTypeDef* hcan, int id) {
 	uint8_t data[8];
 	dm_TxHeader.DLC = 8;  //The Data Bytes of the data. For the C620, it is 8 bytes of data.
 	dm_TxHeader.IDE = CAN_ID_STD;  //Standard CAN BUS transmission
@@ -299,6 +331,20 @@ void disableMFMotor(CAN_HandleTypeDef* hcan,int id) {
 
 	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
 }
+
+/**
+************************************************************************
+* @brief:      Enable DM4310 motor
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor - Pointer to motor structure containing configuration
+* @retval:     void
+* @details:    Enables DM4310 motor in specified mode:
+*              - MIT mode (0): Precise torque control
+*              - Position mode (1): Position control
+*              - Speed mode (2): Velocity control
+*              - Position-force mode (3): Combined position and force control
+************************************************************************
+**/
 void dm4310_enable(CAN_HandleTypeDef* hcan, motor_t* motor)
 {
 	switch(motor->ctrl.mode)
@@ -317,14 +363,15 @@ void dm4310_enable(CAN_HandleTypeDef* hcan, motor_t* motor)
 			break;
 	}	
 }
+
 /**
 ************************************************************************
-* @brief:      	dm4310_disable: ����DM4310�������ģʽ����
-* @param[in]:   hcan:    ָ��CAN_HandleTypeDef�ṹ��ָ��
-* @param[in]:   motor:   ָ��motor_t�ṹ��ָ�룬������������Ϣ�Ϳ��Ʋ���
+* @brief:      	dm4310_disable: DM4310ģʽ
+* @param[in]:   hcan:    ָCAN_HandleTypeDefṹָ
+* @param[in]:   motor:   ָmotor_tṹָ룬ϢͿƲ
 * @retval:     	void
-* @details:    	���ݵ������ģʽ������Ӧ��ģʽ��ͨ��CAN���߷��ͽ�������
-*               ֧�ֵĿ���ģʽ����λ��ģʽ��λ���ٶȿ���ģʽ���ٶȿ���ģʽ
+* @details:    	ݵ����ģʽӦģʽͨCAN߷ͽ
+*               ֵ֧Ŀģʽλģʽλٶȿģʽٶȿģʽ
 ************************************************************************
 **/
 void dm4310_disable(CAN_HandleTypeDef* hcan, motor_t *motor)
@@ -346,14 +393,18 @@ void dm4310_disable(CAN_HandleTypeDef* hcan, motor_t *motor)
 	}	
 	dm4310_clear_para(motor);
 }
+
 /**
 ************************************************************************
-* @brief:      	dm4310_ctrl_send: ����DM4310������������
-* @param[in]:   hcan:    ָ��CAN_HandleTypeDef�ṹ��ָ��
-* @param[in]:   motor:   ָ��motor_t�ṹ��ָ�룬������������Ϣ�Ϳ��Ʋ���
-* @retval:     	void
-* @details:    	���ݵ������ģʽ������Ӧ�����DM4310���
-*               ֧�ֵĿ���ģʽ����λ��ģʽ��λ���ٶȿ���ģʽ���ٶȿ���ģʽ
+* @brief:      Send control command to DM4310 motor
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor - Pointer to motor structure containing control parameters
+* @retval:     void
+* @details:    Sends control commands based on motor mode:
+*              - MIT mode: Position, velocity, KP, KD, and torque
+*              - Position mode: Position and velocity
+*              - Speed mode: Velocity only
+*              - Position-force mode: Position, velocity, and force
 ************************************************************************
 **/
 void dm4310_ctrl_send(CAN_HandleTypeDef* hcan, motor_t *motor)
@@ -374,13 +425,18 @@ void dm4310_ctrl_send(CAN_HandleTypeDef* hcan, motor_t *motor)
 			break;
 	}	
 }
+
 /**
 ************************************************************************
-* @brief:      	dm4310_set: ����DM4310������Ʋ�������
-* @param[in]:   motor:   ָ��motor_t�ṹ��ָ�룬������������Ϣ�Ϳ��Ʋ���
-* @retval:     	void
-* @details:    	���������������DM4310����Ŀ��Ʋ���������λ�á��ٶȡ�
-*               ��������(KP)��΢������(KD)��Ť��
+* @brief:      Set DM4310 motor control parameters
+* @param[in]:  motor - Pointer to motor structure
+* @retval:     void
+* @details:    Updates motor control parameters from command structure:
+*              - KD (derivative gain)
+*              - KP (proportional gain)
+*              - Position setpoint
+*              - Velocity setpoint
+*              - Torque setpoint
 ************************************************************************
 **/
 void dm4310_set(motor_t *motor)
@@ -392,13 +448,15 @@ void dm4310_set(motor_t *motor)
 	motor->ctrl.tor_set	= motor->cmd.tor_set;
 
 }
+
 /**
 ************************************************************************
-* @brief:      	dm4310_clear: ���DM4310������Ʋ�������
-* @param[in]:   motor:   ָ��motor_t�ṹ��ָ�룬������������Ϣ�Ϳ��Ʋ���
-* @retval:     	void
-* @details:    	��DM4310�������������Ϳ��Ʋ������㣬����λ�á��ٶȡ�
-*               ��������(KP)��΢������(KD)��Ť��
+* @brief:      Clear DM4310 motor parameters
+* @param[in]:  motor - Pointer to motor structure
+* @retval:     void
+* @details:    Resets all motor control parameters to zero:
+*              - Command parameters (KD, KP, position, velocity, torque)
+*              - Control parameters (KD, KP, position, velocity, torque)
 ************************************************************************
 **/
 void dm4310_clear_para(motor_t *motor)
@@ -415,13 +473,14 @@ void dm4310_clear_para(motor_t *motor)
 	motor->ctrl.vel_set = 0;
 	motor->ctrl.tor_set = 0;
 }
+
 /**
 ************************************************************************
-* @brief:      	dm4310_clear_err: ���DM4310���������
-* @param[in]:   hcan: 	 ָ��CAN���ƽṹ���ָ��
+* @brief:      	dm4310_clear_err: DM4310
+* @param[in]:   hcan: 	 ָCANƽṹָ
 * @param[in]:  	motor:   ָ�����ṹ���ָ��
 * @retval:     	void
-* @details:    	���ݵ���Ŀ���ģʽ�����ö�Ӧģʽ�����������
+* @details:    	���ݵ���ĿģʽöӦģʽ
 ************************************************************************
 **/
 void dm4310_clear_err(CAN_HandleTypeDef* hcan, motor_t *motor)
@@ -439,14 +498,18 @@ void dm4310_clear_err(CAN_HandleTypeDef* hcan, motor_t *motor)
 			break;
 	}	
 }
+
 /**
 ************************************************************************
-* @brief:      	dm4310_fbdata: ��ȡDM4310����������ݺ���
-* @param[in]:   motor:    ָ��motor_t�ṹ��ָ�룬������������Ϣ�ͷ�������
-* @param[in]:   rx_data:  ָ������������ݵ�����ָ��
-* @retval:     	void
-* @details:    	�ӽ��յ�����������ȡDM4310����ķ�����Ϣ���������ID��
-*               ״̬��λ�á��ٶȡ�Ť���Լ�����¶Ȳ���
+* @brief:      Process DM4310 motor feedback data
+* @param[in]:  motor - Pointer to motor structure to store feedback
+* @param[in]:  rx_data - Pointer to received CAN data
+* @retval:     void
+* @details:    Processes and stores motor feedback data:
+*              - Motor ID and state
+*              - Position, velocity, and torque
+*              - Temperature (MOSFET and coil)
+*              Applies necessary scaling and sign corrections
 ************************************************************************
 **/
 void dm4310_fbdata(motor_t *motor, uint8_t *rx_data)
@@ -469,6 +532,7 @@ void dm4310_fbdata(motor_t *motor, uint8_t *rx_data)
 		motor->para.pos += 3.142f;
 	}
 }
+
 void MF_fbdata(motor_t *motor, uint8_t *rx_data, uint32_t id)
 {
     // Parse motor temperature directly from DATA[1]
@@ -514,17 +578,16 @@ void MF_fbdata(motor_t *motor, uint8_t *rx_data, uint32_t id)
     }
 }
 
-
-
 /**
 ************************************************************************
-* @brief:      	float_to_uint: ������ת��Ϊ�޷�����������
-* @param[in]:   x_float:	��ת���ĸ�����
-* @param[in]:   x_min:		��Χ��Сֵ
-* @param[in]:   x_max:		��Χ���ֵ
-* @param[in]:   bits: 		Ŀ���޷���������λ��
-* @retval:     	�޷����������
-* @details:    	�������ĸ����� x ��ָ����Χ [x_min, x_max] �ڽ�������ӳ�䣬ӳ����Ϊһ��ָ��λ�����޷�������
+* @brief:      Convert float to unsigned integer
+* @param[in]:  x_float - Float value to convert
+* @param[in]:  x_min - Minimum value of range
+* @param[in]:  x_max - Maximum value of range
+* @param[in]:  bits - Number of bits for result
+* @retval:     Unsigned integer result
+* @details:    Maps float value from [x_min, x_max] to [0, 2^bits-1]
+*              Used for converting control values to CAN protocol format
 ************************************************************************
 **/
 int float_to_uint(float x_float, float x_min, float x_max, int bits)
@@ -534,15 +597,17 @@ int float_to_uint(float x_float, float x_min, float x_max, int bits)
 	float offset = x_min;
 	return (int) ((x_float-offset)*((float)((1<<bits)-1))/span);
 }
+
 /**
 ************************************************************************
-* @brief:      	uint_to_float: �޷�������ת��Ϊ����������
-* @param[in]:   x_int: ��ת�����޷�������
-* @param[in]:   x_min: ��Χ��Сֵ
-* @param[in]:   x_max: ��Χ���ֵ
-* @param[in]:   bits:  �޷���������λ��
-* @retval:     	���������
-* @details:    	���������޷������� x_int ��ָ����Χ [x_min, x_max] �ڽ�������ӳ�䣬ӳ����Ϊһ��������
+* @brief:      Convert unsigned integer to float
+* @param[in]:  x_int - Integer value to convert
+* @param[in]:  x_min - Minimum value of range
+* @param[in]:  x_max - Maximum value of range
+* @param[in]:  bits - Number of bits in input
+* @retval:     Float result
+* @details:    Maps unsigned integer from [0, 2^bits-1] to [x_min, x_max]
+*              Used for converting CAN protocol values to control values
 ************************************************************************
 **/
 float uint_to_float(int x_int, float x_min, float x_max, int bits)
@@ -555,12 +620,15 @@ float uint_to_float(int x_int, float x_min, float x_max, int bits)
 
 /**
 ************************************************************************
-* @brief:      	enable_motor_mode: ���õ��ģʽ����
-* @param[in]:   hcan:     ָ��CAN_HandleTypeDef�ṹ��ָ��
-* @param[in]:   motor_id: ���ID��ָ��Ŀ����
-* @param[in]:   mode_id:  ģʽID��ָ��Ҫ������ģʽ
-* @retval:     	void
-* @details:    	ͨ��CAN�������ض�������������ض�ģʽ������
+* @brief:      Enable motor mode
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  mode_id - Operating mode to enable
+* @retval:     void
+* @details:    Sends enable command for specified motor mode:
+*              - Sets up CAN frame with enable command
+*              - Handles mailbox overflow conditions
+*              - Ensures reliable transmission
 ************************************************************************
 **/
 void enable_motor_mode(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id)
@@ -590,14 +658,17 @@ void enable_motor_mode(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode
 	if (status == HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox))
 		status = HAL_ERROR; // HIHIHIH
 }
+
 /**
 ************************************************************************
-* @brief:      	disable_motor_mode: ���õ��ģʽ����
-* @param[in]:   hcan:     ָ��CAN_HandleTypeDef�ṹ��ָ��
-* @param[in]:   motor_id: ���ID��ָ��Ŀ����
-* @param[in]:   mode_id:  ģʽID��ָ��Ҫ���õ�ģʽ
-* @retval:     	void
-* @details:    	ͨ��CAN�������ض�������ͽ����ض�ģʽ������
+* @brief:      Disable motor mode
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  mode_id - Operating mode to disable
+* @retval:     void
+* @details:    Sends disable command for specified motor mode:
+*              - Sets up CAN frame with disable command
+*              - Ensures proper mode deactivation
 ************************************************************************
 **/
 void disable_motor_mode(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id)
@@ -619,14 +690,17 @@ void disable_motor_mode(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mod
 	
 	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
 }
+
 /**
 ************************************************************************
-* @brief:      	save_pos_zero: ����λ����㺯��
-* @param[in]:   hcan:     ָ��CAN_HandleTypeDef�ṹ��ָ��
-* @param[in]:   motor_id: ���ID��ָ��Ŀ����
-* @param[in]:   mode_id:  ģʽID��ָ��Ҫ����λ������ģʽ
-* @retval:     	void
-* @details:    	ͨ��CAN�������ض�������ͱ���λ����������
+* @brief:      Save zero position for motor
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  mode_id - Operating mode for position save
+* @retval:     void
+* @details:    Saves current position as zero reference:
+*              - Used for calibrating motor position
+*              - Important for position control modes
 ************************************************************************
 **/
 void save_pos_zero(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id)
@@ -648,14 +722,17 @@ void save_pos_zero(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id)
 	
 	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
 }
+
 /**
 ************************************************************************
-* @brief:      	clear_err: ������������
-* @param[in]:   hcan:     ָ��CAN_HandleTypeDef�ṹ��ָ��
-* @param[in]:   motor_id: ���ID��ָ��Ŀ����
-* @param[in]:   mode_id:  ģʽID��ָ��Ҫ��������ģʽ
-* @retval:     	void
-* @details:    	ͨ��CAN�������ض�������������������
+* @brief:      Clear motor error state
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  mode_id - Operating mode for error clear
+* @retval:     void
+* @details:    Clears error state of motor:
+*              - Resets error flags
+*              - Allows motor to resume operation
 ************************************************************************
 **/
 void clear_err(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id)
@@ -677,21 +754,25 @@ void clear_err(CAN_HandleTypeDef* hcan, uint16_t motor_id, uint16_t mode_id)
 	
 	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
 }
+
 /**
 ************************************************************************
-* @brief:      	mit_ctrl: MITģʽ�µĵ�����ƺ���
-* @param[in]:   hcan:			ָ��CAN_HandleTypeDef�ṹ��ָ�룬����ָ��CAN����
-* @param[in]:   motor_id:	���ID��ָ��Ŀ����
-* @param[in]:   pos:			λ�ø���ֵ
-* @param[in]:   vel:			�ٶȸ���ֵ
-* @param[in]:   kp:				λ�ñ���ϵ��
-* @param[in]:   kd:				λ��΢��ϵ��
-* @param[in]:   torq:			ת�ظ���ֵ
-* @retval:     	void
-* @details:    	ͨ��CAN������������MITģʽ�µĿ���֡��
+* @brief:      MIT mode control command
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  pos - Position setpoint
+* @param[in]:  vel - Velocity setpoint
+* @param[in]:  kp - Position gain
+* @param[in]:  kd - Velocity gain
+* @param[in]:  torq - Torque setpoint
+* @retval:     void
+* @details:    Sends MIT mode control command:
+*              - Converts float parameters to protocol format
+*              - Packs data into CAN frame
+*              - Handles all MIT mode control parameters
 ************************************************************************
 **/
-void mit_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float pos, float vel,float kp, float kd, float torq)
+void mit_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float pos, float vel, float kp, float kd, float torq)
 {
 	uint8_t data[8];
 	uint16_t pos_tmp,vel_tmp,kp_tmp,kd_tmp,tor_tmp;
@@ -717,17 +798,21 @@ void mit_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float pos, float vel,f
 	
 	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
 }
+
 /**
 ************************************************************************
-* @brief:      	pos_speed_ctrl: λ���ٶȿ��ƺ���
-* @param[in]:   hcan:			ָ��CAN_HandleTypeDef�ṹ��ָ�룬����ָ��CAN����
-* @param[in]:   motor_id:	���ID��ָ��Ŀ����
-* @param[in]:   vel:			�ٶȸ���ֵ
-* @retval:     	void
-* @details:    	ͨ��CAN������������λ���ٶȿ�������
+* @brief:      Position and speed control command
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  pos - Position setpoint
+* @param[in]:  vel - Velocity setpoint
+* @retval:     void
+* @details:    Sends position-speed control command:
+*              - Packs position and velocity into CAN frame
+*              - Used for combined position-velocity control
 ************************************************************************
 **/
-void pos_speed_ctrl(CAN_HandleTypeDef* hcan,uint16_t motor_id, float pos, float vel)
+void pos_speed_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float pos, float vel)
 {
 	dm_TxHeader.DLC = 8;  //The Data Bytes of the data. For the C620, it is 8 bytes of data.
 	dm_TxHeader.IDE = CAN_ID_STD;  //Standard CAN BUS transmission
@@ -752,17 +837,20 @@ void pos_speed_ctrl(CAN_HandleTypeDef* hcan,uint16_t motor_id, float pos, float 
 	
 	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
 }
+
 /**
 ************************************************************************
-* @brief:      	speed_ctrl: �ٶȿ��ƺ���
-* @param[in]:   hcan: 		ָ��CAN_HandleTypeDef�ṹ��ָ�룬����ָ��CAN����
-* @param[in]:   motor_id: ���ID��ָ��Ŀ����
-* @param[in]:   vel: 			�ٶȸ���ֵ
-* @retval:     	void
-* @details:    	ͨ��CAN�������������ٶȿ�������
+* @brief:      Speed control command
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  vel - Velocity setpoint
+* @retval:     void
+* @details:    Sends speed control command:
+*              - Packs velocity setpoint into CAN frame
+*              - Used for pure velocity control mode
 ************************************************************************
 **/
-void speed_ctrl(CAN_HandleTypeDef* hcan,uint16_t motor_id, float vel)
+void speed_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float vel)
 {
 	dm_TxHeader.DLC = 8;  //The Data Bytes of the data. For the C620, it is 8 bytes of data.
 	dm_TxHeader.IDE = CAN_ID_STD;  //Standard CAN BUS transmission
@@ -780,8 +868,21 @@ void speed_ctrl(CAN_HandleTypeDef* hcan,uint16_t motor_id, float vel)
 	
 	HAL_CAN_AddTxMessage(hcan, &dm_TxHeader, data, dm_mailbox);
 }
-void MFspeed_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float vel)
-{
+
+/**
+************************************************************************
+* @brief:      Send speed control command to MF motor
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  vel - Desired velocity in degrees per second
+* @retval:     void
+* @details:    Sends speed control command to MF motor:
+*              - Command byte 0xA2 for speed control
+*              - Speed value scaled by 100 for protocol format
+*              - Handles error conditions during transmission
+************************************************************************
+**/
+void MFspeed_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float vel) {
     // Setting up the CAN header for 8 bytes data and standard frame
     dm_TxHeader.DLC = 8;                   // Data Length Code: 8 bytes of data
     dm_TxHeader.IDE = CAN_ID_STD;          // Standard CAN ID
@@ -810,6 +911,20 @@ void MFspeed_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float vel)
         Error_Handler();
     }
 }
+
+/**
+************************************************************************
+* @brief:      Send torque control command to MF motor
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  desired_torque - Desired torque in Nm
+* @retval:     void
+* @details:    Sends torque control command to MF motor:
+*              - Command byte 0xA1 for torque control
+*              - Converts torque to current units for motor
+*              - Handles transmission error conditions
+************************************************************************
+**/
 void MFtorque_command(CAN_HandleTypeDef* hcan, uint16_t motor_id, float desired_torque)
 {
     CAN_TxHeaderTypeDef txHeader;
@@ -838,19 +953,22 @@ void MFtorque_command(CAN_HandleTypeDef* hcan, uint16_t motor_id, float desired_
 //        Error_Handler();
     }
 }
+
 /**
 ************************************************************************
-* @brief:      	pos_speed_ctrl: ���ģʽ
-* @param[in]:   hcan:			ָ��CAN_HandleTypeDef�ṹ��ָ�룬����ָ��CAN����
-* @param[in]:   motor_id:	���ID��ָ��Ŀ����
-* @param[in]:   pos:			λ�ø���ֵ
-* @param[in]:   vel:			�ٶȸ���ֵ
-* @param[in]:   i:				��������ֵ
-* @retval:     	void
-* @details:    	ͨ��CAN������������λ���ٶȿ�������
+* @brief:      Position and force control command
+* @param[in]:  hcan - Pointer to CAN handle structure
+* @param[in]:  motor_id - CAN ID of target motor
+* @param[in]:  pos - Position setpoint
+* @param[in]:  vel - Velocity limit
+* @param[in]:  i - Force/current setpoint
+* @retval:     void
+* @details:    Sends position-force control command:
+*              - Combines position control with force limiting
+*              - Used for force-sensitive positioning
 ************************************************************************
 **/
-void pos_force_ctrl(CAN_HandleTypeDef* hcan,uint16_t motor_id, float pos, uint16_t vel, uint16_t i)
+void pos_force_ctrl(CAN_HandleTypeDef* hcan, uint16_t motor_id, float pos, uint16_t vel, uint16_t i)
 {
 	dm_TxHeader.DLC = 8;  //The Data Bytes of the data. For the C620, it is 8 bytes of data.
 	dm_TxHeader.IDE = CAN_ID_STD;  //Standard CAN BUS transmission

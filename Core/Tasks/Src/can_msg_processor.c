@@ -129,8 +129,7 @@ void map_dji_motor(uint16_t motor_id, motor_data_t* motor_data){
  * For GM6020 motors, it recenters the motor angle data and converts it to radians.
  */
 
-void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
-		uint8_t *rx_buffer) {
+void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id, uint8_t *rx_buffer) {
 	uint16_t idnum = motor_id - 0x200;
 
 	//if idnum > 24, it's not a DJI motor. Add in a seperate processing function if other CAN devices are added
