@@ -36,7 +36,7 @@ private:
 //extern NetworkBus* UART6_network;
 //extern NetworkBus* UART_network;
 
-extern CANBus* CAN1_network;
-extern CANBus* CAN2_network;
+//extern CANBus* CAN1_network;
+//extern CANBus* CAN2_network;
 
 #endif /* CORE_INC_TELEMETRY_H_ */

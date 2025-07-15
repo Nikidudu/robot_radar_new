@@ -7,11 +7,6 @@
 
 #include "bsp_can.h"
 
-/** Note
- * Currently only the CAN FIFO0 has been implemented. An implementation of FIFO1
- * simultaneously wouldn't be too hard to do.
- */
-
 /**
  * HAL internal callback function that calls abstracted ISR for ease of use.
  * Define can_ISR() elsewhere in code to define behaviour of CAN receive ISR.

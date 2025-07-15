@@ -24,9 +24,9 @@
 
 
 ROCANDriver* CAN1_driver = nullptr;
-CANBus* CAN1_network = nullptr;
+//CANBus* CAN1_network = nullptr;
 ROCANDriver* CAN2_driver = nullptr;
-CANBus* CAN2_network = nullptr;
+//CANBus* CAN2_network = nullptr;
 
 //STMUARTDriver* UART_line = nullptr;
 //NetworkBus* UART_network = nullptr;
@@ -91,7 +91,7 @@ void Telemetry::setup() {
 
 }
 
-void Telemetry::set_id(uint32_t id) {
-	dynamic_cast<ROCANDriver*>(CAN1_network->get_driver())->TxHeaderConfigID(id);
-//	dynamic_cast<ROCANDriver*>(FDCAN2_network->get_driver())->TxHeaderConfigID(id);
-}
+//void Telemetry::set_id(uint32_t id) {
+//	dynamic_cast<ROCANDriver*>(CAN1_network->get_driver())->TxHeaderConfigID(id);
+////	dynamic_cast<ROCANDriver*>(FDCAN2_network->get_driver())->TxHeaderConfigID(id);
+//}
