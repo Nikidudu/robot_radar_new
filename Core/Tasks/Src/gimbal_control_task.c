@@ -148,6 +148,7 @@ void calculate_lead_screw_pitch(motor_data_t *pitch_motor) {
 		}
 
 	// code for servo for zoom-in lens
+	// todo: add a keyboard button to toggle between positions
 	double pulseWidth = (180.0 / 270.0) * 2000 + 500;
 	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, pulseWidth / 10);
 

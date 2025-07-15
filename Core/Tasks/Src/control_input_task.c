@@ -51,7 +51,7 @@ void control_input_task(void *argument) {
 	control_reset();
 	chassis_yaw_pid_init();
 	gimbal_ctrl_data.imu_mode = GIMBAL_MODE;
-	aimbot_pid_init();
+//	aimbot_pid_init();
 	dbus_remote_start();
 	gear_speed.curr_gear = GEAR_DEFAULT;
 	set_gear();
