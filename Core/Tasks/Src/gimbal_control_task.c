@@ -136,6 +136,7 @@ void pitch_control(motor_data_t *pitch_motor) {
 
 void calculate_lead_screw_pitch(motor_data_t *pitch_motor) {
 	pitch_angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
+
 	pitch_motor->output = pitch_motor->rpm_pid.output;
 
 	// upper and lower bound microswitch
@@ -182,6 +183,7 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 
 #ifdef SENTRY
 	// this is calculation for sentry pitch
+	xSemaphoreTake(gimbal_ctrl_data.pitch_semaphore,portMAX_DELAY);
 	float rel_pitch_angle = dm_pitch_motor.angle_data.adj_ang
 				+ gimbal_ctrl_data.pitch - INS.Pitch;
 
@@ -199,9 +201,12 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 	}
 
 	yaw_pid(gimbal_ctrl_data.pitch, INS.Pitch, &dm_pitch_motor.angle_pid);
+	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
+
 	dm_pitch_motor.ctrl.tor_set = 0.4842f*imu_heading.pit - 2.3124f - dm_pitch_motor.angle_pid.output;
 	dm_pitch_motor.ctrl.tor_set += 1.1;
 #else
+	xSemaphoreTake(gimbal_ctrl_data.pitch_semaphore,portMAX_DELAY);
 	float rel_pitch_angle = gimbal_ctrl_data.pitch;
 
 	if (rel_pitch_angle > dm_pitch_motor.angle_data.phy_max_ang) {
@@ -217,6 +222,7 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 	}
 
 	yaw_pid(gimbal_ctrl_data.pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
+	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
 	dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output +
 			(-0.8841*imu_heading.pit*imu_heading.pit - 0.8798*imu_heading.pit + 1.3045);
 #endif
@@ -224,6 +230,7 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 #else
 
 	uint8_t pit_lim = 0;
+	xSemaphoreTake(gimbal_ctrl_data.pitch_semaphore,portMAX_DELAY);
 	float rel_pitch_angle = pitch_motor->angle_data.adj_ang
 				+ gimbal_ctrl_data.pitch - imu_heading.pit;
 
@@ -236,6 +243,7 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 
 	yangle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor,
 			imu_heading.pit, &prev_pit,1);
+	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
 
 	int32_t temp_pit_output = pitch_motor->rpm_pid.output + PITCH_CONST;
 	temp_pit_output = (temp_pit_output < -20000) ? -20000 :
@@ -249,7 +257,7 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 // Pitch calculation for robots with 4 arm linkage
 void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 	uint8_t pit_lim = 0;
-
+	xSemaphoreTake(gimbal_ctrl_data.pitch_semaphore,portMAX_DELAY);
 	float rel_pitch_angle = gimbal_ctrl_data.pitch; // insert function where input desired gimbal pitch angle and output corresponding motor angle
 
 	if (rel_pitch_angle > pitch_motor->angle_data.phy_max_ang) {
@@ -263,6 +271,8 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 	if (pit_lim == 1) {
 		gimbal_ctrl_data.pitch = rel_pitch_angle;
 	}
+	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
+
 #if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
     PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
     PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG

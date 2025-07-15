@@ -232,6 +232,7 @@ typedef struct
 	uint8_t imu_mode;
 	uint8_t enabled;
 	SemaphoreHandle_t yaw_semaphore;
+	SemaphoreHandle_t pitch_semaphore;
 }gimbal_control_t;
 
 
