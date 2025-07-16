@@ -339,6 +339,19 @@ typedef struct{
 	float accel_mult;
 }speed_shift_t;
 
+typedef struct __attribute__((packed)){
+    uint8_t enable_module;	//enable once and leave it (regulation on or off)
+    uint8_t reset;			//reset in case got error eg cap voltage too low, UVLO active
+    uint8_t pow_limit;		//set power regulation point, ie set to current level power
+    uint16_t energy_buffer;	//send over refsys "virtual energy buffer" to abuse
+}ref_msg_packet;
+
+
+typedef struct __attribute__((packed)){
+	float chassis_power;	//originally meant for feedback,  but not really relevant now, use it however you want eg if exceed too long and sc is dead kill motors for a while??
+	uint8_t error;			//any error state
+	uint8_t cap_energy;		//normalized energy left in supercap (impt one)
+}supercap_msg_packet;
 
 enum motor_params
 {
