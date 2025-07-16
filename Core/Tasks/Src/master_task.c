@@ -78,7 +78,8 @@ void master_task(void* argument){
 
 	gimbal_ctrl_data.yaw_semaphore = xSemaphoreCreateBinary();
 	xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
-
+	gimbal_ctrl_data.pitch_semaphore = xSemaphoreCreateBinary();
+	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
 
 	/* add threads, ... */
 	//todo: adjust priorities
