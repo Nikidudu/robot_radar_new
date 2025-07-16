@@ -32,7 +32,7 @@ ROCANDriver* CAN2_driver = nullptr;
 //NetworkBus* UART_network = nullptr;
 
 dummyThread* dummy = nullptr;
-SuperCapCommThread* supercap_thread = nullptr;
+//SuperCapCommThread* supercap_thread = nullptr;
 cvGimbalThread* cv_gimbal_thread = nullptr;
 cvAimbotCommandThread* cv_aimbot_command_thread = nullptr;
 statusThread* status_thread = nullptr;
@@ -51,13 +51,13 @@ void Telemetry::setup() {
 //		UART_network = new NetworkBus(UART_line);
 
 		// CANFD network initialization
-		CAN1_driver = new ROCANDriver(&hcan1, DEVC_NODE_ID);
+//		CAN1_driver = new ROCANDriver(&hcan1, DEVC_NODE_ID);
 //		CAN1_network = new CANBus(CAN1_driver);
 
 //		CAN2_driver = new ROCANDriver(&hcan2, CURRENT_NODE_ID);
 //		CAN2_network = new CANBus(CAN2_driver);
 //		dummy = new dummyThread();
-		supercap_thread = new SuperCapCommThread();
+//		supercap_thread = new SuperCapCommThread();
 //		supercap_thread = new SuperCapCommThread();
 
 //		cv_gimbal_thread = new cvGimbalThread();

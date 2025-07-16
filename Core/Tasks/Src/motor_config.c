@@ -48,6 +48,8 @@ dm_motor_t dm_pitch_motor;
 dm_motor_t dm_yaw_motor;
 
 void motor_calib_task(void *argument) {
+	can_start(&hcan1, 0x00000000, 0x00000000);
+	can_start(&hcan2, 0x00000000, 0x00000000);
 	vTaskDelay(1000);
 	config_motors();
 

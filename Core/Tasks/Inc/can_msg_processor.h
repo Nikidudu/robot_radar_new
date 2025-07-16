@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+#define DEVC_NODE_ID			0x077
+#define SUPERCAP_NODE_ID        0x067
+
 void map_lk_motor(uint16_t motor_id, motor_data_t* motor_data);
 void map_dji_motor(uint16_t motor_id, motor_data_t* motor_data);
 void map_dm_motor(uint16_t motor_id, motor_data_t* motor_data);

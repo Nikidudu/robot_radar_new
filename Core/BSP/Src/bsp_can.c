@@ -11,12 +11,12 @@
  * HAL internal callback function that calls abstracted ISR for ease of use.
  * Define can_ISR() elsewhere in code to define behaviour of CAN receive ISR.
  */
-//void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-//	can_ISR(hcan);
-//}
-//void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-//	can_ISR(hcan);
-//}
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+	can_ISR(hcan);
+}
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+	can_ISR(hcan);
+}
 
 HAL_StatusTypeDef can1_get_msg(CAN_HandleTypeDef *hcan, CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer)
 {

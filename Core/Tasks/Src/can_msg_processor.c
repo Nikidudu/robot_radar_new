@@ -1,5 +1,5 @@
 /*
- * actuator_feedback_task.c
+ * can_msg_processor.c
  *
  *  Created on: Jan 19, 2021
  *      Author: Hans Kurnia
@@ -16,37 +16,128 @@ extern EventGroupHandle_t chassis_event_group;
 extern EventGroupHandle_t launcher_event_group;
 #define ANGLE_LPF 0
 #define SPEED_LPF 0
+
 #ifndef CHASSIS_MCU
 extern motor_data_t g_can_motors[24];
 
- motor_map_t lk_motor_map[65];
- motor_map_t dji_motor_map[25];
- //where is this number from lmao
- motor_map_t dm_motor_map[15];
+motor_map_t lk_motor_map[65];
+motor_map_t dji_motor_map[25];
+//where is this number from lmao
+motor_map_t dm_motor_map[15];
+extern dm_motor_t dm_pitch_motor;
+extern dm_motor_t dm_yaw_motor;
 
 #else
 motor_data_t g_can_motors[12];
 #endif
 
-
-void map_lk_motor(uint16_t motor_id, motor_data_t* motor_data){
-	if (motor_id > 0x140 && motor_id <= 0x160){
-		lk_motor_map[motor_id-0x140].motor_data = motor_data;
-		lk_motor_map[motor_id-0x140].motor_id = motor_id;
+void map_lk_motor(uint16_t motor_id, motor_data_t *motor_data) {
+	if (motor_id > 0x140 && motor_id <= 0x160) {
+		lk_motor_map[motor_id - 0x140].motor_data = motor_data;
+		lk_motor_map[motor_id - 0x140].motor_id = motor_id;
 	}
 }
 
-void map_dji_motor(uint16_t motor_id, motor_data_t* motor_data){
-	if (motor_id <= 24){
+void map_dji_motor(uint16_t motor_id, motor_data_t *motor_data) {
+	if (motor_id <= 24) {
 		dji_motor_map[motor_id].motor_id = motor_id;
 		dji_motor_map[motor_id].motor_data = motor_data;
 	}
 }
 
-void map_dm_motor(uint16_t motor_id, motor_data_t* motor_data){
-	if (motor_id > 0x200 && motor_id <= 0x20E){
-		dm_motor_map[motor_id-0x200].motor_id = motor_id;
-		dm_motor_map[motor_id-0x200].motor_data = motor_data;
+/**
+ * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING
+ * converts the raw can data to the motor_data struct form as well
+ */
+void can_ISR(CAN_HandleTypeDef *hcan) {
+	CAN_RxHeaderTypeDef RxHeader;
+	uint8_t RxData[CAN_BUFFER_SIZE];
+
+	if (hcan->Instance == CAN1) {
+//		uint32_t fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO0);
+//		while (fill_level > 0) {
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
+
+			if (RxHeader.StdId >= 0x200 && RxHeader.StdId <= 0x20E) {
+				if (dji_motor_map[RxHeader.StdId - 0x200].motor_data != NULL) {
+					convert_raw_can_data(
+							dji_motor_map[RxHeader.StdId - 0x200].motor_data,
+							RxHeader.StdId, (uint8_t*) RxData);
+				}
+			} else {
+				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160) {
+					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL) {
+						process_lk_motor(RxData,
+								lk_motor_map[RxHeader.StdId - 0x140].motor_data);
+						BaseType_t xHigherPriorityTaskWoken, xResult;
+						xHigherPriorityTaskWoken = pdFALSE;
+						xResult = xEventGroupSetBitsFromISR(gimbal_event_group,
+								0b01, &xHigherPriorityTaskWoken);
+					}
+				} else if (RxHeader.StdId == DEVC_NODE_ID) {
+					supercapISR(RxData);
+				} else { //if ((RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94)|| (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x75)){
+					int fb_id = (RxData[0]) & 0x0F;
+					switch (fb_id) {
+					case 1:
+					case 5:
+						dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
+						break;
+					}
+					//handle LK motor or other data
+				}
+//				fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO0);
+//			}
+		}
+	}
+	if (hcan->Instance == CAN2) {
+//		uint32_t fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO1);
+//		while (fill_level > 0) {
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData);
+			//		HAL_CAN_DeactivateNotification(hcan,
+			//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
+			//						| CAN_IT_RX_FIFO1_OVERRUN);
+			if (RxHeader.StdId >= 0x200 && RxHeader.StdId <= 0x210) {
+				//StdId +12 to seperate the motors on CAN1 and CAN2
+				if (dji_motor_map[RxHeader.StdId - 0x200 + 12].motor_data
+						!= NULL) {
+					convert_raw_can_data(
+							dji_motor_map[RxHeader.StdId - 0x200 + 12].motor_data,
+							RxHeader.StdId + 12, RxData);
+				}
+			} else {
+				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160) {
+					//handle LK motor or other data
+					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL) {
+						process_lk_motor(RxData,
+								lk_motor_map[RxHeader.StdId - 0x140].motor_data);
+						BaseType_t xHigherPriorityTaskWoken, xResult;
+						xHigherPriorityTaskWoken = pdFALSE;
+						xResult = xEventGroupSetBitsFromISR(gimbal_event_group,
+								0b01, &xHigherPriorityTaskWoken);
+					}
+				} else if (RxHeader.StdId == DEVC_NODE_ID) {
+					supercapISR(RxData);
+				} else { //if ((RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74) || RxHeader.StdId == YAW_MOTOR_ID){
+					int fb_id = (RxData[0]) & 0x0F;
+					switch (fb_id) {
+					case (1):
+						dm4310_fbdata(&dm_yaw_motor, &RxData[0]);
+						break;
+					}
+				}
+			}
+			//		HAL_CAN_ActivateNotification(hcan,
+			//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
+			//						| CAN_IT_RX_FIFO1_OVERRUN);
+//			fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO1);
+//		}
+	}
+}
+void map_dm_motor(uint16_t motor_id, motor_data_t *motor_data) {
+	if (motor_id > 0x200 && motor_id <= 0x20E) {
+		dm_motor_map[motor_id - 0x200].motor_id = motor_id;
+		dm_motor_map[motor_id - 0x200].motor_data = motor_data;
 	}
 }
 
@@ -76,29 +167,29 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 		return;
 	}
 	motor_data_t *curr_motor = can_motor_data;
-		//convert the raw data back into the respective values
-		curr_motor->id = motor_id;
-		curr_motor->raw_data.angle[1] = curr_motor->raw_data.angle[0];
-		curr_motor->raw_data.angle[0] = (rx_buffer[0] << 8) | rx_buffer[1];
-		int16_t temp_rpm = (rx_buffer[2] << 8) | rx_buffer[3];
-		curr_motor->raw_data.rpm = curr_motor->raw_data.rpm * SPEED_LPF
-				+ temp_rpm * (1 - SPEED_LPF);
-		curr_motor->raw_data.torque = (rx_buffer[4] << 8) | rx_buffer[5];
-		curr_motor->raw_data.temp = (rx_buffer[6]);
-		curr_motor->last_time[1] = curr_motor->last_time[0];
-		curr_motor->last_time[0] = get_microseconds();
+	//convert the raw data back into the respective values
+	curr_motor->id = motor_id;
+	curr_motor->raw_data.angle[1] = curr_motor->raw_data.angle[0];
+	curr_motor->raw_data.angle[0] = (rx_buffer[0] << 8) | rx_buffer[1];
+	int16_t temp_rpm = (rx_buffer[2] << 8) | rx_buffer[3];
+	curr_motor->raw_data.rpm = curr_motor->raw_data.rpm * SPEED_LPF
+			+ temp_rpm * (1 - SPEED_LPF);
+	curr_motor->raw_data.torque = (rx_buffer[4] << 8) | rx_buffer[5];
+	curr_motor->raw_data.temp = (rx_buffer[6]);
+	curr_motor->last_time[1] = curr_motor->last_time[0];
+	curr_motor->last_time[0] = get_microseconds();
 
-		float rds_passed = (float) (curr_motor->raw_data.angle[0]
-				- curr_motor->raw_data.angle[1]) / 8192;
-		float time_diff = (float) (curr_motor->last_time[0]
-				- curr_motor->last_time[1]) / (float) (TIMER_FREQ * 60);
-		curr_motor->angle_data.hires_rpm = curr_motor->angle_data.hires_rpm
-				* 0.95 + (rds_passed * time_diff * 0.05);
-		//process the angle data differently depending on the motor type to get radians in the
-		//adj_angle value
+	float rds_passed = (float) (curr_motor->raw_data.angle[0]
+			- curr_motor->raw_data.angle[1]) / 8192;
+	float time_diff = (float) (curr_motor->last_time[0]
+			- curr_motor->last_time[1]) / (float) (TIMER_FREQ * 60);
+	curr_motor->angle_data.hires_rpm = curr_motor->angle_data.hires_rpm * 0.95
+			+ (rds_passed * time_diff * 0.05);
+	//process the angle data differently depending on the motor type to get radians in the
+	//adj_angle value
 
-		//motor must be initialised in motor_config.c first
-		if (curr_motor->motor_type > 0) {
+	//motor must be initialised in motor_config.c first
+	if (curr_motor->motor_type > 0) {
 		switch (curr_motor->motor_type) {
 		case TYPE_GM6020:
 			motor_calc_odometry(&curr_motor->raw_data, &curr_motor->angle_data,
@@ -225,7 +316,7 @@ void angle_offset(raw_data_t *motor_data, angle_data_t *angle_data) {
 void motor_calc_odometry(raw_data_t *motor_data, angle_data_t *angle_data,
 		uint32_t feedback_times[]) {
 	int16_t abs_angle_diff;
-	if (angle_data->init == 0){
+	if (angle_data->init == 0) {
 		angle_data->ticks = motor_data->angle[0];
 		if (angle_data->ticks > angle_data->max_ticks) {
 			angle_data->ticks -= angle_data->tick_range;
@@ -245,8 +336,8 @@ void motor_calc_odometry(raw_data_t *motor_data, angle_data_t *angle_data,
 		abs_angle_diff += angle_data->raw_ticks_range;
 	}
 
-
-	uint16_t gear_ticks = angle_data->raw_ticks_range * angle_data->gearbox_ratio;
+	uint16_t gear_ticks = angle_data->raw_ticks_range
+			* angle_data->gearbox_ratio;
 	angle_data->ticks += abs_angle_diff;
 	while (angle_data->ticks > angle_data->max_ticks) {
 		angle_data->ticks -= angle_data->tick_range;
@@ -258,5 +349,4 @@ void motor_calc_odometry(raw_data_t *motor_data, angle_data_t *angle_data,
 	angle_data->dist = angle_data->ticks * angle_data->wheel_circ / gear_ticks;
 	motor_data->angle[1] = motor_data->angle[0];
 }
-
 
