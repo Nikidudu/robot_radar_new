@@ -293,7 +293,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	6
-#define YAW_CENTER 				0.03
+#define YAW_CENTER 				-2.35321045//0.03
 #define YAW_MAX_ANG				4*PI
 #define YAW_MIN_ANG				4*-PI
 
