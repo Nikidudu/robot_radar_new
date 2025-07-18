@@ -18,7 +18,6 @@ extern int g_spinspin_mode;
 extern uint8_t remote_raw_data[18];
 extern TaskHandle_t referee_processing_task_handle;
 extern DMA_HandleTypeDef hdma_usart6_rx;
-referee_limit_t g_referee_limiters;
 static ref_msg_t g_ref_msg_buffer;
 
 ref_game_state_t ref_game_state;
@@ -63,12 +62,11 @@ void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart){
 }
 
 void referee_processing_task(void *argument) {
-	g_referee_limiters.robot_level = 0;
 	ref_processing_status_t proc_status;
-	g_referee_limiters.feeding_speed = LV1_FEEDER;
-	g_referee_limiters.projectile_speed = LV1_PROJECTILE;
+//	g_referee_limiters.feeding_speed = LV1_FEEDER;
+//	g_referee_limiters.projectile_speed = LV1_PROJECTILE;
 //	g_referee_limiters.wheel_power_limit = LV1_POWER;
-	g_referee_limiters.robot_level = 1;
+//	g_referee_limiters.robot_level = 1;
 	status_led(7, on_led);
 	status_led(8, off_led);
 	ref_robot_data.robot_id = 0;
@@ -151,30 +149,31 @@ void referee_processing_task(void *argument) {
 
 
 		status_led(5, on_led);
-#ifdef LVL_TUNING
-		if (ref_robot_data.robot_level == 1) {
-			g_referee_limiters.feeding_speed = LV1_FEEDER;
-			g_referee_limiters.projectile_speed = LV1_PROJECTILE;
-			g_referee_limiters.robot_level = 1;
-			status_led(7, on_led);
-			status_led(8, off_led);
-		} else if (ref_robot_data.robot_level == 2) {
-			g_referee_limiters.feeding_speed = LV2_FEEDER;
-			g_referee_limiters.projectile_speed = LV2_PROJECTILE;
-			g_referee_limiters.robot_level = 2;
-			status_led(7, off_led);
-			status_led(8, on_led);
-		} else if (ref_robot_data.robot_level == 3) {
-			g_referee_limiters.feeding_speed = LV3_FEEDER;
-			g_referee_limiters.projectile_speed = LV3_PROJECTILE;
-			g_referee_limiters.robot_level = 3;
-			status_led(7, on_led);
-			status_led(8, on_led);
-		} else {
-			g_referee_limiters.feeding_speed = LV1_FEEDER;
-			g_referee_limiters.projectile_speed = LV1_PROJECTILE;
-		}
-#endif
+// for having varying firing speed, which we don't need now
+//#ifdef LVL_TUNING
+//		if (ref_robot_data.robot_level == 1) {
+//			g_referee_limiters.feeding_speed = LV1_FEEDER;
+//			g_referee_limiters.projectile_speed = LV1_PROJECTILE;
+//			g_referee_limiters.robot_level = 1;
+//			status_led(7, on_led);
+//			status_led(8, off_led);
+//		} else if (ref_robot_data.robot_level == 2) {
+//			g_referee_limiters.feeding_speed = LV2_FEEDER;
+//			g_referee_limiters.projectile_speed = LV2_PROJECTILE;
+//			g_referee_limiters.robot_level = 2;
+//			status_led(7, off_led);
+//			status_led(8, on_led);
+//		} else if (ref_robot_data.robot_level == 3) {
+//			g_referee_limiters.feeding_speed = LV3_FEEDER;
+//			g_referee_limiters.projectile_speed = LV3_PROJECTILE;
+//			g_referee_limiters.robot_level = 3;
+//			status_led(7, on_led);
+//			status_led(8, on_led);
+//		} else {
+//			g_referee_limiters.feeding_speed = LV1_FEEDER;
+//			g_referee_limiters.projectile_speed = LV1_PROJECTILE;
+//		}
+//#endif
 	}
 }
 

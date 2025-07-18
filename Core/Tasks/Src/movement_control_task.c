@@ -19,7 +19,6 @@ extern chassis_control_t chassis_ctrl_data;
 
 extern remote_cmd_t g_remote_cmd;
 extern motor_data_t g_can_motors[24];
-extern referee_limit_t g_referee_limiters;
 extern ref_game_robot_data_t ref_robot_data;
 extern uint32_t ref_power_data_txno;
 extern speed_shift_t gear_speed;

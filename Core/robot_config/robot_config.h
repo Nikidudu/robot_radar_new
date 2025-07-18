@@ -37,7 +37,7 @@
 #define ARM_SWITCH 			0			//set to 1 to enable remote up and down arming switch
 #define FIRING_DISABLE		0			//set to 1 to stop firing
 #define LAUNCHER_SAFETY		0			//set to 1 to enable launcher arm safety
-#define FRICTION_SB_SPIN_ON		1
+#define FRICTION_SB_SPIN_ON	1			// set to allow flywheels to spin during standby; 2(always spin), 1 (spin when in comp)
 //(between mode switch, remote off, power on, left switch MUST be down)
 
 
@@ -45,22 +45,19 @@
 #ifndef CONTROL_DEFAULT
 //#define CONTROL_DEFAULT 		KEYBOARD_CTRL_MODE
 #define CONTROL_DEFAULT			REMOTE_CTRL_MODE
-
 //#define CONTROL_DEFAULT			SBC_CTRL_MODE
 #endif
 
 #define CHASSIS_CTL_RAMP 0.000001
+
 #ifndef DAMAGE_TIMEOUT
 #define DAMAGE_TIMEOUT 5000
-#endif
-
-#ifndef CHECK_AMMO
-//#define CHECK_AMMO
 #endif
 
 #ifndef PITCH_SURVEILLANCE
 #define PITCH_SURVEILLANCE -0.1
 #endif
+
 /*********************** OTHERS ***********************/
 #define MOTOR_TIMEOUT_MAX	1000000
 

@@ -20,7 +20,6 @@ extern motor_data_t g_can_motors[24];
 extern gun_control_t launcher_ctrl_data;
 
 extern remote_cmd_t g_remote_cmd;
-extern referee_limit_t g_referee_limiters;
 
 //static float friction_offset = FRICTION_OFFSET;
 
@@ -165,13 +164,13 @@ uint16_t check_overheat() {
 		if (active_feeder == 0) {
 			ammo_remaining += (ref_robot_data.shooter_barrel_cooling_value
 					* time_diff / TIMER_FREQ);
-			ammo_remaining -= g_referee_limiters.feeding_speed * time_diff
+			ammo_remaining -= LV1_FEEDER * time_diff
 					/ (TIMER_FREQ * 60);
 		} else if (active_feeder == 1) {
 
 			ammo_remaining += (ref_robot_data.shooter_barrel_cooling_value
 					* time_diff / TIMER_FREQ);
-			ammo_remaining -= g_referee_limiters.feeding_speed * time_diff
+			ammo_remaining -= LV1_FEEDER * time_diff
 					/ (TIMER_FREQ * 60);
 		}
 		if (ammo_remaining < OVERHEAT_MARGIN) {
@@ -206,7 +205,7 @@ uint16_t check_overheat() {
 void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 
 
-	int16_t friction_wheel_speed = g_referee_limiters.projectile_speed
+	int16_t friction_wheel_speed = LV1_PROJECTILE
 			* PROJECTILE_SPEED_RATIO;
 	static uint32_t clear_time = 0;
 
@@ -243,32 +242,21 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 
 	switch (flywheel_state) {
 	case WHEEL_STANDBY:
-//		if (FRICTION_SB_SPIN_ON == 2 || (FRICTION_SB_SPIN_ON == 1 && ref_game_state.game_progress == 4)){
-//			speed_pid( FRICTION_SB_SPIN * FRICTION_INVERT,
-//					l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
-//			speed_pid(-FRICTION_SB_SPIN * FRICTION_INVERT,
-//					r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
-//			l_flywheel->output = l_flywheel->rpm_pid.output + FRICTION_OFFSET * FRICTION_INVERT;
-//			r_flywheel->output = r_flywheel->rpm_pid.output - FRICTION_OFFSET * FRICTION_INVERT;
-//		} else {
-//			l_flywheel->output = 0;
-//			r_flywheel->output = 0;
-//		}
-
-		// runs flywheels at 50% speed even during stand_by
-		speed_pid(friction_wheel_speed * FRICTION_INVERT * 0.5,
-				l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
-		speed_pid(-friction_wheel_speed * FRICTION_INVERT  * 0.5,
-				r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
-		l_flywheel->output = l_flywheel->rpm_pid.output;
-		r_flywheel->output = r_flywheel->rpm_pid.output;
-		break;
-
+		if (FRICTION_SB_SPIN_ON == 2 || (FRICTION_SB_SPIN_ON == 1 && ref_game_state.game_progress == 4)){
+			speed_pid(friction_wheel_speed * FRICTION_SB_SPIN * FRICTION_INVERT,
+					l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
+			speed_pid(-friction_wheel_speed * FRICTION_SB_SPIN * FRICTION_INVERT,
+					r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
+			l_flywheel->output = l_flywheel->rpm_pid.output;// + FRICTION_OFFSET * FRICTION_INVERT;
+			r_flywheel->output = r_flywheel->rpm_pid.output;// - FRICTION_OFFSET * FRICTION_INVERT;
+		} else {
+			l_flywheel->output = 0;
+			r_flywheel->output = 0;
+		}
 		break;
 
 	case WHEEL_CLEARING:
 	case WHEEL_FIRING:
-		// kirbee flywheel rpm: 7200
 		speed_pid(friction_wheel_speed * FRICTION_INVERT,
 				l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
 		speed_pid(-friction_wheel_speed * FRICTION_INVERT,
@@ -292,10 +280,9 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 	static uint32_t jam_start_time = 0;
 
 	int16_t feeder_speed = launcher_ctrl_data.firing
-			* g_referee_limiters.feeding_speed * FEEDER_INVERT
+			* LV1_FEEDER * FEEDER_INVERT
 			/ FEEDER_SPEED_RATIO;
-	int16_t friction_wheel_speed = g_referee_limiters.projectile_speed
-			* PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = LV1_PROJECTILE * PROJECTILE_SPEED_RATIO;
 
 	int16_t rpm_diff = abs(l_flywheel->raw_data.rpm + r_flywheel->raw_data.rpm);
 	int16_t avg_rpm = abs(l_flywheel->raw_data.rpm - r_flywheel->raw_data.rpm)
@@ -407,8 +394,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 		motor_data_t *feeder) {
 	static uint32_t jam_start_time = 0;
-	int16_t friction_wheel_speed = g_referee_limiters.projectile_speed
-			* PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = LV1_PROJECTILE * PROJECTILE_SPEED_RATIO;
 	static uint32_t last_fire;
 	static float target_ang = 0;
 
@@ -564,8 +550,7 @@ void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 #endif
 
 void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel) {
-	int16_t friction_wheel_speed = g_referee_limiters.projectile_speed
-			* PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = LV1_PROJECTILE * PROJECTILE_SPEED_RATIO;
 	static uint32_t clear_time = 0;
 
 	/**
@@ -646,10 +631,9 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 
 	static uint32_t jam_start_time = 0;
 
-	int16_t feeder_speed = g_referee_limiters.feeding_speed * FEEDER_INVERT
+	int16_t feeder_speed = LV1_FEEDER * FEEDER_INVERT
 			/ FEEDER_SPEED_RATIO;
-	int16_t friction_wheel_speed = g_referee_limiters.projectile_speed
-			* PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = LV1_PROJECTILE * PROJECTILE_SPEED_RATIO;
 
 	int16_t firing_flywheel[3] = {abs(l_flywheel->raw_data.rpm), abs(r_flywheel->raw_data.rpm), abs(b_flywheel->raw_data.rpm)};
 

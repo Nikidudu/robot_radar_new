@@ -50,14 +50,6 @@
 #define	LV1_PROJECTILE			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
 #define LV1_MAX_CURRENT			16384
 
-#define LV2_FEEDER				1200//840
-#define	LV2_PROJECTILE			20.5//12
-#define LV2_MAX_CURRENT			16384
-
-#define LV3_FEEDER				1200//840
-#define	LV3_PROJECTILE			20.5//12
-#define LV3_MAX_CURRENT			16384
-
 #define SUPER_CAP_OFFSET		-3
 /* Speed Value Guide:
  * Values are percentage of the max speed.
@@ -170,13 +162,12 @@
 #define GEAR6_SPEED_MULT		5
 #define GEAR6_ACCEL_MULT		10
 
-
-#define CHASSIS_POWER_KP 0.2
-#define CHASSIS_POWER_MARGIN 0
-#define CHASSIS_POWER_MIN	0.5
-#define CHASSIS_POWER_BUFFER_LIMITER
-#define CHASSIS_POWER_LPF 0.1         // filter for chassis power readout from referee system
-#define CHASSIS_POWER_DELTA_LIM 0.3   // limit change for the automatic rpm adjusting code
+//#define CHASSIS_POWER_KP 0.2
+//#define CHASSIS_POWER_MARGIN 0
+//#define CHASSIS_POWER_MIN	0.5
+//#define CHASSIS_POWER_BUFFER_LIMITER
+//#define CHASSIS_POWER_LPF 0.1         // filter for chassis power readout from referee system
+//#define CHASSIS_POWER_DELTA_LIM 0.3   // limit change for the automatic rpm adjusting code
 
 
 #define PROJECTILE_SPEED_RATIO	310//340//355//360								//rpm per m/s of the friction wheels ish don't think this will work well lmao
@@ -190,7 +181,7 @@
 #define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
 #define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
 
-#define MOUSE_LIMIT 			200
+//#define MOUSE_LIMIT 			200
 
 #define KEYBD_MAX_SPD 			1//0.8//0.5				//% of max speed	//% of max speed
 
@@ -257,7 +248,7 @@
 //#define ANGLE_FEEDER_TIMEOUT    2000 //if stuck in angle feeder for more than 2s, timeout
 
 
-#define STEPPER_ANGLE			1.8
+//#define STEPPER_ANGLE			1.8
 #define FRICTION_SB_SPIN		0//LV1_PROJECTILE * PROJECTILE_SPEED_RATIO//6000
 #define FRICTION_KP  			5				    // |
 #define FRICTION_KI  			0//0.02			// | - FRICTION WHEELS PID VALUES

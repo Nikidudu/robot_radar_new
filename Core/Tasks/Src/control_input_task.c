@@ -20,7 +20,6 @@
 //extern TaskHandle_t control_input_task_handle;
 
 extern motor_data_t g_can_motors[24];
-extern referee_limit_t g_referee_limiters;
 extern orientation_data_t imu_heading;
 extern INS_t INS;
 extern QueueHandle_t g_buzzing_task_msg;
