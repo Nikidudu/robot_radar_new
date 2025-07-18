@@ -4,30 +4,17 @@
 #define TASKS_INC_ROBOT_CONFIG_H_
 
 #include "typedefs.h"
-//#include "robot_config_6_6.h"
-//#include "robot_config_ALI.h"
+
 //#include "robot_config_HERO_GIMBAL.h"
-//#include "robot_config_roburt.h"
-//#include "robot_config_CF.h"
-//#include "robot_config_DS4.h"
-//#include "robot_config_roburt.h"
-//#include "robot_config_kirby.h"
+//#include "robot_config_dm.h"
+//#include "robot_config_hero.h"
+//#include "robot_config_NEW_HERO.h"
 
 #include "robot_config_kirbee.h"
 //#include "robot_config_sentry.h"
 //#include "robot_config_TALI_LK.h"
 //#include "robot_config_waddledee.h"
 
-//#include "robot_config_CF2.h"
-//#include "robot_config_DS.h"
-//#include "robot_config_DS2.h"
-//#include "robot_config_DS3.h"
-//#include "robot_config_EN.h"
-//#include "robot_config_HERO.h"
-//#include "robot_config_SEN.h"
-//#include "robot_config_TESTV.h"
-//#include "robot_config_TUD.h"
-//#include "robot_config_GD.h"
 
 // COMMON CONFIGURATION
 
@@ -48,8 +35,6 @@
 //#define CONTROL_DEFAULT			SBC_CTRL_MODE
 #endif
 
-#define CHASSIS_CTL_RAMP 0.000001
-
 #ifndef DAMAGE_TIMEOUT
 #define DAMAGE_TIMEOUT 5000
 #endif
@@ -61,8 +46,6 @@
 /*********************** OTHERS ***********************/
 #define MOTOR_TIMEOUT_MAX	1000000
 
-#define REMOTE_TIMEOUT 		200
-#define MAX_RC_VALUE 		1320 //660 * 2
 #define RC_LIMITS			660
 #define HITEMP_WARNING  	70
 
