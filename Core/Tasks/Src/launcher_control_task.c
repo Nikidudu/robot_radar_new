@@ -21,8 +21,6 @@ extern gun_control_t launcher_ctrl_data;
 
 extern remote_cmd_t g_remote_cmd;
 
-//static float friction_offset = FRICTION_OFFSET;
-
 extern QueueHandle_t telem_motor_queue;
 
 #define BULLET_17_HEAT 10
@@ -129,8 +127,6 @@ uint16_t check_overheat() {
 #ifdef BULLET_17
 	uint8_t active_feeder = 2;
 	//else active_feeder == 2, for both heat0 and heat 1 launchers
-#endif
-#ifdef BULLET_42
 #endif
 
 #ifdef BULLET_17
@@ -247,8 +243,8 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 					l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
 			speed_pid(-friction_wheel_speed * FRICTION_SB_SPIN * FRICTION_INVERT,
 					r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
-			l_flywheel->output = l_flywheel->rpm_pid.output;// + FRICTION_OFFSET * FRICTION_INVERT;
-			r_flywheel->output = r_flywheel->rpm_pid.output;// - FRICTION_OFFSET * FRICTION_INVERT;
+			l_flywheel->output = l_flywheel->rpm_pid.output + FRICTION_OFFSET * FRICTION_INVERT;
+			r_flywheel->output = r_flywheel->rpm_pid.output - FRICTION_OFFSET * FRICTION_INVERT;
 		} else {
 			l_flywheel->output = 0;
 			r_flywheel->output = 0;
@@ -587,15 +583,15 @@ void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor
 	switch (flywheel_state) {
 	case WHEEL_STANDBY:
 		if (FRICTION_SB_SPIN_ON == 2 || (FRICTION_SB_SPIN_ON == 1 && ref_game_state.game_progress == 4)){
-			speed_pid( FRICTION_SB_SPIN * FRICTION_INVERT,
+			speed_pid(friction_wheel_speed * FRICTION_SB_SPIN * FRICTION_INVERT,
 					l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
-			speed_pid(-FRICTION_SB_SPIN * FRICTION_INVERT,
+			speed_pid(-friction_wheel_speed * FRICTION_SB_SPIN * FRICTION_INVERT,
 					r_flywheel->raw_data.rpm, &r_flywheel->rpm_pid);
-			speed_pid(-FRICTION_SB_SPIN * FRICTION_INVERT,
+			speed_pid(-friction_wheel_speed * FRICTION_SB_SPIN * FRICTION_INVERT,
 					b_flywheel->raw_data.rpm, &b_flywheel->rpm_pid);
 			l_flywheel->output = l_flywheel->rpm_pid.output + FRICTION_OFFSET * FRICTION_INVERT;
 			r_flywheel->output = r_flywheel->rpm_pid.output - FRICTION_OFFSET * FRICTION_INVERT;
-			b_flywheel->output = b_flywheel->rpm_pid.output + FRICTION_OFFSET * FRICTION_INVERT;
+			b_flywheel->output = b_flywheel->rpm_pid.output - FRICTION_OFFSET * FRICTION_INVERT;
 		} else {
 			l_flywheel->output = 0;
 			r_flywheel->output = 0;

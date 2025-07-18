@@ -10,7 +10,6 @@
 
 #include "motor_config.h"
 #include "hud_tali.h"
-//#define BOARD_DOWN
 
 //#define OVERHEAT_PROTECTION
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
@@ -52,12 +51,7 @@
 #define LVL_TUNING
 
 #define LV1_FEEDER				100//800//480//480
-#define LV2_FEEDER				100//840
-#define LV3_FEEDER				100//840
-
 #define	LV1_PROJECTILE			16.5
-#define	LV2_PROJECTILE			16.5
-#define	LV3_PROJECTILE			16.5
 
 #define SUPER_CAP_OFFSET		-4
 /* Speed Value Guide:
@@ -134,12 +128,12 @@
 #define GEAR6_SPEED_MULT		5
 #define GEAR6_ACCEL_MULT		10
 
-#define CHASSIS_POWER_KP 0.2
-#define CHASSIS_POWER_MARGIN 0
-#define CHASSIS_POWER_MIN	0.5
-#define CHASSIS_POWER_BUFFER_LIMITER
-#define CHASSIS_POWER_LPF 0.02
-#define CHASSIS_POWER_DELTA_LIM 0.1
+//#define CHASSIS_POWER_KP 0.2
+//#define CHASSIS_POWER_MARGIN 0
+//#define CHASSIS_POWER_MIN	0.5
+//#define CHASSIS_POWER_BUFFER_LIMITER
+//#define CHASSIS_POWER_LPF 0.02
+//#define CHASSIS_POWER_DELTA_LIM 0.1
 
 #define PROJECTILE_SPEED_RATIO	375//365								//rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		5								//projectiles per round of the feeder
@@ -151,8 +145,6 @@
 
 #define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
 #define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
-
-#define MOUSE_LIMIT 			200
 
 #define KEYBD_MAX_SPD 			1//0.8//0.5				//% of max speed	//% of max speed
 
@@ -174,7 +166,6 @@
 #define AIMBOT_X_KD				0
 #define FOV_MULT				(0.747/2)		//FOV of the camera in radians, change depending on lens specs
 #define AIMBOT_KI_MAX			1
-
 
 #define OBC_DATA_SIZE			8				//Packet size
 
@@ -213,19 +204,11 @@
 #define FEEDER_INVERT			1
 #define FEEDER_CUTOFF_TEMP  	60
 
-
-#define ANGLE_FEEDER
-#define ANGLE_FEEDER_MARGIN		0.87 //0.174 //margin in radians
-#define ANGLE_FEEDER_SPD_MARGIN 20 //rpm after gearbox margin
-#define ANGLE_FEEDER_TIMEOUT    800 //if stuck in angle feeder for more than 2s, timeout
-#define ANGLE_FEEDER_DELAY		100 //time between each shots, in ms
-
-
-#define STEPPER_ANGLE			1.8
-#define FRICTION_SB_SPIN		(LV1_PROJECTILE * PROJECTILE_SPEED_RATIO)
-#define FRICTION_KP  			5				// |
-#define FRICTION_KI  			0.0001			// | - FRICTION WHEELS PID VALUES
-#define FRICTION_KD  			0//10				// |
+// FRICTION WHEELS PID VALUES
+#define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
+#define FRICTION_KP  			5
+#define FRICTION_KI  			0.0001
+#define FRICTION_KD  			0
 #define FRICTION_MAX_CURRENT 	16384
 #define FRICTION_MAX_INT		10000
 #define FRICTION_INVERT			-1
@@ -233,14 +216,13 @@
 #define LAUNCHER_DIFF_MARGIN	50
 #define FRICTION_OFFSET			40//100
 
-
 #define CLEAR_DELAY				1000
 
 /*********************** CHASSIS CONFIGURATION ***********************/
-#define CHASSIS_KP  		4				// |
+#define CHASSIS_KP  		4
 #define CHASSIS_KI  		0.05				// | - CHASSIS WHEELS PID VALUES
-#define CHASSIS_KD  		1				// |
-#define CHASSIS_INT_MAX  	10000				// |
+#define CHASSIS_KD  		1
+#define CHASSIS_INT_MAX  	10000
 #define CHASSIS_MAX_CURRENT 9000
 #define CHASSIS_MIN_CURRENT 0
 #define BUFFER_MIN			0.1
@@ -249,12 +231,7 @@
 #define CHASSIS_MAX_YAW_ACCEL 0.15			// s to max yaw
 
 #define CHASSIS_CAN_SPINSPIN
-#define CHASSIS_SPINSPIN_MIN 0.4
 #define CHASSIS_SPINSPIN_MAX 1
-#define CHASSIS_SPINSPIN_ANNOY_STEPS 50
-#define CHASSIS_SPINSPIN_MULT 0.03
-#define CHASSIS_SPINSPIN_RANGE (CHASSIS_SPINSPIN_MAX - CHASSIS_SPINSPIN_MIN)
-#define CHASSIS_SPINSPIN_MIN_RAMP 0.002
 
 // Yaw max rpm - max RPM for chassis centering
 #define LV1_CHASSIS_YAW_MAX_RPM		0.7
@@ -341,7 +318,7 @@
 #define PITCH_MAX_CURRENT		20000
 
 #define PITCH_MOTOR_TYPE		TYPE_LK_MG5010E_MULTI_ANG
-#define PITCH_CENTER			210579//91000//31200
+#define PITCH_CENTER			210579
 #define PITCH_MAX_ANG			1
 #define PITCH_MIN_ANG			-0.9
 #define PITCH_CONST				8000
@@ -351,11 +328,11 @@
 #define YAW_BELT
 #define YAW_BELT_GEAR_RATIO 	1
 #define HALL_ZERO
-//zeroing speed, % of max speed
+// hall zeroing speed, % of max speed
 #define ZERO_SPEED 				5000
 #define HALL_TIMEOUT 			5000
 
-#define YAW_ANGLE_KP			80//200
+#define YAW_ANGLE_KP			80
 #define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			0
 #define YAW_ANGLE_INT_MAX		10
@@ -373,13 +350,13 @@
 #define YAW_MIN_ANG				4*-PI
 
 //#define YAW_FEEDFORWARD
+#ifdef YAW_FEEDFORWARD
 #define YAW_FF_SPD_KP			500
 #define YAW_FF_SPD_KI			0
 #define YAW_FF_SPD_KD			5
 #define YAW_FF_MAX_OUTPUT		10000
 #define YAW_FF_INT_MAX			5
-
-
+#endif
 
 /*********************** MOTOR CONFIGURATION *******************/
 //CAN ids for the motors, for motors on the CAN2 bus, add 12
@@ -411,7 +388,6 @@
 #define YAW_MOTOR_ID 		17
 #define YAW_MOTOR_CAN_PTR	&hcan2
 #endif
-
 
 /* MECANUM WHEEL PROPERTIES */
 #define WHEEL_CIRC			7.625	//in CM
