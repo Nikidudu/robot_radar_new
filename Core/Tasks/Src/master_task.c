@@ -22,6 +22,7 @@
 #include "INS_task.h"
 //#include "hud_task.h"
 #include "hud_new.h"
+#include "supercap_comm_task.h"
 
 #define ISR_SEMAPHORE_COUNT 1
 #define QUEUE_SIZE 1
@@ -39,6 +40,7 @@ TaskHandle_t imu_processing_task_handle;
 TaskHandle_t telemetry_task_handle;
 TaskHandle_t motor_control_task_handle;
 TaskHandle_t hud_task_handle;
+TaskHandle_t supercap_task_handle;
 TaskHandle_t dm_motor_control_task_handle;
 TaskHandle_t INS_task_handle;
 
@@ -115,6 +117,10 @@ void master_task(void* argument){
 
 //	xTaskCreate(telemetry_task, "telemetry_task", 700, (void*) 1,
 //			(UBaseType_t) 5, &telemetry_task_handle);
+
+	xTaskCreate(supercap_comm_task, "supercap_comm_task",
+			configMINIMAL_STACK_SIZE, NULL, (UBaseType_t) 1, &supercap_task_handle);
+
 	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3,
 			(UBaseType_t) 5, &hud_task_handle);
 

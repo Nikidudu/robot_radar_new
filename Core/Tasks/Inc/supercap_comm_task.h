@@ -18,13 +18,9 @@
 
 #define SUPERCAP_TIMEOUT				5000 // ms
 
-//
-//	float V_cap;
-//	float P_chassis;
-//	uint8_t charge_state;
 
-void txHeaderConfig();
-
+void supercap_comm_task(void *argument);
+void txHeaderConfig(CAN_TxHeaderTypeDef* TxHeader);
 void supercapISR(uint8_t* rxdata);
 
 //extern SuperCapCommThread* SuperCapCommInstance;
