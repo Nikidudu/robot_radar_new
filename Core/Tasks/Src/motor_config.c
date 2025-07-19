@@ -827,8 +827,6 @@ uint16_t check_motors() {
 			error |= 1 << 7;
 			dm_set_yaw_motor();
 		}
-
-//		dm_set_yaw_motor();
 	} else {
 		if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
 			motor_temp_bz(3, 2);

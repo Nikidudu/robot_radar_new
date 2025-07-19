@@ -49,7 +49,7 @@ void supercap_comm_task(void *argument) {
 		 if (reset_supercap_module)
 			 reset_supercap_module = 0;
 		 txMsg.pow_limit = ref_robot_data.chassis_power_limit + SUPER_CAP_OFFSET; // -n cuz supercap not very accurate
-		 txMsg.energy_buffer = 100;
+		 txMsg.energy_buffer = 100; // hmm where this 100 came from
 		 uint32_t TxMailbox;  // Declare TxMailbox here
 
 		 // Transmit data

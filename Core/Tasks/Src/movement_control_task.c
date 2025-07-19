@@ -59,8 +59,6 @@ void movement_control_task(void *argument) {
 	motor_yaw_mult[2] = BL_YAW_MULT;
 	motor_yaw_mult[3] = BR_YAW_MULT;
 
-#ifdef HALL_ZERO
-#endif
 	while (1) {
 
 #ifndef CHASSIS_MCU
@@ -73,11 +71,10 @@ void movement_control_task(void *argument) {
 
 		EventBits_t motor_bits;
 		//wait for all motors to have updated data before PID is allowed to run
-//		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE,
-//		pdTRUE,
-//		portMAX_DELAY);
-//		if (motor_bits == 0b1111) {
-		if (1) {
+		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE,
+		pdTRUE,
+		portMAX_DELAY);
+		if (motor_bits == 0b1111) {
 			status_led(3, on_led);
 			start_time = xTaskGetTickCount();
 			if (chassis_ctrl_data.enabled) {
@@ -148,16 +145,16 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	float rel_angle = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
 	float translation_rpm[4] = { 0, };
 	float yaw_rpm[4] = { 0, };
-	float total_power = 0;
 
-	int32_t curr_avg_rpm = (abs(motorfr->raw_data.rpm)
-			+ abs(motorfl->raw_data.rpm) + abs(motorbr->raw_data.rpm)
-			+ abs(motorbl->raw_data.rpm)) / 4;
+//	int32_t curr_avg_rpm = (abs(motorfr->raw_data.rpm)
+//			+ abs(motorfl->raw_data.rpm) + abs(motorbr->raw_data.rpm)
+//			+ abs(motorbl->raw_data.rpm)) / 4;
 
 	// Setting translational and rotational speed and acceleration base on robot level
 	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
-	float chassis_rpm = M3508_MAX_RPM;
+	// Sets maximum wheel RPM (used to cap output)
+	float max_rpm = M3508_MAX_RPM;
 
 	//rotate angle of the movement :)
 	//MA1513/MA1508E is useful!!
@@ -168,23 +165,25 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 		speed_limit += 0.05; //Increase speed by 0.05 when spinspin mode is deactivated
 	}
 
+	//Clamp the values between -limit to limit
 	float limit_forward = fmaxf(-speed_limit, fminf(chassis_ctrl_data.forward, speed_limit));
 	float limit_horizontal = fmaxf(-speed_limit, fminf(chassis_ctrl_data.horizontal, speed_limit));
 	float limit_yaw = fmaxf(-spin_limit, fminf(chassis_ctrl_data.yaw, spin_limit));
-	//Clamp the values between -limit to limit
 
+	// Smooths speed changes over time using acceleration constraints
 	act_forward = rpm_ramp(limit_forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
 	act_horizontal = rpm_ramp(limit_horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
 	act_yaw = rpm_ramp(limit_yaw * gear_speed.spin_mult, act_yaw, &spin_accel);
 
-
-	float rel_forward = ((-act_horizontal * sin(-rel_angle))  //translation and rotation speed of chassis for chassis yaw angle relative to gimbal
+	// translation and rotation speed of chassis for chassis yaw angle relative to gimbal
+	float rel_forward = ((-act_horizontal * sin(-rel_angle))
 			+ (act_forward * cos(-rel_angle)));
 	float rel_horizontal = ((-act_horizontal * cos(-rel_angle))
 			+ (act_forward * -sin(-rel_angle)));
 	float rel_yaw = act_yaw;
 
-	translation_rpm[0] = ((rel_forward * FR_VY_MULT)   //calculate theoretical wheel rpm for chassis translation
+	// calculate theoretical wheel rpm for chassis translation
+	translation_rpm[0] = ((rel_forward * FR_VY_MULT)
 			+ (rel_horizontal * FR_VX_MULT));
 	translation_rpm[1] = ((rel_forward * FL_VY_MULT)
 			+ (rel_horizontal * FL_VX_MULT));
@@ -193,44 +192,32 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	translation_rpm[3] = ((rel_forward * BR_VY_MULT)
 			+ (rel_horizontal * BR_VX_MULT));
 
-	yaw_rpm[0] = rel_yaw * motor_yaw_mult[0] * CHASSIS_YAW_MAX_RPM;  //calculate theoretical wheel rpm for yaw
-	yaw_rpm[1] = rel_yaw * motor_yaw_mult[1] * CHASSIS_YAW_MAX_RPM;
-	yaw_rpm[2] = rel_yaw * motor_yaw_mult[2] * CHASSIS_YAW_MAX_RPM; //See if this changes spin spin mode speed.
-	yaw_rpm[3] = rel_yaw * motor_yaw_mult[3] * CHASSIS_YAW_MAX_RPM;
+	yaw_rpm[0] = rel_yaw * motor_yaw_mult[0];
+	yaw_rpm[1] = rel_yaw * motor_yaw_mult[1];
+	yaw_rpm[2] = rel_yaw * motor_yaw_mult[2];
+	yaw_rpm[3] = rel_yaw * motor_yaw_mult[3];
 
 	float rpm_mult = 1;
 	float rpm_sum = 0;
 	for (uint8_t i = 0; i < 4; i++) {
 		float temp_add = fabs(yaw_rpm[i] + translation_rpm[i]);
-		rpm_sum = rpm_sum + temp_add;  //get sum of wheel rpm
-		if (temp_add > rpm_mult){	   //get highest wheel rpm
+		rpm_sum = rpm_sum + temp_add;  // total combined magnitude of all wheels' RPMs
+		if (temp_add > rpm_mult){	   // the maximum RPM among the four wheels
 			rpm_mult = temp_add;
 		}
 	}
 
-	// translation rpm will not be more than chassis_rpm
-	int32_t avg_trans = 0;
+	// ensures that individual rpm will not be more than max_rpm
 	for (uint8_t j = 0; j < 4; j++) {
-//		if (g_spinspin_mode == 1) { // if spinning
-//			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
-//									+ yaw_rpm[j]) * chassis_rpm / (rpm_sum / 4);  // for spinning modulate wheel rpm by dividing by average rpm
-//			avg_trans += fabs(translation_rpm[j]);
-//		} else {
-			translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
-						+ yaw_rpm[j]) * chassis_rpm / rpm_mult;					// for no spinning modulate wheel rpm by dividing by highest rpm
-			avg_trans += fabs(translation_rpm[j]);
-		}
-//	}
+		translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
+					+ yaw_rpm[j]) * max_rpm / rpm_mult;					// for no spinning modulate wheel rpm by dividing by highest rpm
+	}
 
 	// maybe better to change the values of PID here instead of center_yaw()?
 	speed_pid(translation_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
-	total_power += fabs(motorfr->rpm_pid.output);
 	speed_pid(translation_rpm[1], motorfl->raw_data.rpm, &motorfl->rpm_pid);
-	total_power += fabs(motorfl->rpm_pid.output);
 	speed_pid(translation_rpm[2], motorbl->raw_data.rpm, &motorbl->rpm_pid);
-	total_power += fabs(motorbl->rpm_pid.output);
 	speed_pid(translation_rpm[3], motorbr->raw_data.rpm, &motorbr->rpm_pid);
-	total_power += fabs(motorbr->rpm_pid.output);
 
 	motorfr->output = motorfr->rpm_pid.output;
 	motorfl->output = motorfl->rpm_pid.output;
