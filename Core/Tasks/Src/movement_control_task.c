@@ -203,8 +203,8 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 
 	for (uint8_t i = 0; i < 4; i++) {
 		float temp_add = fabs(yaw_rpm[i] + translation_rpm[i]);  
-		if (temp_add > rpm_mult && (temp_add - rpm_mult > rpm_max_diff)){	   // find the largest RPM amongst the four wheels
-			rpm_max_diff = temp_add - rpm_mult;		// find the absolute value of the difference between the max RPM (1) and the maximum RPM (1+) that wants to be sent to a motor
+		if (temp_add > rpm_mult * max_rpm && (temp_add - rpm_mult * max_rpm > rpm_max_diff)){	   // find the largest RPM amongst the four wheels
+			rpm_max_diff = temp_add - rpm_mult * max_rpm;		// find the absolute value of the difference between the max RPM (1) and the maximum RPM (1+) that wants to be sent to a motor
 		}	//Needr a way to find both max and minimum differences
 	}
 	
