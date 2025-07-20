@@ -103,6 +103,8 @@
 
 #define SPIN_ACCELERATION		1.0 //Same guideline as chassis acceleration
 
+#define CHASSIS_SPEED_BOOST		0.15	// Increase MAX_SPEED when spinspin mode is deactivated
+
 #define GEAR_DEFAULT			3
 
 #define GEAR1_YAW_MULT			0.3
