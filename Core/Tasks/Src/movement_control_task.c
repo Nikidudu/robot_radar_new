@@ -195,20 +195,51 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	yaw_rpm[3] = rel_yaw * motor_yaw_mult[3];
 
 	float rpm_mult = 1;
-	float rpm_sum = 0;
+	float rpm_max_diff = 0;
+	float rpm_sum = 0;				//rpm_sum seems to be redundant?
+
+
+	//Insert Evans Test code for spinning here 21/7/2025
+
 	for (uint8_t i = 0; i < 4; i++) {
-		float temp_add = fabs(yaw_rpm[i] + translation_rpm[i]);
-		rpm_sum = rpm_sum + temp_add;  // total combined magnitude of all wheels' RPMs
-		if (temp_add > rpm_mult){	   // the maximum RPM among the four wheels
-			rpm_mult = temp_add;
+		float temp_add = fabs(yaw_rpm[i] + translation_rpm[i]);  
+		if (temp_add > rpm_mult && (temp_add - rpm_mult > rpm_max_diff)){	   // find the largest RPM amongst the four wheels
+			rpm_max_diff = temp_add - rpm_mult;		// find the absolute value of the difference between the max RPM (1) and the maximum RPM (1+) that wants to be sent to a motor
+		}	//Needr a way to find both max and minimum differences
+	}
+	
+	// ensures that individual rpm will not be more than max_rpm
+	for (uint8_t j = 0; j < 4; j++) {
+		if(translation_rpm[j] + yaw_rpm[j] > 0) {
+			translation_rpm[j] = (translation_rpm[j]			
+						+ yaw_rpm[j] - rpm_max_diff) * max_rpm;
+		}
+		else if(translation_rpm[j] + yaw_rpm[j] < 0){
+			translation_rpm[j] = (translation_rpm[j]			
+						+ yaw_rpm[j] + rpm_max_diff) * max_rpm;	
+		}
+		else{
+			translation_rpm[j] = 0; //Need to find way to check if the original value of max_diff was positive of negative, and then behave accordingly.
 		}
 	}
 
-	// ensures that individual rpm will not be more than max_rpm
-	for (uint8_t j = 0; j < 4; j++) {
-		translation_rpm[j] = (translation_rpm[j]			// sum theoretical wheel rpm for translation and yaw
-					+ yaw_rpm[j]) * max_rpm / rpm_mult;		// for no spinning modulate wheel rpm by dividing by highest rpm
-	}
+
+	//OG Code Down here uses Multiplier, and multiplies accordingly
+
+	// for (uint8_t i = 0; i < 4; i++) {
+	// 	float temp_add = fabs(yaw_rpm[i] + translation_rpm[i]);
+	// 	rpm_sum = rpm_sum + temp_add;  // total combined magnitude of all wheels' RPMs
+	// 	if (temp_add > rpm_mult){	   // the maximum RPM among the four wheels
+	// 		rpm_mult = temp_add;
+	// 	}
+	// }
+
+	// // ensures that individual rpm will not be more than max_rpm
+	// for (uint8_t j = 0; j < 4; j++) {
+	// 	translation_rpm[j] = (translation_rpm[j]			// sum theoretical wheel rpm for translation and yaw
+	// 				+ yaw_rpm[j]) * max_rpm / rpm_mult;		// for no spinning modulate wheel rpm by dividing by highest rpm
+	// }
+
 
 	// todo: maybe better to change the values of PID here instead of center_yaw()?
 	speed_pid(translation_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
