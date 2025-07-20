@@ -19,6 +19,7 @@ uint8_t charging_state;
 uint32_t supercap_last_receive_time = 0;
 int supercap_enabled = 1;
 
+#ifdef SUPERCAP_PRESENT
 
 void supercap_comm_task(void *argument) {
 	 uint8_t enable_supercap_module = 1;
@@ -88,5 +89,5 @@ void txHeaderConfig(CAN_TxHeaderTypeDef* TxHeader) {
 	 supercap_last_receive_time = HAL_GetTick();
  }
 
-
+#endif
 

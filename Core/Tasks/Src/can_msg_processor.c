@@ -10,6 +10,7 @@
 #include "motor_config.h"
 #include "can_msg_processor.h"
 #include "bsp_lk_motor.h"
+#include "supercap_comm_task.h"
 
 extern EventGroupHandle_t gimbal_event_group;
 extern EventGroupHandle_t chassis_event_group;
@@ -74,9 +75,13 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 						xResult = xEventGroupSetBitsFromISR(gimbal_event_group,
 								0b01, &xHigherPriorityTaskWoken);
 					}
-				} else if (RxHeader.StdId == DEVC_NODE_ID) {
+				}
+#ifdef SUPERCAP_PRESENT
+				else if (RxHeader.StdId == DEVC_NODE_ID) {
 					supercapISR(RxData);
-				} else { //if ((RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94)|| (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x75)){
+				}
+#endif
+				else { //if ((RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94)|| (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x75)){
 					int fb_id = (RxData[0]) & 0x0F;
 					switch (fb_id) {
 					case 1:
@@ -116,9 +121,13 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 						xResult = xEventGroupSetBitsFromISR(gimbal_event_group,
 								0b01, &xHigherPriorityTaskWoken);
 					}
-				} else if (RxHeader.StdId == DEVC_NODE_ID) {
+				}
+#ifdef SUPERCAP_PRESENT
+				else if (RxHeader.StdId == DEVC_NODE_ID) {
 					supercapISR(RxData);
-				} else { //if ((RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74) || RxHeader.StdId == YAW_MOTOR_ID){
+				}
+#endif
+				else { //if ((RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74) || RxHeader.StdId == YAW_MOTOR_ID){
 					int fb_id = (RxData[0]) & 0x0F;
 					switch (fb_id) {
 					case (1):

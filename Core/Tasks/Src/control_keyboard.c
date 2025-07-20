@@ -129,9 +129,6 @@ void keyboard_chassis_input() {
 				aimbot_mode = 0;
 			}
 
-			static uint32_t rand_mult = 129581 ;
-			static float spinspin_ramp = 0.1;
-			static int16_t spin_dir = 1;
 			if (g_spinspin_mode) {
 				yaw_input = g_spinspin_mode * CHASSIS_SPINSPIN_MAX;
 			} else {
@@ -139,9 +136,6 @@ void keyboard_chassis_input() {
 				yaw_input = chassis_center_yaw();
 			}
 			chassis_set_ctrl(forward_input, horizontal_input, yaw_input);
-//			chassis_ctrl_data.horizontal = horizontal_input;
-//			chassis_ctrl_data.forward = forward_input;
-//			chassis_ctrl_data.yaw = yaw_input;
 		}
 	}
 }

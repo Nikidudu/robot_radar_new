@@ -159,15 +159,15 @@ float chassis_center_yaw() {
 }
 
 void chassis_centering_config() {
-//	static uint8_t prev_robot_level = -1;
-//
-//	// Hopefully with this, we can adjust pid values without it being overwritten all the time
-//	if (prev_robot_level == ref_robot_data.robot_level) return;
-//	prev_robot_level = ref_robot_data.robot_level;
+#ifdef LVL_TUNING
+	//	static uint8_t prev_robot_level = -1;
+	//
+	//	// Hopefully with this, we can adjust pid values without it being overwritten all the time
+	//	if (prev_robot_level == ref_robot_data.robot_level) return;
+	//	prev_robot_level = ref_robot_data.robot_level;
 
 	uint8_t curr_level = ref_robot_data.robot_level;
 
-#ifdef LVL_TUNING
 	if (supercap_dash && supercap_enabled) {
 		curr_level += 4;
 	}
@@ -176,54 +176,63 @@ void chassis_centering_config() {
 			yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV1_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV1_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		case 2:
 			yaw_pid_data.kp = LV2_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV2_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV2_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV2_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		case 3:
 			yaw_pid_data.kp = LV3_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV3_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV3_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV3_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		case 4:
 			yaw_pid_data.kp = LV4_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV4_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV4_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV4_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		case 5:
 			yaw_pid_data.kp = LV5_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV5_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV5_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV5_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		case 6:
 			yaw_pid_data.kp = LV6_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV6_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV6_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV6_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		case 7:
 			yaw_pid_data.kp = LV7_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV7_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV7_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV7_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		case 8:
 			yaw_pid_data.kp = LV8_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV8_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV8_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV8_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		case 9:
 			yaw_pid_data.kp = LV9_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV9_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV9_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV9_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		case 10:
@@ -234,12 +243,14 @@ void chassis_centering_config() {
 			yaw_pid_data.kp = LV10_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV10_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV10_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV10_CHASSIS_YAW_MAX_RPM;
 			break;
 
 		default:
 			yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
 			yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
 			yaw_pid_data.kd = LV1_CHASSIS_YAW_KD;
+			yaw_pid_data.max_out = LV1_CHASSIS_YAW_MAX_RPM;
 	}
 #else
 	yaw_pid_data.kp = CHASSIS_YAW_KP;
@@ -460,10 +471,17 @@ void set_gear() {
 }
 
 void chassis_yaw_pid_init() {
+#ifdef LVL_TUNING
+	yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
+	yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
+	yaw_pid_data.kd = LV1_CHASSIS_YAW_KD;
+	yaw_pid_data.max_out = LV1_CHASSIS_YAW_MAX_RPM;
+#else
 	yaw_pid_data.kp = CHASSIS_YAW_KP;
 	yaw_pid_data.ki = CHASSIS_YAW_KI;
 	yaw_pid_data.kd = CHASSIS_YAW_KD;
 	yaw_pid_data.max_out = CHASSIS_YAW_MAX_RPM;
+#endif
 }
 
 

@@ -39,9 +39,9 @@ float debug6;
 
 extern QueueHandle_t telem_motor_queue;
 
-static float lvl_max_speed = LV1_MAX_SPEED;
-static float lvl_max_accel = LV1_MAX_ACCEL;
-static float lvl_max_spin = LV1_CHASSIS_YAW_MAX_RPM;
+static float lvl_max_speed;
+static float lvl_max_accel;
+static float lvl_max_spin;
 static float spin_accel = SPIN_ACCELERATION;
 
 float act_forward = 0.0f;
@@ -146,10 +146,6 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	float translation_rpm[4] = { 0, };
 	float yaw_rpm[4] = { 0, };
 
-//	int32_t curr_avg_rpm = (abs(motorfr->raw_data.rpm)
-//			+ abs(motorfl->raw_data.rpm) + abs(motorbr->raw_data.rpm)
-//			+ abs(motorbl->raw_data.rpm)) / 4;
-
 	// Setting translational and rotational speed and acceleration base on robot level
 	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
@@ -161,8 +157,9 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	float speed_limit = lvl_max_speed;
 	float spin_limit = lvl_max_spin;
 
+	// Increase speed when spinspin mode is deactivated
 	if (g_spinspin_mode == 0) {
-		speed_limit += 0.05; //Increase speed by 0.05 when spinspin mode is deactivated
+		speed_limit += CHASSIS_SPEED_BOOST;
 	}
 
 	//Clamp the values between -limit to limit
@@ -209,11 +206,11 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 
 	// ensures that individual rpm will not be more than max_rpm
 	for (uint8_t j = 0; j < 4; j++) {
-		translation_rpm[j] = (translation_rpm[j]							// sum theoretical wheel rpm for translation and yaw
-					+ yaw_rpm[j]) * max_rpm / rpm_mult;					// for no spinning modulate wheel rpm by dividing by highest rpm
+		translation_rpm[j] = (translation_rpm[j]			// sum theoretical wheel rpm for translation and yaw
+					+ yaw_rpm[j]) * max_rpm / rpm_mult;		// for no spinning modulate wheel rpm by dividing by highest rpm
 	}
 
-	// maybe better to change the values of PID here instead of center_yaw()?
+	// todo: maybe better to change the values of PID here instead of center_yaw()?
 	speed_pid(translation_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
 	speed_pid(translation_rpm[1], motorfl->raw_data.rpm, &motorfl->rpm_pid);
 	speed_pid(translation_rpm[2], motorbl->raw_data.rpm, &motorbl->rpm_pid);
@@ -226,14 +223,14 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 }
 
 void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin) {
-//	static uint8_t prev_robot_level = -1;
+#ifdef LVL_TUNING
+	//	static uint8_t prev_robot_level = -1;
 
-//	// Hopefully with this, we can adjust pid values without it being overwritten all the time
-//	if (prev_robot_level == ref_robot_data.robot_level) return;
-//	prev_robot_level = ref_robot_data.robot_level;
+	//	// Hopefully with this, we can adjust pid values without it being overwritten all the time
+	//	if (prev_robot_level == ref_robot_data.robot_level) return;
+	//	prev_robot_level = ref_robot_data.robot_level;
 	uint8_t curr_level = ref_robot_data.robot_level;
 
-#ifdef LVL_TUNING
 	if (supercap_dash && supercap_enabled) {
 		curr_level += 10;
 	}
@@ -366,8 +363,8 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	}
 #else
 
-	*lvl_max_speed = LV1_MAX_SPEED;
-	*lvl_max_accel = LV1_MAX_ACCEL;
+	*lvl_max_speed = MAX_SPEED;
+	*lvl_max_accel = MAX_ACCEL;
 	*lvl_max_spin  = CHASSIS_YAW_MAX_RPM;
 
 #endif

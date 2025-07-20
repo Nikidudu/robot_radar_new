@@ -11,8 +11,6 @@
 
 #define REFEREE_DATA_SIZE (9 + INTERACTION_DATA_LEN)
 
-#define REF_GAME_STATE_CMD_ID 0x0001
-
 #pragma pack (1)
 
 typedef enum
@@ -43,7 +41,7 @@ typedef enum
     PROGRESS_CALCULATING    = 5,
 } game_progress_t;
 
-
+#define REF_GAME_STATE_CMD_ID 0x0001
 typedef struct __packed//0001
 {
     uint8_t game_type : 4;

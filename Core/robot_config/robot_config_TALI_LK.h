@@ -53,6 +53,7 @@
 #define LV1_FEEDER				100//800//480//480
 #define	LV1_PROJECTILE			16.5
 
+#define SUPERCAP_PRESENT
 #define SUPER_CAP_OFFSET		-4
 /* Speed Value Guide:
  * Values are percentage of the max speed.

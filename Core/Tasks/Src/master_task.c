@@ -20,7 +20,6 @@
 #include "telemetry_task.h"
 #include "motor_control_task.h"
 #include "INS_task.h"
-//#include "hud_task.h"
 #include "hud_new.h"
 #include "supercap_comm_task.h"
 
@@ -118,8 +117,10 @@ void master_task(void* argument){
 //	xTaskCreate(telemetry_task, "telemetry_task", 700, (void*) 1,
 //			(UBaseType_t) 5, &telemetry_task_handle);
 
+#ifdef SUPERCAP_PRESENT
 	xTaskCreate(supercap_comm_task, "supercap_comm_task",
 			configMINIMAL_STACK_SIZE, NULL, (UBaseType_t) 1, &supercap_task_handle);
+#endif
 
 	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3,
 			(UBaseType_t) 5, &hud_task_handle);
