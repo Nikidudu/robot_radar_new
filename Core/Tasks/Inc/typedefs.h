@@ -333,6 +333,7 @@ typedef struct {
 }sbc_raw_t;
 
 typedef struct{
+	// uint8_t game_mode; //Evans added 22/7/2025 to swap speeds for game modes
 	uint8_t curr_gear;
 	float spin_mult;
 	float trans_mult;
