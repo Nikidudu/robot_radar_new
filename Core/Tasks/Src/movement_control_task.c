@@ -163,21 +163,31 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	}
 
 	//Clamp the values between -limit to limit
-	float limit_forward = fmaxf(-speed_limit, fminf(chassis_ctrl_data.forward, speed_limit));
-	float limit_horizontal = fmaxf(-speed_limit, fminf(chassis_ctrl_data.horizontal, speed_limit));
-	float limit_yaw = fmaxf(-spin_limit, fminf(chassis_ctrl_data.yaw, spin_limit));
-
+	float limit_forward = fmaxf(-speed_limit, fminf(chassis_ctrl_data.forward, speed_limit));                  	//!!!!!!!!!!!!!!!!!!!!VERY IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+	float limit_horizontal = fmaxf(-speed_limit, fminf(chassis_ctrl_data.horizontal, speed_limit));				// Dji controller joystick values between 32767 to -32767					//
+	float limit_yaw = fmaxf(-spin_limit, fminf(chassis_ctrl_data.yaw, spin_limit));								// we are using that to set speed to max? i see that we divide by 660	    //
+																												// that doesnt seem to map exactly to how much rpm we would get irl bnft 	//
 	// Smooths speed changes over time using acceleration constraints
 	act_forward = rpm_ramp(limit_forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
 	act_horizontal = rpm_ramp(limit_horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
-	act_yaw = rpm_ramp(limit_yaw * gear_speed.spin_mult, act_yaw, &spin_accel);
+	act_yaw = rpm_ramp(limit_yaw * gear_speed.spin_mult, act_yaw, &spin_accel);  
 
 	// translation and rotation speed of chassis for chassis yaw angle relative to gimbal
 	float rel_forward = ((-act_horizontal * sin(-rel_angle))
 			+ (act_forward * cos(-rel_angle)));
 	float rel_horizontal = ((-act_horizontal * cos(-rel_angle))
 			+ (act_forward * -sin(-rel_angle)));
-	float rel_yaw = act_yaw;
+	float rel_yaw = act_yaw; // yaw doesnt need multiplier since wheel is always perpendicular to the centre of the robot (gimbal)
+
+
+	//ok so lets say I'm going forward and all my wheels are in default position,
+	// then everything has a rel_angle of 45 deg. rel_forward returns (0*0.7)+(lvl_max_speed*0.7)
+	// total forwards power is going to be about 0.49*4 =2
+	//Diagonally it is also about 2? doing the math two wheels will attempt to move at 1.414 but get clamped at 1, so total sideways power is 2? 
+	// if im not wrong then we are running motors at exactly 0.7 speed all the time,, if we are going in one lateral direction.
+	// ok i mean mathematically its quite sound since this makes all lateral movements the same speed (i.e. going diagonally vs going forwards) ---> Was this intended??? or a happy side effect
+	//I will have to test this theory IRL and see whether my observation of the code is correct.
+
 
 	// calculate theoretical wheel rpm for chassis translation
 	translation_rpm[0] = ((rel_forward * FR_VY_MULT)
@@ -189,6 +199,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	translation_rpm[3] = ((rel_forward * BR_VY_MULT)
 			+ (rel_horizontal * BR_VX_MULT));
 
+	//Seems to me this always returns a maxed rpm --> since it tries to spin as fast as possible (limited by spin accel)
 	yaw_rpm[0] = rel_yaw * motor_yaw_mult[0];
 	yaw_rpm[1] = rel_yaw * motor_yaw_mult[1];
 	yaw_rpm[2] = rel_yaw * motor_yaw_mult[2];
@@ -210,7 +221,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	
 	// ensures that individual rpm will not be more than max_rpm
 	for (uint8_t j = 0; j < 4; j++) {
-		if(translation_rpm[j] + yaw_rpm[j] > 0) {
+		if(translation_rpm[j] + yaw_rpm[j] >= 0) {
 			translation_rpm[j] = (translation_rpm[j]			
 						+ yaw_rpm[j] - rpm_max_diff) * max_rpm;
 		}
@@ -218,9 +229,9 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 			translation_rpm[j] = (translation_rpm[j]			
 						+ yaw_rpm[j] + rpm_max_diff) * max_rpm;	
 		}
-		else{
-			translation_rpm[j] = 0; //Need to find way to check if the original value of max_diff was positive of negative, and then behave accordingly.
-		}
+		// else{
+		// 	translation_rpm[j] = 0; //Need to find way to check if the original value of max_diff was positive of negative, and then behave accordingly.
+		// }
 	}
 
 
