@@ -258,10 +258,10 @@
 // #define GLV9_MAX_ACCEL			0.5
 #define GLV10_MAX_ACCEL			2
 // #else
-#define LV1_MAX_ACCEL			1.5//3.5//2.5//1.5 //for 1v1
-#define LV2_MAX_ACCEL			1.5
-#define LV3_MAX_ACCEL			1.5
-#define LV4_MAX_ACCEL			1.5
+#define LV1_MAX_ACCEL			0.0//3.5//2.5//1.5 //for 1v1
+#define LV2_MAX_ACCEL			0.6
+#define LV3_MAX_ACCEL			0.8
+#define LV4_MAX_ACCEL			0.9
 #define LV5_MAX_ACCEL			1
 #define LV6_MAX_ACCEL			1
 #define LV7_MAX_ACCEL			1

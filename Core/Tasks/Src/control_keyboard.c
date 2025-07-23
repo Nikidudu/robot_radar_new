@@ -46,9 +46,9 @@ void keyboard_control_input() {
 void keyboard_onevone_threevthree(speed_shift_t *gear_speed){
 	static uint32_t ctrl_press_time;
 	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_CTRL) {
-		if (HAL_GetTick() - ctrl_press_time > 100) {
-			gear_speed->curr_gear =
-					(gear_speed->curr_gear > 1) ? gear_speed->curr_gear - 1 : 1;
+		if (HAL_GetTick() - ctrl_press_time > 500) {
+			gear_speed->game_mode =
+					(gear_speed->game_mode > 0) ? gear_speed->game_mode - 1 : 1;
 		}
 		ctrl_press_time = HAL_GetTick();
 	}

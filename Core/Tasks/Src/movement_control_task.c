@@ -283,16 +283,16 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	}
 
 		// Evans code added 22/7/2025 for changing between 1v1 and 3v3 gamemode
-	if ((gear_speed.game_mode == 1) && !(supercap_dash && supercap_enabled)){
+	if ((gear_speed.game_mode == 1) /*&& !(supercap_dash && supercap_enabled)*/){
 		*lvl_max_speed = G1V1_MAX_SPEED;
 		*lvl_max_accel = G1V1_MAX_ACCEL;
 		*lvl_max_spin  = G1V1_CHASSIS_YAW_MAX_RPM;
 	}
-	else if ((gear_speed.game_mode == 1) && (supercap_dash && supercap_enabled)) {
-		*lvl_max_speed = GLV11_MAX_SPEED;
-		*lvl_max_accel = GLV10_MAX_ACCEL;
-		*lvl_max_spin  = GLV10_CHASSIS_YAW_MAX_RPM;
-	}
+//	else if ((gear_speed.game_mode == 1) && (supercap_dash && supercap_enabled)) {
+//		*lvl_max_speed = GLV11_MAX_SPEED;
+//		*lvl_max_accel = GLV10_MAX_ACCEL;
+//		*lvl_max_spin  = GLV10_CHASSIS_YAW_MAX_RPM;
+//	}
 	else{
 		switch (curr_level) {
 			case 1:
