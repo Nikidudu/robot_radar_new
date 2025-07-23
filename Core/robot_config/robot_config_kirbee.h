@@ -176,14 +176,20 @@
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
 
+<<<<<<< Updated upstream
 #define LVL_TUNING		// scales chassis speed as level increases
 #define ONE_VS_ONE		// 1v1 standard configuration (vs 3v3)
+=======
+#define LVL_TUNING 1		// scales chassis speed as level increases
+#define ONE_VS_ONE 1 		// 1v1 standard configuration (vs 3v3)
+>>>>>>> Stashed changes
 
 #ifdef LVL_TUNING
 /* Speed Value Guide:
  * Values are percentage of the max speed.
  * E.g. 0.5 = 50% max speed
  */
+<<<<<<< Updated upstream
 #ifdef ONE_VS_ONE
 #define LV1_MAX_SPEED 		    0.34//0.20 // for 1v1
 #define LV2_MAX_SPEED  			0.34
@@ -195,6 +201,22 @@
 #define LV8_MAX_SPEED			0.34
 #define LV9_MAX_SPEED			0.34
 #define LV10_MAX_SPEED			0.34
+=======
+
+//1V1
+// #define ONE_VS_ONE
+#define G1V1_MAX_SPEED 		    0.34//0.20 // for 1v1
+#define GLV1_MAX_SPEED 		    0.34//0.20 // for 1v1
+#define GLV2_MAX_SPEED  		0.34
+#define GLV3_MAX_SPEED			0.34
+#define GLV4_MAX_SPEED			0.34
+#define GLV5_MAX_SPEED			0.34
+#define GLV6_MAX_SPEED			0.34
+#define GLV7_MAX_SPEED			0.34
+#define GLV8_MAX_SPEED			0.34
+#define GLV9_MAX_SPEED			0.34
+#define GLV10_MAX_SPEED			0.34
+>>>>>>> Stashed changes
 // supercap boosted values
 #define LV11_MAX_SPEED			1
 #define LV12_MAX_SPEED		    1
@@ -239,6 +261,7 @@
  *  2.00 - Extremely Fast Acceleration
  */
 //Chassis Acceleration
+<<<<<<< Updated upstream
 #ifdef ONE_VS_ONE
 #define LV1_MAX_ACCEL			1.5//2.5//1.5 // for 1v1
 #define LV2_MAX_ACCEL			2.0
@@ -251,6 +274,20 @@
 #define LV9_MAX_ACCEL			0.5
 #define LV10_MAX_ACCEL			2
 #else
+=======
+// #ifdef ONE_VS_ONE
+#define G1V1_MAX_ACCEL			0.0//2.5//1.5 // for 1v1
+// #define GLV2_MAX_ACCEL			2.0
+// #define GLV3_MAX_ACCEL			2.0
+// #define GLV4_MAX_ACCEL			2.0
+// #define GLV5_MAX_ACCEL			0.7
+// #define GLV6_MAX_ACCEL			0.5
+// #define GLV7_MAX_ACCEL			0.5
+// #define GLV8_MAX_ACCEL			0.5
+// #define GLV9_MAX_ACCEL			0.5
+#define GLV10_MAX_ACCEL			2
+// #else
+>>>>>>> Stashed changes
 #define LV1_MAX_ACCEL			1.5//3.5//2.5//1.5 //for 1v1
 #define LV2_MAX_ACCEL			1.5
 #define LV3_MAX_ACCEL			1.5

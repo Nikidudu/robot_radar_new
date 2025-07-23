@@ -10,6 +10,10 @@
 
 void keyboard_control_input();
 void keyboard_gear_shifter(speed_shift_t *gear_speed);
+<<<<<<< Updated upstream
+=======
+void keyboard_onevone_threevthree(speed_shift_t *gear_speed);
+>>>>>>> Stashed changes
 void keyboard_chassis_input();
 void mouse_gimbal_input();
 void mouse_launcher_control_input();

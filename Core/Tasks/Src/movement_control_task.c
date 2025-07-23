@@ -27,6 +27,12 @@ uint8_t g_gimbal_state = 0;
 extern uint8_t hall_state;
 extern int g_spinspin_mode;
 
+<<<<<<< Updated upstream
+=======
+//1v1 3v3 Evans 22/7/2025
+//extern uint8_t game_mode;
+
+>>>>>>> Stashed changes
 extern uint8_t charging_state;
 
 uint8_t zero_start = 0;
@@ -39,9 +45,9 @@ float debug6;
 
 extern QueueHandle_t telem_motor_queue;
 
-static float lvl_max_speed;
-static float lvl_max_accel;
-static float lvl_max_spin;
+float lvl_max_speed;
+float lvl_max_accel;
+float lvl_max_spin;
 static float spin_accel = SPIN_ACCELERATION;
 
 float act_forward = 0.0f;
@@ -210,6 +216,28 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 					+ yaw_rpm[j]) * max_rpm / rpm_mult;		// for no spinning modulate wheel rpm by dividing by highest rpm
 	}
 
+<<<<<<< Updated upstream
+=======
+
+
+	//OG Code Down here uses Multiplier, and multiplies accordingly
+
+//	 for (uint8_t i = 0; i < 4; i++) {
+//	 	float temp_add = fabs(yaw_rpm[i] + translation_rpm[i]);
+//	 	rpm_sum = rpm_sum + temp_add;  // total combined magnitude of all wheels' RPMs
+//	 	if (temp_add > rpm_mult){	   // the maximum RPM among the four wheels
+//	 		rpm_mult = temp_add;
+//	 	}
+//	 }
+//
+//	 // ensures that individual rpm will not be more than max_rpm
+//	 for (uint8_t j = 0; j < 4; j++) {
+//	 	translation_rpm[j] = (translation_rpm[j]			// sum theoretical wheel rpm for translation and yaw
+//	 				+ yaw_rpm[j]) * max_rpm / rpm_mult;		// for no spinning modulate wheel rpm by dividing by highest rpm
+//	 }
+
+
+>>>>>>> Stashed changes
 	// todo: maybe better to change the values of PID here instead of center_yaw()?
 	speed_pid(translation_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
 	speed_pid(translation_rpm[1], motorfl->raw_data.rpm, &motorfl->rpm_pid);
@@ -223,18 +251,20 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 }
 
 void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin) {
-#ifdef LVL_TUNING
+//#ifdef LVL_TUNING
 	//	static uint8_t prev_robot_level = -1;
 
 	//	// Hopefully with this, we can adjust pid values without it being overwritten all the time
 	//	if (prev_robot_level == ref_robot_data.robot_level) return;
 	//	prev_robot_level = ref_robot_data.robot_level;
 	uint8_t curr_level = ref_robot_data.robot_level;
+	uint8_t onevone_check = gear_speed.game_mode;
 
 	if (supercap_dash && supercap_enabled) {
 		curr_level += 10;
 	}
 
+<<<<<<< Updated upstream
 	switch (curr_level) {
 		case 1:
 			*lvl_max_speed = LV1_MAX_SPEED;
@@ -362,12 +392,155 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 			*lvl_max_spin  = LV1_CHASSIS_YAW_MAX_RPM;
 	}
 #else
+=======
+		// Evans code added 22/7/2025 for changing between 1v1 and 3v3 gamemode
+	if ((gear_speed.game_mode == 1) /*&& !(supercap_dash && supercap_enabled)*/){
+		*lvl_max_speed = G1V1_MAX_SPEED;
+		*lvl_max_accel = G1V1_MAX_ACCEL;
+		*lvl_max_spin  = G1V1_CHASSIS_YAW_MAX_RPM;
+	}
+//	else if ((onevone_check = 1) && (supercap_dash && supercap_enabled)) {
+//		*lvl_max_speed = GLV11_MAX_SPEED;
+//		*lvl_max_accel = GLV10_MAX_ACCEL;
+//		*lvl_max_spin  = GLV10_CHASSIS_YAW_MAX_RPM;
+//	}
+	else{
+		switch (curr_level) {
+			case 1:
+				*lvl_max_speed = LV1_MAX_SPEED;
+				*lvl_max_accel = LV1_MAX_ACCEL;
+				*lvl_max_spin  = LV1_CHASSIS_YAW_MAX_RPM;
+				break;
 
-	*lvl_max_speed = MAX_SPEED;
-	*lvl_max_accel = MAX_ACCEL;
-	*lvl_max_spin  = CHASSIS_YAW_MAX_RPM;
+			case 2:
+				*lvl_max_speed = LV2_MAX_SPEED;
+				*lvl_max_accel = LV2_MAX_ACCEL;
+				*lvl_max_spin  = LV2_CHASSIS_YAW_MAX_RPM;
+				break;
 
-#endif
+			case 3:
+				*lvl_max_speed = LV3_MAX_SPEED;
+				*lvl_max_accel = LV3_MAX_ACCEL;
+				*lvl_max_spin  = LV3_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 4:
+				*lvl_max_speed = LV4_MAX_SPEED;
+				*lvl_max_accel = LV4_MAX_ACCEL;
+				*lvl_max_spin  = LV4_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 5:
+				*lvl_max_speed = LV5_MAX_SPEED;
+				*lvl_max_accel = LV5_MAX_ACCEL;
+				*lvl_max_spin  = LV5_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 6:
+				*lvl_max_speed = LV6_MAX_SPEED;
+				*lvl_max_accel = LV6_MAX_ACCEL;
+				*lvl_max_spin  = LV6_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 7:
+				*lvl_max_speed = LV7_MAX_SPEED;
+				*lvl_max_accel = LV7_MAX_ACCEL;
+				*lvl_max_spin  = LV7_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 8:
+				*lvl_max_speed = LV8_MAX_SPEED;
+				*lvl_max_accel = LV8_MAX_ACCEL;
+				*lvl_max_spin  = LV8_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 9:
+				*lvl_max_speed = LV9_MAX_SPEED;
+				*lvl_max_accel = LV9_MAX_ACCEL;
+				*lvl_max_spin  = LV9_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 10:
+				*lvl_max_speed = LV10_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 11:
+				*lvl_max_speed = LV11_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 12:
+				*lvl_max_speed = LV12_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 13:
+				*lvl_max_speed = LV13_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 14:
+				*lvl_max_speed = LV14_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 15:
+				*lvl_max_speed = LV15_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 16:
+				*lvl_max_speed = LV16_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 17:
+				*lvl_max_speed = LV17_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 18:
+				*lvl_max_speed = LV18_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 19:
+				*lvl_max_speed = LV19_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			case 20:
+				*lvl_max_speed = LV20_MAX_SPEED;
+				*lvl_max_accel = LV10_MAX_ACCEL;
+				*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
+				break;
+
+			default:
+				*lvl_max_speed = LV1_MAX_SPEED;
+				*lvl_max_accel = LV1_MAX_ACCEL;
+				*lvl_max_spin  = LV1_CHASSIS_YAW_MAX_RPM;
+		}
+	}
+
+//#else
+>>>>>>> Stashed changes
+
+//	*lvl_max_speed = MAX_SPEED;
+//	*lvl_max_accel = MAX_ACCEL;
+//	*lvl_max_spin  = CHASSIS_YAW_MAX_RPM;
+
+//#endif
 	*lvl_max_speed = (*lvl_max_speed < 0) ? 0 : *lvl_max_speed; //Make sure is within 0 - 1 since it is a percentage
 	*lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
 }

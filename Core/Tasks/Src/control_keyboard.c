@@ -26,6 +26,13 @@ static float curr_spinspin = 0;
 extern int supercap_dash;
 extern int aimbot_mode;
 
+<<<<<<< Updated upstream
+=======
+//1v1 3v3v Evans 22/7/2025
+//extern uint8_t game_mode;
+extern speed_shift_t gear_speed;
+
+>>>>>>> Stashed changes
 uint32_t supercap_timer = 0;
 extern float supercap_test;
 
@@ -37,8 +44,13 @@ void keyboard_control_input() {
 	mouse_launcher_control_input();
 }
 
+<<<<<<< Updated upstream
 void keyboard_gear_shifter(speed_shift_t *gear_speed) {
 	static uint32_t shift_press_time;
+=======
+//Evans implemented 3v3 and 1v1 swapping code 22/7/2025
+void keyboard_onevone_threevthree(speed_shift_t *gear_speed){
+>>>>>>> Stashed changes
 	static uint32_t ctrl_press_time;
 	if ((g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT)
 			&& (g_remote_cmd.keyboard_keys & KEY_OFFSET_CTRL)) {
@@ -56,9 +68,15 @@ void keyboard_gear_shifter(speed_shift_t *gear_speed) {
 	}
 
 	if (g_remote_cmd.keyboard_keys & KEY_OFFSET_CTRL) {
+<<<<<<< Updated upstream
 		if (HAL_GetTick() - ctrl_press_time > 100) {
 			gear_speed->curr_gear =
 					(gear_speed->curr_gear > 1) ? gear_speed->curr_gear - 1 : 1;
+=======
+		if (HAL_GetTick() - ctrl_press_time > 500) { //hold ctrl for 500ms to change between modes
+			gear_speed->game_mode =
+					(gear_speed->game_mode == 1) ? gear_speed->game_mode - 1 : 1; //check if 1v1 is true, if true set to false. vice versa
+>>>>>>> Stashed changes
 		}
 		ctrl_press_time = HAL_GetTick();
 	}
