@@ -177,9 +177,12 @@
 #define CHASSIS_SPINSPIN_MAX 1
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 #define LVL_TUNING		// scales chassis speed as level increases
 #define ONE_VS_ONE		// 1v1 standard configuration (vs 3v3)
 =======
+=======
+>>>>>>> Stashed changes
 #define LVL_TUNING 1		// scales chassis speed as level increases
 #define ONE_VS_ONE 1 		// 1v1 standard configuration (vs 3v3)
 >>>>>>> Stashed changes

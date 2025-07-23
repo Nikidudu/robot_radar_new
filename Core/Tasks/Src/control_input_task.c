@@ -49,6 +49,10 @@ uint8_t launcher_safety_toggle = (ARM_SWITCH | LAUNCHER_SAFETY);
 extern float lvl_max_speed;
 extern float lvl_max_accel;
 extern float lvl_max_spin;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
 
 >>>>>>> Stashed changes
@@ -65,6 +69,12 @@ void control_input_task(void *argument) {
 	gear_speed.curr_gear = GEAR_DEFAULT;
 	set_gear();
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+	//gear_speed.game_mode = ONE_VS_ONE; //Evans 22/7/2025 set to default which is 1 (true)
+	//level_config();//23/7/2025 Evans added hopefully this loops?
+
+>>>>>>> Stashed changes
 =======
 	//gear_speed.game_mode = ONE_VS_ONE; //Evans 22/7/2025 set to default which is 1 (true)
 	//level_config();//23/7/2025 Evans added hopefully this loops?
@@ -124,6 +134,12 @@ void control_input_task(void *argument) {
 				case KEYBOARD_CTRL_MODE:
 //					keyboard_gear_shifter(&gear_speed);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+					keyboard_onevone_threevthree(&gear_speed); // Evans 22/7/2025 Changing 1v1 3v3 this is the call for kryboard mods, hopefully it works
+					//level_config();
+					level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
+>>>>>>> Stashed changes
 =======
 					keyboard_onevone_threevthree(&gear_speed); // Evans 22/7/2025 Changing 1v1 3v3 this is the call for kryboard mods, hopefully it works
 					//level_config();

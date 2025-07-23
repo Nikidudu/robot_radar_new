@@ -11,6 +11,10 @@
 void keyboard_control_input();
 void keyboard_gear_shifter(speed_shift_t *gear_speed);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+void keyboard_onevone_threevthree(speed_shift_t *gear_speed);
+>>>>>>> Stashed changes
 =======
 void keyboard_onevone_threevthree(speed_shift_t *gear_speed);
 >>>>>>> Stashed changes

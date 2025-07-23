@@ -334,6 +334,10 @@ typedef struct {
 
 typedef struct{
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+	uint8_t game_mode; //Evans added 22/7/2025 to swap speeds for game modes
+>>>>>>> Stashed changes
 =======
 	uint8_t game_mode; //Evans added 22/7/2025 to swap speeds for game modes
 >>>>>>> Stashed changes

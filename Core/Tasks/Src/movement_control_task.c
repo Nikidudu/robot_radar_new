@@ -534,6 +534,9 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	}
 
 //#else
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 //	*lvl_max_speed = MAX_SPEED;

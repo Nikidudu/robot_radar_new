@@ -50,6 +50,9 @@ void keyboard_gear_shifter(speed_shift_t *gear_speed) {
 =======
 //Evans implemented 3v3 and 1v1 swapping code 22/7/2025
 void keyboard_onevone_threevthree(speed_shift_t *gear_speed){
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 	static uint32_t ctrl_press_time;
 	if ((g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT)
@@ -76,6 +79,9 @@ void keyboard_onevone_threevthree(speed_shift_t *gear_speed){
 		if (HAL_GetTick() - ctrl_press_time > 500) { //hold ctrl for 500ms to change between modes
 			gear_speed->game_mode =
 					(gear_speed->game_mode == 1) ? gear_speed->game_mode - 1 : 1; //check if 1v1 is true, if true set to false. vice versa
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 		}
 		ctrl_press_time = HAL_GetTick();
