@@ -27,12 +27,8 @@ uint8_t g_gimbal_state = 0;
 extern uint8_t hall_state;
 extern int g_spinspin_mode;
 
-<<<<<<< Updated upstream
-=======
 //1v1 3v3 Evans 22/7/2025
 //extern uint8_t game_mode;
-
->>>>>>> Stashed changes
 extern uint8_t charging_state;
 
 uint8_t zero_start = 0;
@@ -153,6 +149,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	float yaw_rpm[4] = { 0, };
 
 	// Setting translational and rotational speed and acceleration base on robot level
+	// Evans 22/7/2025	Added a part for 1v1 and 3v3 check for code, cheers!
 	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
 	// Sets maximum wheel RPM (used to cap output)
@@ -169,21 +166,31 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	}
 
 	//Clamp the values between -limit to limit
-	float limit_forward = fmaxf(-speed_limit, fminf(chassis_ctrl_data.forward, speed_limit));
-	float limit_horizontal = fmaxf(-speed_limit, fminf(chassis_ctrl_data.horizontal, speed_limit));
-	float limit_yaw = fmaxf(-spin_limit, fminf(chassis_ctrl_data.yaw, spin_limit));
-
+	float limit_forward = fmaxf(-speed_limit, fminf(chassis_ctrl_data.forward, speed_limit));                  	//!!!!!!!!!!!!!!!!!!!!VERY IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+	float limit_horizontal = fmaxf(-speed_limit, fminf(chassis_ctrl_data.horizontal, speed_limit));				// Dji controller joystick values between 32767 to -32767					//
+	float limit_yaw = fmaxf(-spin_limit, fminf(chassis_ctrl_data.yaw, spin_limit));								// we are using that to set speed to max? i see that we divide by 660	    //
+																												// that doesnt seem to map exactly to how much rpm we would get irl bnft 	//
 	// Smooths speed changes over time using acceleration constraints
 	act_forward = rpm_ramp(limit_forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
 	act_horizontal = rpm_ramp(limit_horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
-	act_yaw = rpm_ramp(limit_yaw * gear_speed.spin_mult, act_yaw, &spin_accel);
+	act_yaw = rpm_ramp(limit_yaw * gear_speed.spin_mult, act_yaw, &spin_accel);  
 
 	// translation and rotation speed of chassis for chassis yaw angle relative to gimbal
 	float rel_forward = ((-act_horizontal * sin(-rel_angle))
 			+ (act_forward * cos(-rel_angle)));
 	float rel_horizontal = ((-act_horizontal * cos(-rel_angle))
 			+ (act_forward * -sin(-rel_angle)));
-	float rel_yaw = act_yaw;
+	float rel_yaw = act_yaw; // yaw doesnt need multiplier since wheel is always perpendicular to the centre of the robot (gimbal)
+
+
+	//ok so lets say I'm going forward and all my wheels are in default position,
+	// then everything has a rel_angle of 45 deg. rel_forward returns (0*0.7)+(lvl_max_speed*0.7)
+	// total forwards power is going to be about 0.49*4 =2
+	//Diagonally it is also about 2? doing the math two wheels will attempt to move at 1.414 but get clamped at 1, so total sideways power is 2? 
+	// if im not wrong then we are running motors at exactly 0.7 speed all the time,, if we are going in one lateral direction.
+	// ok i mean mathematically its quite sound since this makes all lateral movements the same speed (i.e. going diagonally vs going forwards) ---> Was this intended??? or a happy side effect
+	//I will have to test this theory IRL and see whether my observation of the code is correct.
+
 
 	// calculate theoretical wheel rpm for chassis translation
 	translation_rpm[0] = ((rel_forward * FR_VY_MULT)
@@ -195,29 +202,40 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	translation_rpm[3] = ((rel_forward * BR_VY_MULT)
 			+ (rel_horizontal * BR_VX_MULT));
 
+	//Seems to me this always returns a maxed rpm --> since it tries to spin as fast as possible (limited by spin accel)
 	yaw_rpm[0] = rel_yaw * motor_yaw_mult[0];
 	yaw_rpm[1] = rel_yaw * motor_yaw_mult[1];
 	yaw_rpm[2] = rel_yaw * motor_yaw_mult[2];
 	yaw_rpm[3] = rel_yaw * motor_yaw_mult[3];
 
 	float rpm_mult = 1;
-	float rpm_sum = 0;
-	for (uint8_t i = 0; i < 4; i++) {
-		float temp_add = fabs(yaw_rpm[i] + translation_rpm[i]);
-		rpm_sum = rpm_sum + temp_add;  // total combined magnitude of all wheels' RPMs
-		if (temp_add > rpm_mult){	   // the maximum RPM among the four wheels
-			rpm_mult = temp_add;
-		}
-	}
+	float rpm_max_diff = 0;
+	float rpm_sum = 0;				//rpm_sum seems to be redundant?
 
+
+	//Insert Evans Test code for spinning here 21/7/2025
+
+	for (uint8_t i = 0; i < 4; i++) {
+		float temp_add = fabs(yaw_rpm[i] + translation_rpm[i]);  
+		if (temp_add > rpm_mult * max_rpm && (temp_add - rpm_mult * max_rpm > rpm_max_diff)){	   // find the largest RPM amongst the four wheels
+			rpm_max_diff = temp_add - rpm_mult * max_rpm;		// find the absolute value of the difference between the max RPM (1) and the maximum RPM (1+) that wants to be sent to a motor
+		}	//Needr a way to find both max and minimum differences
+	}
+	
 	// ensures that individual rpm will not be more than max_rpm
 	for (uint8_t j = 0; j < 4; j++) {
-		translation_rpm[j] = (translation_rpm[j]			// sum theoretical wheel rpm for translation and yaw
-					+ yaw_rpm[j]) * max_rpm / rpm_mult;		// for no spinning modulate wheel rpm by dividing by highest rpm
+		if(translation_rpm[j] + yaw_rpm[j] >= 0) {
+			translation_rpm[j] = (translation_rpm[j]			
+						+ yaw_rpm[j] - rpm_max_diff) * max_rpm;
+		}
+		else if(translation_rpm[j] + yaw_rpm[j] < 0){
+			translation_rpm[j] = (translation_rpm[j]			
+						+ yaw_rpm[j] + rpm_max_diff) * max_rpm;	
+		}
+		// else{
+		// 	translation_rpm[j] = 0; //Need to find way to check if the original value of max_diff was positive of negative, and then behave accordingly.
+		// }
 	}
-
-<<<<<<< Updated upstream
-=======
 
 
 	//OG Code Down here uses Multiplier, and multiplies accordingly
@@ -237,7 +255,6 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 //	 }
 
 
->>>>>>> Stashed changes
 	// todo: maybe better to change the values of PID here instead of center_yaw()?
 	speed_pid(translation_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
 	speed_pid(translation_rpm[1], motorfl->raw_data.rpm, &motorfl->rpm_pid);
@@ -257,153 +274,25 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	//	// Hopefully with this, we can adjust pid values without it being overwritten all the time
 	//	if (prev_robot_level == ref_robot_data.robot_level) return;
 	//	prev_robot_level = ref_robot_data.robot_level;
+
 	uint8_t curr_level = ref_robot_data.robot_level;
-	uint8_t onevone_check = gear_speed.game_mode;
+//	uint8_t onevone_check = gear_speed.game_mode;
 
 	if (supercap_dash && supercap_enabled) {
 		curr_level += 10;
 	}
 
-<<<<<<< Updated upstream
-	switch (curr_level) {
-		case 1:
-			*lvl_max_speed = LV1_MAX_SPEED;
-			*lvl_max_accel = LV1_MAX_ACCEL;
-			*lvl_max_spin  = LV1_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 2:
-			*lvl_max_speed = LV2_MAX_SPEED;
-			*lvl_max_accel = LV2_MAX_ACCEL;
-			*lvl_max_spin  = LV2_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 3:
-			*lvl_max_speed = LV3_MAX_SPEED;
-			*lvl_max_accel = LV3_MAX_ACCEL;
-			*lvl_max_spin  = LV3_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 4:
-			*lvl_max_speed = LV4_MAX_SPEED;
-			*lvl_max_accel = LV4_MAX_ACCEL;
-			*lvl_max_spin  = LV4_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 5:
-			*lvl_max_speed = LV5_MAX_SPEED;
-			*lvl_max_accel = LV5_MAX_ACCEL;
-			*lvl_max_spin  = LV5_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 6:
-			*lvl_max_speed = LV6_MAX_SPEED;
-			*lvl_max_accel = LV6_MAX_ACCEL;
-			*lvl_max_spin  = LV6_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 7:
-			*lvl_max_speed = LV7_MAX_SPEED;
-			*lvl_max_accel = LV7_MAX_ACCEL;
-			*lvl_max_spin  = LV7_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 8:
-			*lvl_max_speed = LV8_MAX_SPEED;
-			*lvl_max_accel = LV8_MAX_ACCEL;
-			*lvl_max_spin  = LV8_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 9:
-			*lvl_max_speed = LV9_MAX_SPEED;
-			*lvl_max_accel = LV9_MAX_ACCEL;
-			*lvl_max_spin  = LV9_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 10:
-			*lvl_max_speed = LV10_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 11:
-			*lvl_max_speed = LV11_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 12:
-			*lvl_max_speed = LV12_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 13:
-			*lvl_max_speed = LV13_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 14:
-			*lvl_max_speed = LV14_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 15:
-			*lvl_max_speed = LV15_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 16:
-			*lvl_max_speed = LV16_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 17:
-			*lvl_max_speed = LV17_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 18:
-			*lvl_max_speed = LV18_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 19:
-			*lvl_max_speed = LV19_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		case 20:
-			*lvl_max_speed = LV20_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
-
-		default:
-			*lvl_max_speed = LV1_MAX_SPEED;
-			*lvl_max_accel = LV1_MAX_ACCEL;
-			*lvl_max_spin  = LV1_CHASSIS_YAW_MAX_RPM;
-	}
-#else
-=======
 		// Evans code added 22/7/2025 for changing between 1v1 and 3v3 gamemode
-	if ((gear_speed.game_mode == 1) /*&& !(supercap_dash && supercap_enabled)*/){
+	if ((gear_speed.game_mode == 1) && !(supercap_dash && supercap_enabled)){
 		*lvl_max_speed = G1V1_MAX_SPEED;
 		*lvl_max_accel = G1V1_MAX_ACCEL;
 		*lvl_max_spin  = G1V1_CHASSIS_YAW_MAX_RPM;
 	}
-//	else if ((onevone_check = 1) && (supercap_dash && supercap_enabled)) {
-//		*lvl_max_speed = GLV11_MAX_SPEED;
-//		*lvl_max_accel = GLV10_MAX_ACCEL;
-//		*lvl_max_spin  = GLV10_CHASSIS_YAW_MAX_RPM;
-//	}
+	else if ((gear_speed.game_mode == 1) && (supercap_dash && supercap_enabled)) {
+		*lvl_max_speed = GLV11_MAX_SPEED;
+		*lvl_max_accel = GLV10_MAX_ACCEL;
+		*lvl_max_spin  = GLV10_CHASSIS_YAW_MAX_RPM;
+	}
 	else{
 		switch (curr_level) {
 			case 1:
@@ -534,10 +423,7 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	}
 
 //#else
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 
 //	*lvl_max_speed = MAX_SPEED;
 //	*lvl_max_accel = MAX_ACCEL;
@@ -548,6 +434,13 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	*lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
 }
 
+
+// // That equation from the RHIT presentation, not sure how useful it will be in practice.
+// float accel_rhit(float target_value, float current_value, float *lvl_max_accel) {
+// 	float rpm_to_rads = 0.1047197551;
+// 	float angular_velocity = current_value * rpm_to_rads; //current value is the current rpm of the motor which we do have
+// 	float moment_of_inertia = //took the wheel as a point hollow disc of 500mm and a width of 30mm
+// }
 
 float rpm_ramp(float target_value, float current_value, float *lvl_max_accel) {
 	double dt = CHASSIS_DELAY / 1000.0; // Converting dt to minutes

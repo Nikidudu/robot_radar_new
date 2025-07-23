@@ -42,20 +42,16 @@ uint8_t control_mode = CONTROL_DEFAULT;
 uint8_t g_safety_toggle = ARM_SWITCH;
 uint8_t launcher_safety_toggle = (ARM_SWITCH | LAUNCHER_SAFETY);
 
-<<<<<<< Updated upstream
-=======
 //1v1 3v3v swap Evans 22/7/2025
 //uint8_t game_mode = ONE_VS_ONE;
 extern float lvl_max_speed;
 extern float lvl_max_accel;
 extern float lvl_max_spin;
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
+//1v1 3v3v swap Evans 22/7/2025
+//uint8_t game_mode = ONE_VS_ONE;
 
 
->>>>>>> Stashed changes
 uint32_t reset_debounce_time = 0;
 uint32_t reset_start_time = 0;
 
@@ -68,18 +64,10 @@ void control_input_task(void *argument) {
 	dbus_remote_start();
 	gear_speed.curr_gear = GEAR_DEFAULT;
 	set_gear();
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
+
 	//gear_speed.game_mode = ONE_VS_ONE; //Evans 22/7/2025 set to default which is 1 (true)
 	//level_config();//23/7/2025 Evans added hopefully this loops?
 
->>>>>>> Stashed changes
-=======
-	//gear_speed.game_mode = ONE_VS_ONE; //Evans 22/7/2025 set to default which is 1 (true)
-	//level_config();//23/7/2025 Evans added hopefully this loops?
-
->>>>>>> Stashed changes
 	g_safety_toggle = 1;
 	vTaskDelay(100);
 	uint8_t rc_check;
@@ -133,18 +121,9 @@ void control_input_task(void *argument) {
 				switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
 //					keyboard_gear_shifter(&gear_speed);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
 					keyboard_onevone_threevthree(&gear_speed); // Evans 22/7/2025 Changing 1v1 3v3 this is the call for kryboard mods, hopefully it works
 					//level_config();
 					level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
->>>>>>> Stashed changes
-=======
-					keyboard_onevone_threevthree(&gear_speed); // Evans 22/7/2025 Changing 1v1 3v3 this is the call for kryboard mods, hopefully it works
-					//level_config();
-					level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
->>>>>>> Stashed changes
 					set_gear();
 					keyboard_control_input();
 					break;
@@ -466,6 +445,16 @@ void gimbal_set_ang(float pit_radians, float yaw_radians) {
 	gimbal_ctrl_data.pitch = pit_radians;
 	gimbal_ctrl_data.yaw = yaw_radians;
 }
+
+// //Evans added 1v1 and 3v3 "gearing" 22/7/2025 if needed
+// void toggle_onevone_threevthree(){
+// 	switch (gear_speed.game_mode){
+// 		case 0:
+
+// 		case 1:
+
+// 	}
+// }
 
 void set_gear() {
 	switch (gear_speed.curr_gear) {
