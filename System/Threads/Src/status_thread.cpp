@@ -10,6 +10,9 @@
 
 #include "robot_config.h"
 
+#include "network_bus.h"
+#include "protocol.h"
+
 #include "cvAimbotCommandThread.h"
 
 extern ref_game_state_t ref_game_state;
@@ -32,11 +35,11 @@ statusThread* statusInstance = nullptr;
 static competitionStatusData competition_data;
 static competitionStatusPacket competition_packet;
 
-static occupationStatusData occupation_data;
-static occupationStatusPacket occupation_packet;
+//static occupationStatusData occupation_data;
+//static occupationStatusPacket occupation_packet;
 
-static winStatusData win_data;
-static winStatusPacket win_packet;
+//static winStatusData win_data;
+//static winStatusPacket win_packet;
 
 static LeftTriggerPositionData left_trigger_data;
 static leftTriggerPositionPacket left_trigger_packet;
@@ -78,19 +81,19 @@ void statusThread::loop()
 	}
 
 	if (last_ref_rfid_status_txno != ref_rfid_status_txno) {
-		occupation_data.resupply_occupation = ref_rfid_status_data.rfid_buff & REF_RFID_RMUL_CENTRAL;
-		occupation_data.central_occupation = ref_rfid_status_data.rfid_buff & REF_RFID_RMUL_RESUPPLY;
+//		occupation_data.resupply_occupation = ref_rfid_status_data.rfid_buff & REF_RFID_RMUL_CENTRAL;
+//		occupation_data.central_occupation = ref_rfid_status_data.rfid_buff & REF_RFID_RMUL_RESUPPLY;
 
 		last_ref_rfid_status_txno = ref_rfid_status_txno;
 	}
 
 	if (last_game_result_txno != ref_game_result_txno) {
-		win_packet.win_state = false;
+//		win_packet.win_state = false;
 		// during competition result calculation period
 		if (competition_data.game_progress == 5) {
 			if ((team_colour == RED_TEAM && ref_game_result_data.winner == RED_WIN) ||
 				(team_colour == BLUE_TEAM && ref_game_result_data.winner == BLUE_WIN)) {
-				win_packet.win_state = true;
+//				win_packet.win_state = true;
 			}
 		}
 
@@ -100,18 +103,18 @@ void statusThread::loop()
 	left_trigger_data.trigger_position = g_remote_cmd.left_switch;
 
 	competition_data.toArray((uint8_t*) &competition_packet);
-	occupation_data.toArray((uint8_t*) &occupation_packet);
-	win_data.toArray((uint8_t*) &win_packet);
+//	occupation_data.toArray((uint8_t*) &occupation_packet);
+//	win_data.toArray((uint8_t*) &win_packet);
 	left_trigger_data.toArray((uint8_t*) &left_trigger_packet);
 
 	MAKE_RELIABLE(competition_packet);
 	UART_network->send(&competition_packet);
 
-	MAKE_RELIABLE(occupation_packet);
-	UART_network->send(&occupation_packet);
+//	MAKE_RELIABLE(occupation_packet);
+//	UART_network->send(&occupation_packet);
 
-	MAKE_RELIABLE(win_packet);
-	UART_network->send(&win_packet);
+//	MAKE_RELIABLE(win_packet);
+//	UART_network->send(&win_packet);
 
 	MAKE_RELIABLE(left_trigger_packet);
 	UART_network->send(&left_trigger_packet);

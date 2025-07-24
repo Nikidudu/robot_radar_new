@@ -14,21 +14,21 @@
 #include "can.h"
 #include "board_settings.h"
 
-#include "SuperCapCommThread.h"
+//#include "SuperCapCommThread.h"
 #include "cvAimbotCommandThread.h"
 #include "status_thread.h"
 #include "spd_cmd_thread.h"
 #include "dummy_cmd_thread.h"
 
 ROCANDriver* CAN1_driver = nullptr;
-CANBus* CAN1_network = nullptr;
+//CANBus* CAN1_network = nullptr;
 ROCANDriver* CAN2_driver = nullptr;
-CANBus* CAN2_network = nullptr;
+//CANBus* CAN2_network = nullptr;
 
 STMUARTDriver* UART_line = nullptr;
 NetworkBus* UART_network = nullptr;
 
-SuperCapCommThread* supercap_thread = nullptr;
+//SuperCapCommThread* supercap_thread = nullptr;
 cvAimbotCommandThread* cv_aimbot_command_thread = nullptr;
 statusThread* status_thread = nullptr;
 
@@ -83,6 +83,6 @@ void Telemetry::setup() {
 }
 
 void Telemetry::set_id(uint32_t id) {
-	dynamic_cast<ROCANDriver*>(CAN1_network->get_driver())->TxHeaderConfigID(id);
+//	dynamic_cast<ROCANDriver*>(CAN1_network->get_driver())->TxHeaderConfigID(id);
 //	dynamic_cast<ROCANDriver*>(FDCAN2_network->get_driver())->TxHeaderConfigID(id);
 }

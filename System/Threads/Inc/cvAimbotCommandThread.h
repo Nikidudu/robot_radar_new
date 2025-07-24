@@ -13,6 +13,8 @@
 #include <Thread.h>
 #include "DataStructures.h"
 
+#include "protocol.h"
+
 #include "Telemetry.h"
 
 class cvAimbotCommandThread : public Thread {

@@ -15,7 +15,7 @@
 #include "DataStructures.h"
 #include "Telemetry.h"
 #include "control_input_task.h"
-#include "Protocol.h"
+#include "protocol.h"
 
 
 class ChassisSpdCmdThread : public Thread {

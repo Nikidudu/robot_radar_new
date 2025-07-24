@@ -8,10 +8,11 @@
 #ifndef CORE_INC_TELEMETRY_H_
 #define CORE_INC_TELEMETRY_H_
 
-#include "RoCo.h"
+#include "broccoli.h"
 #include "usart.h"
 //#include "motor_control.h"
 #include "crc.h"
+#include "protocol.h"
 
 #define CAP1_NODE_ID       (0x003)
 #define CAP2_NODE_ID       (0x008)
@@ -36,7 +37,7 @@ private:
 //extern NetworkBus* UART6_network;
 extern NetworkBus* UART_network;
 
-extern CANBus* CAN1_network;
-extern CANBus* CAN2_network;
+//extern CANBus* CAN1_network;
+//extern CANBus* CAN2_network;
 
 #endif /* CORE_INC_TELEMETRY_H_ */

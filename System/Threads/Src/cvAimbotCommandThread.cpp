@@ -116,5 +116,5 @@ void cvAimbotCommandThread::handle_cv_aim(uint8_t sender_id, aimCommandPacket* p
 }
 //
 void cvAimbotCommandThread::send_command_aim(aimCommandPacket* packet) {
-	aim_state = packet->aim_state;
+	aim_state = packet->aiming_state;
 }
