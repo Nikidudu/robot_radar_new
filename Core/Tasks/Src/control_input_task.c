@@ -46,6 +46,8 @@ uint32_t reset_debounce_time = 0;
 uint32_t reset_start_time = 0;
 
 uint8_t g_rc_check;
+extern uint32_t nav_trig_time;
+extern float nav_direction;
 
 void ramp(float *curr_val, float target_val, float max_ramp){
 	if ((target_val - *curr_val) > max_ramp ){
@@ -335,6 +337,8 @@ void control_mode_change(int16_t left_dial_input) {
 				switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
 				case REMOTE_CTRL_MODE:
+					nav_trig_time = HAL_GetTick();
+					nav_direction = 1;
 					control_mode = SBC_CTRL_MODE;
 					temp_msg = song;
 					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);

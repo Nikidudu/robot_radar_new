@@ -8,6 +8,7 @@
  */
 
 #include "stm_uart_driver.h"
+#include "board_settings.h"
 
 #ifdef BUILD_WITH_STMUART
 //#include "Debug/Debug.h"
@@ -136,6 +137,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size) {
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
+	if (huart != SBC_UART_HANDLE) return;
+
 	STMUARTDriver* driver = (instance)->getInstance(huart);
 	if (driver != nullptr){
 		while(xSemaphoreTakeFromISR(driver->getSemaphore(), nullptr)); // Clear semaphore

@@ -46,6 +46,7 @@ public:
 
 	float gimbal_yaw;
 
+
 private:
 
 };

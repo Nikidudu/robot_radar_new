@@ -27,6 +27,15 @@ extern uint8_t g_rc_check;
 
 uint8_t g_is_navigating = false;
 
+float nav_direction = 1;
+uint8_t stop_flag = 0;
+uint32_t nav_trig_time = 0;
+uint32_t stop_trig_time = 0;
+
+#define MOVEMENT_TIMEOUT 1500
+#define STOP_TIMEOUT	 250
+#define MOVEMENT_SPEED	 0.3
+
 typedef struct {
     uint32_t curr_receive_time;
     uint32_t last_receive_time;
@@ -74,31 +83,47 @@ void ChassisSpdCmdThread::loop() {
 
 //	if (g_remote_cmd.left_switch == ge_RSW_SHUTDOWN && manual_mode){
 	if (control_mode == SBC_CTRL_MODE) {
-		// kill control if right switch is not at the bottom
-		if (g_remote_cmd.right_switch != ge_RSW_ALL_ON || !g_rc_check) { // Safety kill
-			V_horz = 0;
-			V_lat = 0;
-			V_yaw = 0;
-			gimbal_yaw = 0;
-			beyblade_mode = false;
-			control_reset();
+		if (HAL_GetTick() - nav_trig_time > MOVEMENT_TIMEOUT) {
+			nav_trig_time = HAL_GetTick();
+			nav_direction *= -1;
+
+			// A little pause to let it center properly
+			stop_flag = 1;
+			stop_trig_time = HAL_GetTick();
 		}
 
-		else {
-			if (is_navigating) {
-//				double dt = (curr_receive_time - last_receive_time) / 1000.0;
-//				gimbal_ctrl_data.delta_yaw = gimbal_yaw * dt;
-				gimbal_ctrl_data.yaw = gimbal_yaw * 2;
-
-
-				if (!beyblade_mode)
-					V_yaw = chassis_center_yaw();
-				else
-					V_yaw = beyblade_mode;
-
-				chassis_set_ctrl(V_horz, V_lat, V_yaw);
-			}
+		if (stop_flag && HAL_GetTick() - stop_trig_time > STOP_TIMEOUT) {
+			stop_flag = 0;
 		}
+
+		V_yaw = chassis_center_yaw();
+		chassis_set_ctrl(0, nav_direction * MOVEMENT_SPEED * !stop_flag, V_yaw);
+
+//		// kill control if right switch is not at the bottom
+//		if (g_remote_cmd.right_switch != ge_RSW_ALL_ON || !g_rc_check) { // Safety kill
+//			V_horz = 0;
+//			V_lat = 0;
+//			V_yaw = 0;
+//			gimbal_yaw = 0;
+//			beyblade_mode = false;
+//			control_reset();
+//		}
+//
+//		else {
+//			if (is_navigating) {
+////				double dt = (curr_receive_time - last_receive_time) / 1000.0;
+////				gimbal_ctrl_data.delta_yaw = gimbal_yaw * dt;
+//				gimbal_ctrl_data.yaw = gimbal_yaw * 2;
+//
+//
+//				if (!beyblade_mode)
+//					V_yaw = chassis_center_yaw();
+//				else
+//					V_yaw = beyblade_mode;
+//
+//				chassis_set_ctrl(V_horz, V_lat, V_yaw);
+//			}
+//		}
 	}
 
 	osDelay(25);
