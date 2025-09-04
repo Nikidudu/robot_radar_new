@@ -59,11 +59,7 @@ void motor_calib_task(void *argument) {
 	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
 			(UBaseType_t) 8, &motor_control_task_handle);
 
-#ifndef HALL_ZERO
-	hall_disable();
-#else
-	hall_enable();
-#endif
+
 	if (chassis_event_group == NULL) {
 		//error handler
 	} else {

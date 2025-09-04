@@ -5,6 +5,7 @@
  *      Author: Hans Kurnia
  */
 
+/* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
 #include "robot_config.h"
 #include "motor_config.h"
@@ -12,6 +13,50 @@
 #include "arm_math.h"
 #include "movement_control_task.h"
 #include "bsp_hall.h"
+
+/* Private typedef -----------------------------------------------------------*/
+
+/* Private define ------------------------------------------------------------*/
+
+/* Private macro -------------------------------------------------------------*/
+
+/* MECANUM WHEEL PROPERTIES */
+#define WHEEL_CIRC			7.625	//in CM
+#define WHEEL_RADIUS		76.0f
+#define CHASSIS_RADIUS		210.0f
+
+#define FR_ANG_X			-PI/4
+#define FR_ANG_Y 			-PI/2
+#define FR_ANG_PASSIVE		PI/4
+#define FR_DIST				312
+#define FR_VX_MULT			-1		//-cos(FR_ANG_Y - FR_ANG_PASSIVE)/sin(FR_ANG_PASSIVE)
+#define FR_VY_MULT			-1		//-sin(FR_ANG_Y - FR_ANG_PASSIVE)/sin(FR_ANG_PASSIVE)
+#define FR_YAW_MULT			1		//((-FR_DIST * sin(FR_ANG_Y - FR_ANG_PASSIVE - FR_ANG_X)) / (sin(FR_ANG_PASSIVE) * WHEEL_CIRC))
+
+#define FL_ANG_X			PI/4
+#define FL_ANG_Y 			PI/2
+#define FL_ANG_PASSIVE		-PI/4
+#define FL_DIST				312
+#define FL_VX_MULT			-1 		//-cos(FL_ANG_Y - FL_ANG_PASSIVE)/sin(FL_ANG_PASSIVE)
+#define FL_VY_MULT			1		//-sin(FL_ANG_Y - FL_ANG_PASSIVE)/sin(FL_ANG_PASSIVE)
+#define FL_YAW_MULT			1	//((-FL_DIST * sin(FL_ANG_Y - FL_ANG_PASSIVE - FL_ANG_X)) / (sin(FL_ANG_PASSIVE) * WHEEL_CIRC))
+
+#define BL_ANG_X			(3*PI/4)
+#define BL_ANG_Y 			PI/2
+#define BL_ANG_PASSIVE		PI/4
+#define BL_DIST				312
+#define BL_VX_MULT			1		//-cos(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
+#define BL_VY_MULT			1		//-sin(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
+#define BL_YAW_MULT			1	//((-BL_DIST * sin(BL_ANG_Y - BL_ANG_PASSIVE - BL_ANG_X)) / (sin(BL_ANG_PASSIVE) * WHEEL_CIRC))
+
+/* Private function prototypes -----------------------------------------------*/
+
+void chassis_motion_control();
+void chassis_pid_init();
+void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
+float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
+void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl, motor_data_t *motorbl, motor_data_t *motorbr);
+
 
 extern EventGroupHandle_t chassis_event_group;
 
@@ -53,6 +98,14 @@ extern int supercap_enabled;
 
 void movement_control_task(void *argument) {
 	TickType_t start_time;
+
+	// Enable/disable hall sensor
+	#ifndef HALL_ZERO
+		hall_disable();
+	#else
+		hall_enable();
+	#endif
+
 	//initialise in an array so it's possible to for-loop it later
 	motor_yaw_mult[0] = FR_YAW_MULT;
 	motor_yaw_mult[1] = FL_YAW_MULT;

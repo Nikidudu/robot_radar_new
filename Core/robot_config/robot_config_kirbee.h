@@ -495,35 +495,6 @@
 #define YAW_MOTOR_CAN_PTR	&hcan2
 #endif
 
-/* MECANUM WHEEL PROPERTIES */
-#define WHEEL_CIRC			7.625	//in CM
-#define WHEEL_RADIUS		76.0f
-#define CHASSIS_RADIUS		210.0f
-
-#define FR_ANG_X			-PI/4
-#define FR_ANG_Y 			-PI/2
-#define FR_ANG_PASSIVE		PI/4
-#define FR_DIST				312
-#define FR_VX_MULT			-1		//-cos(FR_ANG_Y - FR_ANG_PASSIVE)/sin(FR_ANG_PASSIVE)
-#define FR_VY_MULT			-1		//-sin(FR_ANG_Y - FR_ANG_PASSIVE)/sin(FR_ANG_PASSIVE)
-#define FR_YAW_MULT			1		//((-FR_DIST * sin(FR_ANG_Y - FR_ANG_PASSIVE - FR_ANG_X)) / (sin(FR_ANG_PASSIVE) * WHEEL_CIRC))
-
-#define FL_ANG_X			PI/4
-#define FL_ANG_Y 			PI/2
-#define FL_ANG_PASSIVE		-PI/4
-#define FL_DIST				312
-#define FL_VX_MULT			-1 		//-cos(FL_ANG_Y - FL_ANG_PASSIVE)/sin(FL_ANG_PASSIVE)
-#define FL_VY_MULT			1		//-sin(FL_ANG_Y - FL_ANG_PASSIVE)/sin(FL_ANG_PASSIVE)
-#define FL_YAW_MULT			1	//((-FL_DIST * sin(FL_ANG_Y - FL_ANG_PASSIVE - FL_ANG_X)) / (sin(FL_ANG_PASSIVE) * WHEEL_CIRC))
-
-#define BL_ANG_X			(3*PI/4)
-#define BL_ANG_Y 			PI/2
-#define BL_ANG_PASSIVE		PI/4
-#define BL_DIST				312
-#define BL_VX_MULT			1		//-cos(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
-#define BL_VY_MULT			1		//-sin(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
-#define BL_YAW_MULT			1	//((-BL_DIST * sin(BL_ANG_Y - BL_ANG_PASSIVE - BL_ANG_X)) / (sin(BL_ANG_PASSIVE) * WHEEL_CIRC))
-
 #define BR_ANG_X			-(3*PI/4)
 #define BR_ANG_Y 			-PI/2
 #define BR_ANG_PASSIVE		-PI/4
