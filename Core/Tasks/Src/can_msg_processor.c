@@ -18,7 +18,6 @@ extern EventGroupHandle_t launcher_event_group;
 #define ANGLE_LPF 0
 #define SPEED_LPF 0
 
-#ifndef CHASSIS_MCU
 extern motor_data_t g_can_motors[24];
 
 motor_map_t lk_motor_map[65];
@@ -28,9 +27,7 @@ motor_map_t dm_motor_map[15];
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
 
-#else
-motor_data_t g_can_motors[12];
-#endif
+extern motor_data_t chassis_wheel[4];
 
 void map_lk_motor(uint16_t motor_id, motor_data_t *motor_data) {
 	if (motor_id > 0x140 && motor_id <= 0x160) {
@@ -54,94 +51,112 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 	CAN_RxHeaderTypeDef RxHeader;
 	uint8_t RxData[CAN_BUFFER_SIZE];
 
-	if (hcan->Instance == CAN1) {
-//		uint32_t fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO0);
-//		while (fill_level > 0) {
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
+	if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData)) {
+		/* Reception Error */
+		Error_Handler();
+	}
 
-			if (RxHeader.StdId >= 0x200 && RxHeader.StdId <= 0x20E) {
-				if (dji_motor_map[RxHeader.StdId - 0x200].motor_data != NULL) {
-					convert_raw_can_data(
-							dji_motor_map[RxHeader.StdId - 0x200].motor_data,
-							RxHeader.StdId, (uint8_t*) RxData);
-				}
-			} else {
-				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160) {
-					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL) {
-						process_lk_motor(RxData,
-								lk_motor_map[RxHeader.StdId - 0x140].motor_data);
-						BaseType_t xHigherPriorityTaskWoken, xResult;
-						xHigherPriorityTaskWoken = pdFALSE;
-						xResult = xEventGroupSetBitsFromISR(gimbal_event_group,
-								0b01, &xHigherPriorityTaskWoken);
-					}
-				}
-#ifdef SUPERCAP_PRESENT
-				else if (RxHeader.StdId == DEVC_NODE_ID) {
-					supercapISR(RxData);
-				}
+	if (hcan->Instance == CAN1) {
+
+		switch (RxHeader.StdId) {
+
+#if (WHEEL_MOTOR_CAN == hcan1)
+		case CAN_3508_ALL_ID:
+		case CAN_3508_ALL_ID + 1:
+		case CAN_3508_ALL_ID + 2:
+		case CAN_3508_ALL_ID + 3: {
+			convert_raw_can_data(
+					&chassis_wheel[RxHeader.StdId - CAN_3508_ALL_ID],
+					RxHeader.StdId, (uint8_t*) RxData);
+		}
 #endif
-				else { //if ((RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94)|| (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x75)){
-					int fb_id = (RxData[0]) & 0x0F;
-					switch (fb_id) {
-					case 1:
-					case 5:
-						dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
-						break;
-					}
-					//handle LK motor or other data
-				}
-//				fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO0);
-//			}
+
 		}
 	}
-	if (hcan->Instance == CAN2) {
-//		uint32_t fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO1);
-//		while (fill_level > 0) {
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData);
-			//		HAL_CAN_DeactivateNotification(hcan,
-			//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
-			//						| CAN_IT_RX_FIFO1_OVERRUN);
-			if (RxHeader.StdId >= 0x200 && RxHeader.StdId <= 0x210) {
-				//StdId +12 to seperate the motors on CAN1 and CAN2
-				if (dji_motor_map[RxHeader.StdId - 0x200 + 12].motor_data
-						!= NULL) {
-					convert_raw_can_data(
-							dji_motor_map[RxHeader.StdId - 0x200 + 12].motor_data,
-							RxHeader.StdId + 12, RxData);
-				}
-			} else {
-				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160) {
-					//handle LK motor or other data
-					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL) {
-						process_lk_motor(RxData,
-								lk_motor_map[RxHeader.StdId - 0x140].motor_data);
-						BaseType_t xHigherPriorityTaskWoken, xResult;
-						xHigherPriorityTaskWoken = pdFALSE;
-						xResult = xEventGroupSetBitsFromISR(gimbal_event_group,
-								0b01, &xHigherPriorityTaskWoken);
-					}
-				}
-#ifdef SUPERCAP_PRESENT
-				else if (RxHeader.StdId == DEVC_NODE_ID) {
-					supercapISR(RxData);
-				}
-#endif
-				else { //if ((RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74) || RxHeader.StdId == YAW_MOTOR_ID){
-					int fb_id = (RxData[0]) & 0x0F;
-					switch (fb_id) {
-					case (1):
-						dm4310_fbdata(&dm_yaw_motor, &RxData[0]);
-						break;
-					}
-				}
-			}
-			//		HAL_CAN_ActivateNotification(hcan,
-			//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
-			//						| CAN_IT_RX_FIFO1_OVERRUN);
-//			fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO1);
+
+//			if (RxHeader.StdId >= 0x200 && RxHeader.StdId <= 0x20E) {
+//				if (dji_motor_map[RxHeader.StdId - 0x200].motor_data != NULL) {
+//					convert_raw_can_data(
+//							dji_motor_map[RxHeader.StdId - 0x200].motor_data,
+//							RxHeader.StdId, (uint8_t*) RxData);
+//				}
+//			} else {
+//				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160) {
+//					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL) {
+//						process_lk_motor(RxData,
+//								lk_motor_map[RxHeader.StdId - 0x140].motor_data);
+//						BaseType_t xHigherPriorityTaskWoken, xResult;
+//						xHigherPriorityTaskWoken = pdFALSE;
+//						xResult = xEventGroupSetBitsFromISR(gimbal_event_group,
+//								0b01, &xHigherPriorityTaskWoken);
+//					}
+//				}
+//#ifdef SUPERCAP_PRESENT
+//				else if (RxHeader.StdId == DEVC_NODE_ID) {
+//					supercapISR(RxData);
+//				}
+//#endif
+//				else { //if ((RxHeader.StdId >= 0x90 && RxHeader.StdId <= 0x94)|| (RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x75)){
+//					int fb_id = (RxData[0]) & 0x0F;
+//					switch (fb_id) {
+//					case 1:
+//					case 5:
+//						dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
+//						break;
+//					}
+//					//handle LK motor or other data
+//				}
+////				fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO0);
+////			}
 //		}
-	}
+//	}
+//	if (hcan->Instance == CAN2) {
+////		uint32_t fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO1);
+////		while (fill_level > 0) {
+//			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData);
+//			//		HAL_CAN_DeactivateNotification(hcan,
+//			//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
+//			//						| CAN_IT_RX_FIFO1_OVERRUN);
+//			if (RxHeader.StdId >= 0x200 && RxHeader.StdId <= 0x210) {
+//				//StdId +12 to seperate the motors on CAN1 and CAN2
+//				if (dji_motor_map[RxHeader.StdId - 0x200 + 12].motor_data
+//						!= NULL) {
+//					convert_raw_can_data(
+//							dji_motor_map[RxHeader.StdId - 0x200 + 12].motor_data,
+//							RxHeader.StdId + 12, RxData);
+//				}
+//			} else {
+//				if (RxHeader.StdId > 0x140 && RxHeader.StdId <= 0x160) {
+//					//handle LK motor or other data
+//					if (lk_motor_map[RxHeader.StdId - 0x140].motor_data != NULL) {
+//						process_lk_motor(RxData,
+//								lk_motor_map[RxHeader.StdId - 0x140].motor_data);
+//						BaseType_t xHigherPriorityTaskWoken, xResult;
+//						xHigherPriorityTaskWoken = pdFALSE;
+//						xResult = xEventGroupSetBitsFromISR(gimbal_event_group,
+//								0b01, &xHigherPriorityTaskWoken);
+//					}
+//				}
+//#ifdef SUPERCAP_PRESENT
+//				else if (RxHeader.StdId == DEVC_NODE_ID) {
+//					supercapISR(RxData);
+//				}
+//#endif
+//				else { //if ((RxHeader.StdId >= 0x70 && RxHeader.StdId <= 0x74) || RxHeader.StdId == YAW_MOTOR_ID){
+//					int fb_id = (RxData[0]) & 0x0F;
+//					switch (fb_id) {
+//					case (1):
+//						dm4310_fbdata(&dm_yaw_motor, &RxData[0]);
+//						break;
+//					}
+//				}
+//			}
+//			//		HAL_CAN_ActivateNotification(hcan,
+//			//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
+//			//						| CAN_IT_RX_FIFO1_OVERRUN);
+////			fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO1);
+////		}
+//	}
 }
 void map_dm_motor(uint16_t motor_id, motor_data_t *motor_data) {
 	if (motor_id > 0x200 && motor_id <= 0x20E) {

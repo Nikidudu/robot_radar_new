@@ -8,7 +8,6 @@
 /* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
 #include "robot_config.h"
-#include "motor_config.h"
 #include "motor_control.h"
 #include "arm_math.h"
 #include "movement_control_task.h"
@@ -21,112 +20,148 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* MECANUM WHEEL PROPERTIES */
-#define WHEEL_CIRC			7.625	//in CM
-#define WHEEL_RADIUS		76.0f
-#define CHASSIS_RADIUS		210.0f
 
-#define FR_ANG_X			-PI/4
-#define FR_ANG_Y 			-PI/2
-#define FR_ANG_PASSIVE		PI/4
-#define FR_DIST				312
-#define FR_VX_MULT			-1		//-cos(FR_ANG_Y - FR_ANG_PASSIVE)/sin(FR_ANG_PASSIVE)
-#define FR_VY_MULT			-1		//-sin(FR_ANG_Y - FR_ANG_PASSIVE)/sin(FR_ANG_PASSIVE)
-#define FR_YAW_MULT			1		//((-FR_DIST * sin(FR_ANG_Y - FR_ANG_PASSIVE - FR_ANG_X)) / (sin(FR_ANG_PASSIVE) * WHEEL_CIRC))
-
-#define FL_ANG_X			PI/4
-#define FL_ANG_Y 			PI/2
-#define FL_ANG_PASSIVE		-PI/4
-#define FL_DIST				312
-#define FL_VX_MULT			-1 		//-cos(FL_ANG_Y - FL_ANG_PASSIVE)/sin(FL_ANG_PASSIVE)
-#define FL_VY_MULT			1		//-sin(FL_ANG_Y - FL_ANG_PASSIVE)/sin(FL_ANG_PASSIVE)
-#define FL_YAW_MULT			1	//((-FL_DIST * sin(FL_ANG_Y - FL_ANG_PASSIVE - FL_ANG_X)) / (sin(FL_ANG_PASSIVE) * WHEEL_CIRC))
-
-#define BL_ANG_X			(3*PI/4)
-#define BL_ANG_Y 			PI/2
-#define BL_ANG_PASSIVE		PI/4
-#define BL_DIST				312
-#define BL_VX_MULT			1		//-cos(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
-#define BL_VY_MULT			1		//-sin(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
-#define BL_YAW_MULT			1	//((-BL_DIST * sin(BL_ANG_Y - BL_ANG_PASSIVE - BL_ANG_X)) / (sin(BL_ANG_PASSIVE) * WHEEL_CIRC))
-
-/* Private function prototypes -----------------------------------------------*/
-
-void chassis_motion_control();
-void chassis_pid_init();
-void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
-float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
-void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl, motor_data_t *motorbl, motor_data_t *motorbr);
-
-
-extern EventGroupHandle_t chassis_event_group;
-
-extern chassis_control_t chassis_ctrl_data;
-
-extern remote_cmd_t g_remote_cmd;
-extern motor_data_t g_can_motors[24];
-extern ref_game_robot_data_t ref_robot_data;
-extern uint32_t ref_power_data_txno;
-extern speed_shift_t gear_speed;
-float g_chassis_yaw = 0;
-uint8_t g_gimbal_state = 0;
-extern uint8_t hall_state;
-extern int g_spinspin_mode;
-
-extern uint8_t charging_state;
+/* Private variables ---------------------------------------------------------*/
 
 uint8_t zero_start = 0;
 uint32_t zeroing_start_time = 0;
 int16_t current_rpm;
-
+float g_chassis_yaw = 0;
+uint8_t g_gimbal_state = 0;
 float motor_yaw_mult[4];
-float debug5;
-float debug6;
-
-extern QueueHandle_t telem_motor_queue;
-
 static float lvl_max_speed;
 static float lvl_max_accel;
 static float lvl_max_spin;
 static float spin_accel = SPIN_ACCELERATION;
-
 float act_forward = 0.0f;
 float act_horizontal = 0.0f;
 float act_yaw = 0.0f;
 
+/* From other tasks (extern) */
+
+extern EventGroupHandle_t chassis_event_group;
+extern chassis_control_t chassis_ctrl_data;
+extern remote_cmd_t g_remote_cmd;
+extern motor_data_t g_can_motors[24];
+extern ref_game_robot_data_t ref_robot_data;
+extern uint32_t ref_power_data_txno;
+extern uint8_t hall_state;
+extern int g_spinspin_mode;
+extern uint8_t charging_state;
+
 extern int supercap_dash;
 extern int supercap_enabled;
 
-void movement_control_task(void *argument) {
-	TickType_t start_time;
+extern uint8_t g_safety_toggle;
 
-	// Enable/disable hall sensor
-	#ifndef HALL_ZERO
-		hall_disable();
-	#else
-		hall_enable();
-	#endif
+
+/* Private function prototypes -----------------------------------------------*/
+
+void chassis_motion_control();
+void level_config(float *lvl_max_speed, float *lvl_max_accel,
+		float *lvl_max_spin);
+float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
+void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
+		motor_data_t *motorbl, motor_data_t *motorbr);
+
+#define WHEEL_MOTOR_CAN &hcan2
+motor_data_t chassis_wheel[4];
+typedef enum {
+	FR = 0,   // Front Right
+	FL = 1,   // Front Left
+	BR = 2,   // Back Right
+	BL = 3,   // Back Left
+} wheel_id;
+
+/* Private user code ---------------------------------------------------------*/
+
+void chassis_init() {
+
+	// 2--1
+	// 4--3
 
 	//initialise in an array so it's possible to for-loop it later
-	motor_yaw_mult[0] = FR_YAW_MULT;
-	motor_yaw_mult[1] = FL_YAW_MULT;
-	motor_yaw_mult[2] = BL_YAW_MULT;
-	motor_yaw_mult[3] = BR_YAW_MULT;
+	motor_yaw_mult[FR] = FR_YAW_MULT;
+	motor_yaw_mult[FL] = FL_YAW_MULT;
+	motor_yaw_mult[BR] = BR_YAW_MULT;
+	motor_yaw_mult[BL] = BL_YAW_MULT;
+
+	for (size_t i = 0; i < sizeof(chassis_wheel) / sizeof(chassis_wheel[0]);
+			i++) {
+		chassis_wheel[i].motor_type = TYPE_M3508;
+//		chassis_wheel[i].id = CAN_3508_ALL_ID + i;
+		chassis_wheel[i].can = WHEEL_MOTOR_CAN;
+		chassis_wheel[i].rpm_pid.kp = CHASSIS_KP;
+		chassis_wheel[i].rpm_pid.ki = CHASSIS_KI;
+		chassis_wheel[i].rpm_pid.kd = CHASSIS_KD;
+		chassis_wheel[i].rpm_pid.int_max = CHASSIS_INT_MAX;
+		chassis_wheel[i].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
+
+		chassis_wheel[i].angle_data.gearbox_ratio = M3508_GEARBOX_RATIO;
+		chassis_wheel[i].angle_pid.physical_max = M3508_MAX_RPM;
+		chassis_wheel[i].rpm_pid.physical_max = M3508_MAX_OUTPUT;
+		chassis_wheel[i].angle_data.min_ticks = -4096 * M3508_GEARBOX_RATIO;
+		chassis_wheel[i].angle_data.max_ticks = 4096 * M3508_GEARBOX_RATIO;
+		chassis_wheel[i].angle_data.tick_range =
+				chassis_wheel[i].angle_data.max_ticks
+						- chassis_wheel[i].angle_data.min_ticks;
+		chassis_wheel[i].angle_data.min_ang = -PI;
+		chassis_wheel[i].angle_data.max_ang = PI;
+		chassis_wheel[i].angle_data.max_raw_ticks = 4096;
+		chassis_wheel[i].angle_data.min_raw_ticks = -4096;
+		chassis_wheel[i].angle_data.raw_ticks_range =
+				chassis_wheel[i].angle_data.max_raw_ticks
+						- chassis_wheel[i].angle_data.min_raw_ticks;
+		chassis_wheel[i].angle_data.ang_range =
+				chassis_wheel[i].angle_data.max_ang
+						- chassis_wheel[i].angle_data.min_ang;
+	}
+}
+
+void send_current_to_motor() {
+	CAN_TxHeaderTypeDef CAN_tx_message;
+	uint8_t CAN_send_data[8];
+	uint32_t send_mail_box[3];
+	uint8_t curr_send_box;
+	CAN_tx_message.IDE = CAN_ID_STD;
+	CAN_tx_message.RTR = CAN_RTR_DATA;
+	CAN_tx_message.DLC = 0x08;
+
+	CAN_tx_message.StdId = 0x200; // CAN_3508_1_TO_4_ID
+
+	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
+		CAN_send_data[0] = 0;
+		CAN_send_data[1] = 0;
+		CAN_send_data[2] = 0;
+		CAN_send_data[3] = 0;
+		CAN_send_data[4] = 0;
+		CAN_send_data[5] = 0;
+		CAN_send_data[6] = 0;
+		CAN_send_data[7] = 0;
+	} else {
+		CAN_send_data[FR]   = (chassis_wheel[FR].output) >> 8;
+		CAN_send_data[FR+1] = (chassis_wheel[FR+1].output);
+		CAN_send_data[FL]   = (chassis_wheel[FL].output) >> 8;
+		CAN_send_data[FL+1] = (chassis_wheel[FL+1].output);
+		CAN_send_data[BR]   = (chassis_wheel[BR].output) >> 8;
+		CAN_send_data[BR+1] = (chassis_wheel[BR+1].output);
+		CAN_send_data[BL]   = (chassis_wheel[BL].output) >> 8;
+		CAN_send_data[BL+1] = (chassis_wheel[BL+1].output);
+	}
+
+	HAL_CAN_AddTxMessage(WHEEL_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
+			send_mail_box);
+}
+
+void movement_control_task(void *argument) {
+	TickType_t start_time;
+	chassis_init();
 
 	while (1) {
 
-#ifndef CHASSIS_MCU
-
-		// prevents motors from moving if 1 motor disconnects
-//		g_can_motors[FR_MOTOR_ID - 1].output = 0;
-//		g_can_motors[FL_MOTOR_ID - 1].output = 0;
-//		g_can_motors[BL_MOTOR_ID - 1].output = 0;
-//		g_can_motors[BR_MOTOR_ID - 1].output = 0;
-
 		EventBits_t motor_bits;
 		//wait for all motors to have updated data before PID is allowed to run
-		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE,
-		pdTRUE,
-		portMAX_DELAY);
+//		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE, pdTRUE, portMAX_DELAY);
 		if (motor_bits == 0b1111) {
 			status_led(3, on_led);
 			start_time = xTaskGetTickCount();
@@ -143,10 +178,10 @@ void movement_control_task(void *argument) {
 						g_can_motors + BR_MOTOR_ID - 1);
 				} else {
 #endif
-					chassis_motion_control(g_can_motors + FR_MOTOR_ID - 1,
-							g_can_motors + FL_MOTOR_ID - 1,
-							g_can_motors + BL_MOTOR_ID - 1,
-							g_can_motors + BR_MOTOR_ID - 1);
+				chassis_motion_control(g_can_motors + FR_MOTOR_ID - 1,
+						g_can_motors + FL_MOTOR_ID - 1,
+						g_can_motors + BL_MOTOR_ID - 1,
+						g_can_motors + BR_MOTOR_ID - 1);
 
 #ifdef HALL_ZERO
 				}
@@ -160,9 +195,7 @@ void movement_control_task(void *argument) {
 				g_can_motors[BR_MOTOR_ID - 1].output = 0;
 
 			}
-#else
-		chassis_MCU_send_CAN();
-#endif
+
 			status_led(3, off_led);
 		} else {
 			//motor timed out
@@ -171,6 +204,9 @@ void movement_control_task(void *argument) {
 			g_can_motors[BL_MOTOR_ID - 1].output = 0;
 			g_can_motors[BR_MOTOR_ID - 1].output = 0;
 		}
+
+		send_current_to_motor();
+
 		//clear bits if it's not already cleared
 		xEventGroupClearBits(chassis_event_group, 0b1111);
 		//delays task for other tasks to run
@@ -178,10 +214,6 @@ void movement_control_task(void *argument) {
 	}
 	osThreadTerminate(NULL);
 }
-void chassis_MCU_send_CAN() {
-
-}
-
 
 float filtered_rpm_fr;
 float filtered_rpm_fl;
@@ -216,14 +248,17 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	}
 
 	//Clamp the values between -limit to limit
-	float limit_forward = fmaxf(-speed_limit, fminf(chassis_ctrl_data.forward, speed_limit));
-	float limit_horizontal = fmaxf(-speed_limit, fminf(chassis_ctrl_data.horizontal, speed_limit));
-	float limit_yaw = fmaxf(-spin_limit, fminf(chassis_ctrl_data.yaw, spin_limit));
+	float limit_forward = fmaxf(-speed_limit,
+			fminf(chassis_ctrl_data.forward, speed_limit));
+	float limit_horizontal = fmaxf(-speed_limit,
+			fminf(chassis_ctrl_data.horizontal, speed_limit));
+	float limit_yaw = fmaxf(-spin_limit,
+			fminf(chassis_ctrl_data.yaw, spin_limit));
 
 	// Smooths speed changes over time using acceleration constraints
-	act_forward = rpm_ramp(limit_forward * gear_speed.trans_mult, act_forward, &lvl_max_accel);  //gear shifter multipliers
-	act_horizontal = rpm_ramp(limit_horizontal * gear_speed.trans_mult, act_horizontal, &lvl_max_accel);
-	act_yaw = rpm_ramp(limit_yaw * gear_speed.spin_mult, act_yaw, &spin_accel);
+	act_forward = rpm_ramp(limit_forward, act_forward, &lvl_max_accel); //gear shifter multipliers
+	act_horizontal = rpm_ramp(limit_horizontal, act_horizontal, &lvl_max_accel);
+	act_yaw = rpm_ramp(limit_yaw, act_yaw, &spin_accel);
 
 	// translation and rotation speed of chassis for chassis yaw angle relative to gimbal
 	float rel_forward = ((-act_horizontal * sin(-rel_angle))
@@ -242,25 +277,25 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	translation_rpm[3] = ((rel_forward * BR_VY_MULT)
 			+ (rel_horizontal * BR_VX_MULT));
 
-	yaw_rpm[0] = rel_yaw * motor_yaw_mult[0];
-	yaw_rpm[1] = rel_yaw * motor_yaw_mult[1];
-	yaw_rpm[2] = rel_yaw * motor_yaw_mult[2];
-	yaw_rpm[3] = rel_yaw * motor_yaw_mult[3];
+	yaw_rpm[FR] = rel_yaw * motor_yaw_mult[FR];
+	yaw_rpm[FL] = rel_yaw * motor_yaw_mult[FL];
+	yaw_rpm[BR] = rel_yaw * motor_yaw_mult[BR];
+	yaw_rpm[BL] = rel_yaw * motor_yaw_mult[BL];
 
 	float rpm_mult = 1;
 	float rpm_sum = 0;
 	for (uint8_t i = 0; i < 4; i++) {
 		float temp_add = fabs(yaw_rpm[i] + translation_rpm[i]);
-		rpm_sum = rpm_sum + temp_add;  // total combined magnitude of all wheels' RPMs
-		if (temp_add > rpm_mult){	   // the maximum RPM among the four wheels
+		rpm_sum = rpm_sum + temp_add; // total combined magnitude of all wheels' RPMs
+		if (temp_add > rpm_mult) {	   // the maximum RPM among the four wheels
 			rpm_mult = temp_add;
 		}
 	}
 
 	// ensures that individual rpm will not be more than max_rpm
 	for (uint8_t j = 0; j < 4; j++) {
-		translation_rpm[j] = (translation_rpm[j]			// sum theoretical wheel rpm for translation and yaw
-					+ yaw_rpm[j]) * max_rpm / rpm_mult;		// for no spinning modulate wheel rpm by dividing by highest rpm
+		translation_rpm[j] = (translation_rpm[j]// sum theoretical wheel rpm for translation and yaw
+		+ yaw_rpm[j]) * max_rpm / rpm_mult;	// for no spinning modulate wheel rpm by dividing by highest rpm
 	}
 
 	// todo: maybe better to change the values of PID here instead of center_yaw()?
@@ -275,7 +310,8 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	motorbr->output = motorbr->rpm_pid.output;
 }
 
-void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin) {
+void level_config(float *lvl_max_speed, float *lvl_max_accel,
+		float *lvl_max_spin) {
 #ifdef LVL_TUNING
 	//	static uint8_t prev_robot_level = -1;
 
@@ -289,130 +325,130 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	}
 
 	switch (curr_level) {
-		case 1:
-			*lvl_max_speed = LV1_MAX_SPEED;
-			*lvl_max_accel = LV1_MAX_ACCEL;
-			*lvl_max_spin  = LV1_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 1:
+		*lvl_max_speed = LV1_MAX_SPEED;
+		*lvl_max_accel = LV1_MAX_ACCEL;
+		*lvl_max_spin = LV1_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 2:
-			*lvl_max_speed = LV2_MAX_SPEED;
-			*lvl_max_accel = LV2_MAX_ACCEL;
-			*lvl_max_spin  = LV2_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 2:
+		*lvl_max_speed = LV2_MAX_SPEED;
+		*lvl_max_accel = LV2_MAX_ACCEL;
+		*lvl_max_spin = LV2_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 3:
-			*lvl_max_speed = LV3_MAX_SPEED;
-			*lvl_max_accel = LV3_MAX_ACCEL;
-			*lvl_max_spin  = LV3_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 3:
+		*lvl_max_speed = LV3_MAX_SPEED;
+		*lvl_max_accel = LV3_MAX_ACCEL;
+		*lvl_max_spin = LV3_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 4:
-			*lvl_max_speed = LV4_MAX_SPEED;
-			*lvl_max_accel = LV4_MAX_ACCEL;
-			*lvl_max_spin  = LV4_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 4:
+		*lvl_max_speed = LV4_MAX_SPEED;
+		*lvl_max_accel = LV4_MAX_ACCEL;
+		*lvl_max_spin = LV4_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 5:
-			*lvl_max_speed = LV5_MAX_SPEED;
-			*lvl_max_accel = LV5_MAX_ACCEL;
-			*lvl_max_spin  = LV5_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 5:
+		*lvl_max_speed = LV5_MAX_SPEED;
+		*lvl_max_accel = LV5_MAX_ACCEL;
+		*lvl_max_spin = LV5_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 6:
-			*lvl_max_speed = LV6_MAX_SPEED;
-			*lvl_max_accel = LV6_MAX_ACCEL;
-			*lvl_max_spin  = LV6_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 6:
+		*lvl_max_speed = LV6_MAX_SPEED;
+		*lvl_max_accel = LV6_MAX_ACCEL;
+		*lvl_max_spin = LV6_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 7:
-			*lvl_max_speed = LV7_MAX_SPEED;
-			*lvl_max_accel = LV7_MAX_ACCEL;
-			*lvl_max_spin  = LV7_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 7:
+		*lvl_max_speed = LV7_MAX_SPEED;
+		*lvl_max_accel = LV7_MAX_ACCEL;
+		*lvl_max_spin = LV7_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 8:
-			*lvl_max_speed = LV8_MAX_SPEED;
-			*lvl_max_accel = LV8_MAX_ACCEL;
-			*lvl_max_spin  = LV8_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 8:
+		*lvl_max_speed = LV8_MAX_SPEED;
+		*lvl_max_accel = LV8_MAX_ACCEL;
+		*lvl_max_spin = LV8_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 9:
-			*lvl_max_speed = LV9_MAX_SPEED;
-			*lvl_max_accel = LV9_MAX_ACCEL;
-			*lvl_max_spin  = LV9_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 9:
+		*lvl_max_speed = LV9_MAX_SPEED;
+		*lvl_max_accel = LV9_MAX_ACCEL;
+		*lvl_max_spin = LV9_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 10:
-			*lvl_max_speed = LV10_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 10:
+		*lvl_max_speed = LV10_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 11:
-			*lvl_max_speed = LV11_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 11:
+		*lvl_max_speed = LV11_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 12:
-			*lvl_max_speed = LV12_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 12:
+		*lvl_max_speed = LV12_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 13:
-			*lvl_max_speed = LV13_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 13:
+		*lvl_max_speed = LV13_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 14:
-			*lvl_max_speed = LV14_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 14:
+		*lvl_max_speed = LV14_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 15:
-			*lvl_max_speed = LV15_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 15:
+		*lvl_max_speed = LV15_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 16:
-			*lvl_max_speed = LV16_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 16:
+		*lvl_max_speed = LV16_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 17:
-			*lvl_max_speed = LV17_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 17:
+		*lvl_max_speed = LV17_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 18:
-			*lvl_max_speed = LV18_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 18:
+		*lvl_max_speed = LV18_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 19:
-			*lvl_max_speed = LV19_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 19:
+		*lvl_max_speed = LV19_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 20:
-			*lvl_max_speed = LV20_MAX_SPEED;
-			*lvl_max_accel = LV10_MAX_ACCEL;
-			*lvl_max_spin  = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 20:
+		*lvl_max_speed = LV20_MAX_SPEED;
+		*lvl_max_accel = LV10_MAX_ACCEL;
+		*lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		default:
-			*lvl_max_speed = LV1_MAX_SPEED;
-			*lvl_max_accel = LV1_MAX_ACCEL;
-			*lvl_max_spin  = LV1_CHASSIS_YAW_MAX_RPM;
+	default:
+		*lvl_max_speed = LV1_MAX_SPEED;
+		*lvl_max_accel = LV1_MAX_ACCEL;
+		*lvl_max_spin = LV1_CHASSIS_YAW_MAX_RPM;
 	}
 #else
 
@@ -425,7 +461,6 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spi
 	*lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
 }
 
-
 float rpm_ramp(float target_value, float current_value, float *lvl_max_accel) {
 	double dt = CHASSIS_DELAY / 1000.0; // Converting dt to minutes
 	double accel = *lvl_max_accel; //Default Chassis_Accel_max is LV1_ACCEL_MAX
@@ -436,13 +471,11 @@ float rpm_ramp(float target_value, float current_value, float *lvl_max_accel) {
 	if (target_value == 0) {
 		return 0; //Instantly stop the robot;
 	} else if (fabs(delta) < ramp_rate) {
-        return target_value;  // close enough, just snap to target
-    } else {
-        return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
-    }
+		return target_value;  // close enough, just snap to target
+	} else {
+		return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
+	}
 }
-
-
 
 #ifdef HALL_ZERO
 void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
@@ -456,15 +489,15 @@ void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
 		g_can_motors[YAW_MOTOR_ID-1].angle_data.center_ang = 0;
 	}
 	float yaw_rpm[4];
-	yaw_rpm[0] = ZERO_SPEED * motor_yaw_mult[0];
-	yaw_rpm[1] = ZERO_SPEED * motor_yaw_mult[1];
-	yaw_rpm[2] = ZERO_SPEED * motor_yaw_mult[2];
-	yaw_rpm[3] = ZERO_SPEED * motor_yaw_mult[3];
+	yaw_rpm[FR] = ZERO_SPEED * motor_yaw_mult[FR];
+	yaw_rpm[FL] = ZERO_SPEED * motor_yaw_mult[FL];
+	yaw_rpm[BR] = ZERO_SPEED * motor_yaw_mult[BR];
+	yaw_rpm[BL] = ZERO_SPEED * motor_yaw_mult[BL];
 
-	speed_pid(yaw_rpm[0], motorfr->raw_data.rpm, &motorfr->rpm_pid);
-	speed_pid(yaw_rpm[1], motorfl->raw_data.rpm, &motorfl->rpm_pid);
-	speed_pid(yaw_rpm[2], motorbl->raw_data.rpm, &motorbl->rpm_pid);
-	speed_pid(yaw_rpm[3], motorbr->raw_data.rpm, &motorbr->rpm_pid);
+	speed_pid(yaw_rpm[FR], motorfr->raw_data.rpm, &motorfr->rpm_pid);
+	speed_pid(yaw_rpm[FL], motorfl->raw_data.rpm, &motorfl->rpm_pid);
+	speed_pid(yaw_rpm[BL], motorbl->raw_data.rpm, &motorbl->rpm_pid);
+	speed_pid(yaw_rpm[BR], motorbr->raw_data.rpm, &motorbr->rpm_pid);
 
 	motorfr->output = motorfr->rpm_pid.output;
 	motorfl->output = motorfl->rpm_pid.output;

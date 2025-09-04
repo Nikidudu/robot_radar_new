@@ -24,8 +24,6 @@ extern ref_game_robot_data_t ref_robot_data;
 extern uint8_t g_ref_tx_seq;
 
 extern motor_data_t g_can_motors[24];
-extern speed_shift_t gear_speed;
-int prev_gear = 0;
 
 extern int g_spinspin_mode;
 int prev_spinspin = 0;
@@ -37,8 +35,8 @@ extern int aimbot_mode;
 int prev_aimbot = 0;
 
 static uint32_t spin_coords = 0;
-static uint32_t gear_coords = 0;
 static uint32_t aimbot_coords = 0;
+static uint32_t supercap_coords = 0;
 
 extern enum feeder_state_e feeder_state;
 int prev_feeder_state;
@@ -146,9 +144,6 @@ void set_top_coordinates() {
 #ifdef SPINSPIN
 	top_graphics++;
 #endif
-#ifdef GEARING
-	top_graphics++;
-#endif
 #ifdef AIMBOT
 	top_graphics++;
 #endif
@@ -176,14 +171,11 @@ void set_top_coordinates() {
 #ifdef SPINSPIN
 	spin_coords = x_coordinates[index++];
 #endif
-#ifdef GEARING
-	gear_coords = x_coordinates[index++];
-#endif
 #ifdef AIMBOT
 	aimbot_coords = x_coordinates[index++];
 #endif
 #ifdef SUPERCAP
-	aimbot_coords = x_coordinates[index++];
+	supercap_coords = x_coordinates[index++];
 #endif
 
 #ifdef SPINSPIN
@@ -254,7 +246,7 @@ void draw_dynamic(uint8_t modify) {
 	}
 }
 
-// Characters to draw: spinspin, gear, aimbot
+// Characters to draw: spinspin, aimbot, supercap
 // Each character has to be sent in their own packet
 void draw_char(uint8_t modify) {
 	// Draw if adding (initializing), check for change if modifying
@@ -274,13 +266,7 @@ void draw_char(uint8_t modify) {
 #ifdef SUPERCAP
 		if (prev_supercap_dash != supercap_dash) {
 			prev_supercap_dash = supercap_dash;
-			draw_aimbot(modify, aimbot_coords);
-		}
-#endif
-#ifdef GEARING
-		if (prev_gear != gear_speed.curr_gear) {
-			prev_gear = gear_speed.curr_gear;
-			draw_gearing(modify, gear_coords);
+			draw_aimbot(modify, supercap_coords);
 		}
 #endif
 	} else {
@@ -294,11 +280,7 @@ void draw_char(uint8_t modify) {
 #endif
 #ifdef SUPERCAP
 		prev_supercap_dash = supercap_dash;
-		draw_aimbot(modify, aimbot_coords);
-#endif
-#ifdef GEARING
-		prev_gear = gear_speed.curr_gear;
-		draw_gearing(modify, gear_coords);
+		draw_aimbot(modify, supercap_coords);
 #endif
 	}
 }
@@ -463,41 +445,6 @@ uint16_t draw_spin_border(uint8_t* tx_buffer, uint8_t modify, uint32_t x_coords)
 	return sizeof(graphic_data_struct_t);
 }
 
-void draw_gearing(uint8_t modify, uint32_t x_coords) {
-	uint8_t tx_buffer[256];
-	uint8_t curr_pos = 0;
-	uint8_t char_len = 0;
-	char char_buffer[30];
-
-	char_len = snprintf((char*) char_buffer, 30, "GEAR %d", gear_speed.curr_gear);
-	curr_pos = draw_char_header(tx_buffer, char_len);
-
-	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
-	graphic_data->color = GRAPHIC_COLOUR_CYAN;
-	//self set number for identification purposes only
-	graphic_data->graphic_name[0] = 'G';
-	graphic_data->graphic_name[1] = 'E';
-	graphic_data->graphic_name[2] = 'A';
-	graphic_data->layer = 5;
-
-	graphic_data->operation_type = modify ? GRAPHIC_MODIFY : GRAPHIC_ADD;
-
-	graphic_data->graphic_type = GRAPHIC_TYPE_CHAR; // char
-	graphic_data->details_a = FONT_SIZE; // font size
-	graphic_data->details_b = char_len; // character length
-	graphic_data->width = CHAR_WIDTH; //line width
-
-	graphic_data->start_x = x_coords - CHAR_X_OFFSET * char_len;
-	graphic_data->start_y = TOP_Y_POS + CHAR_Y_OFFSET;
-
-	curr_pos += sizeof(graphic_data_struct_t);
-	memcpy(tx_buffer + curr_pos, char_buffer, char_len);
-	curr_pos += char_len;
-
-	ref_send(tx_buffer, curr_pos);
-	vTaskDelay(REF_DELAY);
-}
-
 uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
 	graphic_data->color = (charging_state > SUPERCAP_ENABLE_THRESHOLD) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
@@ -530,8 +477,8 @@ uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 	return sizeof(graphic_data_struct_t);
 }
 
-void draw_aimbot(uint8_t modify, uint32_t x_coords) {
-	// now also used to draw supercap ON/OFF
+void draw_supercap_status(uint8_t modify, uint32_t x_coords) {
+	// draws whether supercap ON/OFF
 	uint8_t tx_buffer[256];
 	uint8_t curr_pos = 0;
 	uint8_t char_len = 0;
@@ -546,14 +493,45 @@ void draw_aimbot(uint8_t modify, uint32_t x_coords) {
 	graphic_data->color = supercap_dash ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 
 #endif
-#ifdef AIMBOT
+
+	//self set number for identification purposes only
+	graphic_data->graphic_name[0] = 'I';
+	graphic_data->graphic_name[1] = 'D';
+	graphic_data->graphic_name[2] = 'K';
+	graphic_data->layer = 4;
+
+	graphic_data->operation_type = modify ? GRAPHIC_MODIFY : GRAPHIC_ADD;
+
+	graphic_data->graphic_type = GRAPHIC_TYPE_CHAR; // char
+	graphic_data->details_a = FONT_SIZE; // font size
+	graphic_data->details_b = char_len; // character length
+	graphic_data->width = CHAR_WIDTH; //line width
+
+	graphic_data->start_x = x_coords - CHAR_X_OFFSET * char_len;
+	graphic_data->start_y = TOP_Y_POS + CHAR_Y_OFFSET;
+
+	curr_pos += sizeof(graphic_data_struct_t);
+	memcpy(tx_buffer + curr_pos, char_buffer, char_len);
+	curr_pos += char_len;
+
+	ref_send(tx_buffer, curr_pos);
+	vTaskDelay(REF_DELAY);
+}
+
+void draw_aimbot(uint8_t modify, uint32_t x_coords) {
+	// now also used to draw supercap ON/OFF
+	uint8_t tx_buffer[256];
+	uint8_t curr_pos = 0;
+	uint8_t char_len = 0;
+	char char_buffer[30];
+	graphic_data_struct_t* graphic_data;
+
 	char_len = aimbot_mode ?
 			snprintf((char*) char_buffer, 30, "AIM ON") :
 			snprintf((char*) char_buffer, 30, "AIM OFF");
 	curr_pos = draw_char_header(tx_buffer, char_len);
 	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
 	graphic_data->color = aimbot_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
-#endif
 
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'A';

@@ -47,6 +47,7 @@ void motor_calib_task(void* argument);
 #define TYPE_DM8009_MIT         13
 #define TYPE_DM4310_MIT			14
 
+#define CAN_3508_ALL_ID		0x201
 
 void motor_calib_task(void *argument);
 void set_motor_config(motor_data_t *motor);

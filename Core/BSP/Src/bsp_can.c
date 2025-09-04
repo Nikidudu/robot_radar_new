@@ -72,12 +72,14 @@ void can_start(CAN_HandleTypeDef *hcan, uint32_t CAN_filterID, uint32_t CAN_filt
 	    HAL_CAN_Start(hcan);
 	    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 	} else if (hcan->Instance == CAN2) {
-	    can_filter_st.FilterFIFOAssignment = CAN_RX_FIFO1; // Uncomment line if using RX1 queue as well.
+        can_filter_st.FilterFIFOAssignment = CAN_RX_FIFO0; // FIFO0 only
+//	    can_filter_st.FilterFIFOAssignment = CAN_RX_FIFO1; // Uncomment line if using RX1 queue as well.
 		can_filter_st.SlaveStartFilterBank = 14;
 		can_filter_st.FilterBank = 14;
 	    HAL_CAN_ConfigFilter(hcan, &can_filter_st);
 	    HAL_CAN_Start(hcan);
-	    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO1_MSG_PENDING); // Uncomment line if using RX1 queue as well.
+	    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+//	    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO1_MSG_PENDING); // Uncomment line if using RX1 queue as well.
 	}
 
 }

@@ -60,7 +60,6 @@ void motor_control_task(void *argument) {
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
 	uint8_t curr_send_box;
-	int16_t temp_converter;
 	CAN_tx_message.IDE = CAN_ID_STD;
 	CAN_tx_message.RTR = CAN_RTR_DATA;
 	CAN_tx_message.DLC = 0x08;

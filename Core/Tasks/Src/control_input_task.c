@@ -32,7 +32,6 @@ chassis_control_t chassis_ctrl_data;
 gun_control_t launcher_ctrl_data;
 gimbal_control_t gimbal_ctrl_data;
 pid_data_t yaw_pid_data;
-speed_shift_t gear_speed;
 int g_spinspin_mode = 0;
 int supercap_dash = 0;
 int aimbot_mode = 0;
@@ -52,8 +51,6 @@ void control_input_task(void *argument) {
 	gimbal_ctrl_data.imu_mode = GIMBAL_MODE;
 //	aimbot_pid_init();
 	dbus_remote_start();
-	gear_speed.curr_gear = GEAR_DEFAULT;
-	set_gear();
 	g_safety_toggle = 1;
 	vTaskDelay(100);
 	uint8_t rc_check;
@@ -106,13 +103,9 @@ void control_input_task(void *argument) {
 
 				switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
-//					keyboard_gear_shifter(&gear_speed);
-					set_gear();
 					keyboard_control_input();
 					break;
 				case REMOTE_CTRL_MODE:
-//					remote_gear_shifter(&gear_speed);
-					set_gear();
 					remote_control_input();
 					break;
 #ifdef HAS_SBC
@@ -427,47 +420,6 @@ void gimbal_set_ang(float pit_radians, float yaw_radians) {
 	}
 	gimbal_ctrl_data.pitch = pit_radians;
 	gimbal_ctrl_data.yaw = yaw_radians;
-}
-
-void set_gear() {
-	switch (gear_speed.curr_gear) {
-	case 1:
-		gear_speed.spin_mult = GEAR1_YAW_MULT;
-		gear_speed.trans_mult = GEAR1_SPEED_MULT;
-		gear_speed.accel_mult = GEAR1_ACCEL_MULT;
-		break;
-	case 2:
-		gear_speed.spin_mult = GEAR2_YAW_MULT;
-		gear_speed.trans_mult = GEAR2_SPEED_MULT;
-		gear_speed.accel_mult = GEAR2_ACCEL_MULT;
-		break;
-	case 3:
-		gear_speed.spin_mult = GEAR3_YAW_MULT;
-		gear_speed.trans_mult = GEAR3_SPEED_MULT;
-		gear_speed.accel_mult = GEAR3_ACCEL_MULT;
-		break;
-	case 4:
-		gear_speed.spin_mult = GEAR4_YAW_MULT;
-		gear_speed.trans_mult = GEAR4_SPEED_MULT;
-		gear_speed.accel_mult = GEAR4_ACCEL_MULT;
-		break;
-	case 5:
-		gear_speed.spin_mult = GEAR5_YAW_MULT;
-		gear_speed.trans_mult = GEAR5_SPEED_MULT;
-		gear_speed.accel_mult = GEAR5_ACCEL_MULT;
-		break;
-	case 6:
-		gear_speed.spin_mult = GEAR6_YAW_MULT;
-		gear_speed.trans_mult = GEAR6_SPEED_MULT;
-		gear_speed.accel_mult = GEAR6_ACCEL_MULT;
-		break;
-	default:
-		gear_speed.spin_mult = GEAR3_YAW_MULT;
-		gear_speed.trans_mult = GEAR3_SPEED_MULT;
-		gear_speed.accel_mult = GEAR3_ACCEL_MULT;
-		break;
-	}
-
 }
 
 void chassis_yaw_pid_init() {

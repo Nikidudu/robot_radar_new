@@ -56,9 +56,16 @@ void motor_calib_task(void *argument) {
 	//check motors
 	//start motor control tasks after initialisation of motors
 	//shift function to master task.c probably
-	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
-			(UBaseType_t) 8, &motor_control_task_handle);
 
+//	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
+//			(UBaseType_t) 8, &motor_control_task_handle);
+
+	// Enable/disable hall sensor
+	#ifndef HALL_ZERO
+		hall_disable();
+	#else
+		hall_enable();
+	#endif
 
 	if (chassis_event_group == NULL) {
 		//error handler
@@ -68,22 +75,22 @@ void motor_calib_task(void *argument) {
 				&movement_control_task_handle);
 	}
 
-	if (launcher_event_group == NULL) {
-		//error handler
-	} else {
-		xTaskCreate(launcher_control_task, "launcher_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-				&launcher_control_task_handle);
-	}
-
-	if (gimbal_event_group == NULL) {
-		//error handler implement next time!
-	} else {
-		xTaskCreate(gimbal_control_task, "gimbal_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
-				&gimbal_control_task_handle);
-
-	}
+//	if (launcher_event_group == NULL) {
+//		//error handler
+//	} else {
+//		xTaskCreate(launcher_control_task, "launcher_task",
+//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+//				&launcher_control_task_handle);
+//	}
+//
+//	if (gimbal_event_group == NULL) {
+//		//error handler implement next time!
+//	} else {
+//		xTaskCreate(gimbal_control_task, "gimbal_task",
+//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
+//				&gimbal_control_task_handle);
+//
+//	}
 
 	//insert can tester?
 	uint16_t error = 0b111111111;
