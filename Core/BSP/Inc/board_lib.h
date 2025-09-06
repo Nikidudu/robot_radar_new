@@ -28,7 +28,7 @@ extern "C" {
 #include "bsp_usb_redir.h"
 #include "bsp_micros_timer.h"
 #include "bsp_damiao.h"
-#include "CRC8_CRC16.h"
+#include "crc8_crc16.h"
 
 
 #ifdef __cplusplus
