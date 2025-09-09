@@ -40,20 +40,21 @@ float act_yaw = 0.0f;
 /* From other tasks (extern) */
 
 extern EventGroupHandle_t chassis_event_group;
+// target directions to achieve
 extern chassis_control_t chassis_ctrl_data;
+// remote/keyboard data
+extern uint8_t g_safety_toggle;
 extern remote_cmd_t g_remote_cmd;
+extern int g_spinspin_mode;
+// motor data (todo: remove this)
 extern motor_data_t g_can_motors[24];
+// referee system data
 extern ref_game_robot_data_t ref_robot_data;
 extern uint32_t ref_power_data_txno;
-extern uint8_t hall_state;
-extern int g_spinspin_mode;
+// supercap data
 extern uint8_t charging_state;
-
 extern int supercap_dash;
 extern int supercap_enabled;
-
-extern uint8_t g_safety_toggle;
-
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -61,30 +62,22 @@ void chassis_motion_control();
 void level_config(float *lvl_max_speed, float *lvl_max_accel,
 		float *lvl_max_spin);
 float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
-void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
-		motor_data_t *motorbl, motor_data_t *motorbr);
 
-#define WHEEL_MOTOR_CAN &hcan2
 motor_data_t chassis_wheel[4];
-typedef enum {
-	FR = 0,   // Front Right
-	FL = 1,   // Front Left
-	BR = 2,   // Back Right
-	BL = 3,   // Back Left
-} wheel_id;
+
 
 /* Private user code ---------------------------------------------------------*/
 
 void chassis_init() {
 
-	// 2--1
-	// 4--3
+	// 1--0
+	// 2--3
 
 	//initialise in an array so it's possible to for-loop it later
 	motor_yaw_mult[FR] = FR_YAW_MULT;
 	motor_yaw_mult[FL] = FL_YAW_MULT;
-	motor_yaw_mult[BR] = BR_YAW_MULT;
 	motor_yaw_mult[BL] = BL_YAW_MULT;
+	motor_yaw_mult[BR] = BR_YAW_MULT;
 
 	for (size_t i = 0; i < sizeof(chassis_wheel) / sizeof(chassis_wheel[0]);
 			i++) {
@@ -143,10 +136,11 @@ void send_current_to_motor() {
 		CAN_send_data[FR+1] = (chassis_wheel[FR+1].output);
 		CAN_send_data[FL]   = (chassis_wheel[FL].output) >> 8;
 		CAN_send_data[FL+1] = (chassis_wheel[FL+1].output);
-		CAN_send_data[BR]   = (chassis_wheel[BR].output) >> 8;
-		CAN_send_data[BR+1] = (chassis_wheel[BR+1].output);
 		CAN_send_data[BL]   = (chassis_wheel[BL].output) >> 8;
 		CAN_send_data[BL+1] = (chassis_wheel[BL+1].output);
+		CAN_send_data[BR]   = (chassis_wheel[BR].output) >> 8;
+		CAN_send_data[BR+1] = (chassis_wheel[BR+1].output);
+
 	}
 
 	HAL_CAN_AddTxMessage(WHEEL_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
@@ -162,66 +156,40 @@ void movement_control_task(void *argument) {
 		EventBits_t motor_bits;
 		//wait for all motors to have updated data before PID is allowed to run
 //		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE, pdTRUE, portMAX_DELAY);
-		if (motor_bits == 0b1111) {
+//		if (motor_bits == 0b1111) {
 			status_led(3, on_led);
 			start_time = xTaskGetTickCount();
 			if (chassis_ctrl_data.enabled) {
-
-#ifdef HALL_ZERO
-			if (check_yaw()){ g_gimbal_state = 1; }
-
-			if (g_gimbal_state){
-				if (hall_state == HALL_ON){
-				yaw_zeroing(g_can_motors + FR_MOTOR_ID - 1,
-						g_can_motors + FL_MOTOR_ID - 1,
-						g_can_motors + BL_MOTOR_ID - 1,
-						g_can_motors + BR_MOTOR_ID - 1);
-				} else {
-#endif
-				chassis_motion_control(g_can_motors + FR_MOTOR_ID - 1,
-						g_can_motors + FL_MOTOR_ID - 1,
-						g_can_motors + BL_MOTOR_ID - 1,
-						g_can_motors + BR_MOTOR_ID - 1);
-
-#ifdef HALL_ZERO
-				}
-			}
-#endif
-
+				chassis_motion_control(chassis_wheel[FR],
+						chassis_wheel[FL],
+						chassis_wheel[BL],
+						chassis_wheel[BR]);
 			} else {
-				g_can_motors[FR_MOTOR_ID - 1].output = 0;
-				g_can_motors[FL_MOTOR_ID - 1].output = 0;
-				g_can_motors[BL_MOTOR_ID - 1].output = 0;
-				g_can_motors[BR_MOTOR_ID - 1].output = 0;
+				chassis_wheel[FR].output = 0;
+				chassis_wheel[FL].output = 0;
+				chassis_wheel[BL].output = 0;
+				chassis_wheel[BR].output = 0;
 
 			}
 
 			status_led(3, off_led);
-		} else {
-			//motor timed out
-			g_can_motors[FR_MOTOR_ID - 1].output = 0;
-			g_can_motors[FL_MOTOR_ID - 1].output = 0;
-			g_can_motors[BL_MOTOR_ID - 1].output = 0;
-			g_can_motors[BR_MOTOR_ID - 1].output = 0;
-		}
+//		} else {
+//			//motor timed out
+//			chassis_wheel[FR].output = 0;
+//			chassis_wheel[FL].output = 0;
+//			chassis_wheel[BL].output = 0;
+//			chassis_wheel[BR].output = 0;
+//		}
 
 		send_current_to_motor();
 
 		//clear bits if it's not already cleared
-		xEventGroupClearBits(chassis_event_group, 0b1111);
+//		xEventGroupClearBits(chassis_event_group, 0b1111);
 		//delays task for other tasks to run
 		vTaskDelayUntil(&start_time, CHASSIS_DELAY);
 	}
 	osThreadTerminate(NULL);
 }
-
-float filtered_rpm_fr;
-float filtered_rpm_fl;
-float filtered_rpm_bl;
-float filtered_rpm_br;
-float vforwardrpm;
-float vyaw;
-float vhorizontal;
 
 void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 		motor_data_t *motorbl, motor_data_t *motorbr) {
@@ -476,33 +444,4 @@ float rpm_ramp(float target_value, float current_value, float *lvl_max_accel) {
 		return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
 	}
 }
-
-#ifdef HALL_ZERO
-void yaw_zeroing(motor_data_t *motorfr, motor_data_t *motorfl,
-		motor_data_t *motorbl, motor_data_t *motorbr){
-	if (!zero_start && (g_remote_cmd.right_switch == ge_RSW_ALL_ON)) {
-		zeroing_start_time = HAL_GetTick();
-		zero_start = 1;
-	}
-	if (zero_start && (HAL_GetTick() - zeroing_start_time > HALL_TIMEOUT)){
-		hall_int();
-		g_can_motors[YAW_MOTOR_ID-1].angle_data.center_ang = 0;
-	}
-	float yaw_rpm[4];
-	yaw_rpm[FR] = ZERO_SPEED * motor_yaw_mult[FR];
-	yaw_rpm[FL] = ZERO_SPEED * motor_yaw_mult[FL];
-	yaw_rpm[BR] = ZERO_SPEED * motor_yaw_mult[BR];
-	yaw_rpm[BL] = ZERO_SPEED * motor_yaw_mult[BL];
-
-	speed_pid(yaw_rpm[FR], motorfr->raw_data.rpm, &motorfr->rpm_pid);
-	speed_pid(yaw_rpm[FL], motorfl->raw_data.rpm, &motorfl->rpm_pid);
-	speed_pid(yaw_rpm[BL], motorbl->raw_data.rpm, &motorbl->rpm_pid);
-	speed_pid(yaw_rpm[BR], motorbr->raw_data.rpm, &motorbr->rpm_pid);
-
-	motorfr->output = motorfr->rpm_pid.output;
-	motorfl->output = motorfl->rpm_pid.output;
-	motorbl->output = motorbl->rpm_pid.output;
-	motorbr->output = motorbr->rpm_pid.output;
-}
-#endif
 

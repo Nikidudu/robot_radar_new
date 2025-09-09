@@ -4,6 +4,7 @@
  *  Created on: 21 Dec 2021
  *      Author: wx
  */
+#define include "typedefs.h"
 
 #ifndef TASKS_INC_MOTOR_CONFIG_H_
 #define TASKS_INC_MOTOR_CONFIG_H_

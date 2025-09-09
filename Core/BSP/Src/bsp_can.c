@@ -18,22 +18,6 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 	can_ISR(hcan);
 }
 
-HAL_StatusTypeDef can1_get_msg(CAN_HandleTypeDef *hcan, CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer)
-{
-	if (hcan->Instance == CAN1){
-		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, rx_msg_header, rx_buffer);
-	} else {
-		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, rx_msg_header, rx_buffer);
-	}
-	return HAL_OK;
-}
-
-HAL_StatusTypeDef can2_get_msg(CAN_HandleTypeDef *hcan, CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer)
-{
-	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, rx_msg_header, rx_buffer);
-	return HAL_OK;
-}
-
 uint32_t can_send_msg(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t dlc, uint8_t* data ){
 
 	CAN_TxHeaderTypeDef CAN_tx_message;

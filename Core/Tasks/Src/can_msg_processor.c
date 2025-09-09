@@ -11,6 +11,7 @@
 #include "can_msg_processor.h"
 #include "bsp_lk_motor.h"
 #include "supercap_comm_task.h"
+#include "movement_control_task.h"
 
 extern EventGroupHandle_t gimbal_event_group;
 extern EventGroupHandle_t chassis_event_group;
@@ -56,21 +57,20 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 		Error_Handler();
 	}
 
-	if (hcan->Instance == CAN1) {
+	if (hcan->Instance == CAN2) {
 
 		switch (RxHeader.StdId) {
 
-#if (WHEEL_MOTOR_CAN == hcan1)
+		// chassis wheels
 		case CAN_3508_ALL_ID:
 		case CAN_3508_ALL_ID + 1:
 		case CAN_3508_ALL_ID + 2:
-		case CAN_3508_ALL_ID + 3: {
-			convert_raw_can_data(
-					&chassis_wheel[RxHeader.StdId - CAN_3508_ALL_ID],
-					RxHeader.StdId, (uint8_t*) RxData);
-		}
-#endif
-
+		case CAN_3508_ALL_ID + 3:
+			if (WHEEL_MOTOR_CAN == &hcan2) {
+				convert_raw_can_data(
+						&chassis_wheel[RxHeader.StdId - CAN_3508_ALL_ID],
+						RxHeader.StdId, (uint8_t*) RxData);
+			}
 		}
 	}
 
@@ -106,17 +106,10 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 //					}
 //					//handle LK motor or other data
 //				}
-////				fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO0);
-////			}
 //		}
 //	}
 //	if (hcan->Instance == CAN2) {
-////		uint32_t fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO1);
-////		while (fill_level > 0) {
 //			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData);
-//			//		HAL_CAN_DeactivateNotification(hcan,
-//			//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
-//			//						| CAN_IT_RX_FIFO1_OVERRUN);
 //			if (RxHeader.StdId >= 0x200 && RxHeader.StdId <= 0x210) {
 //				//StdId +12 to seperate the motors on CAN1 and CAN2
 //				if (dji_motor_map[RxHeader.StdId - 0x200 + 12].motor_data
@@ -151,11 +144,6 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 //					}
 //				}
 //			}
-//			//		HAL_CAN_ActivateNotification(hcan,
-//			//				CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_FULL
-//			//						| CAN_IT_RX_FIFO1_OVERRUN);
-////			fill_level = HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO1);
-////		}
 //	}
 }
 void map_dm_motor(uint16_t motor_id, motor_data_t *motor_data) {

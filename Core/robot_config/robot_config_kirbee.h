@@ -453,6 +453,12 @@
 #define BL_MOTOR_CAN_PTR	&hcan2
 #define BR_MOTOR_ID 		16
 #define BR_MOTOR_CAN_PTR	&hcan2
+
+#define WHEEL_MOTOR_CAN 	&hcan2
+#define	FR  				0   // Front Right
+#define	FL  				1   // Front Left
+#define	BL  				2   // Back Left
+#define	BR  				3   // Back Right
 #endif
 
 #define FEEDER_MOTOR_ID		7
