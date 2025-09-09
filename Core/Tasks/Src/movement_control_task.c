@@ -65,7 +65,6 @@ float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
 
 motor_data_t chassis_wheel[4];
 
-
 /* Private user code ---------------------------------------------------------*/
 
 void chassis_init() {
@@ -152,8 +151,10 @@ void movement_control_task(void *argument) {
 	chassis_init();
 
 	while (1) {
+//		todo: add remote/keyboard comms here, thus removing need for control_input_task.c
+//		chassis_data_update();
 
-		EventBits_t motor_bits;
+//		EventBits_t motor_bits;
 		//wait for all motors to have updated data before PID is allowed to run
 //		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE, pdTRUE, portMAX_DELAY);
 //		if (motor_bits == 0b1111) {

@@ -10,16 +10,9 @@
 
 
 void yangle_pid(double setpoint, double curr_pt, motor_data_t *motor, float imu_data, float *prev_imu_data,uint8_t loopback);
-void yaw_pid(double setpoint, double curr_pt, pid_data_t *pid);
-void pitch_angle_pid(double setpoint, double curr_pt, motor_data_t *motor);
-void yangle_o_pid(double setpoint, double curr_pt, motor_data_t *motor, float imu_data, float *prev_imu_data, float offset);
-void oangle_pid(double setpoint, double curr_pt, motor_data_t *motor, float offset);
-void angle_pid(double setpoint, double curr_pt, motor_data_t *motor);
+void angle_pid(double setpoint, double curr_pt, motor_data_t *motor, uint8_t loopback);
 void speed_pid(double setpoint, double curr_pt, pid_data_t *pid);
 
-
-
-void motor_send_can(motor_data_t *main,uint8_t id_one, uint8_t id_two, uint8_t id_three, uint8_t id_four);
 void kill_can();
 void float_minmax(float *motor_in, float motor_max, float motor_min);
 void reset_pid(motor_data_t *motor_data);

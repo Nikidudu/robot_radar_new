@@ -135,7 +135,7 @@ void pitch_control(motor_data_t *pitch_motor) {
 }
 
 void calculate_lead_screw_pitch(motor_data_t *pitch_motor) {
-	pitch_angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor);
+	angle_pid(gimbal_ctrl_data.pitch, imu_heading.pit, pitch_motor, 0);
 
 	pitch_motor->output = pitch_motor->rpm_pid.output;
 
@@ -288,7 +288,7 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 	}
 	lk_motor_multturn_ang(&g_pitch_motor);
 #else
-	angle_pid(rel_pitch_angle, pitch_motor->angle_data.adj_ang, pitch_motor);
+	angle_pid(rel_pitch_angle, pitch_motor->angle_data.adj_ang, pitch_motor, 1);
 #endif
 }
 
@@ -376,8 +376,8 @@ void gimbal_angle_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 		gimbal_ctrl_data.yaw = yaw_motor->angle_data.min_ang;
 	}
 	angle_pid(gimbal_ctrl_data.pitch, pitch_motor->angle_data.adj_ang,
-			pitch_motor);
-	angle_pid(gimbal_ctrl_data.yaw, yaw_motor->angle_data.adj_ang, yaw_motor);
+			pitch_motor, 1);
+	angle_pid(gimbal_ctrl_data.yaw, yaw_motor->angle_data.adj_ang, yaw_motor, 1);
 
 	pitch_motor->output = pitch_motor->rpm_pid.output;
 	yaw_motor->output = yaw_motor->rpm_pid.output;
