@@ -19,7 +19,7 @@
 #define BULLET_42
 #define PITCH_ARM		// uses 4 bar linkage for pitch control
 
-//doesn't do anything, todo: implement pid for heater
+//doesn't do anything
 #define IMU_TARGET_TEMP	50
 
 //flip until motor angle and yaw angle matches

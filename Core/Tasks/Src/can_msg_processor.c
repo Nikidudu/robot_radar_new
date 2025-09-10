@@ -6,12 +6,9 @@
  */
 
 #include "board_lib.h"
-#include "robot_config.h"
 #include "motor_config.h"
 #include "can_msg_processor.h"
-#include "bsp_lk_motor.h"
 #include "supercap_comm_task.h"
-#include "movement_control_task.h"
 
 extern EventGroupHandle_t gimbal_event_group;
 extern EventGroupHandle_t chassis_event_group;

@@ -16,7 +16,7 @@
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
 #define IMU_ORIENTATION 7
-//doesn't do anything, todo: implement pid for heater
+//doesn't do anything
 #define IMU_TARGET_TEMP	50
 
 //flip until motor angle and yaw angle matches

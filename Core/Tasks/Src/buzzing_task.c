@@ -254,6 +254,4 @@ void buzzing_task(void *argument) {
 		buzzer(0);
 		vTaskDelay(GAP_TIME);
 	}
-
-//todo for showntelll
 }

@@ -7,11 +7,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
-#include "robot_config.h"
-#include "motor_control.h"
-#include "arm_math.h"
 #include "movement_control_task.h"
-#include "bsp_hall.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -23,19 +19,19 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-uint8_t zero_start = 0;
+uint8_t zero_start 			= 0;
 uint32_t zeroing_start_time = 0;
 int16_t current_rpm;
-float g_chassis_yaw = 0;
-uint8_t g_gimbal_state = 0;
+float g_chassis_yaw 		= 0;
+uint8_t g_gimbal_state 		= 0;
 float motor_yaw_mult[4];
 static float lvl_max_speed;
 static float lvl_max_accel;
 static float lvl_max_spin;
-static float spin_accel = SPIN_ACCELERATION;
-float act_forward = 0.0f;
-float act_horizontal = 0.0f;
-float act_yaw = 0.0f;
+static float spin_accel 	= SPIN_ACCELERATION;
+float act_forward 			= 0.0f;
+float act_horizontal 		= 0.0f;
+float act_yaw 				= 0.0f;
 
 /* From other tasks (extern) */
 
@@ -114,7 +110,6 @@ void send_current_to_motor() {
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
-	uint8_t curr_send_box;
 	CAN_tx_message.IDE = CAN_ID_STD;
 	CAN_tx_message.RTR = CAN_RTR_DATA;
 	CAN_tx_message.DLC = 0x08;
@@ -122,17 +117,17 @@ void send_current_to_motor() {
 	CAN_tx_message.StdId = 0x200; // CAN_3508_1_TO_4_ID
 
 	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
-		CAN_send_data[0] = 0;
-		CAN_send_data[1] = 0;
-		CAN_send_data[2] = 0;
-		CAN_send_data[3] = 0;
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
+		CAN_send_data[0] 	= 0;
+		CAN_send_data[1] 	= 0;
+		CAN_send_data[2] 	= 0;
+		CAN_send_data[3] 	= 0;
+		CAN_send_data[4] 	= 0;
+		CAN_send_data[5] 	= 0;
+		CAN_send_data[6] 	= 0;
+		CAN_send_data[7] 	= 0;
 	} else {
 		CAN_send_data[0]  	= (chassis_wheel[0].output >> 8) & 0xFF;
-		CAN_send_data[1] 	= (chassis_wheel[0].output) & 0xFF;
+		CAN_send_data[1]	= (chassis_wheel[0].output) & 0xFF;
 		CAN_send_data[2]   	= (chassis_wheel[1].output >> 8) & 0xFF;
 		CAN_send_data[3] 	= (chassis_wheel[1].output) & 0xFF;
 		CAN_send_data[4]   	= (chassis_wheel[2].output >> 8) & 0xFF;
@@ -143,7 +138,7 @@ void send_current_to_motor() {
 	}
 
 	HAL_CAN_AddTxMessage(WHEEL_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
-			&send_mail_box);
+			send_mail_box);
 }
 
 void movement_control_task(void *argument) {

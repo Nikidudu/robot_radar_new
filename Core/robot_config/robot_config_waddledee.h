@@ -16,7 +16,7 @@
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
 #define IMU_ORIENTATION 	1
-//doesn't do anything, todo: implement pid for heater
+//doesn't do anything
 #define IMU_TARGET_TEMP		50
 
 //flip until motor angle and yaw angle matches
@@ -26,7 +26,7 @@
 #define IMU_ROLL_INVERT		1
 //#define IST8310
 #define REF_POWER_LIM
-#define G_X_OFFSET			-7 // todo: should these be set to 0?? is this the cause of our imu drift?
+#define G_X_OFFSET			-7
 #define G_Y_OFFSET 			-16
 #define G_Z_OFFSET	 		5
 #define ZERO_ROLL

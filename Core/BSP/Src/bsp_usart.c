@@ -14,7 +14,7 @@
 static queue_t *xvr_UART_queue;
 static queue_t *ref_UART_queue;
 extern TaskHandle_t referee_processing_task_handle;
-
+// todo: replace this with HAL_UARTEx_ReceiveToIdle_DMA??
 void init_xvr_usart(uint8_t *pData){
 	xvr_usart_start(&SBC_UART, pData, 15, NULL);
 }
