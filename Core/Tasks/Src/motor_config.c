@@ -50,14 +50,14 @@ void motor_calib_task(void *argument) {
 	can_start(&hcan1, 0x00000000, 0x00000000);
 	can_start(&hcan2, 0x00000000, 0x00000000);
 	vTaskDelay(1000);
-//	config_motors();
+	config_motors();
 
 	//check motors
 	//start motor control tasks after initialisation of motors
 	//shift function to master task.c probably
 
-//	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
-//			(UBaseType_t) 8, &motor_control_task_handle);
+	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
+			(UBaseType_t) 8, &motor_control_task_handle);
 
 	if (chassis_event_group == NULL) {
 		//error handler
@@ -66,6 +66,14 @@ void motor_calib_task(void *argument) {
 		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 				&movement_control_task_handle);
 	}
+
+	// Enable/disable hall sensor
+	#ifndef HALL_ZERO
+		hall_disable();
+	#else
+		hall_enable();
+	#endif
+
 
 //	if (launcher_event_group == NULL) {
 //		//error handler

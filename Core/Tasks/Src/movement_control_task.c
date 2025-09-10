@@ -8,6 +8,11 @@
 /* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
 #include "movement_control_task.h"
+#include "motor_config.h"
+
+#include "robot_config.h"
+#include "motor_config.h"
+#include "motor_control.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -156,10 +161,10 @@ void movement_control_task(void *argument) {
 			status_led(3, on_led);
 			start_time = xTaskGetTickCount();
 			if (chassis_ctrl_data.enabled) {
-				chassis_motion_control(chassis_wheel[FR],
-						chassis_wheel[FL],
-						chassis_wheel[BL],
-						chassis_wheel[BR]);
+				chassis_motion_control(&chassis_wheel[FR],
+						&chassis_wheel[FL],
+						&chassis_wheel[BL],
+						&chassis_wheel[BR]);
 			} else {
 				chassis_wheel[FR].output = 0;
 				chassis_wheel[FL].output = 0;
@@ -191,7 +196,8 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 		motor_data_t *motorbl, motor_data_t *motorbr) {
 	//get the angle between the gun and the chassis
 	//so that movement is relative to gun, not chassis
-	float rel_angle = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+	float rel_angle = 0;
+	g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
 	float translation_rpm[4] = { 0, };
 	float yaw_rpm[4] = { 0, };
 
