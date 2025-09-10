@@ -41,13 +41,17 @@ uint32_t can_send_msg(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t dlc, uint8_t
  */
 void can_start(CAN_HandleTypeDef *hcan, uint32_t CAN_filterID, uint32_t CAN_filterMask) {
     CAN_FilterTypeDef can_filter_st = {0};
-    can_filter_st.FilterActivation = ENABLE;
-	can_filter_st.FilterMode = CAN_FILTERMODE_IDMASK;
-	can_filter_st.FilterScale = CAN_FILTERSCALE_32BIT;
-	can_filter_st.FilterIdHigh = (CAN_filterID >> 16);
-	can_filter_st.FilterIdLow = (CAN_filterID & 0xFFFF);
-	can_filter_st.FilterMaskIdHigh = (CAN_filterMask >> 16);
-	can_filter_st.FilterMaskIdLow = (CAN_filterMask & 0xFFFF);
+    can_filter_st.FilterActivation 	= ENABLE;
+	can_filter_st.FilterMode 		= CAN_FILTERMODE_IDMASK;
+	can_filter_st.FilterScale 		= CAN_FILTERSCALE_32BIT;
+//	can_filter_st.FilterIdHigh     	= (CAN_filterID << 5) & 0xFFFF;
+//	can_filter_st.FilterIdLow      	= 0;
+//	can_filter_st.FilterMaskIdHigh 	= (CAN_filterMask << 5) & 0xFFFF;
+//	can_filter_st.FilterMaskIdLow  	= 0;
+	can_filter_st.FilterIdHigh 		= (CAN_filterID >> 16);
+	can_filter_st.FilterIdLow 		= (CAN_filterID & 0xFFFF);
+	can_filter_st.FilterMaskIdHigh 	= (CAN_filterMask >> 16);
+	can_filter_st.FilterMaskIdLow 	= (CAN_filterMask & 0xFFFF);
 
 	if (hcan->Instance == CAN1) {
 	    can_filter_st.FilterBank = 0;

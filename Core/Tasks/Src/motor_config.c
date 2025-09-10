@@ -50,7 +50,7 @@ void motor_calib_task(void *argument) {
 	can_start(&hcan1, 0x00000000, 0x00000000);
 	can_start(&hcan2, 0x00000000, 0x00000000);
 	vTaskDelay(1000);
-	config_motors();
+//	config_motors();
 
 	//check motors
 	//start motor control tasks after initialisation of motors

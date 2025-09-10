@@ -131,19 +131,19 @@ void send_current_to_motor() {
 		CAN_send_data[6] = 0;
 		CAN_send_data[7] = 0;
 	} else {
-		CAN_send_data[FR]   = (chassis_wheel[FR].output) >> 8;
-		CAN_send_data[FR+1] = (chassis_wheel[FR+1].output);
-		CAN_send_data[FL]   = (chassis_wheel[FL].output) >> 8;
-		CAN_send_data[FL+1] = (chassis_wheel[FL+1].output);
-		CAN_send_data[BL]   = (chassis_wheel[BL].output) >> 8;
-		CAN_send_data[BL+1] = (chassis_wheel[BL+1].output);
-		CAN_send_data[BR]   = (chassis_wheel[BR].output) >> 8;
-		CAN_send_data[BR+1] = (chassis_wheel[BR+1].output);
+		CAN_send_data[0]  	= (chassis_wheel[0].output >> 8) & 0xFF;
+		CAN_send_data[1] 	= (chassis_wheel[0].output) & 0xFF;
+		CAN_send_data[2]   	= (chassis_wheel[1].output >> 8) & 0xFF;
+		CAN_send_data[3] 	= (chassis_wheel[1].output) & 0xFF;
+		CAN_send_data[4]   	= (chassis_wheel[2].output >> 8) & 0xFF;
+		CAN_send_data[5] 	= (chassis_wheel[2].output) & 0xFF;
+		CAN_send_data[6]   	= (chassis_wheel[3].output >> 8) & 0xFF;
+		CAN_send_data[7] 	= (chassis_wheel[3].output) & 0xFF;
 
 	}
 
 	HAL_CAN_AddTxMessage(WHEEL_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
-			send_mail_box);
+			&send_mail_box);
 }
 
 void movement_control_task(void *argument) {
