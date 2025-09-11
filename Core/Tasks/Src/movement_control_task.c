@@ -8,10 +8,6 @@
 /* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
 #include "movement_control_task.h"
-#include "motor_config.h"
-
-#include "robot_config.h"
-#include "motor_config.h"
 #include "motor_control.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -20,15 +16,8 @@
 
 /* Private macro -------------------------------------------------------------*/
 
-/* MECANUM WHEEL PROPERTIES */
-
 /* Private variables ---------------------------------------------------------*/
 
-uint8_t zero_start 			= 0;
-uint32_t zeroing_start_time = 0;
-int16_t current_rpm;
-float g_chassis_yaw 		= 0;
-uint8_t g_gimbal_state 		= 0;
 float motor_yaw_mult[4];
 static float lvl_max_speed;
 static float lvl_max_accel;
@@ -37,9 +26,9 @@ static float spin_accel 	= SPIN_ACCELERATION;
 float act_forward 			= 0.0f;
 float act_horizontal 		= 0.0f;
 float act_yaw 				= 0.0f;
+motor_data_t chassis_wheel[4];
 
 /* From other tasks (extern) */
-
 extern EventGroupHandle_t chassis_event_group;
 // target directions to achieve
 extern chassis_control_t chassis_ctrl_data;
@@ -64,12 +53,55 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel,
 		float *lvl_max_spin);
 float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
 
-motor_data_t chassis_wheel[4];
-
 /* Private user code ---------------------------------------------------------*/
 
-void chassis_init() {
+void movement_control_task(void *argument) {
+	TickType_t start_time;
+	chassis_init();
 
+	while (1) {
+//		todo: add remote/keyboard comms here, thus removing need for control_input_task.c
+//		chassis_data_update();
+
+//		EventBits_t motor_bits;
+		//wait for all motors to have updated data before PID is allowed to run
+//		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE, pdTRUE, portMAX_DELAY);
+//		if (motor_bits == 0b1111) {
+			status_led(3, on_led);
+			start_time = xTaskGetTickCount();
+			if (chassis_ctrl_data.enabled) {
+				chassis_motion_control(&chassis_wheel[FR],
+						&chassis_wheel[FL],
+						&chassis_wheel[BL],
+						&chassis_wheel[BR]);
+			} else {
+				chassis_wheel[FR].output = 0;
+				chassis_wheel[FL].output = 0;
+				chassis_wheel[BL].output = 0;
+				chassis_wheel[BR].output = 0;
+
+			}
+
+			status_led(3, off_led);
+//		} else {
+//			//motor timed out
+//			chassis_wheel[FR].output = 0;
+//			chassis_wheel[FL].output = 0;
+//			chassis_wheel[BL].output = 0;
+//			chassis_wheel[BR].output = 0;
+//		}
+
+		send_current_to_motor();
+
+		//clear bits if it's not already cleared
+//		xEventGroupClearBits(chassis_event_group, 0b1111);
+		//delays task for other tasks to run
+		vTaskDelayUntil(&start_time, CHASSIS_DELAY);
+	}
+	osThreadTerminate(NULL);
+}
+
+void chassis_init() {
 	// 1--0
 	// 2--3
 
@@ -146,58 +178,11 @@ void send_current_to_motor() {
 			send_mail_box);
 }
 
-void movement_control_task(void *argument) {
-	TickType_t start_time;
-	chassis_init();
-
-	while (1) {
-//		todo: add remote/keyboard comms here, thus removing need for control_input_task.c
-//		chassis_data_update();
-
-//		EventBits_t motor_bits;
-		//wait for all motors to have updated data before PID is allowed to run
-//		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE, pdTRUE, portMAX_DELAY);
-//		if (motor_bits == 0b1111) {
-			status_led(3, on_led);
-			start_time = xTaskGetTickCount();
-			if (chassis_ctrl_data.enabled) {
-				chassis_motion_control(&chassis_wheel[FR],
-						&chassis_wheel[FL],
-						&chassis_wheel[BL],
-						&chassis_wheel[BR]);
-			} else {
-				chassis_wheel[FR].output = 0;
-				chassis_wheel[FL].output = 0;
-				chassis_wheel[BL].output = 0;
-				chassis_wheel[BR].output = 0;
-
-			}
-
-			status_led(3, off_led);
-//		} else {
-//			//motor timed out
-//			chassis_wheel[FR].output = 0;
-//			chassis_wheel[FL].output = 0;
-//			chassis_wheel[BL].output = 0;
-//			chassis_wheel[BR].output = 0;
-//		}
-
-		send_current_to_motor();
-
-		//clear bits if it's not already cleared
-//		xEventGroupClearBits(chassis_event_group, 0b1111);
-		//delays task for other tasks to run
-		vTaskDelayUntil(&start_time, CHASSIS_DELAY);
-	}
-	osThreadTerminate(NULL);
-}
-
 void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 		motor_data_t *motorbl, motor_data_t *motorbr) {
 	//get the angle between the gun and the chassis
 	//so that movement is relative to gun, not chassis
-	float rel_angle = 0;
-	g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+	float rel_angle = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
 	float translation_rpm[4] = { 0, };
 	float yaw_rpm[4] = { 0, };
 

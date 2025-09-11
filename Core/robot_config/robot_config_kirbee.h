@@ -93,8 +93,8 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define LV1_FEEDER				1200//800//480//480
-#define	LV1_PROJECTILE			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
+#define FEEDER_SPEED				1200//800//480//480
+#define	PROJECTILE_SPEED			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
 
 #define PROJECTILE_SPEED_RATIO	310//340//355//360				//rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		-8								//projectiles per round of the feeder

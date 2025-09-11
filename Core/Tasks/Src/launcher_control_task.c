@@ -5,34 +5,36 @@
  *      Author: wx
  */
 
+/* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
-#include "robot_config.h"
-#include "motor_config.h"
-#include "motor_control.h"
 #include "launcher_control_task.h"
 #include "bsp_microswitch.h"
+#include "motor_control.h"
 
+/* Private typedef -----------------------------------------------------------*/
 
-extern EventGroupHandle_t launcher_event_group;
-
-extern ref_game_state_t ref_game_state;
-extern motor_data_t g_can_motors[24];
-extern gun_control_t launcher_ctrl_data;
-
-extern remote_cmd_t g_remote_cmd;
-
-extern QueueHandle_t telem_motor_queue;
+/* Private define ------------------------------------------------------------*/
 
 #define BULLET_17_HEAT 10
 #define BULLET_42_HEAT 100
 
-#ifdef BULLET_17
-#define BULLET_ACTUAL_HEAT BULLET_17_HEAT
-#endif
+/* Private macro -------------------------------------------------------------*/
 
-#ifdef BULLET_42
-#define BULLET_ACTUAL_HEAT BULLET_42_HEAT
-#endif
+/* Private variables ---------------------------------------------------------*/
+
+motor_data_t flywheel_motor[4];
+motor_data_t guidance_motor[1];
+
+enum launcher_state_e flywheel_state;
+enum feeder_state_e feeder_state;
+static uint32_t prev_power_data_no = 0;
+
+/* From other tasks (extern) */
+extern EventGroupHandle_t launcher_event_group;
+extern ref_game_state_t ref_game_state;
+extern motor_data_t g_can_motors[24];
+extern gun_control_t launcher_ctrl_data;
+extern remote_cmd_t g_remote_cmd;
 
 extern ref_game_robot_data_t ref_robot_data;
 extern ref_robot_power_data_t ref_power_data;
@@ -40,11 +42,6 @@ extern ref_robot_power_data_t ref_power_data;
 extern uint32_t ref_power_data_txno;
 extern ref_magazine_data_t ref_mag_data;
 extern uint32_t ref_mag_data_txno;
-static uint32_t prev_power_data_no = 0;
-
-
-enum launcher_state_e flywheel_state;
-enum feeder_state_e feeder_state;
 
 extern uint8_t projectile_loaded;
 
@@ -57,11 +54,11 @@ void launcher_control_task(void *argument) {
 
 	while (1) {
 		//event flags!
-#ifdef ACTIVE_GUIDANCE
-		xEventGroupWaitBits(launcher_event_group, 0b11111, pdTRUE, pdTRUE, portMAX_DELAY);
-#else
-		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE, portMAX_DELAY);
-#endif
+//#ifdef ACTIVE_GUIDANCE
+//		xEventGroupWaitBits(launcher_event_group, 0b11111, pdTRUE, pdTRUE, portMAX_DELAY);
+//#else
+//		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE, portMAX_DELAY);
+//#endif
 		status_led(4, on_led);
 		launcher_ctrl_time = xTaskGetTickCount();
 
@@ -93,6 +90,7 @@ void launcher_control_task(void *argument) {
 					g_can_motors + RFRICTION_MOTOR_ID - 1,
 					g_can_motors + FEEDER_MOTOR_ID - 1);
 #endif
+
 		} else {
 			g_can_motors[LFRICTION_MOTOR_ID - 1].output = 0;
 			g_can_motors[RFRICTION_MOTOR_ID - 1].output = 0;
@@ -103,12 +101,12 @@ void launcher_control_task(void *argument) {
 #endif
 		}
 		status_led(4, off_led);
-		//vTaskDelay(CHASSIS_DELAY);
-#ifdef ACTIVE_GUIDANCE
-		xEventGroupClearBits(launcher_event_group, 0b11111);
-#else
-		xEventGroupClearBits(launcher_event_group, 0b111);
-#endif
+
+//#ifdef ACTIVE_GUIDANCE
+//		xEventGroupClearBits(launcher_event_group, 0b11111);
+//#else
+//		xEventGroupClearBits(launcher_event_group, 0b111);
+//#endif
 		vTaskDelayUntil(&launcher_ctrl_time, CHASSIS_DELAY);
 	}
 
@@ -120,16 +118,14 @@ uint16_t check_overheat() {
 	int32_t ammo_remaining;
 	static uint32_t last_time;
 	if (ref_robot_data.robot_id == 0) {
-		//refereee system not connected
+		//referee system not connected
 		return 10;
 	}
 
 #ifdef BULLET_17
 	uint8_t active_feeder = 2;
 	//else active_feeder == 2, for both heat0 and heat 1 launchers
-#endif
 
-#ifdef BULLET_17
 	//if double barrel launcher, check launcher with more heat only
 	if (ref_power_data.shooter_17mm_1_barrel_heat >= ref_power_data.shooter_17mm_2_barrel_heat) {
 		active_feeder = 0;
@@ -155,18 +151,18 @@ uint16_t check_overheat() {
 			return ammo_remaining;
 		}
 	} else {
-		//no updated heat informatiom, guessing ammo remaining;
+		//no updated heat information, guessing ammo remaining;
 		uint32_t time_diff = get_microseconds() - last_time;
 		if (active_feeder == 0) {
 			ammo_remaining += (ref_robot_data.shooter_barrel_cooling_value
 					* time_diff / TIMER_FREQ);
-			ammo_remaining -= LV1_FEEDER * time_diff
+			ammo_remaining -= FEEDER_SPEED * time_diff
 					/ (TIMER_FREQ * 60);
 		} else if (active_feeder == 1) {
 
 			ammo_remaining += (ref_robot_data.shooter_barrel_cooling_value
 					* time_diff / TIMER_FREQ);
-			ammo_remaining -= LV1_FEEDER * time_diff
+			ammo_remaining -= FEEDER_SPEED * time_diff
 					/ (TIMER_FREQ * 60);
 		}
 		if (ammo_remaining < OVERHEAT_MARGIN) {
@@ -193,16 +189,14 @@ uint16_t check_overheat() {
 	return ammo_remaining;
 
 #else
-	return 100;
+	return 100; // no overheat protection enabled
 #endif
 
 }
 
 void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 
-
-	int16_t friction_wheel_speed = LV1_PROJECTILE
-			* PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
 	static uint32_t clear_time = 0;
 
 	/**
@@ -276,9 +270,9 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 	static uint32_t jam_start_time = 0;
 
 	int16_t feeder_speed = launcher_ctrl_data.firing
-			* LV1_FEEDER * FEEDER_INVERT
+			* FEEDER_SPEED * FEEDER_INVERT
 			/ FEEDER_SPEED_RATIO;
-	int16_t friction_wheel_speed = LV1_PROJECTILE * PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
 
 	int16_t rpm_diff = abs(l_flywheel->raw_data.rpm + r_flywheel->raw_data.rpm);
 	int16_t avg_rpm = abs(l_flywheel->raw_data.rpm - r_flywheel->raw_data.rpm)
@@ -390,7 +384,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 		motor_data_t *feeder) {
 	static uint32_t jam_start_time = 0;
-	int16_t friction_wheel_speed = LV1_PROJECTILE * PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
 	static uint32_t last_fire;
 	static float target_ang = 0;
 
@@ -546,7 +540,7 @@ void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 #endif
 
 void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel) {
-	int16_t friction_wheel_speed = LV1_PROJECTILE * PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
 	static uint32_t clear_time = 0;
 
 	/**
@@ -627,9 +621,9 @@ void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_d
 
 	static uint32_t jam_start_time = 0;
 
-	int16_t feeder_speed = LV1_FEEDER * FEEDER_INVERT
+	int16_t feeder_speed = FEEDER_SPEED * FEEDER_INVERT
 			/ FEEDER_SPEED_RATIO;
-	int16_t friction_wheel_speed = LV1_PROJECTILE * PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
 
 	int16_t firing_flywheel[3] = {abs(l_flywheel->raw_data.rpm), abs(r_flywheel->raw_data.rpm), abs(b_flywheel->raw_data.rpm)};
 

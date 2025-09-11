@@ -54,7 +54,7 @@ void remote_chassis_input() {
 			yaw_input = chassis_center_yaw();
 			}
 			//min value
-
+// todo: check this line below. shouldnt it spin instead of centering?
 //yaw_input = (float) remote_cmd.right_x * CHASSIS_YAW_MAX_RPM /RC_LIMITS;
 			chassis_set_ctrl(forward_input, horizontal_input, yaw_input);
 	}
