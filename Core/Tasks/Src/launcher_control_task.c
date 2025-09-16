@@ -14,14 +14,12 @@
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
-
 #define BULLET_17_HEAT 10
 #define BULLET_42_HEAT 100
 
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-
 motor_data_t flywheel_motor[4]; // 4 friction wheels max
 motor_data_t feeder_motor;
 
@@ -44,7 +42,6 @@ extern uint32_t ref_power_data_txno;
 static uint32_t prev_power_data_no = 0;
 
 /* Private function prototypes -----------------------------------------------*/
-
 void launcher_init();
 void send_launcher_current_to_motor();
 
@@ -52,6 +49,7 @@ void send_launcher_current_to_motor();
 
 void launcher_control_task(void *argument) {
 	TickType_t launcher_ctrl_time;
+	launcher_init();
 
 	while (1) {
 		status_led(4, on_led);

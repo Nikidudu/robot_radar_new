@@ -31,14 +31,13 @@ float act_yaw = 0.0f;
 motor_data_t chassis_wheel[4];
 
 /* From other tasks (extern) */
-// target directions to achieve
+// input variables
 extern chassis_control_t chassis_ctrl_data;
-// remote/keyboard data
 extern uint8_t g_safety_toggle;
 extern remote_cmd_t g_remote_cmd;
 extern int g_spinspin_mode;
-// motor data (todo: remove this)
-extern motor_data_t g_can_motors[24];
+// yaw motor data
+extern motor_data_t yaw_motor;
 // referee system data
 extern ref_game_robot_data_t ref_robot_data;
 extern uint32_t ref_power_data_txno;
@@ -48,13 +47,12 @@ extern int supercap_dash;
 extern int supercap_enabled;
 
 /* Private function prototypes -----------------------------------------------*/
-
+void chassis_init();
+void send_current_to_motor();
 void chassis_motion_control();
 void level_config(float *lvl_max_speed, float *lvl_max_accel,
 		float *lvl_max_spin);
 float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
-void chassis_init();
-void send_current_to_motor();
 
 /* Private user code ---------------------------------------------------------*/
 
@@ -176,7 +174,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 		motor_data_t *motorbl, motor_data_t *motorbr) {
 	//get the angle between the gun and the chassis
 	//so that movement is relative to gun, not chassis
-	float rel_angle = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+	float rel_angle = yaw_motor.angle_data.adj_ang;
 	float translation_rpm[4] = { 0, };
 	float yaw_rpm[4] = { 0, };
 

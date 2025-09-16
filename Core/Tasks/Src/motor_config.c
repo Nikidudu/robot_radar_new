@@ -39,7 +39,6 @@ motor_data_t bl_motor;
 motor_data_t br_motor;
 motor_data_t launcher_l_motor;
 motor_data_t launcher_r_motor;
-motor_data_t feeder_motor;
 motor_data_t g_pitch_motor;
 extern motor_data_t yaw_motor;
 dm_motor_t dm_pitch_motor;
@@ -58,29 +57,21 @@ void motor_calib_task(void *argument) {
 	//xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
 	//		(UBaseType_t) 8, &motor_control_task_handle);
 
-//	if (chassis_event_group == NULL) {
-//		//error handler
-//	} else {
-//		xTaskCreate(movement_control_task, "chassis_task",
-//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-//				&movement_control_task_handle);
-//	}
+	if (chassis_event_group == NULL) {
+		//error handler
+	} else {
+		xTaskCreate(movement_control_task, "chassis_task",
+		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+				&movement_control_task_handle);
+	}
 
-	// Enable/disable hall sensor
-	#ifndef HALL_ZERO
-		hall_disable();
-	#else
-		hall_enable();
-	#endif
-
-
-//	if (launcher_event_group == NULL) {
-//		//error handler
-//	} else {
-//		xTaskCreate(launcher_control_task, "launcher_task",
-//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-//				&launcher_control_task_handle);
-//	}
+	if (launcher_event_group == NULL) {
+		//error handler
+	} else {
+		xTaskCreate(launcher_control_task, "launcher_task",
+		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+				&launcher_control_task_handle);
+	}
 //
 	if (gimbal_event_group == NULL) {
 		//error handler implement next time!
@@ -358,7 +349,7 @@ void dm_set_motor_config() {
 #endif
 }
 
-void dm_set_pitch_motor(){
+void dm_set_pitch_motor() {
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
 	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
 	dm_pitch_motor.id = PITCH_MOTOR_ID;
@@ -427,172 +418,7 @@ void config_motors() {
 	}
 
 	//initialise motor data
-#ifdef FR_MOTOR_ID
-	uint8_t motor_id = FR_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = motor_id+1;
-	g_can_motors[motor_id].motor_type = TYPE_M3508;
-	g_can_motors[motor_id].can = FR_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_data.center_ang = 0;
-	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
-	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
-	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
-	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
-	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
-	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
-	set_motor_config(&g_can_motors[motor_id]);
-	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
-	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
-#endif
-
-#ifdef FL_MOTOR_ID
-	motor_id = FL_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = motor_id+1;
-	g_can_motors[motor_id].motor_type = TYPE_M3508;
-	g_can_motors[motor_id].can = FL_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_data.center_ang = 0;
-	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
-	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
-	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
-	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
-	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
-	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
-	set_motor_config(&g_can_motors[motor_id]);
-	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
-	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
-#endif
-
-#ifdef BL_MOTOR_ID
-	motor_id = BL_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = motor_id+1;
-	g_can_motors[motor_id].motor_type = TYPE_M3508;
-	g_can_motors[motor_id].can = BL_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_data.center_ang = 0;
-	g_can_motors[motor_id].angle_data.max_ang = 0;
-	g_can_motors[motor_id].angle_data.min_ang = 0;
-	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
-	g_can_motors[motor_id].angle_pid.kp = 0;
-	g_can_motors[motor_id].angle_pid.ki = 0;
-	g_can_motors[motor_id].angle_pid.kd = 0;
-	g_can_motors[motor_id].angle_pid.int_max = 0;
-	g_can_motors[motor_id].angle_pid.max_out = 0;
-	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
-	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
-	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
-	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
-	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
-	set_motor_config(&g_can_motors[motor_id]);
-	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
-	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
-#endif
-
-#ifdef BR_MOTOR_ID
-	motor_id = BR_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = motor_id+1;
-	g_can_motors[motor_id].motor_type = TYPE_M3508;
-	g_can_motors[motor_id].can = BR_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_data.center_ang = 0;
-	g_can_motors[motor_id].angle_data.max_ang = 0;
-	g_can_motors[motor_id].angle_data.min_ang = 0;
-	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
-	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
-	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
-	g_can_motors[motor_id].angle_pid.kp = 0;
-	g_can_motors[motor_id].angle_pid.ki = 0;
-	g_can_motors[motor_id].angle_pid.kd = 0;
-	g_can_motors[motor_id].angle_pid.int_max = 0;
-	g_can_motors[motor_id].angle_pid.max_out = 0;
-	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
-	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
-	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
-	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
-	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
-	set_motor_config(&g_can_motors[motor_id]);
-#endif
-
-#ifdef LFRICTION_MOTOR_ID
-	motor_id = LFRICTION_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = motor_id+1;
-	g_can_motors[motor_id].motor_type = TYPE_M3508_NGEARBOX;
-	g_can_motors[motor_id].can = LFRICTION_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_data.gearbox_ratio = M3508_GEARBOX_RATIO;
-	g_can_motors[motor_id].angle_pid.physical_max = M3508_MAX_RPM;
-	g_can_motors[motor_id].rpm_pid.kp = FRICTION_KP;
-	g_can_motors[motor_id].rpm_pid.ki = FRICTION_KI;
-	g_can_motors[motor_id].rpm_pid.kd = FRICTION_KD;
-	g_can_motors[motor_id].rpm_pid.int_max = FRICTION_MAX_INT;
-	g_can_motors[motor_id].rpm_pid.max_out = FRICTION_MAX_CURRENT;
-	set_motor_config(&g_can_motors[motor_id]);
-#endif
-
-#ifdef RFRICTION_MOTOR_ID
-	motor_id = RFRICTION_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = motor_id+1;
-	g_can_motors[motor_id].motor_type = TYPE_M3508_NGEARBOX;
-	g_can_motors[motor_id].can = RFRICTION_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_pid.physical_max = M3508_MAX_RPM;
-	g_can_motors[motor_id].rpm_pid.kp = FRICTION_KP;
-	g_can_motors[motor_id].rpm_pid.ki = FRICTION_KI;
-	g_can_motors[motor_id].rpm_pid.kd = FRICTION_KD;
-	g_can_motors[motor_id].rpm_pid.int_max = FRICTION_MAX_INT;
-	g_can_motors[motor_id].rpm_pid.max_out = FRICTION_MAX_CURRENT;
-	g_can_motors[motor_id].rpm_pid.physical_max = M3508_MAX_OUTPUT;
-	set_motor_config(&g_can_motors[motor_id]);
-#endif
-
-#ifdef BFRICTION_MOTOR_ID
-	motor_id = BFRICTION_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = motor_id+1;
-	g_can_motors[motor_id].motor_type = TYPE_M3508_NGEARBOX;
-	g_can_motors[motor_id].can = RFRICTION_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_pid.physical_max = M3508_MAX_RPM;
-	g_can_motors[motor_id].rpm_pid.kp = FRICTION_KP;
-	g_can_motors[motor_id].rpm_pid.ki = FRICTION_KI;
-	g_can_motors[motor_id].rpm_pid.kd = FRICTION_KD;
-	g_can_motors[motor_id].rpm_pid.int_max = FRICTION_MAX_INT;
-	g_can_motors[motor_id].rpm_pid.max_out = FRICTION_MAX_CURRENT;
-	g_can_motors[motor_id].rpm_pid.physical_max = M3508_MAX_OUTPUT;
-	set_motor_config(&g_can_motors[motor_id]);
-#endif
-
-#ifdef GFRICTION_MOTOR_ID
-	motor_id = GFRICTION_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = motor_id+1;
-	g_can_motors[motor_id].motor_type = TYPE_M3508_NGEARBOX;
-	g_can_motors[motor_id].can = RFRICTION_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_pid.physical_max = M3508_MAX_RPM;
-	g_can_motors[motor_id].rpm_pid.kp = FRICTION_KP;
-	g_can_motors[motor_id].rpm_pid.ki = FRICTION_KI;
-	g_can_motors[motor_id].rpm_pid.kd = FRICTION_KD;
-	g_can_motors[motor_id].rpm_pid.int_max = FRICTION_MAX_INT;
-	g_can_motors[motor_id].rpm_pid.max_out = FRICTION_MAX_CURRENT;
-	g_can_motors[motor_id].rpm_pid.physical_max = M3508_MAX_OUTPUT;
-	set_motor_config(&g_can_motors[motor_id]);
-#endif
-
-#ifdef FEEDER_MOTOR_ID
-	motor_id = FEEDER_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = motor_id+1;
-#ifdef ANGLE_FEEDER
-	g_can_motors[motor_id].motor_type = TYPE_M3508_ANGLE;
-#else
-	g_can_motors[motor_id].motor_type = TYPE_M2006;
-#endif
-	g_can_motors[motor_id].can = FEEDER_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_data.phy_max_ang = PI;
-	g_can_motors[motor_id].angle_data.phy_min_ang = -PI;
-	g_can_motors[motor_id].angle_data.wheel_circ = 0;
-	g_can_motors[motor_id].angle_pid.kp = FEEDER_ANGLE_KP;
-	g_can_motors[motor_id].angle_pid.ki = FEEDER_ANGLE_KI;
-	g_can_motors[motor_id].angle_pid.kd = FEEDER_ANGLE_KD;
-	g_can_motors[motor_id].angle_pid.int_max = FEEDER_ANGLE_INT_MAX;
-	g_can_motors[motor_id].angle_pid.max_out = FEEDER_MAX_RPM;
-	g_can_motors[motor_id].rpm_pid.kp = FEEDER_KP;
-	g_can_motors[motor_id].rpm_pid.ki = FEEDER_KI;
-	g_can_motors[motor_id].rpm_pid.kd = FEEDER_KD;
-	g_can_motors[motor_id].rpm_pid.int_max = FEEDER_MAX_INT;
-	g_can_motors[motor_id].rpm_pid.max_out = FEEDER_MAX_CURRENT;
-	set_motor_config(&g_can_motors[motor_id]);
-#endif
+	uint8_t motor_id;
 
 #if defined(PITCH_MOTOR_ID) && PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 	g_pitch_motor.motor_type = PITCH_MOTOR_TYPE;

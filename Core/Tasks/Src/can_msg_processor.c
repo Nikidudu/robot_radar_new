@@ -13,7 +13,6 @@
 extern EventGroupHandle_t gimbal_event_group;
 extern EventGroupHandle_t chassis_event_group;
 extern EventGroupHandle_t launcher_event_group;
-#define ANGLE_LPF 0
 #define SPEED_LPF 0
 
 extern motor_data_t g_can_motors[24];
@@ -26,6 +25,8 @@ extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
 
 extern motor_data_t chassis_wheel[4];
+extern motor_data_t flywheel_motor[4];
+extern motor_data_t feeder_motor;
 
 void map_lk_motor(uint16_t motor_id, motor_data_t *motor_data) {
 	if (motor_id > 0x140 && motor_id <= 0x160) {
@@ -68,6 +69,30 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 						&chassis_wheel[RxHeader.StdId - CAN_3508_ALL_ID],
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
+
+// launcher motors (flywheels + feeder)
+// currently launchers and chassis use the same CAN. works since one is for dev C in
+// chassis and one is for dev C in gimbal
+//		case CAN_3508_ALL_ID:
+//		case CAN_3508_ALL_ID + 1:
+//		case CAN_3508_ALL_ID + 2:
+//		case CAN_3508_ALL_ID + 3:
+//			if (LAUNCHER_MOTOR_CAN == &hcan2) {
+//				convert_raw_can_data(
+//						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID],
+//						RxHeader.StdId, (uint8_t*) RxData);
+//			}
+//		case CAN_3508_ALL_ID + 4:
+//			if (LAUNCHER_MOTOR_CAN == &hcan2) {
+//				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
+//						(uint8_t*) RxData);
+//			}
+		}
+	}
+
+	if (hcan->Instance == CAN1) {
+		switch (RxHeader.StdId) {
+			// gimbal stuff here
 		}
 	}
 

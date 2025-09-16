@@ -34,6 +34,7 @@ extern "C" {
 #include "bsp_micros_timer.h"
 #include "bsp_damiao.h"
 #include "bsp_lk_motor.h"
+#include "bsp_microswitch.h"
 
 #ifdef __cplusplus
 }
