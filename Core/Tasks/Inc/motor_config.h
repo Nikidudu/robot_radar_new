@@ -25,30 +25,43 @@ void motor_calib_task(void* argument);
 #define M3508_MAX_RPM		9000
 #define M3508_GEARBOX_RATIO	(3591.0f / 187.0f)
 
-#define LK_MG5010E_MAX_RPM 	3200
-#define DM_4340_MAX_SPEED_RADS 5.44f
+#define LK_MG5010E_MAX_RPM 		3200
+#define DM_4340_MAX_SPEED_RADS 	5.44f
 
 #define DM8009_MAX_RPM		168
 #define DM8009_MAX_TORQUE	40
 #define DM4310_MAX_RPM		200
 #define DM4310_MAX_TORQUE	7
 
-#define	TYPE_GM6020 		1
-#define	TYPE_M2006 			2
-#define	TYPE_M3508 			3
-#define	TYPE_M3508_NGEARBOX 4
-#define	TYPE_M3508_STEPS 	5
-#define	TYPE_M2006_STEPS 	6
-#define	TYPE_M2006_ANGLE 	7
-#define	TYPE_M3508_ANGLE 	8
-#define	TYPE_GM6020_720		9
-#define	TYPE_LK_MG5010E_SPD		10
-#define	TYPE_LK_MG5010E_ANG		11
-#define	TYPE_LK_MG5010E_MULTI_ANG		12
-#define TYPE_DM8009_MIT         13
-#define TYPE_DM4310_MIT			14
+#define	TYPE_GM6020 				1
+#define	TYPE_M2006 					2
+#define	TYPE_M3508 					3
+#define	TYPE_M3508_NGEARBOX 		4
+#define	TYPE_M3508_STEPS 			5
+#define	TYPE_M2006_STEPS 			6
+#define	TYPE_M2006_ANGLE 			7
+#define	TYPE_M3508_ANGLE 			8
+#define	TYPE_GM6020_720				9
+#define	TYPE_LK_MG5010E_SPD			10
+#define	TYPE_LK_MG5010E_ANG			11
+#define	TYPE_LK_MG5010E_MULTI_ANG	12
+#define TYPE_DM8009_MIT         	13
+#define TYPE_DM4310_MIT				14
 
-#define CAN_3508_ALL_ID		0x201
+/* CAN DJI 3508 motor */
+#define CAN_3508_ALL_ID		0x201 // receive CAN data from motors
+#define CAN_3508_1_TO_4_ID	0x200 // send CAN data to motors
+#define CAN_3508_5_TO_8_ID	0x1FF
+
+/* CAN DJI 6020 motor */
+#define CAN_6020_ALL_ID		0x205
+#define CAN_6020_1_TO_4_ID	0x1FF
+#define CAN_6020_5_TO_8_ID	0x2FF
+
+/* CAN DJI 2006 motor */
+#define CAN_2006_ALL_ID 	0x201
+#define CAN_2006_1_TO_4_ID 	0x200
+#define CAN_2006_5_TO_8_ID	0x1FF
 
 void motor_calib_task(void *argument);
 void set_motor_config(motor_data_t *motor);

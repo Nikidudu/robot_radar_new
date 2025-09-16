@@ -63,7 +63,7 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 		case CAN_3508_ALL_ID + 1:
 		case CAN_3508_ALL_ID + 2:
 		case CAN_3508_ALL_ID + 3:
-			if (WHEEL_MOTOR_CAN == &hcan2) {
+			if (CHASSIS_MOTOR_CAN == &hcan2) {
 				convert_raw_can_data(
 						&chassis_wheel[RxHeader.StdId - CAN_3508_ALL_ID],
 						RxHeader.StdId, (uint8_t*) RxData);
@@ -171,10 +171,6 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 		uint8_t *rx_buffer) {
 	uint16_t idnum = motor_id - 0x200;
 
-	//if idnum > 24, it's not a DJI motor. Add in a seperate processing function if other CAN devices are added
-	if (idnum > 24) {
-		return;
-	}
 	motor_data_t *curr_motor = can_motor_data;
 	//convert the raw data back into the respective values
 	curr_motor->id = motor_id;
@@ -224,81 +220,7 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 			break;
 
 		}
-
-		//initialise task switching variables
-		BaseType_t xHigherPriorityTaskWoken, xResult;
-		xHigherPriorityTaskWoken = pdFALSE;
-
-		//set event group bits so that the tasks and PIDs only trigger upon updated data
-		//also checks if the respective tasks are set to ready
-		switch (idnum) {
-#ifndef CHASSIS_MCU
-		case FR_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b1000,
-					&xHigherPriorityTaskWoken);
-			break;
-		case FL_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b0100,
-					&xHigherPriorityTaskWoken);
-			break;
-		case BL_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b0010,
-					&xHigherPriorityTaskWoken);
-			break;
-		case BR_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(chassis_event_group, 0b0001,
-					&xHigherPriorityTaskWoken);
-			break;
-#endif
-		case LFRICTION_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b00010,
-					&xHigherPriorityTaskWoken);
-			break;
-		case RFRICTION_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b00001,
-					&xHigherPriorityTaskWoken);
-			break;
-		case FEEDER_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b00100,
-					&xHigherPriorityTaskWoken);
-			break;
-#ifdef ACTIVE_GUIDANCE
-		case BFRICTION_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b01000,
-					&xHigherPriorityTaskWoken);
-			break;
-		case GFRICTION_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(launcher_event_group, 0b10000,
-					&xHigherPriorityTaskWoken);
-			break;
-#endif
-		case PITCH_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
-					&xHigherPriorityTaskWoken);
-			break;
-		case YAW_MOTOR_ID:
-			xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b10,
-					&xHigherPriorityTaskWoken);
-			break;
-		default:
-			xResult = pdFAIL;
-			//error handler
-			break;
-		}
-
-		//switches tasks if a higher priority task is ready.
-		//required because the function is in an ISR
-		if (xResult != pdFAIL) {
-			portYIELD_FROM_ISR(xHigherPriorityTaskWoken); //forces current task to yield if higher priority task is called
-		}
-	} else {
-		//this is a useless statement so that it is possible to set a breakpoint here lol
-		//error handler
 	}
-}
-
-void process_chassis_can_msg(uint16_t msg_id, uint8_t rx_buffer[]) {
-	//for future use
 }
 
 /**

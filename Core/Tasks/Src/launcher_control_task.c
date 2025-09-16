@@ -22,94 +22,236 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-motor_data_t flywheel_motor[4];
-motor_data_t guidance_motor[1];
+motor_data_t flywheel_motor[4]; // 4 friction wheels max
+motor_data_t feeder_motor;
 
 enum launcher_state_e flywheel_state;
 enum feeder_state_e feeder_state;
-static uint32_t prev_power_data_no = 0;
 
 /* From other tasks (extern) */
-extern EventGroupHandle_t launcher_event_group;
-extern ref_game_state_t ref_game_state;
-extern motor_data_t g_can_motors[24];
+extern uint8_t projectile_loaded;
+// target actions to achieve
 extern gun_control_t launcher_ctrl_data;
+// remote/keyboard data
 extern remote_cmd_t g_remote_cmd;
-
+extern uint8_t g_safety_toggle;
+// referee system data
+extern ref_game_state_t ref_game_state;
 extern ref_game_robot_data_t ref_robot_data;
 extern ref_robot_power_data_t ref_power_data;
 
 extern uint32_t ref_power_data_txno;
-extern ref_magazine_data_t ref_mag_data;
-extern uint32_t ref_mag_data_txno;
+static uint32_t prev_power_data_no = 0;
 
-extern uint8_t projectile_loaded;
+/* Private function prototypes -----------------------------------------------*/
+
+void launcher_init();
+void send_launcher_current_to_motor();
+
+/* Private user code ---------------------------------------------------------*/
 
 void launcher_control_task(void *argument) {
 	TickType_t launcher_ctrl_time;
 
-#ifdef ACTIVE_GUIDANCE
-	microswitch_int();
-#endif
-
 	while (1) {
-		//event flags!
-//#ifdef ACTIVE_GUIDANCE
-//		xEventGroupWaitBits(launcher_event_group, 0b11111, pdTRUE, pdTRUE, portMAX_DELAY);
-//#else
-//		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE, portMAX_DELAY);
-//#endif
 		status_led(4, on_led);
 		launcher_ctrl_time = xTaskGetTickCount();
 
 		if (launcher_ctrl_data.enabled) {
 			// Flywheel control
 #ifdef ACTIVE_GUIDANCE
-			guidance_flywheel(g_can_motors + LFRICTION_MOTOR_ID - 1,
-					g_can_motors + RFRICTION_MOTOR_ID - 1,
-					g_can_motors + BFRICTION_MOTOR_ID - 1);
+			guidance_flywheel(&flywheel_motor[LFRICTION_MOTOR_ID],
+					&flywheel_motor[RFRICTION_MOTOR_ID],
+					&flywheel_motor[BFRICTION_MOTOR_ID]);
 #else
-			flywheel_control(g_can_motors + LFRICTION_MOTOR_ID - 1,
-					g_can_motors + RFRICTION_MOTOR_ID - 1);
+			flywheel_control(&flywheel_motor[LFRICTION_MOTOR_ID],
+					&flywheel_motor[RFRICTION_MOTOR_ID]);
 #endif
 
 			// Feeder control
 #ifdef ACTIVE_GUIDANCE
-			guidance_feeder(g_can_motors + LFRICTION_MOTOR_ID - 1,
-					g_can_motors + RFRICTION_MOTOR_ID - 1,
-					g_can_motors + BFRICTION_MOTOR_ID - 1,
-					g_can_motors + GFRICTION_MOTOR_ID - 1,
-					g_can_motors + FEEDER_MOTOR_ID - 1);
+			guidance_feeder(&flywheel_motor[LFRICTION_MOTOR_ID],
+					&flywheel_motor[RFRICTION_MOTOR_ID],
+					&flywheel_motor[BFRICTION_MOTOR_ID],
+					&flywheel_motor[GFRICTION_MOTOR_ID],
+					&feeder_motor);
 #elif defined(ANGLE_FEEDER)
-			launcher_angle_control(g_can_motors + LFRICTION_MOTOR_ID - 1,
-					g_can_motors + RFRICTION_MOTOR_ID - 1,
-					g_can_motors + FEEDER_MOTOR_ID - 1);
+			launcher_angle_control(&flywheel_motor[LFRICTION_MOTOR_ID],
+					&flywheel_motor[RFRICTION_MOTOR_ID],
+					&feeder_motor);
 
 #else
-			launcher_control(g_can_motors + LFRICTION_MOTOR_ID - 1,
-					g_can_motors + RFRICTION_MOTOR_ID - 1,
-					g_can_motors + FEEDER_MOTOR_ID - 1);
+			launcher_control(&flywheel_motor[LFRICTION_MOTOR_ID],
+					&flywheel_motor[RFRICTION_MOTOR_ID],
+					&feeder_motor);
 #endif
 
 		} else {
-			g_can_motors[LFRICTION_MOTOR_ID - 1].output = 0;
-			g_can_motors[RFRICTION_MOTOR_ID - 1].output = 0;
-			g_can_motors[FEEDER_MOTOR_ID - 1].output = 0;
+			flywheel_motor[LFRICTION_MOTOR_ID].output = 0;
+			flywheel_motor[RFRICTION_MOTOR_ID].output = 0;
+			feeder_motor.output = 0;
 #ifdef ACTIVE_GUIDANCE
-			g_can_motors[BFRICTION_MOTOR_ID - 1].output = 0;
-			g_can_motors[GFRICTION_MOTOR_ID - 1].output = 0;
+			flywheel_motor[BFRICTION_MOTOR_ID].output = 0;
+			flywheel_motor[GFRICTION_MOTOR_ID].output = 0;
 #endif
 		}
 		status_led(4, off_led);
 
-//#ifdef ACTIVE_GUIDANCE
-//		xEventGroupClearBits(launcher_event_group, 0b11111);
-//#else
-//		xEventGroupClearBits(launcher_event_group, 0b111);
-//#endif
-		vTaskDelayUntil(&launcher_ctrl_time, CHASSIS_DELAY);
+		send_launcher_current_to_motor();
+
+		vTaskDelayUntil(&launcher_ctrl_time, LAUNCHER_DELAY);
 	}
 
+}
+
+void launcher_init() {
+#ifdef ANGLE_FEEDER
+	feeder_motor.motor_type = TYPE_M3508_ANGLE;
+#else
+	feeder_motor.motor_type = TYPE_M2006;
+#endif
+//		flywheel_motor[i].id = CAN_3508_ALL_ID + i;
+	feeder_motor.can = LAUNCHER_MOTOR_CAN;
+
+	feeder_motor.rpm_pid.kp = FEEDER_KP;
+	feeder_motor.rpm_pid.ki = FEEDER_KI;
+	feeder_motor.rpm_pid.kd = FEEDER_KD;
+	feeder_motor.rpm_pid.int_max = FEEDER_MAX_INT;
+	feeder_motor.rpm_pid.max_out = FEEDER_MAX_CURRENT;
+	feeder_motor.rpm_pid.physical_max = M2006_MAX_OUTPUT;
+
+	feeder_motor.angle_pid.kp = FEEDER_ANGLE_KP;
+	feeder_motor.angle_pid.ki = FEEDER_ANGLE_KI;
+	feeder_motor.angle_pid.kd = FEEDER_ANGLE_KD;
+	feeder_motor.angle_pid.int_max = FEEDER_ANGLE_INT_MAX;
+	feeder_motor.angle_pid.max_out = FEEDER_MAX_RPM;
+	feeder_motor.angle_pid.physical_max = M2006_MAX_RPM;
+
+	feeder_motor.angle_data.wheel_circ = 0;
+	feeder_motor.angle_data.gearbox_ratio = M2006_GEARBOX_RATIO;
+	feeder_motor.angle_data.min_ticks = -4096 * M2006_GEARBOX_RATIO;
+	feeder_motor.angle_data.max_ticks = 4096 * M2006_GEARBOX_RATIO;
+	feeder_motor.angle_data.tick_range =
+			feeder_motor.angle_data.max_ticks
+					- feeder_motor.angle_data.min_ticks;
+	feeder_motor.angle_data.min_ang = -PI;
+	feeder_motor.angle_data.max_ang = PI;
+	feeder_motor.angle_data.ang_range =
+			feeder_motor.angle_data.max_ang
+					- feeder_motor.angle_data.min_ang;
+	feeder_motor.angle_data.max_raw_ticks = 4096;
+	feeder_motor.angle_data.min_raw_ticks = -4096;
+	feeder_motor.angle_data.raw_ticks_range =
+			feeder_motor.angle_data.max_raw_ticks
+					- feeder_motor.angle_data.min_raw_ticks;
+
+	int number_of_flywheels = 2; // LFRICTION + RFRICTION
+#ifdef ACTIVE_GUIDANCE
+	microswitch_int();
+	number_of_flywheels = 4; // + BFRICTION + GFRICTION
+#endif
+
+	for (size_t i = 0; i < number_of_flywheels; i++) {
+			flywheel_motor[i].motor_type = TYPE_M3508_NGEARBOX;
+	//		flywheel_motor[i].id = CAN_3508_ALL_ID + i;
+			flywheel_motor[i].can = LAUNCHER_MOTOR_CAN;
+
+			flywheel_motor[i].rpm_pid.kp = FRICTION_KP;
+			flywheel_motor[i].rpm_pid.ki = FRICTION_KI;
+			flywheel_motor[i].rpm_pid.kd = FRICTION_KD;
+			flywheel_motor[i].rpm_pid.int_max = FRICTION_MAX_INT;
+			flywheel_motor[i].rpm_pid.max_out = FRICTION_MAX_CURRENT;
+			flywheel_motor[i].rpm_pid.physical_max = M3508_MAX_OUTPUT;
+
+			flywheel_motor[i].angle_pid.kp = 0;
+			flywheel_motor[i].angle_pid.ki = 0;
+			flywheel_motor[i].angle_pid.kd = 0;
+			flywheel_motor[i].angle_pid.int_max = 0;
+			flywheel_motor[i].angle_pid.max_out = 0;
+			flywheel_motor[i].angle_pid.physical_max = M3508_MAX_RPM;
+
+			flywheel_motor[i].angle_data.gearbox_ratio = 1;
+			flywheel_motor[i].angle_pid.physical_max = M3508_MAX_RPM;
+			flywheel_motor[i].angle_data.min_ticks = -4096;
+			flywheel_motor[i].angle_data.max_ticks = 4096;
+			flywheel_motor[i].angle_data.tick_range =
+					flywheel_motor[i].angle_data.max_ticks
+							- flywheel_motor[i].angle_data.min_ticks;
+			flywheel_motor[i].angle_data.min_ang = -PI;
+			flywheel_motor[i].angle_data.max_ang = PI;
+			flywheel_motor[i].angle_data.ang_range =
+					flywheel_motor[i].angle_data.max_ang
+							- flywheel_motor[i].angle_data.min_ang;
+			flywheel_motor[i].angle_data.max_raw_ticks = 4096;
+			flywheel_motor[i].angle_data.min_raw_ticks = -4096;
+			flywheel_motor[i].angle_data.raw_ticks_range =
+					flywheel_motor[i].angle_data.max_raw_ticks
+							- flywheel_motor[i].angle_data.min_raw_ticks;
+	}
+}
+
+void send_launcher_current_to_motor() {
+	CAN_TxHeaderTypeDef CAN_tx_message;
+	uint8_t CAN_send_data[8];
+	uint32_t send_mail_box[3];
+	CAN_tx_message.IDE = CAN_ID_STD;
+	CAN_tx_message.RTR = CAN_RTR_DATA;
+	CAN_tx_message.DLC = 0x08;
+
+	// send to friction wheels
+	CAN_tx_message.StdId = CAN_3508_1_TO_4_ID;
+	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
+		CAN_send_data[0] = 0;
+		CAN_send_data[1] = 0;
+		CAN_send_data[2] = 0;
+		CAN_send_data[3] = 0;
+		CAN_send_data[4] = 0;
+		CAN_send_data[5] = 0;
+		CAN_send_data[6] = 0;
+		CAN_send_data[7] = 0;
+	} else {
+		CAN_send_data[0] = (flywheel_motor[0].output >> 8) & 0xFF;
+		CAN_send_data[1] = (flywheel_motor[0].output) & 0xFF;
+		CAN_send_data[2] = (flywheel_motor[1].output >> 8) & 0xFF;
+		CAN_send_data[3] = (flywheel_motor[1].output) & 0xFF;
+#ifdef ACTIVE_GUIDANCE
+		CAN_send_data[4] = (flywheel_motor[2].output >> 8) & 0xFF;
+		CAN_send_data[5] = (flywheel_motor[2].output) & 0xFF;
+		CAN_send_data[6] = (flywheel_motor[3].output >> 8) & 0xFF;
+		CAN_send_data[7] = (flywheel_motor[3].output) & 0xFF;
+#else
+		CAN_send_data[4] = 0;
+		CAN_send_data[5] = 0;
+		CAN_send_data[6] = 0;
+		CAN_send_data[7] = 0;
+#endif
+	}
+	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
+			send_mail_box);
+
+	// send to feeder motor
+	CAN_tx_message.StdId = CAN_2006_5_TO_8_ID;
+	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
+		CAN_send_data[0] = 0;
+		CAN_send_data[1] = 0;
+		CAN_send_data[2] = 0;
+		CAN_send_data[3] = 0;
+		CAN_send_data[4] = 0;
+		CAN_send_data[5] = 0;
+		CAN_send_data[6] = 0;
+		CAN_send_data[7] = 0;
+	} else {
+		CAN_send_data[0] = (feeder_motor.output >> 8) & 0xFF;
+		CAN_send_data[1] = (feeder_motor.output) & 0xFF;
+		CAN_send_data[2] = 0;
+		CAN_send_data[3] = 0;
+		CAN_send_data[4] = 0;
+		CAN_send_data[5] = 0;
+		CAN_send_data[6] = 0;
+		CAN_send_data[7] = 0;
+	}
+	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
+			send_mail_box);
 }
 
 uint16_t check_overheat() {

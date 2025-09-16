@@ -116,7 +116,8 @@ void speed_pid(double setpoint, double curr_pt, pid_data_t *pid) {
 	pid->last_time[1] = pid->last_time[0];
 	pid->last_time[0] = get_microseconds();
 
-	uint32_t time_mult = 1;//TIMER_FREQ / (float) (pid->last_time[0] - pid->last_time[1]);
+	uint32_t time_mult = 1; // ignores time scaling (aka assume fixed time step btwn PID updates)
+	// uint32_t time_mult = TIMER_FREQ / (float) (pid->last_time[0] - pid->last_time[1]);
 	float Pout = 0;
 	float Iout = 0;
 	float Dout = 0;

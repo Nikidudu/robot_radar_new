@@ -18,18 +18,19 @@
 
 /* Private variables ---------------------------------------------------------*/
 
+// For chassis kinematics calculations
 float motor_yaw_mult[4];
 static float lvl_max_speed;
 static float lvl_max_accel;
 static float lvl_max_spin;
-static float spin_accel 	= SPIN_ACCELERATION;
-float act_forward 			= 0.0f;
-float act_horizontal 		= 0.0f;
-float act_yaw 				= 0.0f;
+static float spin_accel = SPIN_ACCELERATION;
+float act_forward = 0.0f;
+float act_horizontal = 0.0f;
+float act_yaw = 0.0f;
+
 motor_data_t chassis_wheel[4];
 
 /* From other tasks (extern) */
-extern EventGroupHandle_t chassis_event_group;
 // target directions to achieve
 extern chassis_control_t chassis_ctrl_data;
 // remote/keyboard data
@@ -52,6 +53,8 @@ void chassis_motion_control();
 void level_config(float *lvl_max_speed, float *lvl_max_accel,
 		float *lvl_max_spin);
 float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
+void chassis_init();
+void send_current_to_motor();
 
 /* Private user code ---------------------------------------------------------*/
 
@@ -63,39 +66,23 @@ void movement_control_task(void *argument) {
 //		todo: add remote/keyboard comms here, thus removing need for control_input_task.c
 //		chassis_data_update();
 
-//		EventBits_t motor_bits;
-		//wait for all motors to have updated data before PID is allowed to run
-//		motor_bits = xEventGroupWaitBits(chassis_event_group, 0b1111, pdTRUE, pdTRUE, portMAX_DELAY);
-//		if (motor_bits == 0b1111) {
-			status_led(3, on_led);
-			start_time = xTaskGetTickCount();
-			if (chassis_ctrl_data.enabled) {
-				chassis_motion_control(&chassis_wheel[FR],
-						&chassis_wheel[FL],
-						&chassis_wheel[BL],
-						&chassis_wheel[BR]);
-			} else {
-				chassis_wheel[FR].output = 0;
-				chassis_wheel[FL].output = 0;
-				chassis_wheel[BL].output = 0;
-				chassis_wheel[BR].output = 0;
+		status_led(3, on_led);
+		start_time = xTaskGetTickCount();
+		if (chassis_ctrl_data.enabled) {
+			chassis_motion_control(&chassis_wheel[FR_MOTOR_ID], &chassis_wheel[FL_MOTOR_ID],
+					&chassis_wheel[BL_MOTOR_ID], &chassis_wheel[BR_MOTOR_ID]);
+		} else {
+			chassis_wheel[FR_MOTOR_ID].output = 0;
+			chassis_wheel[FL_MOTOR_ID].output = 0;
+			chassis_wheel[BL_MOTOR_ID].output = 0;
+			chassis_wheel[BR_MOTOR_ID].output = 0;
 
-			}
+		}
 
-			status_led(3, off_led);
-//		} else {
-//			//motor timed out
-//			chassis_wheel[FR].output = 0;
-//			chassis_wheel[FL].output = 0;
-//			chassis_wheel[BL].output = 0;
-//			chassis_wheel[BR].output = 0;
-//		}
+		status_led(3, off_led);
 
-		send_current_to_motor();
+		send_chassis_current_to_motor();
 
-		//clear bits if it's not already cleared
-//		xEventGroupClearBits(chassis_event_group, 0b1111);
-		//delays task for other tasks to run
 		vTaskDelayUntil(&start_time, CHASSIS_DELAY);
 	}
 	osThreadTerminate(NULL);
@@ -106,25 +93,32 @@ void chassis_init() {
 	// 2--3
 
 	//initialise in an array so it's possible to for-loop it later
-	motor_yaw_mult[FR] = FR_YAW_MULT;
-	motor_yaw_mult[FL] = FL_YAW_MULT;
-	motor_yaw_mult[BL] = BL_YAW_MULT;
-	motor_yaw_mult[BR] = BR_YAW_MULT;
+	motor_yaw_mult[FR_MOTOR_ID] = FR_YAW_MULT;
+	motor_yaw_mult[FL_MOTOR_ID] = FL_YAW_MULT;
+	motor_yaw_mult[BL_MOTOR_ID] = BL_YAW_MULT;
+	motor_yaw_mult[BR_MOTOR_ID] = BR_YAW_MULT;
 
 	for (size_t i = 0; i < sizeof(chassis_wheel) / sizeof(chassis_wheel[0]);
 			i++) {
 		chassis_wheel[i].motor_type = TYPE_M3508;
 //		chassis_wheel[i].id = CAN_3508_ALL_ID + i;
-		chassis_wheel[i].can = WHEEL_MOTOR_CAN;
+		chassis_wheel[i].can = CHASSIS_MOTOR_CAN;
+
 		chassis_wheel[i].rpm_pid.kp = CHASSIS_KP;
 		chassis_wheel[i].rpm_pid.ki = CHASSIS_KI;
 		chassis_wheel[i].rpm_pid.kd = CHASSIS_KD;
 		chassis_wheel[i].rpm_pid.int_max = CHASSIS_INT_MAX;
 		chassis_wheel[i].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
+		chassis_wheel[i].rpm_pid.physical_max = M3508_MAX_OUTPUT;
+
+		chassis_wheel[i].angle_pid.kp = 0;
+		chassis_wheel[i].angle_pid.ki = 0;
+		chassis_wheel[i].angle_pid.kd = 0;
+		chassis_wheel[i].angle_pid.int_max = 0;
+		chassis_wheel[i].angle_pid.max_out = 0;
+		chassis_wheel[i].angle_pid.physical_max = M3508_MAX_RPM;
 
 		chassis_wheel[i].angle_data.gearbox_ratio = M3508_GEARBOX_RATIO;
-		chassis_wheel[i].angle_pid.physical_max = M3508_MAX_RPM;
-		chassis_wheel[i].rpm_pid.physical_max = M3508_MAX_OUTPUT;
 		chassis_wheel[i].angle_data.min_ticks = -4096 * M3508_GEARBOX_RATIO;
 		chassis_wheel[i].angle_data.max_ticks = 4096 * M3508_GEARBOX_RATIO;
 		chassis_wheel[i].angle_data.tick_range =
@@ -143,7 +137,7 @@ void chassis_init() {
 	}
 }
 
-void send_current_to_motor() {
+void send_chassis_current_to_motor() {
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
@@ -153,28 +147,28 @@ void send_current_to_motor() {
 
 	CAN_tx_message.StdId = 0x200; // CAN_3508_1_TO_4_ID
 
-	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
-		CAN_send_data[0] 	= 0;
-		CAN_send_data[1] 	= 0;
-		CAN_send_data[2] 	= 0;
-		CAN_send_data[3] 	= 0;
-		CAN_send_data[4] 	= 0;
-		CAN_send_data[5] 	= 0;
-		CAN_send_data[6] 	= 0;
-		CAN_send_data[7] 	= 0;
+	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+		CAN_send_data[0] = 0;
+		CAN_send_data[1] = 0;
+		CAN_send_data[2] = 0;
+		CAN_send_data[3] = 0;
+		CAN_send_data[4] = 0;
+		CAN_send_data[5] = 0;
+		CAN_send_data[6] = 0;
+		CAN_send_data[7] = 0;
 	} else {
-		CAN_send_data[0]  	= (chassis_wheel[0].output >> 8) & 0xFF;
-		CAN_send_data[1]	= (chassis_wheel[0].output) & 0xFF;
-		CAN_send_data[2]   	= (chassis_wheel[1].output >> 8) & 0xFF;
-		CAN_send_data[3] 	= (chassis_wheel[1].output) & 0xFF;
-		CAN_send_data[4]   	= (chassis_wheel[2].output >> 8) & 0xFF;
-		CAN_send_data[5] 	= (chassis_wheel[2].output) & 0xFF;
-		CAN_send_data[6]   	= (chassis_wheel[3].output >> 8) & 0xFF;
-		CAN_send_data[7] 	= (chassis_wheel[3].output) & 0xFF;
+		CAN_send_data[0] = (chassis_wheel[0].output >> 8) & 0xFF;
+		CAN_send_data[1] = (chassis_wheel[0].output) & 0xFF;
+		CAN_send_data[2] = (chassis_wheel[1].output >> 8) & 0xFF;
+		CAN_send_data[3] = (chassis_wheel[1].output) & 0xFF;
+		CAN_send_data[4] = (chassis_wheel[2].output >> 8) & 0xFF;
+		CAN_send_data[5] = (chassis_wheel[2].output) & 0xFF;
+		CAN_send_data[6] = (chassis_wheel[3].output >> 8) & 0xFF;
+		CAN_send_data[7] = (chassis_wheel[3].output) & 0xFF;
 
 	}
 
-	HAL_CAN_AddTxMessage(WHEEL_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
+	HAL_CAN_AddTxMessage(CHASSIS_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 			send_mail_box);
 }
 
@@ -232,10 +226,10 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	translation_rpm[3] = ((rel_forward * BR_VY_MULT)
 			+ (rel_horizontal * BR_VX_MULT));
 
-	yaw_rpm[FR] = rel_yaw * motor_yaw_mult[FR];
-	yaw_rpm[FL] = rel_yaw * motor_yaw_mult[FL];
-	yaw_rpm[BR] = rel_yaw * motor_yaw_mult[BR];
-	yaw_rpm[BL] = rel_yaw * motor_yaw_mult[BL];
+	yaw_rpm[FR_MOTOR_ID] = rel_yaw * motor_yaw_mult[FR_MOTOR_ID];
+	yaw_rpm[FL_MOTOR_ID] = rel_yaw * motor_yaw_mult[FL_MOTOR_ID];
+	yaw_rpm[BR_MOTOR_ID] = rel_yaw * motor_yaw_mult[BR_MOTOR_ID];
+	yaw_rpm[BL_MOTOR_ID] = rel_yaw * motor_yaw_mult[BL_MOTOR_ID];
 
 	float rpm_mult = 1;
 	float rpm_sum = 0;

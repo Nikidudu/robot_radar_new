@@ -445,28 +445,19 @@
 //CAN ids for the motors, for motors on the CAN2 bus, add 12
 //ADD 4 TO GM6020 IDS i.e. flashing 5 times = ID 9
 #ifndef CHASSIS_MCU
-#define FR_MOTOR_ID 		13
-#define FR_MOTOR_CAN_PTR	&hcan2
-#define FL_MOTOR_ID 		14
-#define FL_MOTOR_CAN_PTR	&hcan2
-#define BL_MOTOR_ID 		15
-#define BL_MOTOR_CAN_PTR	&hcan2
-#define BR_MOTOR_ID 		16
-#define BR_MOTOR_CAN_PTR	&hcan2
-
-#define WHEEL_MOTOR_CAN 	&hcan2
-#define	FR  				0   // Front Right
-#define	FL  				1   // Front Left
-#define	BL  				2   // Back Left
-#define	BR  				3   // Back Right
+#define CHASSIS_MOTOR_CAN 	&hcan2
+#define	FR_MOTOR_ID  		0   // Front Right
+#define	FL_MOTOR_ID   		1   // Front Left
+#define	BL_MOTOR_ID   		2   // Back Left
+#define	BR_MOTOR_ID   		3   // Back Right
 #endif
 
-#define FEEDER_MOTOR_ID		7
-#define FEEDER_MOTOR_CAN_PTR	&hcan1
-#define LFRICTION_MOTOR_ID	2
-#define LFRICTION_MOTOR_CAN_PTR	&hcan1
-#define RFRICTION_MOTOR_ID	3
-#define RFRICTION_MOTOR_CAN_PTR	&hcan1
+#define LAUNCHER_MOTOR_CAN	&hcan2
+#define LFRICTION_MOTOR_ID	0
+#define RFRICTION_MOTOR_ID	1
+#define BFRICTION_MOTOR_ID	2
+#define GFRICTION_MOTOR_ID	3
+#define FEEDER_MOTOR_ID		4
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
@@ -516,13 +507,13 @@
 #define BL_YAW_MULT			1	//((-BL_DIST * sin(BL_ANG_Y - BL_ANG_PASSIVE - BL_ANG_X)) / (sin(BL_ANG_PASSIVE) * WHEEL_CIRC))
 
 
-#define CONTROL_DELAY 			5
-#define GIMBAL_DELAY			2
-#define CHASSIS_DELAY 			5
+#define CONTROL_DELAY 		5
+#define GIMBAL_DELAY		2
+#define CHASSIS_DELAY 		5
+#define LAUNCHER_DELAY		5
 
 //microsecond timer used for PIDs
 #define TIMER_FREQ			1000000 //Cannot be too high if not the ISRs overload the CPU
-#define TIMER_FREQ_MULT		10 //1000000/100000
 
 
 #endif /* ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE_H_ */

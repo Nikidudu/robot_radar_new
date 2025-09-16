@@ -43,16 +43,17 @@ typedef struct
 	float kd;
 	float error[2];
 	float integral;
-	float int_max;
-	float max_out;
-	float output;
-	float physical_max;
-	uint32_t last_time[2];
+	float int_max; 			// maximum allowed integral
+	float max_out; 			// maximum output of the PID loop
+	float output; 			// PID output
+	float physical_max; 	// physical maximum the motor can handle
+	uint32_t last_time[2]; 	// timestampes of previous PID updates
 }pid_data_t;
 
 typedef struct	{
+	// processed encoder/odometry data for a motor
 	int32_t ticks;
-	int32_t center_ang;
+	int32_t center_ang; // reference zero angle of the motor (for pitch and yaw)
 	int32_t min_ticks;
 	int32_t max_ticks;
 	int32_t tick_range;
@@ -66,15 +67,16 @@ typedef struct	{
 	float phy_min_ang;
 	float phy_max_ang;
 	float gearbox_ratio;
-	float adj_ang;
+	float adj_ang;		// Adjusted angle in radians (centered, scaled from ticks)
 	float dist;
-	float wheel_circ; //in cm
+	float wheel_circ; 	// in cm
 	float hires_rpm;
-	uint8_t init;
+	uint8_t init;		// Flag to indicate if odometry has been initialized (first run)
 } angle_data_t;
 
 typedef struct {
-	int32_t angle[2];
+	// raw feedback from CAN motors
+	int32_t angle[2];			// raw encoder readings
 	int64_t raw_motor_angle;
 	int32_t raw_encoder;
 	int32_t encoder_offset;
