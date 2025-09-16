@@ -41,8 +41,7 @@ motor_data_t launcher_l_motor;
 motor_data_t launcher_r_motor;
 motor_data_t feeder_motor;
 motor_data_t g_pitch_motor;
-motor_data_t yaw_motor;
-
+extern motor_data_t yaw_motor;
 dm_motor_t dm_pitch_motor;
 dm_motor_t dm_yaw_motor;
 
@@ -50,22 +49,22 @@ void motor_calib_task(void *argument) {
 	can_start(&hcan1, 0x00000000, 0x00000000);
 	can_start(&hcan2, 0x00000000, 0x00000000);
 	vTaskDelay(1000);
-	config_motors();
+	//config_motors();
 
 	//check motors
 	//start motor control tasks after initialisation of motors
 	//shift function to master task.c probably
 
-	xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
-			(UBaseType_t) 8, &motor_control_task_handle);
+	//xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
+	//		(UBaseType_t) 8, &motor_control_task_handle);
 
-	if (chassis_event_group == NULL) {
-		//error handler
-	} else {
-		xTaskCreate(movement_control_task, "chassis_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-				&movement_control_task_handle);
-	}
+//	if (chassis_event_group == NULL) {
+//		//error handler
+//	} else {
+//		xTaskCreate(movement_control_task, "chassis_task",
+//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+//				&movement_control_task_handle);
+//	}
 
 	// Enable/disable hall sensor
 	#ifndef HALL_ZERO
@@ -83,14 +82,13 @@ void motor_calib_task(void *argument) {
 //				&launcher_control_task_handle);
 //	}
 //
-//	if (gimbal_event_group == NULL) {
-//		//error handler implement next time!
-//	} else {
-//		xTaskCreate(gimbal_control_task, "gimbal_task",
-//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
-//				&gimbal_control_task_handle);
-//
-//	}
+	if (gimbal_event_group == NULL) {
+		//error handler implement next time!
+	} else {
+		xTaskCreate(gimbal_control_task, "gimbal_task",
+		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
+				&gimbal_control_task_handle);
+	}
 
 	//insert can tester?
 	uint16_t error = 0b111111111;
@@ -690,98 +688,83 @@ void motor_temp_bz(uint8_t hi, uint8_t low) {
 
 }
 
-uint16_t check_motors() {
+uint16_t check_motors()
+{
 	uint16_t error = 0;
 	uint32_t curr_time = get_microseconds();
 	if (curr_time
 			- g_can_motors[FR_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << (0);
 
-	} else {
-		if (g_can_motors[FR_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+	} else if (g_can_motors[FR_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(1, 1);
 		} else {
 
 		}
-	}
 
 	if (curr_time
 			- g_can_motors[FL_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << (1);
 
-	} else {
-		if (g_can_motors[FL_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+	} else if (g_can_motors[FL_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(1, 2);
 		}
-	}
 
 	if (curr_time
 			- g_can_motors[BL_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << (2);
-	} else {
-		if (g_can_motors[BL_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+	} else if (g_can_motors[BL_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(1, 3);
 		}
-	}
+
 	if (curr_time
 			- g_can_motors[BR_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << (3);
-	} else {
-		if (g_can_motors[BR_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+	} else if (g_can_motors[BR_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(1, 4);
 		}
-	}
+
 
 	if (curr_time
 			- g_can_motors[LFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << (4);
 
-	} else {
-		if (g_can_motors[LFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+	} else if (g_can_motors[LFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(2, 1);
 		}
-	}
 
 	if (curr_time
 			- g_can_motors[RFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << (5);
 
-	} else {
-		if (g_can_motors[RFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+	} else if (g_can_motors[RFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(2, 2);
 		}
-	}
 
 	if (curr_time
 			- g_can_motors[FEEDER_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 6;
 
-	} else {
-		if (g_can_motors[FEEDER_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+	} else if (g_can_motors[FEEDER_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(2, 3);
 		}
-	}
 
 #ifdef ACTIVE_GUIDANCE
 	if (curr_time
 			- g_can_motors[BFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 9;
 
-	} else {
-		if (g_can_motors[BFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+	} else if (g_can_motors[BFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(2, 4);
 		}
-	}
 
 	if (curr_time
 			- g_can_motors[GFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 10;
 
-	} else {
-		if (g_can_motors[GFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+	} else if (g_can_motors[GFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(2, 5);
 		}
-	}
 #endif
 
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
@@ -811,16 +794,13 @@ uint16_t check_motors() {
 	if (curr_time
 			- g_pitch_motor.last_time[0] > MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 7;
-		} else {
-		if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {
+		} else if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(3, 1);
 		}
-	}
 #endif
 
 #if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
-	if (curr_time
-				- dm_yaw_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
+	if (curr_time - dm_yaw_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 8;
 		dm_set_yaw_motor();
 	} else if (dm_yaw_motor.para.state != 9) {
@@ -830,24 +810,24 @@ uint16_t check_motors() {
 			error |= 1 << 7;
 			dm_set_yaw_motor();
 		}
-	} else {
-		if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
+	} else if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
 			motor_temp_bz(3, 2);
 		}
         dm_yaw_motor.para.disconnect_time = 0;
-	}
 #else
 	if (curr_time
 				- g_can_motors[YAW_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 			error |= 1 << 8;
 
-		} else {
-			if (g_can_motors[YAW_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
+		} else if (g_can_motors[YAW_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 				motor_temp_bz(3, 2);
-	}
-}
+		}
 #endif
 	return error;
-
 }
+
+
+
+
+
 
