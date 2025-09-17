@@ -31,16 +31,9 @@ extern gimbal_control_t gimbal_ctrl_data;
 
 extern QueueHandle_t g_buzzing_task_msg;
 
-uint16_t g_motor_fault;
 motor_data_t g_can_motors[24];
-motor_data_t fr_motor;
-motor_data_t fl_motor;
-motor_data_t bl_motor;
-motor_data_t br_motor;
-motor_data_t launcher_l_motor;
-motor_data_t launcher_r_motor;
+
 motor_data_t g_pitch_motor;
-extern motor_data_t yaw_motor;
 dm_motor_t dm_pitch_motor;
 dm_motor_t dm_yaw_motor;
 
@@ -65,14 +58,14 @@ void motor_calib_task(void *argument) {
 				&movement_control_task_handle);
 	}
 
-	if (launcher_event_group == NULL) {
-		//error handler
-	} else {
-		xTaskCreate(launcher_control_task, "launcher_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-				&launcher_control_task_handle);
-	}
-//
+//	if (launcher_event_group == NULL) {
+//		//error handler
+//	} else {
+//		xTaskCreate(launcher_control_task, "launcher_task",
+//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+//				&launcher_control_task_handle);
+//	}
+
 	if (gimbal_event_group == NULL) {
 		//error handler implement next time!
 	} else {
@@ -80,116 +73,9 @@ void motor_calib_task(void *argument) {
 		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
 				&gimbal_control_task_handle);
 	}
-
-	//insert can tester?
-	uint16_t error = 0b111111111;
-	error = check_motors();
-	uint32_t delay = 0;
-	vTaskDelay(50);
-	if (MOTOR_ONLINE_CHECK == 1) {
-		while (error != 0) {
-			delay = 500;
-			error = check_motors();
-			for (uint8_t i = 0; i < 4; i++) {
-				if (error & (1 << (i))) {
-					bz_buzzer(1, i + 1);
-					delay+=600;
-				}
-			}
-			for (uint8_t i = 4; i < 7; i++) {
-				if (error & (1 << (i))) {
-					bz_buzzer(2, (i - 3));
-					delay+=600;
-				}
-			}
-			for (uint8_t i = 7; i < 9; i++) {
-				if (error & (1 << (i))) {
-					bz_buzzer(3, (i - 6));
-					delay+=600;
-				}
-			}
-			if (error & (1 << 7)){
-				set_motor_config(&g_pitch_motor);
-			}
-			vTaskDelay(delay);
-		}
-	}
-
-	uint8_t temp_msg;
-	if (error == 0) {
-		temp_msg = ok;
-	} else {
-		temp_msg = not_ok;
-	}
-	xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-	uint32_t last_check = HAL_GetTick();
-
-
-
-
 	while (1) {
-		error = 0;
-
-		error = check_motors();
-		g_motor_fault = error;
-		if (HAL_GetTick() - last_check > 5000) {
-			delay = 1000;
-			last_check = HAL_GetTick();
-			if (MOTOR_ONLINE_CHECK == 1) {
-				for (uint8_t i = 0; i < 4; i++) {
-					if (error & (1 << (i))) {
-						bz_buzzer(1, i + 1);
-						delay+=600;
-					}
-				}
-				for (uint8_t i = 4; i < 7; i++) {
-					if (error & (1 << (i))) {
-						bz_buzzer(2, (i - 3));
-						delay+=600;
-					}
-				}
-				for (uint8_t i = 7; i < 9; i++) {
-					if (error & (1 << (i))) {
-						bz_buzzer(3, (i - 6));
-						delay+=600;
-					}
-				}
-#ifdef ACTIVE_GUIDANCE
-				for (uint8_t i = 9; i < 11; i++) {
-					if (error & (1 << (i))) {
-						bz_buzzer(2, (i - 5));
-						delay+=600;
-					}
-				}
-#endif
-
-				//cos lk motor :<
-#if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
-				if (error & (1 << 7)){
-					set_motor_config(&g_pitch_motor);
-				}
-#endif
-				vTaskDelay(delay);
-				continue;
-			} else if (MOTOR_ONLINE_CHECK == 0) {
-				if (error != 0) {
-					bz_buzzer(0, 2);
-					vTaskDelay(5000);
-					continue;
-				}
-			} else {
-				error = 0;
-			}
-		}
-
 		vTaskDelay(1000);
 	}
-
-	//future calibration code, if any
-	// task takes highest priority over....everything so make sure to kill all motors first!
-	//implement mutexes so this task doesn't check while the motor tasks do their thing
-
-	//write in task here to calibrate then stop lol
 }
 
 uint8_t lk_set_pid(motor_data_t *motor, uint32_t timeout){
@@ -482,178 +368,3 @@ void config_motors() {
 	dm_set_motor_config();
 #endif
 }
-
-void bz_buzzer(uint8_t high, uint8_t low) {
-	uint8_t temp_msg = bz_debug_high;
-	for (uint8_t i = 0; i < high; i++) {
-		xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-	}
-	temp_msg = bz_debug_low;
-	for (int8_t i = 0; i < low; i++) {
-		xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-	}
-	temp_msg = bz_debug_rest;
-	xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-}
-
-void motor_temp_bz(uint8_t hi, uint8_t low) {
-	uint8_t temp_msg = bz_debug_hi_temp;
-	xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-	temp_msg = bz_debug_rest;
-	xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-	for (int8_t i = 0; i < hi; i++) {
-		temp_msg = bz_temp_hi;
-		xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-	}
-	for (int8_t i = 0; i < low; i++) {
-		temp_msg = bz_temp_low;
-		xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-	}
-	temp_msg = bz_debug_rest;
-	xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-
-}
-
-uint16_t check_motors()
-{
-	uint16_t error = 0;
-	uint32_t curr_time = get_microseconds();
-	if (curr_time
-			- g_can_motors[FR_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (0);
-
-	} else if (g_can_motors[FR_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(1, 1);
-		} else {
-
-		}
-
-	if (curr_time
-			- g_can_motors[FL_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (1);
-
-	} else if (g_can_motors[FL_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(1, 2);
-		}
-
-	if (curr_time
-			- g_can_motors[BL_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (2);
-	} else if (g_can_motors[BL_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(1, 3);
-		}
-
-	if (curr_time
-			- g_can_motors[BR_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (3);
-	} else if (g_can_motors[BR_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(1, 4);
-		}
-
-
-	if (curr_time
-			- g_can_motors[LFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (4);
-
-	} else if (g_can_motors[LFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(2, 1);
-		}
-
-	if (curr_time
-			- g_can_motors[RFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (5);
-
-	} else if (g_can_motors[RFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(2, 2);
-		}
-
-	if (curr_time
-			- g_can_motors[FEEDER_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << 6;
-
-	} else if (g_can_motors[FEEDER_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(2, 3);
-		}
-
-#ifdef ACTIVE_GUIDANCE
-	if (curr_time
-			- g_can_motors[BFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << 9;
-
-	} else if (g_can_motors[BFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(2, 4);
-		}
-
-	if (curr_time
-			- g_can_motors[GFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-		error |= 1 << 10;
-
-	} else if (g_can_motors[GFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(2, 5);
-		}
-#endif
-
-#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
-
-	if (curr_time
-			- dm_pitch_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
-		// pitch motor not returning data (para) to dev c
-		error |= 1 << 7;
-		dm_set_pitch_motor();
-	} else if (dm_pitch_motor.para.state != 9) {
-		// pitch motor not accepting data from dev c
-        dm_pitch_motor.para.disconnect_time++;
-		if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
-			error |= 1 << 7;
-			dm_set_pitch_motor();
-		}
-
-//		dm_set_pitch_motor();
-	}
-	else {
-		if (dm_pitch_motor.para.Tcoil > HITEMP_WARNING) {
-			motor_temp_bz(3, 1);
-		}
-        dm_pitch_motor.para.disconnect_time = 0;
-	}
-#else
-	if (curr_time
-			- g_pitch_motor.last_time[0] > MOTOR_TIMEOUT_MAX) {
-		error |= 1 << 7;
-		} else if (g_pitch_motor.raw_data.temp > HITEMP_WARNING) {
-			motor_temp_bz(3, 1);
-		}
-#endif
-
-#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
-	if (curr_time - dm_yaw_motor.disconnect_time > MOTOR_TIMEOUT_MAX) {
-		error |= 1 << 8;
-		dm_set_yaw_motor();
-	} else if (dm_yaw_motor.para.state != 9) {
-		// yaw motor not accepting data from dev c
-        dm_yaw_motor.para.disconnect_time++;
-		if (dm_yaw_motor.para.state != 9 && dm_yaw_motor.para.disconnect_time > 100) {
-			error |= 1 << 7;
-			dm_set_yaw_motor();
-		}
-	} else if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
-			motor_temp_bz(3, 2);
-		}
-        dm_yaw_motor.para.disconnect_time = 0;
-#else
-	if (curr_time
-				- g_can_motors[YAW_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
-			error |= 1 << 8;
-
-		} else if (g_can_motors[YAW_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
-				motor_temp_bz(3, 2);
-		}
-#endif
-	return error;
-}
-
-
-
-
-
-

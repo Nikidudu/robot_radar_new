@@ -67,8 +67,9 @@ void movement_control_task(void *argument) {
 		status_led(3, on_led);
 		start_time = xTaskGetTickCount();
 		if (chassis_ctrl_data.enabled) {
-			chassis_motion_control(&chassis_wheel[FR_MOTOR_ID], &chassis_wheel[FL_MOTOR_ID],
-					&chassis_wheel[BL_MOTOR_ID], &chassis_wheel[BR_MOTOR_ID]);
+			chassis_motion_control(&chassis_wheel[FR_MOTOR_ID],
+					&chassis_wheel[FL_MOTOR_ID], &chassis_wheel[BL_MOTOR_ID],
+					&chassis_wheel[BR_MOTOR_ID]);
 		} else {
 			chassis_wheel[FR_MOTOR_ID].output = 0;
 			chassis_wheel[FL_MOTOR_ID].output = 0;

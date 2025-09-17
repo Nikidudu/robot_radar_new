@@ -13,15 +13,15 @@
 #include "control_input_task.h"
 #include "launcher_control_task.h"
 #include "imu_processing_task.h"
-#include "robot_config.h"
 #include "buzzing_task.h"
-#include "motor_config.h"
 #include "usb_task.h"
 #include "telemetry_task.h"
 #include "motor_control_task.h"
 #include "INS_task.h"
 #include "hud_new.h"
 #include "supercap_comm_task.h"
+#include "master_task.h"
+#include "error_handler_task.h"
 
 #define ISR_SEMAPHORE_COUNT 1
 #define QUEUE_SIZE 1
@@ -34,6 +34,7 @@ TaskHandle_t control_input_task_handle;
 TaskHandle_t launcher_control_task_handle;
 TaskHandle_t buzzing_task_handle;
 TaskHandle_t motor_calib_task_handle;
+TaskHandle_t error_handler_task_handle;
 TaskHandle_t usb_task_handle;
 TaskHandle_t imu_processing_task_handle;
 TaskHandle_t telemetry_task_handle;
@@ -60,8 +61,7 @@ QueueHandle_t uart_data_queue;
 
 extern gimbal_control_t gimbal_ctrl_data;
 
-
-void master_task(void* argument){
+void master_task(void *argument) {
 	imu_init();
 
 	gimbal_event_group = xEventGroupCreate();
@@ -84,8 +84,7 @@ void master_task(void* argument){
 
 	/* add threads, ... */
 	//todo: adjust priorities
-	//Threads creation\
-
+	//Threads creation
 #ifdef SENTRY
 	xTaskCreate(INS_task, "INS_task",
 	        configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
@@ -103,10 +102,13 @@ void master_task(void* argument){
 	xTaskCreate(control_input_task, "RC_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 			&control_input_task_handle);
+
 	xTaskCreate(referee_processing_task, "referee_task", 512, (void*) 1,
 			(UBaseType_t) 2, &referee_processing_task_handle);
+
 	xTaskCreate(buzzing_task, "buzzer_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &buzzing_task_handle);
+
 	if (usb_continue_semaphore == NULL) {
 		//error handler
 	} else {
@@ -119,14 +121,18 @@ void master_task(void* argument){
 
 #ifdef SUPERCAP_PRESENT
 	xTaskCreate(supercap_comm_task, "supercap_comm_task",
-			configMINIMAL_STACK_SIZE, NULL, (UBaseType_t) 1, &supercap_task_handle);
+	configMINIMAL_STACK_SIZE, NULL, (UBaseType_t) 1, &supercap_task_handle);
 #endif
 
-	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3,
-			(UBaseType_t) 5, &hud_task_handle);
+	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3, (UBaseType_t) 5,
+			&hud_task_handle);
+
+	xTaskCreate(error_handler_task, "error_handler_task",
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 9,
+			&error_handler_task_handle);
 
 //	vTaskDelete(master_task_handle);
-	while(1){
+	while (1) {
 		vTaskDelay(1000);
 	}
 

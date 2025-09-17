@@ -69,7 +69,8 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 						&chassis_wheel[RxHeader.StdId - CAN_3508_ALL_ID],
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
-
+		}
+	}
 // launcher motors (flywheels + feeder)
 // currently launchers and chassis use the same CAN. works since one is for dev C in
 // chassis and one is for dev C in gimbal
@@ -87,9 +88,6 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 //				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
 //						(uint8_t*) RxData);
 //			}
-		}
-	}
-
 	if (hcan->Instance == CAN1) {
 		switch (RxHeader.StdId) {
 			// gimbal stuff here
