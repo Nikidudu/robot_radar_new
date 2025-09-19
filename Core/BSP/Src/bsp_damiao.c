@@ -9,8 +9,8 @@ static uint32_t dm_mailbox[3];
 
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
-extern motor_data_t g_can_motors[24];
-extern motor_data_t g_pitch_motor;
+extern motor_data_t pitch_motor;
+extern motor_data_t yaw_motor;
 extern EventGroupHandle_t gimbal_event_group;
 
 void dm4310_motor_init(void)
@@ -605,18 +605,17 @@ float dm_yaw_encoder_mod(float raw_angle) {
     return raw_angle;
 }
 
-void dmmapyawfbdata(dm_motor_t *yaw_motor) {
-	float adj_ang = dm_yaw_encoder_mod(yaw_motor->para.pos) - dm_yaw_motor.angle_data.center_ang;
+void dmmapyawfbdata(dm_motor_t *motor) {
+	float adj_ang = dm_yaw_encoder_mod(motor->para.pos) - dm_yaw_motor.angle_data.center_ang;
 	// maps from 0 to 2PI TO 0 to 8192
 	//float mapped_value = (temp / (2 * PI)) * 8192;
-//	debug4 = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
-    g_can_motors[dm_yaw_motor.id - 1].angle_data.adj_ang = adj_ang;
-    g_can_motors[dm_yaw_motor.id - 1].raw_data.torque = yaw_motor->para.tor;
+	yaw_motor.angle_data.adj_ang = adj_ang;
+	yaw_motor.raw_data.torque = motor->para.tor;
     dm_yaw_motor.angle_data.adj_ang = adj_ang;
 }
 
-void dmmappitchfbdata(dm_motor_t *pitch_motor) {
-	float pos = pitch_motor->para.pos;
-    g_pitch_motor.angle_data.adj_ang = pos - dm_pitch_motor.angle_data.center_ang;
+void dmmappitchfbdata(dm_motor_t *motor) {
+	float pos = motor->para.pos;
+    pitch_motor.angle_data.adj_ang = pos - dm_pitch_motor.angle_data.center_ang;
     dm_pitch_motor.angle_data.adj_ang = pos - dm_pitch_motor.angle_data.center_ang;
 }

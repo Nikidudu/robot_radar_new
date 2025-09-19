@@ -38,7 +38,6 @@ typedef struct {
 	float y_offset;
 } aimbot_offset_t;
 aimbot_offset_t aimbot_offset;
-extern motor_data_t g_can_motors[24];
 
 void nx_control_input() {
 	// Use remote input to control the chassis
@@ -248,7 +247,7 @@ void sbc_gimbal_process_norm() {
 
 void sbc_gimbal_process_set_ang() {
 	float pit_rad;
-	float yaw_rad = g_can_motors[YAW_MOTOR_ID-1].angle_data.adj_ang;
+	float yaw_rad = yaw_motor.angle_data.adj_ang;
 	pit_rad = sbc_data.data.gimbal_data.pitch;
 	if (sbc_data.data.gimbal_data.yaw < 3.14
 			&& sbc_data.data.gimbal_data.yaw > -3.14) {

@@ -13,14 +13,13 @@
 #include "motor_config.h"
 #include "bsp_lk_motor.h"
 
-extern motor_data_t g_can_motors[24];
 extern motor_map_t dji_motor_map[25];
 extern QueueHandle_t g_buzzing_task_msg;
 extern remote_cmd_t g_remote_cmd;
 
 extern uint8_t g_safety_toggle;
 volatile uint32_t g_motor_control_time;
-extern motor_data_t g_pitch_motor;
+extern motor_data_t pitch_motor;
 
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
@@ -84,7 +83,7 @@ void motor_control_task(void *argument) {
 #if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
     PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
     PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
-			lk_motor_kill(&g_pitch_motor);
+			lk_motor_kill(&pitch_motor);
 #endif
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
 			dm4310_clear_para(&dm_pitch_motor);
@@ -269,7 +268,7 @@ void motor_control_task(void *argument) {
 #if PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_SPD || \
     PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_ANG || \
     PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
-		lk_read_motor_sang(&g_pitch_motor);
+		lk_read_motor_sang(&pitch_motor);
 #endif
 
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT

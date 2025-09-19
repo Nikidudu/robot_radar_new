@@ -7,7 +7,7 @@
 #include "board_lib.h"
 #include "robot_config.h"
 //to switch from active high to low whenever
-extern motor_data_t g_can_motors[24];
+extern motor_data_t yaw_motor;
 
 static uint8_t prev_state = HALL_OFF;
 
@@ -35,13 +35,13 @@ void hall_int(){
 	}
 	//don't care if rising or falling edge, roughly centered anyways
 //	uint8_t curr_state = (GPIOE->IDR & GPIO_PIN_11) ? 1 : 0;
-	g_can_motors[YAW_MOTOR_ID-1].angle_data.ticks = 0;
+	yaw_motor.angle_data.ticks = 0;
 	hall_disable();
 	return;
 }
 
 uint8_t check_yaw(){
-	if (get_microseconds()- g_can_motors[YAW_MOTOR_ID-1].last_time[0] < 1000){
+	if (get_microseconds()- yaw_motor.last_time[0] < 1000){
 		return 1;
 	} else {
 		return 0;

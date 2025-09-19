@@ -23,7 +23,7 @@ static uint16_t g_client_id = 0;
 extern ref_game_robot_data_t ref_robot_data;
 extern uint8_t g_ref_tx_seq;
 
-extern motor_data_t g_can_motors[24];
+extern motor_data_t yaw_motor;
 
 extern int g_spinspin_mode;
 int prev_spinspin = 0;
@@ -45,7 +45,7 @@ int feeder_state_enabled = 0;
 
 extern gimbal_control_t gimbal_ctrl_data;
 extern float rel_pitch_angle;
-extern motor_data_t g_pitch_motor;
+extern motor_data_t pitch_motor;
 
 int top_graphics = 0;
 int dynamic_graphics = 0;
@@ -426,7 +426,7 @@ uint16_t draw_spin_border(uint8_t* tx_buffer, uint8_t modify, uint32_t x_coords)
 	graphic_data->operation_type = modify ? GRAPHIC_MODIFY : GRAPHIC_ADD;
 	// Checks where the gimbal is facing relative to the chassis
 	// Convert from radian to degree, map to 0 to 360
-	float chassis_dir = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang * 57.2958;
+	float chassis_dir = yaw_motor.angle_data.adj_ang * 57.2958;
 	graphic_data->graphic_type = GRAPHIC_TYPE_ARC;
 	if (chassis_dir < 0) {
 		graphic_data->details_a = 360 + chassis_dir + BORDER_GAP_SIZE; // Start angle
@@ -821,8 +821,8 @@ void draw_pitch_limits(uint8_t modify) {
 	graphic_data_struct_t* graphic_data;
 
 	// Map the max and min angle depending on the HUD boundaries
-	float max_ang_pos = -PITCH_INVERT * g_pitch_motor.angle_data.phy_max_ang * ANGLE_LIMIT / graphic_edge;
-	float min_ang_pos = -PITCH_INVERT * g_pitch_motor.angle_data.phy_min_ang * ANGLE_LIMIT / graphic_edge;
+	float max_ang_pos = -PITCH_INVERT * pitch_motor.angle_data.phy_max_ang * ANGLE_LIMIT / graphic_edge;
+	float min_ang_pos = -PITCH_INVERT * pitch_motor.angle_data.phy_min_ang * ANGLE_LIMIT / graphic_edge;
 
 	uint32_t xpos[2] = {
 			HUD_MAX_X/2 + (int)(RADIAL_DIAMETER*cos(max_ang_pos * 0.0174533)),
@@ -860,7 +860,7 @@ void draw_pitch_limits(uint8_t modify) {
 uint16_t draw_curr_pitch(uint8_t* tx_buffer, uint8_t modify) {
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
 
-	float curr_ang_pos = -PITCH_INVERT * g_pitch_motor.angle_data.adj_ang * ANGLE_LIMIT / graphic_edge;
+	float curr_ang_pos = -PITCH_INVERT * pitch_motor.angle_data.adj_ang * ANGLE_LIMIT / graphic_edge;
 	uint32_t xpos = HUD_MAX_X/2 + (int)(RADIAL_DIAMETER*cos(curr_ang_pos * 0.0174533));
 	uint32_t ypos = HUD_MAX_Y/2 + (int)(RADIAL_DIAMETER*sin(curr_ang_pos * 0.0174533));
 

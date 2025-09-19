@@ -20,7 +20,6 @@
 extern remote_cmd_t g_remote_cmd;
 extern gimbal_control_t gimbal_ctrl_data;
 extern orientation_data_t imu_heading;
-extern motor_data_t g_can_motors[24];
 extern uint8_t g_safety_toggle;
 extern referee_limit_t g_referee_limiters;
 

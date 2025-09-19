@@ -19,7 +19,9 @@
 //extern TaskHandle_t movement_control_task_handle;
 //extern TaskHandle_t control_input_task_handle;
 
-extern motor_data_t g_can_motors[24];
+extern motor_data_t pitch_motor;
+extern motor_data_t yaw_motor;
+
 extern orientation_data_t imu_heading;
 extern INS_t INS;
 extern QueueHandle_t g_buzzing_task_msg;
@@ -56,14 +58,15 @@ void control_input_task(void *argument) {
 	uint8_t rc_check;
 
 	//check if remote is giving non zero values, reset uart in case packet isn't aligned properly
-	while (fabs(g_remote_cmd.left_x) > 50 || fabs(g_remote_cmd.right_x) > 50 || fabs(g_remote_cmd.left_x) > 50 || fabs(g_remote_cmd.right_x) > 50){
+	while (fabs(g_remote_cmd.left_x) > 50 || fabs(g_remote_cmd.right_x) > 50
+			|| fabs(g_remote_cmd.left_x) > 50 || fabs(g_remote_cmd.right_x) > 50) {
 		uint8_t temp_msg;
 		temp_msg = not_ok;
 		xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
 		rc_check = ulTaskNotifyTake(pdTRUE, 200);
 		HAL_UART_DMAStop(&DBUS_UART);
 		dbus_remote_start();
-		if (rc_check){
+		if (rc_check) {
 			vTaskDelay(200);
 		}
 	}
@@ -76,20 +79,20 @@ void control_input_task(void *argument) {
 			status_led(1, on_led);
 			start_time = xTaskGetTickCount();
 			if (g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
-				if (g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT){
-					if (g_remote_cmd.keyboard_keys & KEY_OFFSET_CTRL){
-						if (HAL_GetTick() - reset_debounce_time > 100){
+				if (g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT) {
+					if (g_remote_cmd.keyboard_keys & KEY_OFFSET_CTRL) {
+						if (HAL_GetTick() - reset_debounce_time > 100) {
 							reset_start_time = HAL_GetTick();
 						}
 						reset_debounce_time = HAL_GetTick();
-						if (HAL_GetTick() - reset_start_time > 5000){
+						if (HAL_GetTick() - reset_start_time > 5000) {
 							NVIC_SystemReset();
 						}
 					}
 				}
 
-
-				if ((g_remote_cmd.left_switch == ge_LSW_UNSAFE) && (HAL_GetTick() - last_song > 5000)){
+				if ((g_remote_cmd.left_switch == ge_LSW_UNSAFE)
+						&& (HAL_GetTick() - last_song > 5000)) {
 					uint8_t temp_msg;
 					last_song = HAL_GetTick();
 					temp_msg = song;
@@ -143,9 +146,8 @@ void control_input_task(void *argument) {
 float chassis_center_yaw() {
 	chassis_centering_config(); // set chassis centering pid based on level
 
-	speed_pid(0, g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang,
-			&yaw_pid_data);
-	if (fabs(yaw_pid_data.output) < CHASSIS_YAW_MIN){
+	speed_pid(0, yaw_motor.angle_data.adj_ang, &yaw_pid_data);
+	if (fabs(yaw_pid_data.output) < CHASSIS_YAW_MIN) {
 		return 0;
 	}
 	return yaw_pid_data.output;
@@ -165,85 +167,85 @@ void chassis_centering_config() {
 		curr_level += 4;
 	}
 	switch (curr_level) {
-		case 1:
-			yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV1_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV1_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 1:
+		yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV1_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV1_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 2:
-			yaw_pid_data.kp = LV2_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV2_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV2_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV2_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 2:
+		yaw_pid_data.kp = LV2_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV2_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV2_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV2_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 3:
-			yaw_pid_data.kp = LV3_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV3_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV3_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV3_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 3:
+		yaw_pid_data.kp = LV3_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV3_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV3_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV3_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 4:
-			yaw_pid_data.kp = LV4_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV4_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV4_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV4_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 4:
+		yaw_pid_data.kp = LV4_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV4_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV4_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV4_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 5:
-			yaw_pid_data.kp = LV5_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV5_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV5_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV5_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 5:
+		yaw_pid_data.kp = LV5_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV5_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV5_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV5_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 6:
-			yaw_pid_data.kp = LV6_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV6_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV6_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV6_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 6:
+		yaw_pid_data.kp = LV6_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV6_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV6_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV6_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 7:
-			yaw_pid_data.kp = LV7_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV7_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV7_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV7_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 7:
+		yaw_pid_data.kp = LV7_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV7_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV7_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV7_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 8:
-			yaw_pid_data.kp = LV8_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV8_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV8_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV8_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 8:
+		yaw_pid_data.kp = LV8_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV8_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV8_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV8_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 9:
-			yaw_pid_data.kp = LV9_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV9_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV9_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV9_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 9:
+		yaw_pid_data.kp = LV9_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV9_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV9_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV9_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		case 10:
-		case 11:
-		case 12:
-		case 13:
-		case 14:
-			yaw_pid_data.kp = LV10_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV10_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV10_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV10_CHASSIS_YAW_MAX_RPM;
-			break;
+	case 10:
+	case 11:
+	case 12:
+	case 13:
+	case 14:
+		yaw_pid_data.kp = LV10_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV10_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV10_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV10_CHASSIS_YAW_MAX_RPM;
+		break;
 
-		default:
-			yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
-			yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
-			yaw_pid_data.kd = LV1_CHASSIS_YAW_KD;
-			yaw_pid_data.max_out = LV1_CHASSIS_YAW_MAX_RPM;
+	default:
+		yaw_pid_data.kp = LV1_CHASSIS_YAW_KP;
+		yaw_pid_data.ki = LV1_CHASSIS_YAW_KI;
+		yaw_pid_data.kd = LV1_CHASSIS_YAW_KD;
+		yaw_pid_data.max_out = LV1_CHASSIS_YAW_MAX_RPM;
 	}
 #else
 	yaw_pid_data.kp = CHASSIS_YAW_KP;
@@ -252,47 +254,42 @@ void chassis_centering_config() {
 #endif
 }
 
-
-void chassis_set_ctrl(float forward, float horizontal, float yaw){
+void chassis_set_ctrl(float forward, float horizontal, float yaw) {
 	chassis_ctrl_data.enabled = 1;
 	chassis_ctrl_data.horizontal = horizontal;
 	chassis_ctrl_data.forward = forward;
 	chassis_ctrl_data.yaw = yaw;
 }
 
-void chassis_kill_ctrl(){
+void chassis_kill_ctrl() {
 	chassis_ctrl_data.enabled = 0;
 	chassis_ctrl_data.forward = 0;
 	chassis_ctrl_data.horizontal = 0;
 	chassis_ctrl_data.yaw = 0;
 }
-uint8_t gimbal_aim_at_damaged_plate(float* yaw_rad) {
+uint8_t gimbal_aim_at_damaged_plate(float *yaw_rad) {
 	static uint32_t last_dmg_data;
 	if (last_dmg_data != ref_dmg_data_txno) {
 		last_dmg_data = ref_dmg_data_txno;
 		if (ref_dmg_data.dmg_type == 0) {
 			switch (ref_dmg_data.armor_type) {
 			case 1:
-				*yaw_rad = imu_heading.yaw
-						- g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang
+				*yaw_rad = imu_heading.yaw - yaw_motor.angle_data.adj_ang
 						+ (PI / 2);
 
 				return 1;
 			case 2:
-				*yaw_rad = imu_heading.yaw
-						- g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang
+				*yaw_rad = imu_heading.yaw - yaw_motor.angle_data.adj_ang
 						+ (PI);
 
 				return 1;
 			case 3:
-				*yaw_rad = imu_heading.yaw
-						- g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang
+				*yaw_rad = imu_heading.yaw - yaw_motor.angle_data.adj_ang
 						- (PI / 2);
 
 				return 1;
 			case 0:
-				*yaw_rad = imu_heading.yaw
-						- g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+				*yaw_rad = imu_heading.yaw - yaw_motor.angle_data.adj_ang;
 
 				return 1;
 			default:
@@ -402,10 +399,10 @@ void gimbal_turn_ang(float pit_radians, float yaw_radians) {
 	while (yaw_radians < -PI) {
 		yaw_radians += 2 * PI;
 	}
-	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
+	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore, portMAX_DELAY);
 	gimbal_ctrl_data.delta_yaw += yaw_radians;
 	xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
-	xSemaphoreTake(gimbal_ctrl_data.pitch_semaphore,portMAX_DELAY);
+	xSemaphoreTake(gimbal_ctrl_data.pitch_semaphore, portMAX_DELAY);
 	gimbal_ctrl_data.pitch += pit_radians;
 	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
 //	gimbal_ctrl_data.yaw = yaw_radians;
@@ -435,8 +432,6 @@ void chassis_yaw_pid_init() {
 	yaw_pid_data.max_out = CHASSIS_YAW_MAX_RPM;
 #endif
 }
-
-
 
 void dbus_reset() {
 	g_remote_cmd.right_switch = ge_RSW_SHUTDOWN;

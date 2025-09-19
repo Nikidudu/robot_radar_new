@@ -15,14 +15,14 @@ extern EventGroupHandle_t chassis_event_group;
 extern EventGroupHandle_t launcher_event_group;
 #define SPEED_LPF 0
 
-extern motor_data_t g_can_motors[24];
-
 motor_map_t lk_motor_map[65];
 motor_map_t dji_motor_map[25];
 //where is this number from lmao
 motor_map_t dm_motor_map[15];
+
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
+extern motor_data_t yaw_motor;
 
 extern motor_data_t chassis_wheel[4];
 extern motor_data_t flywheel_motor[4];
@@ -69,7 +69,20 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 						&chassis_wheel[RxHeader.StdId - CAN_3508_ALL_ID],
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
+			break;
+		case CAN_3508_ALL_ID + 7:
+			if (YAW_MOTOR_CAN_PTR == &hcan2) {
+				convert_raw_can_data(&yaw_motor,
+						RxHeader.StdId, (uint8_t*) RxData);
+			}
+			break;
 		}
+
+
+//		case PITCH_MOTOR_ID:
+//			if(PITCH_MOTOR_CAN_PTR) {
+//
+//			}
 	}
 // launcher motors (flywheels + feeder)
 // currently launchers and chassis use the same CAN. works since one is for dev C in
@@ -89,8 +102,13 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 //						(uint8_t*) RxData);
 //			}
 	if (hcan->Instance == CAN1) {
+
 		switch (RxHeader.StdId) {
-			// gimbal stuff here
+		// gimbal stuff here
+		case 0x91: //todo: replace with normal pitch code when switched to DJI mode
+
+			dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
+//				break;
 		}
 	}
 

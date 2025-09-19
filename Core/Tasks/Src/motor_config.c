@@ -31,9 +31,6 @@ extern gimbal_control_t gimbal_ctrl_data;
 
 extern QueueHandle_t g_buzzing_task_msg;
 
-motor_data_t g_can_motors[24];
-
-motor_data_t g_pitch_motor;
 dm_motor_t dm_pitch_motor;
 dm_motor_t dm_yaw_motor;
 
@@ -291,80 +288,79 @@ void dm_set_yaw_motor() {
 #endif
 }
 
-extern motor_data_t g_can_motors[24];
 void config_motors() {
-	for (uint8_t i = 0; i < 24; i++) {
-		//reset all the values to 0
-		g_can_motors[i].motor_type = 0;
-		g_can_motors[i].rpm_pid.output = 0;
-		g_can_motors[i].rpm_pid.integral = 0;
-		g_can_motors[i].angle_pid.output = 0;
-		g_can_motors[i].angle_pid.integral = 0;
-		g_can_motors[i].angle_data.ticks = 0;
-	}
-
-	//initialise motor data
-	uint8_t motor_id;
-
-#if defined(PITCH_MOTOR_ID) && PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
-	g_pitch_motor.motor_type = PITCH_MOTOR_TYPE;
-	g_pitch_motor.id = PITCH_MOTOR_ID;
-	g_pitch_motor.angle_data.center_ang = PITCH_CENTER;
-	g_pitch_motor.angle_data.wheel_circ = 0;
-	g_pitch_motor.angle_pid.kp = PITCH_ANGLE_KP;
-	g_pitch_motor.angle_pid.ki = PITCH_ANGLE_KI;
-	g_pitch_motor.angle_pid.kd = PITCH_ANGLE_KD;
-	g_pitch_motor.angle_pid.int_max = PITCH_ANGLE_INT_MAX;
-	g_pitch_motor.angle_pid.max_out = PITCH_MAX_RPM;
-	g_pitch_motor.rpm_pid.kp = PITCHRPM_KP;
-	g_pitch_motor.rpm_pid.ki = PITCHRPM_KI;
-	g_pitch_motor.rpm_pid.kd = PITCHRPM_KD;
-	g_pitch_motor.rpm_pid.int_max = PITCHRPM_INT_MAX;
-	g_pitch_motor.rpm_pid.max_out = PITCH_MAX_CURRENT;
-	g_pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
-	g_pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
-	g_pitch_motor.can = PITCH_MOTOR_CAN_PTR;
-	set_motor_config(&g_pitch_motor);
-#else
-	dm_set_motor_config();
-#endif
-
-#if defined(YAW_MOTOR_ID) && (YAW_MOTOR_TYPE != TYPE_DM4310_MIT)
-	motor_id = YAW_MOTOR_ID - 1;
-	g_can_motors[motor_id].id = YAW_MOTOR_ID;
-	g_can_motors[motor_id].can = YAW_MOTOR_CAN_PTR;
-	g_can_motors[motor_id].angle_data.center_ang = YAW_CENTER;
-	g_can_motors[motor_id].angle_data.phy_max_ang = YAW_MAX_ANG;
-	g_can_motors[motor_id].angle_data.phy_min_ang = YAW_MIN_ANG; //angle before it overflows
-	g_can_motors[motor_id].angle_data.wheel_circ = 0;
-	g_can_motors[motor_id].angle_pid.kp = YAW_ANGLE_KP;
-	g_can_motors[motor_id].angle_pid.ki = YAW_ANGLE_KI;
-	g_can_motors[motor_id].angle_pid.kd = YAW_ANGLE_KD;
-	g_can_motors[motor_id].angle_pid.int_max = YAW_ANGLE_INT_MAX;
-	g_can_motors[motor_id].angle_pid.max_out = YAW_MAX_RPM;
-	g_can_motors[motor_id].rpm_pid.kp = YAWRPM_KP;
-	g_can_motors[motor_id].rpm_pid.ki = YAWRPM_KI;
-	g_can_motors[motor_id].rpm_pid.kd = YAWRPM_KD;
-	g_can_motors[motor_id].rpm_pid.int_max = YAWRPM_INT_MAX;
-	g_can_motors[motor_id].rpm_pid.max_out = YAW_MAX_CURRENT;
-	//need to change below for dm
-
-#ifndef YAW_M3508
-	g_can_motors[motor_id].motor_type = TYPE_GM6020;
-#else
-	g_can_motors[motor_id].motor_type = TYPE_M3508_ANGLE;
-#endif
-
-	set_motor_config(&g_can_motors[motor_id]);
-
-#ifdef YAW_BELT
-	g_can_motors[motor_id].angle_data.gearbox_ratio = g_can_motors[motor_id].angle_data.gearbox_ratio * YAW_BELT_GEAR_RATIO;
-	g_can_motors[motor_id].angle_data.min_ticks = -4096 * g_can_motors[motor_id].angle_data.gearbox_ratio;
-	g_can_motors[motor_id].angle_data.max_ticks = 4096 * g_can_motors[motor_id].angle_data.gearbox_ratio;
-	g_can_motors[motor_id].angle_data.tick_range = g_can_motors[motor_id].angle_data.max_ticks
-			- g_can_motors[motor_id].angle_data.min_ticks;
-#endif
-#else
-	dm_set_motor_config();
-#endif
+//	for (uint8_t i = 0; i < 24; i++) {
+//		//reset all the values to 0
+//		g_can_motors[i].motor_type = 0;
+//		g_can_motors[i].rpm_pid.output = 0;
+//		g_can_motors[i].rpm_pid.integral = 0;
+//		g_can_motors[i].angle_pid.output = 0;
+//		g_can_motors[i].angle_pid.integral = 0;
+//		g_can_motors[i].angle_data.ticks = 0;
+//	}
+//
+//	//initialise motor data
+//	uint8_t motor_id;
+//
+//#if defined(PITCH_MOTOR_ID) && PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
+//	g_pitch_motor.motor_type = PITCH_MOTOR_TYPE;
+//	g_pitch_motor.id = PITCH_MOTOR_ID;
+//	g_pitch_motor.angle_data.center_ang = PITCH_CENTER;
+//	g_pitch_motor.angle_data.wheel_circ = 0;
+//	g_pitch_motor.angle_pid.kp = PITCH_ANGLE_KP;
+//	g_pitch_motor.angle_pid.ki = PITCH_ANGLE_KI;
+//	g_pitch_motor.angle_pid.kd = PITCH_ANGLE_KD;
+//	g_pitch_motor.angle_pid.int_max = PITCH_ANGLE_INT_MAX;
+//	g_pitch_motor.angle_pid.max_out = PITCH_MAX_RPM;
+//	g_pitch_motor.rpm_pid.kp = PITCHRPM_KP;
+//	g_pitch_motor.rpm_pid.ki = PITCHRPM_KI;
+//	g_pitch_motor.rpm_pid.kd = PITCHRPM_KD;
+//	g_pitch_motor.rpm_pid.int_max = PITCHRPM_INT_MAX;
+//	g_pitch_motor.rpm_pid.max_out = PITCH_MAX_CURRENT;
+//	g_pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
+//	g_pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
+//	g_pitch_motor.can = PITCH_MOTOR_CAN_PTR;
+//	set_motor_config(&g_pitch_motor);
+//#else
+//	dm_set_motor_config();
+//#endif
+//
+//#if defined(YAW_MOTOR_ID) && (YAW_MOTOR_TYPE != TYPE_DM4310_MIT)
+//	motor_id = YAW_MOTOR_ID - 1;
+//	g_can_motors[motor_id].id = YAW_MOTOR_ID;
+//	g_can_motors[motor_id].can = YAW_MOTOR_CAN_PTR;
+//	g_can_motors[motor_id].angle_data.center_ang = YAW_CENTER;
+//	g_can_motors[motor_id].angle_data.phy_max_ang = YAW_MAX_ANG;
+//	g_can_motors[motor_id].angle_data.phy_min_ang = YAW_MIN_ANG; //angle before it overflows
+//	g_can_motors[motor_id].angle_data.wheel_circ = 0;
+//	g_can_motors[motor_id].angle_pid.kp = YAW_ANGLE_KP;
+//	g_can_motors[motor_id].angle_pid.ki = YAW_ANGLE_KI;
+//	g_can_motors[motor_id].angle_pid.kd = YAW_ANGLE_KD;
+//	g_can_motors[motor_id].angle_pid.int_max = YAW_ANGLE_INT_MAX;
+//	g_can_motors[motor_id].angle_pid.max_out = YAW_MAX_RPM;
+//	g_can_motors[motor_id].rpm_pid.kp = YAWRPM_KP;
+//	g_can_motors[motor_id].rpm_pid.ki = YAWRPM_KI;
+//	g_can_motors[motor_id].rpm_pid.kd = YAWRPM_KD;
+//	g_can_motors[motor_id].rpm_pid.int_max = YAWRPM_INT_MAX;
+//	g_can_motors[motor_id].rpm_pid.max_out = YAW_MAX_CURRENT;
+//	//need to change below for dm
+//
+//#ifndef YAW_M3508
+//	g_can_motors[motor_id].motor_type = TYPE_GM6020;
+//#else
+//	g_can_motors[motor_id].motor_type = TYPE_M3508_ANGLE;
+//#endif
+//
+//	set_motor_config(&g_can_motors[motor_id]);
+//
+//#ifdef YAW_BELT
+//	g_can_motors[motor_id].angle_data.gearbox_ratio = g_can_motors[motor_id].angle_data.gearbox_ratio * YAW_BELT_GEAR_RATIO;
+//	g_can_motors[motor_id].angle_data.min_ticks = -4096 * g_can_motors[motor_id].angle_data.gearbox_ratio;
+//	g_can_motors[motor_id].angle_data.max_ticks = 4096 * g_can_motors[motor_id].angle_data.gearbox_ratio;
+//	g_can_motors[motor_id].angle_data.tick_range = g_can_motors[motor_id].angle_data.max_ticks
+//			- g_can_motors[motor_id].angle_data.min_ticks;
+//#endif
+//#else
+//	dm_set_motor_config();
+//#endif
 }
