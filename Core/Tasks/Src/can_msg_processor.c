@@ -59,7 +59,7 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 
 		switch (RxHeader.StdId) {
 
-		// chassis wheels
+//		 chassis wheels
 		case CAN_3508_ALL_ID:
 		case CAN_3508_ALL_ID + 1:
 		case CAN_3508_ALL_ID + 2:
@@ -70,19 +70,37 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
 			break;
+
+//		 yaw motor
 		case CAN_3508_ALL_ID + 7:
 			if (YAW_MOTOR_CAN_PTR == &hcan2) {
 				convert_raw_can_data(&yaw_motor,
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
 			break;
-		}
 
-
+		// pitch motor
 //		case PITCH_MOTOR_ID:
 //			if(PITCH_MOTOR_CAN_PTR) {
 //
 //			}
+
+		// launcher motors
+//		case CAN_3508_ALL_ID:
+//		case CAN_3508_ALL_ID + 1:
+//			if (LAUNCHER_MOTOR_CAN == &hcan2) {
+//				convert_raw_can_data(
+//						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID],
+//						RxHeader.StdId, (uint8_t*) RxData);
+//			}
+//			break;
+//		case CAN_3508_ALL_ID + 4:
+//			if (LAUNCHER_MOTOR_CAN == &hcan2) {
+//				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
+//						(uint8_t*) RxData);
+//			}
+//			break;
+		}
 	}
 // launcher motors (flywheels + feeder)
 // currently launchers and chassis use the same CAN. works since one is for dev C in
