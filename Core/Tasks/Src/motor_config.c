@@ -47,21 +47,21 @@ void motor_calib_task(void *argument) {
 	//xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
 	//		(UBaseType_t) 8, &motor_control_task_handle);
 
-	if (chassis_event_group == NULL) {
-		//error handler
-	} else {
-		xTaskCreate(movement_control_task, "chassis_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-				&movement_control_task_handle);
-	}
-
-//	if (launcher_event_group == NULL) {
+//	if (chassis_event_group == NULL) {
 //		//error handler
 //	} else {
-//		xTaskCreate(launcher_control_task, "launcher_task",
+//		xTaskCreate(movement_control_task, "chassis_task",
 //		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-//				&launcher_control_task_handle);
+//				&movement_control_task_handle);
 //	}
+
+	if (launcher_event_group == NULL) {
+		//error handler
+	} else {
+		xTaskCreate(launcher_control_task, "launcher_task",
+		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+				&launcher_control_task_handle);
+	}
 
 	if (gimbal_event_group == NULL) {
 		//error handler implement next time!
