@@ -106,7 +106,7 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 
 
 //		yaw motor
-//		case CAN_3508_ALL_ID + 7:
+//		case CAN_6020_ALL_ID + 3:
 //			if (YAW_MOTOR_CAN_PTR == &hcan2) {
 //				convert_raw_can_data(&yaw_motor,
 //						RxHeader.StdId, (uint8_t*) RxData);
