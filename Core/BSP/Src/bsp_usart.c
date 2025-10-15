@@ -14,7 +14,13 @@
 static queue_t *xvr_UART_queue;
 static queue_t *ref_UART_queue;
 extern TaskHandle_t referee_processing_task_handle;
-// todo: replace this with HAL_UARTEx_ReceiveToIdle_DMA??
+
+static uint16_t ref_rx_size;
+extern uint8_t ref_buffer[2];
+extern queue_t referee_uart_q;
+
+// Handles UART communication with mini-PC
+
 void init_xvr_usart(uint8_t *pData){
 	xvr_usart_start(&SBC_UART, pData, 15, NULL);
 }
@@ -89,95 +95,47 @@ HAL_StatusTypeDef xvr_usart_start(UART_HandleTypeDef *huart,uint8_t *pData, uint
 	}
 }
 
-
-HAL_StatusTypeDef ref_usart_send(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t Size){
-	return HAL_UART_Transmit_DMA(huart, pData, Size);
-}
-
-HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t Size,queue_t *uart_queue)
+HAL_StatusTypeDef referee_usart_init(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t Size,queue_t *uart_queue)
 {
-	//queue to be stored in the original caller function
-	ref_UART_queue = uart_queue;
-	queue_init(ref_UART_queue);
-	uint32_t *tmp;
+    if (pData == NULL || Size == 0 || uart_queue == NULL) {
+        return HAL_ERROR;
+    }
 
-	/* Check that a Rx process is not already ongoing */
-	if (huart->RxState == HAL_UART_STATE_READY) {
-		if ((pData == NULL) || (Size == 0U))
-		{
-			return HAL_ERROR;
-		}
+    // store the queue globally so the ISR can access it
+    ref_UART_queue = uart_queue;
+    queue_init(ref_UART_queue);
+    ref_rx_size = Size;
 
-		/* Process Locked */
-		__HAL_LOCK(huart);
+    // start DMA reception with IDLE detection
+    if (HAL_UARTEx_ReceiveToIdle_DMA(huart, pData, Size) != HAL_OK) {
+        return HAL_ERROR;
+    }
 
-		huart->pRxBuffPtr = pData;
-		huart->RxXferSize = Size;
+    // optionally disable half-transfer interrupt to simplify
+    __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
 
-		huart->ErrorCode = HAL_UART_ERROR_NONE;
-		huart->RxState = HAL_UART_STATE_BUSY_RX;
-
-		/* Set the UART DMA transfer complete callback */
-		huart->hdmarx->XferCpltCallback 	= ref_full_cplt_isr;
-		huart->hdmarx->XferHalfCpltCallback = ref_half_cplt_isr;
-
-
-		/* Set the DMA abort callback */
-		huart->hdmarx->XferAbortCallback = NULL;
-
-		/* Enable the DMA stream */
-		tmp = (uint32_t *)&pData;
-		HAL_DMA_Start_IT(huart->hdmarx, (uint32_t)&huart->Instance->DR, *(uint32_t *)tmp, Size);
-
-		/* Clear the Overrun flag just before enabling the DMA Rx request: can be mandatory for the second transfer */
-		__HAL_UART_CLEAR_OREFLAG(huart);
-
-		/* Process Unlocked */
-		__HAL_UNLOCK(huart);
-
-		/* Enable the UART Parity Error Interrupt */
-		SET_BIT(huart->Instance->CR1, USART_CR1_PEIE);
-
-		/* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-		SET_BIT(huart->Instance->CR3, USART_CR3_EIE);
-
-		/* Enable the DMA transfer for the receiver request by setting the DMAR bit
-	    in the UART CR3 register */
-		SET_BIT(huart->Instance->CR3, USART_CR3_DMAR);
-
-		return HAL_OK;
-	} else {
-		return HAL_BUSY;
-	}
+    return HAL_OK;
 }
 
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+    if (huart->Instance == REFEREE_UART.Instance) {
+        // huart->pRxBuffPtr points to the buffer used in referee_usart_init()
+        uint8_t *buf = huart->pRxBuffPtr;
 
-void ref_half_cplt_isr(DMA_HandleTypeDef *hdma){
-	//check which buffer is in use
-//	if (hdma->Instance->CR &= DMA_SxCR_CT == 0){
-		queue_append_byte(ref_UART_queue, *(uint8_t*)hdma->Instance->M0AR);
+        // push received bytes into queue
+        for (uint16_t i = 0; i < Size; i++)
+        {
+            queue_append_byte(ref_UART_queue, buf[i]);
+        }
 
-		BaseType_t xHigherPriorityTaskWoken;
-		xHigherPriorityTaskWoken = pdFALSE;
-		vTaskNotifyGiveFromISR(referee_processing_task_handle, &xHigherPriorityTaskWoken);
-		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-//	} else {
-//		queue_append_byte(ref_UART_queue, *(uint8_t*)hdma->Instance->M1AR);
-//	}
-};
+        // notify FreeRTOS task
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        vTaskNotifyGiveFromISR(referee_processing_task_handle, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
-void ref_full_cplt_isr(DMA_HandleTypeDef *hdma){
-	//check which buffer is in use
-//	if (hdma->Instance->CR &= DMA_SxCR_CT == 0){
-		queue_append_byte(ref_UART_queue, *((uint8_t*)hdma->Instance->M0AR+1));
-
-		BaseType_t xHigherPriorityTaskWoken;
-		xHigherPriorityTaskWoken = pdFALSE;
-		vTaskNotifyGiveFromISR(referee_processing_task_handle, &xHigherPriorityTaskWoken);
-		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-//	} else {
-//		queue_append_byte(ref_UART_queue, *((uint8_t*)hdma->Instance->M1AR+1));
-//	}
+        // restart DMA reception on the same buffer
+        HAL_UARTEx_ReceiveToIdle_DMA(huart, buf, ref_rx_size);
+    }
 }
-
 

@@ -57,7 +57,7 @@ void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart){
 		dbus_remote_start();
 	} else if (huart == &REFEREE_UART){
 	    __HAL_DMA_DISABLE(&hdma_usart6_rx);
-		ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
+		referee_usart_init(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
 	}
 }
 
@@ -70,7 +70,7 @@ void referee_processing_task(void *argument) {
 	status_led(7, on_led);
 	status_led(8, off_led);
 	ref_robot_data.robot_id = 0;
-	ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
+	referee_usart_init(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
 	while (1) {
 
 		uint8_t has_data = ulTaskNotifyTake(pdTRUE, 1000);
@@ -141,7 +141,7 @@ void referee_processing_task(void *argument) {
 		}
 		if (!has_data){
 		    __HAL_DMA_DISABLE(&hdma_usart6_rx);
-			ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
+			referee_usart_init(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
 
 		}
 

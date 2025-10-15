@@ -31,9 +31,8 @@ void xvr_half_cplt_isr(DMA_HandleTypeDef *hdma);
 void xvr_full_cplt_isr(DMA_HandleTypeDef *hdma);
 
 
-HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t Size,queue_t *uart_queue);
-void ref_half_cplt_isr(DMA_HandleTypeDef *hdma);
-void ref_full_cplt_isr(DMA_HandleTypeDef *hdma);
+HAL_StatusTypeDef referee_usart_init(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t Size,queue_t *uart_queue);
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
 
 
 
