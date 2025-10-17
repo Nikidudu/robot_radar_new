@@ -329,6 +329,7 @@
 #endif
 
 #define LEAD_SCREW
+#define TOP_MCU
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
