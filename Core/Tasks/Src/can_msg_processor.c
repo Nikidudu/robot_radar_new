@@ -85,16 +85,19 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID],
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
-		case CAN_3508_ALL_ID + 4:
-			if (LAUNCHER_MOTOR_CAN == &hcan2) {
-				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
-						(uint8_t*) RxData);
-			}
+			break;
 		}
 	}
 	if (hcan->Instance == CAN1) {
 
 		switch (RxHeader.StdId) {
+
+		case CAN_3508_ALL_ID + 4:
+			if (FEEDER_MOTOR_CAN == &hcan1) {
+				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
+						(uint8_t*) RxData);
+			}
+			break;
 
 		// pitch motor
 		case 0x91: //todo: replace with normal pitch code when switched to DJI mode

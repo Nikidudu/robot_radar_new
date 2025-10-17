@@ -120,8 +120,8 @@
 
 #define FEEDER_JAM_TORQUE  		9800			// Before feeder deemed to be jammed
 #define FEEDER_JAM_RPM			100				// if feeeder is below this rpm, it is jammed
-#define FEEDER_UNJAM_SPD  		-500			// Reverse unjam
-#define FEEDER_UNJAM_TIME		50
+#define FEEDER_UNJAM_SPD  		20			// Reverse unjam
+#define FEEDER_UNJAM_TIME		5000000
 #define FEEDER_MAX_CURRENT		10000
 #define FEEDER_INVERT			-1
 
@@ -453,6 +453,7 @@
 #endif
 
 #define LAUNCHER_MOTOR_CAN	&hcan2
+#define FEEDER_MOTOR_CAN	&hcan1
 #define LFRICTION_MOTOR_ID	0
 #define RFRICTION_MOTOR_ID	1
 #define BFRICTION_MOTOR_ID	2

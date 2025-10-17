@@ -248,7 +248,7 @@ void send_launcher_current_to_motor() {
 		CAN_send_data[6] = 0;
 		CAN_send_data[7] = 0;
 	}
-	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
+	HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 			send_mail_box);
 }
 
@@ -412,7 +412,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 	int16_t feeder_speed = launcher_ctrl_data.firing
 			* FEEDER_SPEED * FEEDER_INVERT
 			/ FEEDER_SPEED_RATIO;
-	int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = 0;//PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
 
 	int16_t rpm_diff = abs(l_flywheel->raw_data.rpm + r_flywheel->raw_data.rpm);
 	int16_t avg_rpm = abs(l_flywheel->raw_data.rpm - r_flywheel->raw_data.rpm)
@@ -439,7 +439,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 		//check for feeder jam first, prioritise unjamming
 		if ((feeder->raw_data.torque)
 				> (FEEDER_JAM_TORQUE * FEEDER_INVERT) && (abs(feeder->raw_data.rpm) < FEEDER_JAM_RPM)) {
-			jam_start_time = HAL_GetTick();
+			jam_start_time = get_microseconds();
 			feeder->rpm_pid.integral = 0;
 			feeder_state = FEEDER_JAM;
 			break;
@@ -467,15 +467,15 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 
 	case FEEDER_JAM:
 		//check if either after unjam time
-		if ((HAL_GetTick() - jam_start_time) > FEEDER_UNJAM_TIME) {
+		if ((get_microseconds() - jam_start_time) > FEEDER_UNJAM_TIME) {
 			feeder_state = FEEDER_SPINUP;
 		}
 
-		if ((feeder->raw_data.torque * FEEDER_INVERT)
-				< -(FEEDER_JAM_TORQUE * FEEDER_INVERT)) {
-			feeder_state = FEEDER_SPINUP;
-		}
-		break;
+//		if ((feeder->raw_data.torque * FEEDER_INVERT)
+//				< -(FEEDER_JAM_TORQUE * FEEDER_INVERT)) {
+//			feeder_state = FEEDER_SPINUP;
+//		}
+//		break;
 
 	case FEEDER_OVERHEAT:
 		if (check_overheat() > OVERHEAT_EXCESS) {
