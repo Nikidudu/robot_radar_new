@@ -16,7 +16,7 @@
 #define CHASSIS_DATA_2 0x101
 
 // CAN transmission period
-#define CAN_TX_PERIOD_MS 20  // Send every 20ms
+#define CAN_TX_PERIOD_MS 10
 
 //Global Variables
 extern chassis_control_t chassis_ctrl_data;
@@ -72,7 +72,6 @@ void chassis_can_message_task(void *argument) {
             vTaskDelay(1);
         }
 
-        HAL_GPIO_WritePin(BLUE_LED_TIM_GPIO_Port, BLUE_LED_TIM_Pin, 1);
         if(HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_buffer, &tx_mailbox) != HAL_OK) {
             Error_Handler();
         }
