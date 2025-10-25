@@ -35,7 +35,6 @@ motor_data_t chassis_wheel[4];
 extern chassis_control_t chassis_ctrl_data;
 extern uint8_t g_safety_toggle;
 extern remote_cmd_t g_remote_cmd;
-extern int g_spinspin_mode;
 // yaw motor data
 extern motor_data_t yaw_motor;
 // referee system data
@@ -43,8 +42,6 @@ extern ref_game_robot_data_t ref_robot_data;
 extern uint32_t ref_power_data_txno;
 // supercap data
 extern uint8_t charging_state;
-extern int supercap_dash;
-extern int supercap_enabled;
 
 /* Private function prototypes -----------------------------------------------*/
 void chassis_init();
@@ -191,7 +188,7 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 	float spin_limit = lvl_max_spin;
 
 	// Increase speed when spinspin mode is deactivated
-	if (g_spinspin_mode == 0) {
+	if (chassis_ctrl_data.g_spinspin_mode == 0) {
 		speed_limit += CHASSIS_SPEED_BOOST;
 	}
 
@@ -268,7 +265,7 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel,
 	//	prev_robot_level = ref_robot_data.robot_level;
 	uint8_t curr_level = ref_robot_data.robot_level;
 
-	if (supercap_dash && supercap_enabled) {
+	if (chassis_ctrl_data.supercap_dash && chassis_ctrl_data.supercap_enabled) {
 		curr_level += 10;
 	}
 

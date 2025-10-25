@@ -14,7 +14,6 @@
 #include "robot_config.h"
 #include "rtos_g_vars.h"
 
-extern int g_spinspin_mode;
 extern uint8_t remote_raw_data[18];
 extern TaskHandle_t referee_processing_task_handle;
 extern DMA_HandleTypeDef hdma_usart6_rx;

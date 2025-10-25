@@ -21,9 +21,7 @@ extern gimbal_control_t gimbal_ctrl_data;
 extern uint8_t g_safety_toggle;
 extern uint8_t launcher_safety_toggle;
 
-extern int g_spinspin_mode;
 static float curr_spinspin = 0;
-extern int supercap_dash;
 extern int aimbot_mode;
 
 uint32_t supercap_timer = 0;
@@ -56,9 +54,9 @@ void keyboard_chassis_input() {
 
 #ifdef CHASSIS_CAN_SPINSPIN
 			if (g_remote_cmd.keyboard_keys & KEY_OFFSET_Q) {
-				g_spinspin_mode = 1;
+				chassis_ctrl_data.g_spinspin_mode = 1;
 			} else if (g_remote_cmd.keyboard_keys & KEY_OFFSET_E) {
-				g_spinspin_mode = 0;
+				chassis_ctrl_data.g_spinspin_mode = 0;
 			}
 #endif
 
@@ -77,7 +75,7 @@ void keyboard_chassis_input() {
 			}
 			if (g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT) {
 			    if (shift_prev_state == 0 && HAL_GetTick() - shift_last_change_time > debounce_time) {
-			        supercap_dash ^= 1;  // toggle 0 ↔ 1
+			        chassis_ctrl_data.supercap_dash ^= 1;  // toggle 0 ↔ 1
 			        shift_prev_state = 1;
 			        shift_last_change_time = HAL_GetTick();
 			    }
@@ -91,8 +89,8 @@ void keyboard_chassis_input() {
 				aimbot_mode = 0;
 			}
 
-			if (g_spinspin_mode) {
-				yaw_input = g_spinspin_mode * CHASSIS_SPINSPIN_MAX;
+			if (chassis_ctrl_data.g_spinspin_mode) {
+				yaw_input = chassis_ctrl_data.g_spinspin_mode * CHASSIS_SPINSPIN_MAX;
 			} else {
 				//center yaw motor such that yaw motor = 0
 				yaw_input = chassis_center_yaw();

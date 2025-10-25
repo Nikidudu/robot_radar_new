@@ -14,10 +14,11 @@
 #include "motor_control_task.h"
 #include "can_msg_processor.h"
 #include "bsp_lk_motor.h"
+#include "chassis_can_message_task.h"
 
 extern TaskHandle_t master_task_handle;
 extern TaskHandle_t gimbal_control_task_handle;
-extern TaskHandle_t movement_control_task_handle;
+extern TaskHandle_t chassis_can_message_task_handle;
 extern TaskHandle_t launcher_control_task_handle;
 extern TaskHandle_t motor_calib_task_handle;
 extern TaskHandle_t telemetry_task_handle;
@@ -47,13 +48,14 @@ void motor_calib_task(void *argument) {
 	//xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
 	//		(UBaseType_t) 8, &motor_control_task_handle);
 
-//	if (chassis_event_group == NULL) {
-//		//error handler
-//	} else {
-//		xTaskCreate(movement_control_task, "chassis_task",
-//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-//				&movement_control_task_handle);
-//	}
+	if (chassis_event_group == NULL) {
+		//error handler
+	} else {
+		xTaskCreate(chassis_can_message_task, "chassis_task",
+		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+				&chassis_can_message_task_handle);
+	}
+
 
 	if (launcher_event_group == NULL) {
 		//error handler

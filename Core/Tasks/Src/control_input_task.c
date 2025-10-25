@@ -34,8 +34,6 @@ chassis_control_t chassis_ctrl_data;
 gun_control_t launcher_ctrl_data;
 gimbal_control_t gimbal_ctrl_data;
 pid_data_t yaw_pid_data;
-int g_spinspin_mode = 0;
-int supercap_dash = 0;
 int aimbot_mode = 0;
 extern int supercap_enabled;
 
@@ -163,7 +161,7 @@ void chassis_centering_config() {
 
 	uint8_t curr_level = ref_robot_data.robot_level;
 
-	if (supercap_dash && supercap_enabled) {
+	if (chassis_ctrl_data.supercap_dash && chassis_ctrl_data.supercap_enabled) {
 		curr_level += 4;
 	}
 	switch (curr_level) {
@@ -306,13 +304,15 @@ void control_reset() {
 	chassis_ctrl_data.horizontal = 0;
 	chassis_ctrl_data.yaw = 0;
 	chassis_ctrl_data.enabled = 0;
+	chassis_ctrl_data.g_spinspin_mode = 0;
+	chassis_ctrl_data.supercap_dash = 0;
+	chassis_ctrl_data.supercap_enabled = 0;
 	gimbal_ctrl_data.pitch = 0;
 	gimbal_ctrl_data.yaw = imu_heading.yaw;
 	gimbal_ctrl_data.enabled = 0;
 	launcher_ctrl_data.firing = 0;
 	launcher_ctrl_data.projectile_speed = 0;
 	launcher_ctrl_data.enabled = 0;
-	g_spinspin_mode = 0;
 	aimbot_mode = 0;
 }
 

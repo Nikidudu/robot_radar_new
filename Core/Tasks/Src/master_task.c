@@ -28,7 +28,7 @@
 
 extern TaskHandle_t master_task_handle;
 TaskHandle_t gimbal_control_task_handle;
-TaskHandle_t movement_control_task_handle;
+TaskHandle_t chassis_can_message_task_handle;
 TaskHandle_t referee_processing_task_handle;
 TaskHandle_t control_input_task_handle;
 TaskHandle_t launcher_control_task_handle;

@@ -22,13 +22,12 @@
 static uint16_t g_client_id = 0;
 extern ref_game_robot_data_t ref_robot_data;
 extern uint8_t g_ref_tx_seq;
+extern chassis_control_t chassis_ctrl_data;
 
 extern motor_data_t yaw_motor;
 
-extern int g_spinspin_mode;
 int prev_spinspin = 0;
 
-extern int supercap_dash;
 int prev_supercap_dash = 0;
 
 extern int aimbot_mode;
@@ -252,8 +251,8 @@ void draw_char(uint8_t modify) {
 	// Draw if adding (initializing), check for change if modifying
 	if (modify) {
 #ifdef SPINSPIN
-		if (prev_spinspin != g_spinspin_mode) {
-			prev_spinspin = g_spinspin_mode;
+		if (prev_spinspin != chassis_ctrl_data.g_spinspin_mode) {
+			prev_spinspin = chassis_ctrl_data.g_spinspin_mode;
 			draw_spin_char(modify, spin_coords);
 		}
 #endif
@@ -264,14 +263,14 @@ void draw_char(uint8_t modify) {
 		}
 #endif
 #ifdef SUPERCAP
-		if (prev_supercap_dash != supercap_dash) {
-			prev_supercap_dash = supercap_dash;
+		if (prev_supercap_dash != chassis_ctrl_data.supercap_dash) {
+			prev_supercap_dash = chassis_ctrl_data.supercap_dash;
 			draw_aimbot(modify, supercap_coords);
 		}
 #endif
 	} else {
 #ifdef SPINSPIN
-		prev_spinspin = g_spinspin_mode;
+		prev_spinspin = chassis_ctrl_data.g_spinspin_mode;
 		draw_spin_char(modify, spin_coords);
 #endif
 #ifdef AIMBOT
@@ -279,7 +278,7 @@ void draw_char(uint8_t modify) {
 		draw_aimbot(modify, aimbot_coords);
 #endif
 #ifdef SUPERCAP
-		prev_supercap_dash = supercap_dash;
+		prev_supercap_dash = chassis_ctrl_data.supercap_dash;
 		draw_aimbot(modify, supercap_coords);
 #endif
 	}
@@ -382,7 +381,7 @@ void draw_spin_char(uint8_t modify, uint32_t x_coords) {
 	uint32_t curr_pos = 0;
 	uint8_t char_len = 0;
 	char char_buffer[30];
-	char_len = g_spinspin_mode ?
+	char_len = chassis_ctrl_data.g_spinspin_mode ?
 			snprintf((char*) char_buffer, 30, "ON") :
 			snprintf((char*) char_buffer, 30, "OFF");
 
@@ -390,7 +389,7 @@ void draw_spin_char(uint8_t modify, uint32_t x_coords) {
 
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
 
-	graphic_data->color = g_spinspin_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = chassis_ctrl_data.g_spinspin_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 	graphic_data->graphic_name[0] = 'C';
 	graphic_data->graphic_name[1] = 'H';
 	graphic_data->graphic_name[2] = 'A';
@@ -416,7 +415,7 @@ void draw_spin_char(uint8_t modify, uint32_t x_coords) {
 
 uint16_t draw_spin_border(uint8_t* tx_buffer, uint8_t modify, uint32_t x_coords) {
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
-	graphic_data->color = g_spinspin_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = chassis_ctrl_data.g_spinspin_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'B';
 	graphic_data->graphic_name[1] = 'O';
@@ -485,12 +484,12 @@ void draw_supercap_status(uint8_t modify, uint32_t x_coords) {
 	char char_buffer[30];
 	graphic_data_struct_t* graphic_data;
 #ifdef SUPERCAP
-	char_len = supercap_dash ?
+	char_len = chassis_ctrl_data.supercap_dash ?
 			snprintf((char*) char_buffer, 30, "CAP ON") :
 			snprintf((char*) char_buffer, 30, "CAP OFF");
 	curr_pos = draw_char_header(tx_buffer, char_len);
 	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
-	graphic_data->color = supercap_dash ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = chassis_ctrl_data.supercap_dash ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 
 #endif
 

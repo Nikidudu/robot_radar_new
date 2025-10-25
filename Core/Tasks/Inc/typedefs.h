@@ -247,6 +247,9 @@ typedef struct
 	float max_rad_accel;
 	uint8_t enabled;
 	uint8_t gimbal_rdy;
+	uint8_t g_spinspin_mode;
+	uint8_t supercap_dash;
+	uint8_t supercap_enabled;
 }chassis_control_t;
 
 typedef struct
