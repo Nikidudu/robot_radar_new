@@ -79,13 +79,13 @@ void keyboard_chassis_input() {
 	static uint8_t shift_prev_state = 0;
 	static uint32_t shift_last_change_time = 0;
 	const uint32_t debounce_time = 100;  // debounce threshold in ms
-	if (g_safety_toggle || g_remote_cmd.right_switch != ge_RSW_ALL_ON) {
+	if (g_safety_toggle || g_remote_cmd.sw != SW_ALL_ON) {
 		chassis_ctrl_data.enabled = 0;
 		chassis_ctrl_data.horizontal = 0;
 		chassis_ctrl_data.forward = 0;
 		chassis_ctrl_data.yaw = 0;
 	} else {
-		if (g_remote_cmd.right_switch == ge_RSW_ALL_ON) {
+		if (g_remote_cmd.sw == SW_ALL_ON) {
 			chassis_ctrl_data.enabled = 1;
 			float horizontal_input = 0.0;
 			float forward_input = 0.0;
@@ -141,7 +141,7 @@ void keyboard_chassis_input() {
 }
 
 void mouse_gimbal_input() {
-	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN) {
 		gimbal_ctrl_data.enabled = 0;
 	} else {
 		gimbal_ctrl_data.enabled = 1;
@@ -163,20 +163,20 @@ void mouse_gimbal_input() {
 
 void mouse_launcher_control_input() {
 	if (g_safety_toggle || launcher_safety_toggle
-			|| g_remote_cmd.right_switch == ge_RSW_SHUTDOWN
-			|| g_remote_cmd.left_switch != ge_LSW_UNSAFE) {
-		if (g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+			|| g_remote_cmd.sw == SW_SHUTDOWN
+			|| g_remote_cmd.trigger == BUTTON_NOT_PRESSED) {
+		if (g_remote_cmd.sw == SW_SHUTDOWN) {
 			launcher_ctrl_data.enabled = 0;
 		}
 		launcher_ctrl_data.firing = 0;
 		launcher_ctrl_data.projectile_speed = 0;
-		if (g_remote_cmd.left_switch != ge_LSW_UNSAFE) {
+		if (g_remote_cmd.trigger == BUTTON_NOT_PRESSED) {
 			launcher_safety_toggle = 0;
 		}
 	} else {
 		launcher_ctrl_data.enabled = 1;
 		launcher_ctrl_data.projectile_speed = 1;
-		if (g_remote_cmd.left_switch == ge_LSW_UNSAFE) {
+		if (g_remote_cmd.trigger == BUTTON_PRESSED) {
 			if (g_remote_cmd.mouse_right) {
 				launcher_ctrl_data.override = 1;
 			} else {

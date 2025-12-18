@@ -78,7 +78,11 @@ void control_input_task(void *argument) {
 		if (rc_check) {
 			status_led(1, on_led);
 			start_time = xTaskGetTickCount();
-			if (g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+
+			// if right switch is at the top
+			if (g_remote_cmd.sw == SW_SHUTDOWN) {
+
+				// if SHIFT and CTRL keys are pressed and held, reset MCU
 				if (g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT){
 					if (g_remote_cmd.keyboard_keys & KEY_OFFSET_CTRL){
 						if (HAL_GetTick() - reset_debounce_time > 100){
@@ -91,13 +95,13 @@ void control_input_task(void *argument) {
 					}
 				}
 
+//				if ((g_remote_cmd.left_switch == ge_LSW_UNSAFE) && (HAL_GetTick() - last_song > 5000)){
+//					uint8_t temp_msg;
+//					last_song = HAL_GetTick();
+//					temp_msg = song;
+////					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+//				}
 
-				if ((g_remote_cmd.left_switch == ge_LSW_UNSAFE) && (HAL_GetTick() - last_song > 5000)){
-					uint8_t temp_msg;
-					last_song = HAL_GetTick();
-					temp_msg = song;
-//					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-				}
 				control_mode_change(g_remote_cmd.side_dial);
 				g_safety_toggle = 0;
 				launcher_safety_toggle = 0;
@@ -330,73 +334,49 @@ void control_mode_change(int16_t left_dial_input) {
 //assume already in shutdown mode here
 	static uint32_t last_trig_time;
 	uint8_t temp_msg;
-	if (g_remote_cmd.left_switch == ge_LSW_CONFIG) {
-		if (left_dial_input > 330 || left_dial_input < -330) {
-			if (HAL_GetTick() - last_trig_time > 1000) {
-				switch (control_mode) {
+
+    // Change control mode between remote and keyboard
+	if (g_remote_cmd.control_mode == BUTTON_PRESSED) {
+        if (HAL_GetTick() - last_trig_time > 1000) { // 1-second debounce
+        	switch (control_mode) {
+				case KEYBOARD_CTRL_MODE:
+					control_mode = REMOTE_CTRL_MODE;
+					temp_msg = control_control;
+					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+					launcher_safety_toggle = LAUNCHER_SAFETY;
+					break;
+
+				case REMOTE_CTRL_MODE:
+					control_mode = KEYBOARD_CTRL_MODE;
+					temp_msg = control_keyboard;
+					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+					launcher_safety_toggle = LAUNCHER_SAFETY;
+					break;
+        	}
+            last_trig_time = HAL_GetTick(); // update trigger time
+        }
+	}
+
+    // Change control mode between remote and keyboard
+	if (g_remote_cmd.fn_1 == 1) {
+        if (HAL_GetTick() - last_trig_time > 1000) { // 1-second debounce
+        	switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
 				case REMOTE_CTRL_MODE:
-					control_mode = SBC_CTRL_MODE;
-					temp_msg = control_sbc;
-					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+                    control_mode = SBC_CTRL_MODE;
+                    temp_msg = control_sbc;
+                    xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
 					break;
-				default:
-					last_trig_time = HAL_GetTick();
-					break;
-				}
-			}
-		} else {
-			last_trig_time = HAL_GetTick();
-		}
 
-	} else {
-		switch (control_mode) {
-		case KEYBOARD_CTRL_MODE:
-			if (left_dial_input < -330) {
-				if (HAL_GetTick() - last_trig_time > 1000) {
-					control_mode = REMOTE_CTRL_MODE;
-					temp_msg = control_control;
-					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+				case SBC_CTRL_MODE:
+                    control_mode = REMOTE_CTRL_MODE;
+                    temp_msg = control_control;
+                    xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
 					launcher_safety_toggle = LAUNCHER_SAFETY;
-				}
-			} else {
-				last_trig_time = HAL_GetTick();
-			}
-			break;
-		case REMOTE_CTRL_MODE:
-			if (left_dial_input > 330) {
-				if (HAL_GetTick() - last_trig_time > 1000) {
-					control_mode = KEYBOARD_CTRL_MODE;
-					temp_msg = control_keyboard;
-					launcher_safety_toggle = LAUNCHER_SAFETY;
-					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-				}
-			} else {
-				last_trig_time = HAL_GetTick();
-			}
-			break;
-		case SBC_CTRL_MODE:
-			if (left_dial_input < -330) {
-				if (HAL_GetTick() - last_trig_time > 1000) {
-					control_mode = REMOTE_CTRL_MODE;
-					temp_msg = control_control;
-					launcher_safety_toggle = LAUNCHER_SAFETY;
-					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-				}
-			} else if (left_dial_input > 330) {
-				if (HAL_GetTick() - last_trig_time > 1000) {
-					control_mode = KEYBOARD_CTRL_MODE;
-					temp_msg = control_keyboard;
-					launcher_safety_toggle = LAUNCHER_SAFETY;
-					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-				}
-			} else {
-				last_trig_time = HAL_GetTick();
-			}
-			break;
-		default:
-			break;
-		}
+                    break;
+        	}
+            last_trig_time = HAL_GetTick(); // update trigger time
+        }
 	}
 }
 
@@ -486,26 +466,26 @@ void chassis_yaw_pid_init() {
 
 
 
-void dbus_reset() {
-	g_remote_cmd.right_switch = ge_RSW_SHUTDOWN;
-	g_remote_cmd.right_x = 0;
-	g_remote_cmd.right_y = 0;
-	g_remote_cmd.left_x = 0;
-	g_remote_cmd.left_y = 0;
-	g_remote_cmd.left_switch = 0;
-	g_remote_cmd.mouse_x = 0;
-	g_remote_cmd.mouse_y = 0;
-	g_remote_cmd.mouse_z = 0;
-	g_remote_cmd.mouse_left = 0;
-	g_remote_cmd.mouse_right = 0;
-	if (control_mode == 0) {
-		gimbal_ctrl_data.pitch = 0;
-		gimbal_ctrl_data.yaw = 0;
-	}
-	if (control_mode == 1) {
-		gimbal_ctrl_data.pitch = INS.Pitch;
-		gimbal_ctrl_data.yaw = imu_heading.yaw;
-		gimbal_ctrl_data.delta_yaw = 0;
-	}
-}
+//void dbus_reset() {
+//	g_remote_cmd.right_switch = ge_RSW_SHUTDOWN;
+//	g_remote_cmd.right_x = 0;
+//	g_remote_cmd.right_y = 0;
+//	g_remote_cmd.left_x = 0;
+//	g_remote_cmd.left_y = 0;
+//	g_remote_cmd.left_switch = 0;
+//	g_remote_cmd.mouse_x = 0;
+//	g_remote_cmd.mouse_y = 0;
+//	g_remote_cmd.mouse_z = 0;
+//	g_remote_cmd.mouse_left = 0;
+//	g_remote_cmd.mouse_right = 0;
+//	if (control_mode == 0) {
+//		gimbal_ctrl_data.pitch = 0;
+//		gimbal_ctrl_data.yaw = 0;
+//	}
+//	if (control_mode == 1) {
+//		gimbal_ctrl_data.pitch = INS.Pitch;
+//		gimbal_ctrl_data.yaw = imu_heading.yaw;
+//		gimbal_ctrl_data.delta_yaw = 0;
+//	}
+//}
 
