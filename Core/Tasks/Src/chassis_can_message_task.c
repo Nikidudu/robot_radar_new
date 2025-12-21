@@ -31,11 +31,13 @@ extern ref_game_robot_data_t ref_robot_data;
 // Function Declarations
 void chassis_heartbeat_task(void *argument);
 void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
+float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
 
 //Global Variables (only in this file)
 static float lvl_max_speed;
 static float lvl_max_accel;
 static float lvl_max_spin;
+static float spin_accel = SPIN_ACCELERATION;
 
 void chassis_can_message_task(void *argument) {
 
@@ -56,18 +58,25 @@ void chassis_can_message_task(void *argument) {
     tx_header.DLC = 8;
     tx_header.TransmitGlobalTime = DISABLE;
 
-    //Clamped control values
-	float speed_limit = lvl_max_speed;
+    //Speed and acceleration control variables
 	float spin_limit = lvl_max_spin;
     float limit_forward;
     float limit_horizontal;
     float limit_yaw;
+    float act_forward;
+    float act_horizontal;
+    float act_yaw;
 
     // Initialize the xLastWakeTime variable with the current time
     xLastWakeTime = xTaskGetTickCount();
 
     while(1) {
-        // ===== Send CHASSIS_DATA_1 ===== //
+    	float speed_limit = lvl_max_speed;
+
+    	if (chassis_ctrl_data.g_spinspin_mode == 0) {
+    		speed_limit += CHASSIS_SPEED_BOOST;
+    	}
+
     	limit_forward = fmaxf(-speed_limit,
     			fminf(chassis_ctrl_data.forward, speed_limit));
     	limit_horizontal = fmaxf(-speed_limit,
@@ -75,9 +84,14 @@ void chassis_can_message_task(void *argument) {
     	limit_yaw = fmaxf(-spin_limit,
     			fminf(chassis_ctrl_data.yaw, spin_limit));
 
+    	act_forward = rpm_ramp(limit_forward, act_forward, &lvl_max_accel);
+    	act_horizontal = rpm_ramp(limit_horizontal, act_horizontal, &lvl_max_accel);
+    	act_yaw = rpm_ramp(limit_yaw, act_yaw, &spin_accel);
+
+    	// ===== Send CHASSIS_DATA_1 ===== //
         memset(tx_buffer, 0, 8);
-        memcpy(&tx_buffer[0], &limit_forward, sizeof(float));
-        memcpy(&tx_buffer[4], &limit_horizontal, sizeof(float));
+        memcpy(&tx_buffer[0], &act_forward, sizeof(float));
+        memcpy(&tx_buffer[4], &act_horizontal, sizeof(float));
 
         tx_header.StdId = CHASSIS_DATA_1_ID;
 
@@ -94,7 +108,7 @@ void chassis_can_message_task(void *argument) {
 
         // ===== Send CHASSIS_DATA_2 ====== //
         memset(tx_buffer, 0, 8);
-        memcpy(&tx_buffer[0], &limit_yaw, sizeof(float));
+        memcpy(&tx_buffer[0], &act_yaw, sizeof(float));
         memcpy(&tx_buffer[4], &chassis_ctrl_data.enabled, sizeof(uint8_t));
         memcpy(&tx_buffer[5], &chassis_ctrl_data.g_spinspin_mode, sizeof(uint8_t));
 	    memcpy(&tx_buffer[6], &chassis_ctrl_data.supercap_dash, sizeof(uint8_t));
@@ -301,3 +315,20 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel,
 	*lvl_max_speed = (*lvl_max_speed < 0) ? 0 : *lvl_max_speed; //Make sure is within 0 - 1 since it is a percentage
 	*lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
 }
+
+float rpm_ramp(float target_value, float current_value, float *lvl_max_accel) {
+	double dt = CHASSIS_DELAY / 1000.0; // Converting dt to minutes
+	double accel = *lvl_max_accel; //Default Chassis_Accel_max is LV1_ACCEL_MAX
+
+	double ramp_rate = accel * dt; //Calc ramp_rate from max_accel
+	float delta = target_value - current_value;
+
+	if (target_value == 0) {
+		return 0; //Instantly stop the robot;
+	} else if (fabs(delta) < ramp_rate) {
+		return target_value;  // close enough, just snap to target
+	} else {
+		return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
+	}
+}
+

@@ -406,19 +406,19 @@ void chassis_motion_control(motor_data_t *motorfr, motor_data_t *motorfl,
 //	*lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
 //}
 
-float rpm_ramp(float target_value, float current_value, float *lvl_max_accel) {
-	double dt = CHASSIS_DELAY / 1000.0; // Converting dt to minutes
-	double accel = *lvl_max_accel; //Default Chassis_Accel_max is LV1_ACCEL_MAX
-
-	double ramp_rate = accel * dt; //Calc ramp_rate from max_accel
-	float delta = target_value - current_value;
-
-	if (target_value == 0) {
-		return 0; //Instantly stop the robot;
-	} else if (fabs(delta) < ramp_rate) {
-		return target_value;  // close enough, just snap to target
-	} else {
-		return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
-	}
-}
+//float rpm_ramp(float target_value, float current_value, float *lvl_max_accel) {
+//	double dt = CHASSIS_DELAY / 1000.0; // Converting dt to minutes
+//	double accel = *lvl_max_accel; //Default Chassis_Accel_max is LV1_ACCEL_MAX
+//
+//	double ramp_rate = accel * dt; //Calc ramp_rate from max_accel
+//	float delta = target_value - current_value;
+//
+//	if (target_value == 0) {
+//		return 0; //Instantly stop the robot;
+//	} else if (fabs(delta) < ramp_rate) {
+//		return target_value;  // close enough, just snap to target
+//	} else {
+//		return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
+//	}
+//}
 
