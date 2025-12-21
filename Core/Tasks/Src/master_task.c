@@ -43,6 +43,7 @@ TaskHandle_t hud_task_handle;
 TaskHandle_t supercap_task_handle;
 TaskHandle_t dm_motor_control_task_handle;
 TaskHandle_t INS_task_handle;
+TaskHandle_t chassis_heartbeat_task_handle;
 
 EventGroupHandle_t gimbal_event_group;
 EventGroupHandle_t chassis_event_group;

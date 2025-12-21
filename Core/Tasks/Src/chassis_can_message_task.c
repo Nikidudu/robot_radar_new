@@ -24,8 +24,18 @@
 
 //Global Variables
 extern chassis_control_t chassis_ctrl_data;
+extern TaskHandle_t chassis_heartbeat_task_handle;
+
+// Function Declarations
+void chassis_heartbeat_task(void *argument);
 
 void chassis_can_message_task(void *argument) {
+
+	xTaskCreate(chassis_heartbeat_task, "chassis_heartbeat_task",
+			configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+					&chassis_heartbeat_task_handle);
+
+
     CAN_TxHeaderTypeDef tx_header;
     uint8_t tx_buffer[8];
     uint32_t tx_mailbox;
@@ -89,6 +99,8 @@ void chassis_heartbeat_task(void *argument) {
 	xLastWakeTime = xTaskGetTickCount();
 	uint8_t tx_buffer[8];
 	CAN_TxHeaderTypeDef tx_header;
+    uint32_t tx_mailbox;
+
 
 	tx_header.IDE = CAN_ID_STD;
     tx_header.RTR = CAN_RTR_DATA;
@@ -99,14 +111,16 @@ void chassis_heartbeat_task(void *argument) {
 	while (1) {
 
 		memset(tx_buffer, 0, 8);
-		memcpy(&tx_buffer[0], &chassis_ctrl_data.forward, sizeof(float));
-		memcpy(&tx_buffer[4], &chassis_ctrl_data.horizontal, sizeof(float));
 
 		tx_header.StdId = CHASSIS_HB_ID;
 
 		// Wait for a free mailbox and send
 		while(HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0) {
 			vTaskDelay(1);  // Wait 1ms if all mailboxes are full
+		}
+
+		if(HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_buffer, &tx_mailbox) != HAL_OK) {
+			Error_Handler();
 		}
 
 
