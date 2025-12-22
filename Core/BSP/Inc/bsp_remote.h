@@ -12,7 +12,7 @@
 #include "stm32f4xx_hal_uart.h"
 #include "usart.h"
 
-#define REMOTE_DATA_SIZE 23
+#define REMOTE_DATA_SIZE 21
 
 /* Size in bytes of data sent from remote */
 
@@ -24,7 +24,7 @@ extern uint8_t remote_raw_data[REMOTE_DATA_SIZE];
  * data that can be used by the system. This function in turn called the ISR,
  * dbus_remote_ISR()
  */
-void dbus_remote_ISR(DMA_HandleTypeDef *hdma);
+void dbus_remote_ISR();
 
 /**
  * This function starts the circular DMA that reads from the USART1 port to memory.

@@ -59,7 +59,7 @@ void control_input_task(void *argument) {
 	uint8_t rc_check;
 
 	//check if remote is giving non zero values, reset uart in case packet isn't aligned properly
-	while (fabs(g_remote_cmd.left_x) > 50 || fabs(g_remote_cmd.right_x) > 50 || fabs(g_remote_cmd.left_x) > 50 || fabs(g_remote_cmd.right_x) > 50){
+	while (fabs(g_remote_cmd.left_x) > 50 || fabs(g_remote_cmd.right_x) > 50 || fabs(g_remote_cmd.left_y) > 50 || fabs(g_remote_cmd.right_y) > 50){
 		uint8_t temp_msg;
 		temp_msg = not_ok;
 		xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);

@@ -62,6 +62,8 @@ remote_cmd_t g_remote_cmd = { 0 };
 
 /* External variables --------------------------------------------------------*/
 extern TaskHandle_t control_input_task_handle;
+extern DMA_HandleTypeDef hdma_usart1_rx;
+extern UART_HandleTypeDef DBUS_UART;                 // UART1 handle
 
 /* Private function prototypes -----------------------------------------------*/
 static uint16_t get_crc16_check_sum(uint8_t *p_msg, uint16_t len, uint16_t crc16);
@@ -71,8 +73,8 @@ static bool verify_remote_crc16_check_sum(uint8_t *p_msg, uint16_t len);
 /* Private user code ---------------------------------------------------------*/
 
 
-void dbus_remote_parse(uint8_t *buf) {
-    remote_data_t *pkt = (remote_data_t *)buf;
+void dbus_remote_ISR() {
+    remote_data_t *pkt = (remote_data_t *)remote_raw_data;
 
     /* 1. Check SOF */
     if (pkt->sof_1 != REMOTE_SOF1 || pkt->sof_2 != REMOTE_SOF2)
@@ -81,7 +83,7 @@ void dbus_remote_parse(uint8_t *buf) {
     }
 
     /* 2. Verify CRC */
-    if (!verify_remote_crc16_check_sum(buf, REMOTE_DATA_SIZE))
+    if (!verify_remote_crc16_check_sum(remote_raw_data, REMOTE_DATA_SIZE))
     {
         return; // corrupted frame
     }
@@ -126,52 +128,37 @@ void dbus_remote_parse(uint8_t *buf) {
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+
+
 /**
  * This function starts the circular DMA for receiving on a UART port. It is specifically
  * written for the UART1 port for DBUS interface from the controller.
  */
-HAL_StatusTypeDef dbus_remote_start()
+HAL_StatusTypeDef dbus_remote_start(void)
 {
-    /* Stop any previous RX */
-    HAL_UART_DMAStop(&DBUS_UART);
+    UART_HandleTypeDef *huart = &huart1;
 
-    /* Clear flags */
-    __HAL_UART_CLEAR_IDLEFLAG(&DBUS_UART);
+    if (huart->RxState != HAL_UART_STATE_READY)
+        return HAL_BUSY;
 
-    /* Start DMA RX with IDLE detection */
-    if (HAL_UARTEx_ReceiveToIdle_DMA(
-            &DBUS_UART,
-            remote_raw_data,
-            REMOTE_DATA_SIZE) != HAL_OK)
-    {
+    /* Start DMA reception with HAL helper */
+    if (HAL_UART_Receive_DMA(huart, remote_raw_data, REMOTE_DATA_SIZE) != HAL_OK)
         return HAL_ERROR;
-    }
-
-    /* Disable half-transfer interrupt (not needed) */
-    __HAL_DMA_DISABLE_IT(DBUS_UART.hdmarx, DMA_IT_HT);
 
     return HAL_OK;
-
 }
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-
     if (huart == &DBUS_UART)
     {
-    	if (Size == REMOTE_DATA_SIZE) {
-    		dbus_remote_parse(remote_raw_data);
-    	}
+    	dbus_remote_ISR();  // REMOTE UART ISR handler
     }
+}
 
-    /* Restart DMA every time */
-    HAL_UARTEx_ReceiveToIdle_DMA(
-        &DBUS_UART,
-        remote_raw_data,
-        REMOTE_DATA_SIZE
-    );
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+{
 
-    __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
 }
 
 
