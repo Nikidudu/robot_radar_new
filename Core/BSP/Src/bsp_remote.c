@@ -6,6 +6,7 @@
  */
 
 /* Private includes ----------------------------------------------------------*/
+#include <stdbool.h>
 #include "board_lib.h"
 #include "robot_config.h"
 #include "bsp_remote.h"
@@ -64,12 +65,15 @@ extern TaskHandle_t control_input_task_handle;
 
 /* Private function prototypes -----------------------------------------------*/
 static uint16_t get_crc16_check_sum(uint8_t *p_msg, uint16_t len, uint16_t crc16);
+static bool verify_remote_crc16_check_sum(uint8_t *p_msg, uint16_t len);
+
 
 /* Private user code ---------------------------------------------------------*/
 
 
-void dbus_remote_ISR(DMA_HandleTypeDef *hdma) {
-    remote_data_t *pkt = (remote_data_t *)remote_raw_data;
+void dbus_remote_parse(uint8_t *buf) {
+    remote_data_t *pkt = (remote_data_t *)buf;
+
     /* 1. Check SOF */
     if (pkt->sof_1 != REMOTE_SOF1 || pkt->sof_2 != REMOTE_SOF2)
     {
@@ -77,7 +81,7 @@ void dbus_remote_ISR(DMA_HandleTypeDef *hdma) {
     }
 
     /* 2. Verify CRC */
-    if (!verify_crc16_check_sum(remote_raw_data, REMOTE_DATA_SIZE))
+    if (!verify_remote_crc16_check_sum(buf, REMOTE_DATA_SIZE))
     {
         return; // corrupted frame
     }
@@ -128,70 +132,48 @@ void dbus_remote_ISR(DMA_HandleTypeDef *hdma) {
  */
 HAL_StatusTypeDef dbus_remote_start()
 {
-	uint8_t *pData = remote_raw_data;
-	UART_HandleTypeDef *huart = &DBUS_UART;
-	uint32_t *tmp;
+    /* Stop any previous RX */
+    HAL_UART_DMAStop(&DBUS_UART);
 
-	/* Check that a Rx process is not already ongoing */
-	if (huart->RxState == HAL_UART_STATE_READY) {
-		if ((pData == NULL) || (REMOTE_DATA_SIZE == 0U)) {
-			return HAL_ERROR;
-		}
+    /* Clear flags */
+    __HAL_UART_CLEAR_IDLEFLAG(&DBUS_UART);
 
-		/* Process Locked */
-		__HAL_LOCK(huart);
+    /* Start DMA RX with IDLE detection */
+    if (HAL_UARTEx_ReceiveToIdle_DMA(
+            &DBUS_UART,
+            remote_raw_data,
+            REMOTE_DATA_SIZE) != HAL_OK)
+    {
+        return HAL_ERROR;
+    }
 
-		huart->ReceptionType = HAL_UART_RECEPTION_TOIDLE;
-		huart->pRxBuffPtr = pData;
-		huart->RxXferSize = REMOTE_DATA_SIZE;
+    /* Disable half-transfer interrupt (not needed) */
+    __HAL_DMA_DISABLE_IT(DBUS_UART.hdmarx, DMA_IT_HT);
 
-		huart->ErrorCode = HAL_UART_ERROR_NONE;
-		huart->RxState = HAL_UART_STATE_BUSY_RX;
+    return HAL_OK;
 
-		/* Set the UART DMA transfer complete callback */
-		huart->hdmarx->XferCpltCallback = dbus_remote_ISR;
-
-		/* Set the DMA abort callback */
-		huart->hdmarx->XferAbortCallback = NULL;
-
-		/* Enable the DMA stream */
-		tmp = (uint32_t *)&pData;
-		HAL_DMA_Start_IT(huart->hdmarx, (uint32_t)&huart->Instance->DR, *(uint32_t *)tmp, REMOTE_DATA_SIZE);
-
-		/* Clear the Overrun flag just before enabling the DMA Rx request: can be mandatory for the second transfer */
-		__HAL_UART_CLEAR_OREFLAG(huart);
-
-		/* Process Unlocked */
-		__HAL_UNLOCK(huart);
-
-		/* Enable the UART Parity Error Interrupt */
-		SET_BIT(huart->Instance->CR1, USART_CR1_PEIE);
-
-		/* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-		SET_BIT(huart->Instance->CR3, USART_CR3_EIE);
-
-		/* Enable the DMA transfer for the receiver request by setting the DMAR bit
-		in the UART CR3 register */
-		SET_BIT(huart->Instance->CR3, USART_CR3_DMAR);
-
-		if (huart->ReceptionType == HAL_UART_RECEPTION_TOIDLE)
-		{
-			__HAL_UART_CLEAR_IDLEFLAG(huart);
-			ATOMIC_SET_BIT(huart->Instance->CR1, USART_CR1_IDLEIE);
-		}
-		else
-		{
-			/* In case of errors already pending when reception is started,
-			   Interrupts may have already been raised and lead to reception abortion.
-			   (Overrun error for instance).
-			   In such case Reception Type has been reset to HAL_UART_RECEPTION_STANDARD. */
-			return HAL_ERROR;
-		}
-		return HAL_OK;
-	} else {
-		return HAL_BUSY;
-	}
 }
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+
+    if (huart == &DBUS_UART)
+    {
+    	if (Size == REMOTE_DATA_SIZE) {
+    		dbus_remote_parse(remote_raw_data);
+    	}
+    }
+
+    /* Restart DMA every time */
+    HAL_UARTEx_ReceiveToIdle_DMA(
+        &DBUS_UART,
+        remote_raw_data,
+        REMOTE_DATA_SIZE
+    );
+
+    __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
+}
+
 
 /**
  * @brief Get the crc16 checksum
@@ -226,7 +208,7 @@ static uint16_t get_crc16_check_sum(uint8_t *p_msg, uint16_t len, uint16_t crc16
  * @param len Stream length=data+checksum
  * @return bool Crc16 check result
  */
-bool verify_crc16_check_sum(uint8_t *p_msg, uint16_t len)
+bool verify_remote_crc16_check_sum(uint8_t *p_msg, uint16_t len)
 {
     uint16_t w_expected = 0;
 

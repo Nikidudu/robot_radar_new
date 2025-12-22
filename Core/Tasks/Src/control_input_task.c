@@ -124,7 +124,6 @@ void control_input_task(void *argument) {
 					//sbc_control_input();
 					nx_control_input();
 					break;
-					;
 #endif
 
 				default:

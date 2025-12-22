@@ -15,6 +15,9 @@ static queue_t *xvr_UART_queue;
 static queue_t *ref_UART_queue;
 extern TaskHandle_t referee_processing_task_handle;
 
+#define REMOTE_FRAME_SIZE 21 // in bytes
+static uint8_t remote_rx_buf[REMOTE_FRAME_SIZE];
+
 void init_xvr_usart(uint8_t *pData){
 	xvr_usart_start(&SBC_UART, pData, 15, NULL);
 }
