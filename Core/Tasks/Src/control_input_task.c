@@ -79,7 +79,7 @@ void control_input_task(void *argument) {
 			status_led(1, on_led);
 			start_time = xTaskGetTickCount();
 
-			// if right switch is at the top
+			// if switch is at the left
 			if (g_remote_cmd.sw == SW_SHUTDOWN) {
 
 				// if SHIFT and CTRL keys are pressed and held, reset MCU
@@ -95,14 +95,7 @@ void control_input_task(void *argument) {
 					}
 				}
 
-//				if ((g_remote_cmd.left_switch == ge_LSW_UNSAFE) && (HAL_GetTick() - last_song > 5000)){
-//					uint8_t temp_msg;
-//					last_song = HAL_GetTick();
-//					temp_msg = song;
-////					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-//				}
-
-				control_mode_change(g_remote_cmd.side_dial);
+				control_mode_change(g_remote_cmd.control_mode, g_remote_cmd.fn_1);
 				g_safety_toggle = 0;
 				launcher_safety_toggle = 0;
 				control_reset();
@@ -329,13 +322,13 @@ void control_reset() {
 	aimbot_mode = 0;
 }
 
-void control_mode_change(int16_t left_dial_input) {
+void control_mode_change(uint8_t control_mode, uint8_t fn_1) {
 //assume already in shutdown mode here
 	static uint32_t last_trig_time;
 	uint8_t temp_msg;
 
     // Change control mode between remote and keyboard
-	if (g_remote_cmd.control_mode == BUTTON_PRESSED) {
+	if (control_mode == BUTTON_PRESSED) {
         if (HAL_GetTick() - last_trig_time > 1000) { // 1-second debounce
         	switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:
@@ -357,7 +350,7 @@ void control_mode_change(int16_t left_dial_input) {
 	}
 
     // Change control mode between remote and keyboard
-	if (g_remote_cmd.fn_1 == 1) {
+	if (fn_1 == 1) {
         if (HAL_GetTick() - last_trig_time > 1000) { // 1-second debounce
         	switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:

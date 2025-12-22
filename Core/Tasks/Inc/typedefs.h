@@ -28,9 +28,9 @@ enum right_switch
 
 enum sw
 {
-	SW_SHUTDOWN = 0,
-	SW_GIMBAL = 1,
-	SW_ALL_ON = 2
+	SW_SHUTDOWN = 1,
+	SW_GIMBAL = 2,
+	SW_ALL_ON = 3
 };
 
 enum button_press

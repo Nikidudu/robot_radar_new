@@ -184,7 +184,7 @@ void mouse_launcher_control_input() {
 			}
 		}
 		if (g_remote_cmd.mouse_left) {
-			launcher_ctrl_data.firing =1;
+			launcher_ctrl_data.firing = 1;
 
 		} else {
 			launcher_ctrl_data.firing = 0;
