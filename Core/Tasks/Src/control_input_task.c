@@ -57,7 +57,8 @@ void control_input_task(void *argument) {
 	vTaskDelay(100);
 	uint8_t rc_check;
 
-	//check if remote is giving non zero values, reset uart in case packet isn't aligned properly
+	// ensures that remote is giving zero values initially
+	// reset uart in case packet isn't aligned properly
 	while (fabs(g_remote_cmd.left_x) > 50 || fabs(g_remote_cmd.right_x) > 50 || fabs(g_remote_cmd.left_y) > 50 || fabs(g_remote_cmd.right_y) > 50){
 		uint8_t temp_msg;
 		temp_msg = not_ok;
@@ -319,13 +320,13 @@ void control_reset() {
 	aimbot_mode = 0;
 }
 
-void control_mode_change(uint8_t control_mode, uint8_t fn_1) {
+void control_mode_change(uint8_t control_mode_button, uint8_t fn_1) {
 //assume already in shutdown mode here
 	static uint32_t last_trig_time;
 	uint8_t temp_msg;
 
     // Change control mode between remote and keyboard
-	if (control_mode == BUTTON_PRESSED) {
+	if (control_mode_button == BUTTON_PRESSED) {
         if (HAL_GetTick() - last_trig_time > 1000) { // 1-second debounce
         	switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:

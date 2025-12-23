@@ -12,6 +12,7 @@
 /* From other tasks (extern) */
 extern queue_t *ref_UART_queue;
 extern uint8_t ref_dma_buf[REF_DMA_BUF_SIZE];
+extern uint8_t remote_raw_data[REMOTE_DATA_SIZE];
 
 /* Private user code ---------------------------------------------------------*/
 
@@ -48,6 +49,7 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
  */
 HAL_StatusTypeDef remote_uart_start(void)
 {
+	memset(remote_raw_data, 0, REMOTE_DATA_SIZE);
     UART_HandleTypeDef *huart = &REMOTE_UART;
 
     if (huart->RxState != HAL_UART_STATE_READY)
