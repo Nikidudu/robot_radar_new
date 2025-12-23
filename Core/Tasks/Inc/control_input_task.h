@@ -27,8 +27,6 @@ void gimbal_turn_ang(float pit_radians, float yaw_radians);
 void gimbal_set_ang(float pit_radians, float yaw_radians);
 void set_gear();
 void chassis_yaw_pid_init();
-void aimbot_pid_init();
-void dbus_reset();
 void ramp(float *curr_val, float target_val, float max_ramp);
 
 #ifdef __cplusplus

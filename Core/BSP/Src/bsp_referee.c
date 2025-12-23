@@ -9,13 +9,15 @@
 #include "board_lib.h"
 #include "bsp_referee.h"
 
-
+queue_t *ref_UART_queue;
+uint8_t ref_dma_buf[REF_DMA_BUF_SIZE];
 
 enum ref_proc_state{
 	HEADER,
 	DATA
 };
 
+extern TaskHandle_t referee_processing_task_handle;
 
 ref_processing_status_t ref_process_data(queue_t *uart_queue, ref_msg_t *proc_msg){
 	static uint8_t state = 0;
@@ -94,8 +96,6 @@ ref_frame_header_t ref_get_header(queue_t *data_buffer){
 //	queue_remove_number(data_buffer, REF_HEADER_SIZE);
 	return ret_header;
 }
-
-
 
 ref_msg_t ref_get_msg(ref_frame_header_t header,queue_t *uart_queue) {
 	uint8_t temp_buffer[TQUEUE_SIZE];
@@ -183,4 +183,22 @@ ref_msg_t ref_get_msg(ref_frame_header_t header,queue_t *uart_queue) {
 	return buffer_msg;
 }
 
+void referee_ISR() {
+    /* Push first half of buffer */
+	queue_append_bytes(ref_UART_queue, ref_dma_buf, REF_DMA_BUF_SIZE / 2);
 
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(referee_processing_task_handle,
+                           &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void referee_half_ISR() {
+    /* Push second half of buffer */
+	queue_append_bytes(ref_UART_queue, ref_dma_buf + REF_DMA_BUF_SIZE/2, REF_DMA_BUF_SIZE / 2);
+
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(referee_processing_task_handle,
+                           &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}

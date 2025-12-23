@@ -52,9 +52,9 @@ uint8_t ref_buffer[2];
 queue_t referee_uart_q;
 
 void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart){
-	if (huart== &DBUS_UART){
-		HAL_UART_DMAStop(&DBUS_UART);
-		dbus_remote_start();
+	if (huart== &REMOTE_UART){
+		HAL_UART_DMAStop(&REMOTE_UART);
+		remote_uart_start();
 	} else if (huart == &REFEREE_UART){
 	    __HAL_DMA_DISABLE(&hdma_usart6_rx);
 		ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);

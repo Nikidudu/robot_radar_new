@@ -387,10 +387,6 @@ void motor_send_can(motor_data_t motor_all[],
 #endif
 }
 
-void kill_can() {
-
-}
-
 /**
  * Limits the input float variable
  * @params motor_in: the pointer to the variable to be limited

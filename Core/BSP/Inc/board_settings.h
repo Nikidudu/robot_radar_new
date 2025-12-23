@@ -8,7 +8,7 @@
 #ifndef BSP_INC_BOARD_SETTINGS_H_
 #define BSP_INC_BOARD_SETTINGS_H_
 
-#define DBUS_UART 		huart1
+#define REMOTE_UART 	huart1
 #define SBC_UART		huart3
 #define REFEREE_UART	huart6
 #define IMU_HSPI 		hspi1

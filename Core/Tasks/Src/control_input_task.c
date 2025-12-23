@@ -50,8 +50,7 @@ void control_input_task(void *argument) {
 	control_reset();
 	chassis_yaw_pid_init();
 	gimbal_ctrl_data.imu_mode = GIMBAL_MODE;
-//	aimbot_pid_init();
-	dbus_remote_start();
+	remote_uart_start();
 	gear_speed.curr_gear = GEAR_DEFAULT;
 	set_gear();
 	g_safety_toggle = 1;
@@ -64,15 +63,14 @@ void control_input_task(void *argument) {
 		temp_msg = not_ok;
 		xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
 		rc_check = ulTaskNotifyTake(pdTRUE, 200);
-		HAL_UART_DMAStop(&DBUS_UART);
-		dbus_remote_start();
+		HAL_UART_DMAStop(&REMOTE_UART);
+		remote_uart_start();
 		if (rc_check){
 			vTaskDelay(200);
 		}
 	}
 	g_safety_toggle = ARM_SWITCH;
 
-	uint32_t last_song = 0;
 	while (1) {
 		rc_check = ulTaskNotifyTake(pdTRUE, 200);
 		if (rc_check) {
@@ -128,11 +126,10 @@ void control_input_task(void *argument) {
 		} else {
 			//restart remote uart
 			if (HAL_GetTick() - g_remote_cmd.last_time > 100) {
-				HAL_UART_DMAStop(&DBUS_UART);
-				dbus_remote_start();
+				HAL_UART_DMAStop(&REMOTE_UART);
+				remote_uart_start();
 				g_remote_cmd.last_time = HAL_GetTick();
 			}
-//			kill_can();
 			control_reset();
 			launcher_safety_toggle = LAUNCHER_SAFETY;
 			g_safety_toggle = 1;
@@ -455,29 +452,3 @@ void chassis_yaw_pid_init() {
 	yaw_pid_data.max_out = CHASSIS_YAW_MAX_RPM;
 #endif
 }
-
-
-
-//void dbus_reset() {
-//	g_remote_cmd.right_switch = ge_RSW_SHUTDOWN;
-//	g_remote_cmd.right_x = 0;
-//	g_remote_cmd.right_y = 0;
-//	g_remote_cmd.left_x = 0;
-//	g_remote_cmd.left_y = 0;
-//	g_remote_cmd.left_switch = 0;
-//	g_remote_cmd.mouse_x = 0;
-//	g_remote_cmd.mouse_y = 0;
-//	g_remote_cmd.mouse_z = 0;
-//	g_remote_cmd.mouse_left = 0;
-//	g_remote_cmd.mouse_right = 0;
-//	if (control_mode == 0) {
-//		gimbal_ctrl_data.pitch = 0;
-//		gimbal_ctrl_data.yaw = 0;
-//	}
-//	if (control_mode == 1) {
-//		gimbal_ctrl_data.pitch = INS.Pitch;
-//		gimbal_ctrl_data.yaw = imu_heading.yaw;
-//		gimbal_ctrl_data.delta_yaw = 0;
-//	}
-//}
-
