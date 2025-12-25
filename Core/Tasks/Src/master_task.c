@@ -55,7 +55,6 @@ QueueHandle_t gyro_data_queue;
 QueueHandle_t accel_data_queue;
 QueueHandle_t mag_data_queue;
 
-QueueHandle_t telem_data_queue;
 QueueHandle_t g_buzzing_task_msg;
 QueueHandle_t xvr_data_queue;
 QueueHandle_t uart_data_queue;
@@ -74,7 +73,6 @@ void master_task(void *argument) {
 	gyro_data_queue = xQueueCreate(5, sizeof(gyro_data_t));
 	accel_data_queue = xQueueCreate(5, sizeof(accel_data_t));
 	mag_data_queue = xQueueCreate(5, sizeof(mag_data_t));
-	//telem_data_queue = xQueueCreate(10, sizeof(telem_data_struct_t));
 	g_buzzing_task_msg = xQueueCreate(48, sizeof(uint8_t));
 //	uart_data_queue = xQueueCreate(5, sizeof(ref_msg_t));
 

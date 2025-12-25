@@ -45,8 +45,6 @@ void chassis_can_message_task(void *argument) {
 			configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 					&chassis_heartbeat_task_handle);
 
-	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
-
     CAN_TxHeaderTypeDef tx_header;
     uint8_t tx_buffer[8];
     uint32_t tx_mailbox;
@@ -59,7 +57,6 @@ void chassis_can_message_task(void *argument) {
     tx_header.TransmitGlobalTime = DISABLE;
 
     //Speed and acceleration control variables
-	float spin_limit = lvl_max_spin;
     float limit_forward;
     float limit_horizontal;
     float limit_yaw;
@@ -71,12 +68,21 @@ void chassis_can_message_task(void *argument) {
     xLastWakeTime = xTaskGetTickCount();
 
     while(1) {
-    	float speed_limit = lvl_max_speed;
 
+    	float rel_angle = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+
+    	// Setting translational and rotational speed and acceleration base on robot level
+    	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
+
+    	float speed_limit = lvl_max_speed;
+    	float spin_limit = lvl_max_spin;
+
+    	// Increase speed when spinspin mode is deactivated
     	if (chassis_ctrl_data.g_spinspin_mode == 0) {
     		speed_limit += CHASSIS_SPEED_BOOST;
     	}
 
+    	// Clamp the values between -limit to limit
     	limit_forward = fmaxf(-speed_limit,
     			fminf(chassis_ctrl_data.forward, speed_limit));
     	limit_horizontal = fmaxf(-speed_limit,
@@ -84,14 +90,29 @@ void chassis_can_message_task(void *argument) {
     	limit_yaw = fmaxf(-spin_limit,
     			fminf(chassis_ctrl_data.yaw, spin_limit));
 
+    	// Smooths speed changes over time using acceleration constraints
     	act_forward = rpm_ramp(limit_forward, act_forward, &lvl_max_accel);
     	act_horizontal = rpm_ramp(limit_horizontal, act_horizontal, &lvl_max_accel);
     	act_yaw = rpm_ramp(limit_yaw, act_yaw, &spin_accel);
 
+    	// translation and rotation speed of chassis for chassis yaw angle relative to gimbal
+    	float rel_forward = ((-act_horizontal * sin(-rel_angle))
+    			+ (act_forward * cos(-rel_angle)));
+    	float rel_horizontal = ((-act_horizontal * cos(-rel_angle))
+    			+ (act_forward * -sin(-rel_angle)));
+    	float rel_yaw = act_yaw;
+
     	// ===== Send CHASSIS_DATA_1 ===== //
         memset(tx_buffer, 0, 8);
-        memcpy(&tx_buffer[0], &act_forward, sizeof(float));
-        memcpy(&tx_buffer[4], &act_horizontal, sizeof(float));
+        memcpy(&tx_buffer[0], &rel_forward, sizeof(float));
+        memcpy(&tx_buffer[4], &rel_horizontal, sizeof(float));
+
+//        // typecase from float to scaled int16_t
+//        memcpy(&tx_buffer[0], &act_forward, sizeof(int16_t));
+//        memcpy(&tx_buffer[2], &act_horizontal, sizeof(int16_t));
+//        memcpy(&tx_buffer[4], &act_yaw, sizeof(int16_t));
+//        memcpy(&tx_buffer[6], &chassis_ctrl_data.enabled, sizeof(uint8_t));
+//	    memcpy(&tx_buffer[7], &ref_robot_data.chassis_power_limit, sizeof(uint8_t));
 
         tx_header.StdId = CHASSIS_DATA_1_ID;
 
@@ -107,12 +128,14 @@ void chassis_can_message_task(void *argument) {
         }
 
         // ===== Send CHASSIS_DATA_2 ====== //
+//        -> chassis_power_limit
+//        <- charging_state
         memset(tx_buffer, 0, 8);
-        memcpy(&tx_buffer[0], &act_yaw, sizeof(float));
+        memcpy(&tx_buffer[0], &rel_yaw, sizeof(float));
         memcpy(&tx_buffer[4], &chassis_ctrl_data.enabled, sizeof(uint8_t));
-        memcpy(&tx_buffer[5], &chassis_ctrl_data.g_spinspin_mode, sizeof(uint8_t));
-	    memcpy(&tx_buffer[6], &chassis_ctrl_data.supercap_dash, sizeof(uint8_t));
-	    memcpy(&tx_buffer[7], &chassis_ctrl_data.supercap_enabled, sizeof(uint8_t));
+        memcpy(&tx_buffer[5], &chassis_ctrl_data.g_spinspin_mode, sizeof(uint8_t));//
+	    memcpy(&tx_buffer[6], &chassis_ctrl_data.supercap_dash, sizeof(uint8_t));//
+	    memcpy(&tx_buffer[7], &chassis_ctrl_data.supercap_enabled, sizeof(uint8_t));//
 
         tx_header.StdId = CHASSIS_DATA_2_ID;
 

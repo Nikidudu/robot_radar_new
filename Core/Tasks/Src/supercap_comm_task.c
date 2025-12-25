@@ -83,7 +83,9 @@ void txHeaderConfig(CAN_TxHeaderTypeDef* TxHeader) {
  }
 
  void supercapISR(uint8_t* rxdata){
-	 supercap_msg_packet *supercap_packet = ( supercap_msg_packet*)rxdata;
+//	 supercap_msg_packet *supercap_packet = (supercap_msg_packet*)rxdata;
+	 supercap_msg_packet *supercap_packet;
+	 memcpy(&supercap_packet, rxdata, sizeof(supercap_packet));
 	 chassis_power = supercap_packet->chassis_power;
 	 charging_state = supercap_packet->cap_energy * 100 / 255;
 	 supercap_last_receive_time = HAL_GetTick();

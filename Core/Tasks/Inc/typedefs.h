@@ -139,8 +139,6 @@ typedef struct {
 	uint32_t last_time;
 } remote_cmd_t;
 
-
-
 typedef struct
 {
 	float gx;
