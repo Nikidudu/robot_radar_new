@@ -24,7 +24,9 @@
 #define ARM_SWITCH 			0			//set to 1 to enable remote up and down arming switch
 #define FIRING_DISABLE		0			//set to 1 to stop firing
 #define LAUNCHER_SAFETY		0			//set to 1 to enable launcher arm safety
-#define FRICTION_SB_SPIN_ON	1			// set to allow flywheels to spin during standby; 2(always spin), 1 (spin when in comp)
+#define FRICTION_SB_SPIN_ON	0
+// set to allow flywheels to spin during standby
+// 1 (spin when in comp), 2(always spin),
 //(between mode switch, remote off, power on, left switch MUST be down)
 
 

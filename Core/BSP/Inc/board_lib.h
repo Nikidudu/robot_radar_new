@@ -22,6 +22,7 @@ extern "C" {
 /* --- BSP Drivers --- */
 #include "bsp_queue.h"
 #include "bsp_dbus_input.h"
+#include "bsp_remote.h"
 #include "bsp_usart.h"
 #include "bsp_referee.h"
 #include "bsp_can.h"

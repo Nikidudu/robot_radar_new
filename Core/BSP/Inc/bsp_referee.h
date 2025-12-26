@@ -9,6 +9,8 @@
 #define BSP_INC_BSP_REFEREE_H_
 #include "referee_msgs.h"
 
+#define REF_DMA_BUF_SIZE 64
+
 /*frame header 	5 bytes
  * cmd_id		2 bytes
  * data			28 bytes		| assuming we're not transmitting data from robot to robot, maximum is 28 bytes for robot hp data
@@ -21,13 +23,12 @@ typedef enum {
 	INSUFFICIENT_DATA=2,
 	WRONG_HEADER_CRC=3,
 	WRONG_DATA_CRC=4
-
-}ref_processing_status_t;
+} ref_processing_status_t;
 
 ref_processing_status_t ref_process_data(queue_t *uart_queue, ref_msg_t *proc_msg);
 ref_frame_header_t ref_get_header(queue_t *data_buffer);
 ref_msg_t ref_get_msg(ref_frame_header_t header,queue_t *uart_queue);
-
-
+void referee_ISR();
+void referee_half_ISR();
 
 #endif /* BSP_INC_BSP_REFEREE_H_ */

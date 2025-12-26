@@ -15,6 +15,7 @@
 #include "rtos_g_vars.h"
 
 extern uint8_t remote_raw_data[18];
+extern int g_spinspin_mode;
 extern TaskHandle_t referee_processing_task_handle;
 extern DMA_HandleTypeDef hdma_usart6_rx;
 static ref_msg_t g_ref_msg_buffer;
@@ -51,9 +52,9 @@ uint8_t ref_buffer[2];
 queue_t referee_uart_q;
 
 void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart){
-	if (huart== &DBUS_UART){
-		HAL_UART_DMAStop(&DBUS_UART);
-		dbus_remote_start();
+	if (huart== &REMOTE_UART){
+		HAL_UART_DMAStop(&REMOTE_UART);
+		remote_uart_start();
 	} else if (huart == &REFEREE_UART){
 	    __HAL_DMA_DISABLE(&hdma_usart6_rx);
 		referee_usart_init(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);

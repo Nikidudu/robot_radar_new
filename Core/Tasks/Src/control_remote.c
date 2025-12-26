@@ -29,9 +29,41 @@ void remote_control_input() {
 	remote_chassis_input();
 	remote_launcher_control_input();
 }
+//void remote_gear_shifter(speed_shift_t* gear_speed){
+//	static uint32_t shift_press_time;
+//	static uint32_t ctrl_press_time;
+//	uint8_t temp_msg;
+//	if (g_remote_cmd.left_switch == ge_LSW_CONFIG) {
+//		if (g_remote_cmd.side_dial > 330) {
+//			if (HAL_GetTick() - shift_press_time > 100) {
+//				gear_speed->curr_gear =
+//						(gear_speed->curr_gear < 6) ?
+//								gear_speed->curr_gear + 1 : 6;
+//				temp_msg = bz_high;
+//				for (uint8_t i = 0; i < gear_speed->curr_gear; i++) {
+//					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+//				}
+//			}
+//			shift_press_time = HAL_GetTick();
+//		}
+//
+//		else if (g_remote_cmd.side_dial < -330) {
+//			if (HAL_GetTick() - ctrl_press_time > 100) {
+//				gear_speed->curr_gear =
+//						(gear_speed->curr_gear > 1) ?
+//								gear_speed->curr_gear - 1 : 1;
+//				temp_msg = bz_low;
+//				for (uint8_t i = 0; i < gear_speed->curr_gear; i++) {
+//					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+//				}
+//			}
+//			ctrl_press_time = HAL_GetTick();
+//		}
+//	}
+//}
 
 void remote_chassis_input() {
-	if (g_safety_toggle || g_remote_cmd.right_switch != ge_RSW_ALL_ON) {
+	if (g_safety_toggle || g_remote_cmd.sw != SW_ALL_ON) {
 //		chassis_ctrl_data.enabled = 0;
 		chassis_kill_ctrl();
 	} else {
@@ -42,16 +74,11 @@ void remote_chassis_input() {
 
 			forward_input = (float) g_remote_cmd.left_y / RC_LIMITS;
 			horizontal_input = (float) g_remote_cmd.left_x / RC_LIMITS;
-			if (g_remote_cmd.left_switch == ge_LSW_STANDBY){
-				if (abs(g_remote_cmd.side_dial) > 50 ){
+			if (abs(g_remote_cmd.side_dial) > 50 ){
 				yaw_input = (float)g_remote_cmd.side_dial * CHASSIS_SPINSPIN_MAX/660;
-				}
-				else {
-				yaw_input = chassis_center_yaw();
-				}
 			}
 			else {
-			yaw_input = chassis_center_yaw();
+				yaw_input = chassis_center_yaw();
 			}
 			//min value
 // todo: check this line below. shouldnt it spin instead of centering?
@@ -61,7 +88,7 @@ void remote_chassis_input() {
 }
 
 void remote_gimbal_input() {
-	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN) {
 		gimbal_ctrl_data.enabled = 0;
 	} else {
 		gimbal_ctrl_data.enabled = 1;
@@ -79,16 +106,16 @@ void remote_gimbal_input() {
 
 
 void remote_launcher_control_input() {
-	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN
-			|| g_remote_cmd.left_switch != ge_LSW_UNSAFE) {
+	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN
+			|| g_remote_cmd.trigger == BUTTON_NOT_PRESSED) {
 #ifdef ACTIVE_GUIDANCE
 		launcher_ctrl_data.enabled = 1;
 #endif
 
-		if (g_remote_cmd.left_switch != ge_LSW_UNSAFE) {
+		if (g_remote_cmd.trigger == BUTTON_NOT_PRESSED) {
 			launcher_safety_toggle = 0;
 		}
-		if (g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
+		if (g_remote_cmd.sw == SW_SHUTDOWN){
 			launcher_ctrl_data.enabled = 0;
 		}
 
@@ -97,7 +124,7 @@ void remote_launcher_control_input() {
 	} else {
 		launcher_ctrl_data.enabled = 1;
 		launcher_ctrl_data.projectile_speed = 1;
-		if (g_remote_cmd.left_switch == ge_LSW_UNSAFE) {
+		if (g_remote_cmd.trigger == BUTTON_PRESSED) {
 			launcher_ctrl_data.firing = 1;
 		} else {
 			launcher_ctrl_data.firing = 0;

@@ -26,6 +26,20 @@ enum right_switch
 	ge_RSW_ALL_ON = 2,
 };
 
+enum sw
+{
+	SW_SHUTDOWN = 1,
+	SW_GIMBAL = 2,
+	SW_ALL_ON = 3
+};
+
+enum button_press
+{
+	BUTTON_NOT_PRESSED = 0,
+	BUTTON_PRESSED = 1,
+
+};
+
 #define KEYBOARD_CTRL_MODE	1
 #define REMOTE_CTRL_MODE	2
 #define SBC_CTRL_MODE 		3
@@ -110,9 +124,14 @@ typedef struct {
 	int16_t right_y;
 	int16_t left_x;
 	int16_t left_y;
-	/* Switches - Values range from 1 - 3 */
-	int8_t left_switch;
-	int8_t right_switch;
+	/* Switches / buttons */
+    uint8_t sw;  			// 2-bit mode switch (0-2)
+    uint8_t control_mode;   // pause button (0-1)
+    uint8_t fn_1;     		// function button 1 (0-1)
+    uint8_t fn_2;     		// function button 2 (0-1)
+    uint8_t trigger;  		// trigger button (0-1)
+    /* Side dial - Values range from -660 to 660 */
+	int16_t side_dial;
 	/* Mouse movement - Values range from -32768 to 32767 */
 	int16_t mouse_x;
 	int16_t mouse_y;
@@ -120,22 +139,30 @@ typedef struct {
 	int32_t mouse_hori;
 	int32_t mouse_vert;
 	/* Mouse clicks - Values range from 0 to 1 */
-	int8_t mouse_left;
-	int8_t mouse_right;
+	uint8_t mouse_left;
+	uint8_t mouse_right;
+    uint8_t mouse_middle;
 
 	/* Keyboard keys mapping
 	 * Bit0 -- W 键
 	 * Bit1 -- S 键
-	 *	Bit2 -- A 键
-	 *	Bit3 -- D 键
-	 *	Bit4 -- Q 键
-	 *	Bit5 -- E 键
-	 *	Bit6 -- Shift 键
-	 *	Bit7 -- Ctrl 键
-	 *
+	 * Bit2 -- A 键
+	 * Bit3 -- D 键
+	 * Bit4 -- Shift 键
+	 * Bit5 -- Ctrl 键
+	 * Bit6 -- Q 键
+	 * Bit7 -- E 键
+	 * Bit8 -- R 键
+	 * Bit9 -- F 键
+	 * Bit10 -- G 键
+	 * Bit11 -- Z 键
+	 * Bit12 -- X 键
+	 * Bit13 -- C 键
+	 * Bit14 -- V 键
+	 * Bit15 -- B 键
 	 */
 	uint16_t keyboard_keys;
-	int16_t side_dial;
+
 	uint32_t last_time;
 } remote_cmd_t;
 
