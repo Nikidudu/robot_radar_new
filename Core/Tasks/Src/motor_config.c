@@ -65,13 +65,13 @@ void motor_calib_task(void *argument) {
 				&launcher_control_task_handle);
 	}
 
-//	if (gimbal_event_group == NULL) {
-//		//error handler implement next time!
-//	} else {
-//		xTaskCreate(gimbal_control_task, "gimbal_task",
-//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
-//				&gimbal_control_task_handle);
-//	}
+	if (gimbal_event_group == NULL) {
+		//error handler implement next time!
+	} else {
+		xTaskCreate(gimbal_control_task, "gimbal_task",
+		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
+				&gimbal_control_task_handle);
+	}
 	while (1) {
 		vTaskDelay(1000);
 	}

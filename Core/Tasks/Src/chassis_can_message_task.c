@@ -23,21 +23,28 @@
 // Chassis heartbeat transmission period
 #define CAN_HB_PERIOD_MS 1000
 
-//Global Variables
+// scaling factor to pack float into 2 bytes
+// should be the same on both top and bottom dev C
+#define SCALE 1000.0f
+
+// Global Variables
 extern chassis_control_t chassis_ctrl_data;
 extern TaskHandle_t chassis_heartbeat_task_handle;
 extern ref_game_robot_data_t ref_robot_data;
+extern motor_data_t yaw_motor;
 
 // Function Declarations
 void chassis_heartbeat_task(void *argument);
 void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
 float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
+int16_t pack_value(float x);
 
 //Global Variables (only in this file)
 static float lvl_max_speed;
 static float lvl_max_accel;
 static float lvl_max_spin;
 static float spin_accel = SPIN_ACCELERATION;
+uint8_t tx_buffer[8];
 
 void chassis_can_message_task(void *argument) {
 
@@ -46,7 +53,6 @@ void chassis_can_message_task(void *argument) {
 					&chassis_heartbeat_task_handle);
 
     CAN_TxHeaderTypeDef tx_header;
-    uint8_t tx_buffer[8];
     uint32_t tx_mailbox;
     TickType_t xLastWakeTime;
 
@@ -60,16 +66,16 @@ void chassis_can_message_task(void *argument) {
     float limit_forward;
     float limit_horizontal;
     float limit_yaw;
-    float act_forward;
-    float act_horizontal;
-    float act_yaw;
+    float act_forward = 0.0f;
+    float act_horizontal = 0.0f;
+    float act_yaw = 0.0f;
 
     // Initialize the xLastWakeTime variable with the current time
     xLastWakeTime = xTaskGetTickCount();
 
     while(1) {
 
-    	float rel_angle = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang;
+    	float rel_angle = yaw_motor.angle_data.adj_ang;
 
     	// Setting translational and rotational speed and acceleration base on robot level
     	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
@@ -102,18 +108,37 @@ void chassis_can_message_task(void *argument) {
     			+ (act_forward * -sin(-rel_angle)));
     	float rel_yaw = act_yaw;
 
+    	// convert from float to int16_t
+    	int16_t send_forward = pack_value(rel_forward);
+    	int16_t send_horizontal = pack_value(rel_horizontal);
+    	int16_t send_yaw = pack_value(rel_yaw);
+
+//    	// pack enable_supercap_module and
+//    	uint8_t last_byte = 0;
+//    	/* Bit 7 = supercap */
+//    	if (chassis_ctrl_data.supercap_enabled) {
+//    	    last_byte |= (1 << 7);  // set MSB
+//    	}
+//    	/* Bits 6-0 = power limit (mask to 7 bits just in case) */
+//    	last_byte |= (ref_robot_data.chassis_power_limit & 0x7F);
+
     	// ===== Send CHASSIS_DATA_1 ===== //
         memset(tx_buffer, 0, 8);
-        memcpy(&tx_buffer[0], &rel_forward, sizeof(float));
-        memcpy(&tx_buffer[4], &rel_horizontal, sizeof(float));
 
-//        // typecase from float to scaled int16_t
-//        memcpy(&tx_buffer[0], &act_forward, sizeof(int16_t));
-//        memcpy(&tx_buffer[2], &act_horizontal, sizeof(int16_t));
-//        memcpy(&tx_buffer[4], &act_yaw, sizeof(int16_t));
+//        memcpy(&tx_buffer[0], &send_forward, sizeof(int16_t));
+//        memcpy(&tx_buffer[2], &send_horizontal, sizeof(int16_t));
+//        memcpy(&tx_buffer[4], &send_yaw, sizeof(int16_t));
 //        memcpy(&tx_buffer[6], &chassis_ctrl_data.enabled, sizeof(uint8_t));
-//	    memcpy(&tx_buffer[7], &ref_robot_data.chassis_power_limit, sizeof(uint8_t));
+//	      memcpy(&tx_buffer[7], &ref_robot_data.chassis_power_limit, sizeof(uint8_t));
 
+        tx_buffer[0] = send_forward & 0xFF;
+        tx_buffer[1] = send_forward >> 8;
+        tx_buffer[2] = send_horizontal & 0xFF;
+        tx_buffer[3] = send_horizontal >> 8;
+        tx_buffer[4] = send_yaw & 0xFF;
+        tx_buffer[5] = send_yaw >> 8;
+        tx_buffer[6] = chassis_ctrl_data.enabled;           // set explicitly
+        tx_buffer[7] = ref_robot_data.chassis_power_limit;  // set explicitly
         tx_header.StdId = CHASSIS_DATA_1_ID;
 
         // Wait for a free mailbox and send
@@ -124,27 +149,6 @@ void chassis_can_message_task(void *argument) {
         HAL_GPIO_WritePin(RED_LED_TIM_GPIO_Port, RED_LED_TIM_Pin, 1);
         if(HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_buffer, &tx_mailbox) != HAL_OK) {
             // Handle error if needed
-            Error_Handler();
-        }
-
-        // ===== Send CHASSIS_DATA_2 ====== //
-//        -> chassis_power_limit
-//        <- charging_state
-        memset(tx_buffer, 0, 8);
-        memcpy(&tx_buffer[0], &rel_yaw, sizeof(float));
-        memcpy(&tx_buffer[4], &chassis_ctrl_data.enabled, sizeof(uint8_t));
-        memcpy(&tx_buffer[5], &chassis_ctrl_data.g_spinspin_mode, sizeof(uint8_t));//
-	    memcpy(&tx_buffer[6], &chassis_ctrl_data.supercap_dash, sizeof(uint8_t));//
-	    memcpy(&tx_buffer[7], &chassis_ctrl_data.supercap_enabled, sizeof(uint8_t));//
-
-        tx_header.StdId = CHASSIS_DATA_2_ID;
-
-        // Wait for a free mailbox and send
-        while(HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0) {
-            vTaskDelay(1);
-        }
-
-        if(HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_buffer, &tx_mailbox) != HAL_OK) {
             Error_Handler();
         }
 
@@ -185,6 +189,10 @@ void chassis_heartbeat_task(void *argument) {
 
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CAN_HB_PERIOD_MS));
 	}
+}
+
+int16_t pack_value(float x) {
+    return (int16_t)lroundf(x * SCALE);
 }
 
 

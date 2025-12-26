@@ -454,19 +454,19 @@
 
 #define LAUNCHER_MOTOR_CAN	&hcan2
 #define FEEDER_MOTOR_CAN	&hcan1
-#define LFRICTION_MOTOR_ID	0
-#define RFRICTION_MOTOR_ID	1
-#define BFRICTION_MOTOR_ID	2
-#define GFRICTION_MOTOR_ID	3
-#define FEEDER_MOTOR_ID		4
+#define LFRICTION_MOTOR_ID	1
+#define RFRICTION_MOTOR_ID	2
+#define BFRICTION_MOTOR_ID	3
+#define GFRICTION_MOTOR_ID	4
+#define FEEDER_MOTOR_ID		5
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
 #define PITCH_MOTOR_ID 		0x81
 #define PITCH_MOTOR_CAN_PTR	&hcan1
 #ifndef CHASSIS_MCU
-#define YAW_MOTOR_ID 		20
-#define YAW_MOTOR_CAN_PTR	&hcan2
+#define YAW_MOTOR_ID 		9
+#define YAW_MOTOR_CAN_PTR	&hcan1
 #endif
 
 #define BR_ANG_X			-(3*PI/4)

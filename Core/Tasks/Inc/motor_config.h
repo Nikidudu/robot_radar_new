@@ -49,12 +49,12 @@ void motor_calib_task(void* argument);
 #define TYPE_DM4310_MIT				14
 
 /* CAN DJI 3508 motor */
-#define CAN_3508_ALL_ID		0x201 // receive CAN data from motors
+#define CAN_3508_ALL_ID		0x200 // receive CAN data from motors
 #define CAN_3508_1_TO_4_ID	0x200 // send CAN data to motors
 #define CAN_3508_5_TO_8_ID	0x1FF
 
 /* CAN DJI 6020 motor */
-#define CAN_6020_ALL_ID		0x205
+#define CAN_6020_ALL_ID		0x204
 #define CAN_6020_1_TO_4_ID	0x1FF
 #define CAN_6020_5_TO_8_ID	0x2FF
 

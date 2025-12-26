@@ -15,8 +15,6 @@ extern EventGroupHandle_t chassis_event_group;
 extern EventGroupHandle_t launcher_event_group;
 #define SPEED_LPF 0
 
-motor_map_t lk_motor_map[65];
-motor_map_t dji_motor_map[25];
 //where is this number from lmao
 motor_map_t dm_motor_map[15];
 
@@ -27,20 +25,6 @@ extern motor_data_t yaw_motor;
 extern motor_data_t chassis_wheel[4];
 extern motor_data_t flywheel_motor[4];
 extern motor_data_t feeder_motor;
-
-void map_lk_motor(uint16_t motor_id, motor_data_t *motor_data) {
-	if (motor_id > 0x140 && motor_id <= 0x160) {
-		lk_motor_map[motor_id - 0x140].motor_data = motor_data;
-		lk_motor_map[motor_id - 0x140].motor_id = motor_id;
-	}
-}
-
-void map_dji_motor(uint16_t motor_id, motor_data_t *motor_data) {
-	if (motor_id <= 24) {
-		dji_motor_map[motor_id].motor_id = motor_id;
-		dji_motor_map[motor_id].motor_data = motor_data;
-	}
-}
 
 /**
  * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING
@@ -58,31 +42,16 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 	if (hcan->Instance == CAN2) {
 
 		switch (RxHeader.StdId) {
-
-////		 chassis wheels
-//		case CAN_3508_ALL_ID:
-//		case CAN_3508_ALL_ID + 1:
-//		case CAN_3508_ALL_ID + 2:
-//		case CAN_3508_ALL_ID + 3:
-//			if (CHASSIS_MOTOR_CAN == &hcan2) {
-//				convert_raw_can_data(
-//						&chassis_wheel[RxHeader.StdId - CAN_3508_ALL_ID],
-//						RxHeader.StdId, (uint8_t*) RxData);
-//			}
-//			break;
-
-
-
 // launcher motors (flywheels + feeder)
 // currently launchers and chassis use the same CAN. works since one is for dev C in
 // chassis and one is for dev C in gimbal
-		case CAN_3508_ALL_ID:
-		case CAN_3508_ALL_ID + 1:
-		case CAN_3508_ALL_ID + 2:
-		case CAN_3508_ALL_ID + 3:
+		case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID:
+		case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID:
+		case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID:
+		case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID:
 			if (LAUNCHER_MOTOR_CAN == &hcan2) {
 				convert_raw_can_data(
-						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID],
+						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID - 1],
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
 			break;
@@ -105,18 +74,18 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 			break;
 
 //		case PITCH_MOTOR_ID:
-//			if(PITCH_MOTOR_CAN_PTR) {
+//			if(PITCH_MOTOR_CAN_PTR == &hcan1	) {
 //
 //			}
 
 
 //		yaw motor
-//		case CAN_6020_ALL_ID + 3:
-//			if (YAW_MOTOR_CAN_PTR == &hcan2) {
-//				convert_raw_can_data(&yaw_motor,
-//						RxHeader.StdId, (uint8_t*) RxData);
-//			}
-//			break;
+		case CAN_6020_ALL_ID - 2:
+				convert_raw_can_data(&yaw_motor,
+						RxHeader.StdId, (uint8_t*) RxData);
+			break;
+		default:
+
 		}
 	}
 

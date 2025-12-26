@@ -173,7 +173,7 @@ void buzzing_task(void *argument) {
 			buzzer(0);
 			vTaskDelay(GAP_TIME);
 			buzzer(BUZZER_LOW);
-			vTaskDelay(BUZZ_TIME);
+
 			buzzer(0);
 			vTaskDelay(GAP_TIME);
 			buzzer(BUZZER_HIGH);

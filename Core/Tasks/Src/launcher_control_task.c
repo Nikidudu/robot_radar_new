@@ -108,7 +108,7 @@ void launcher_init() {
 #else
 	feeder_motor.motor_type = TYPE_M2006;
 #endif
-//		flywheel_motor[i].id = CAN_3508_ALL_ID + i;
+//		feeder_motor[i].id = CAN_3508_ALL_ID + i;
 	feeder_motor.can = LAUNCHER_MOTOR_CAN;
 
 	feeder_motor.rpm_pid.kp = FEEDER_KP;
@@ -151,7 +151,7 @@ void launcher_init() {
 
 	for (size_t i = 0; i < number_of_flywheels; i++) {
 			flywheel_motor[i].motor_type = TYPE_M3508_NGEARBOX;
-	//		flywheel_motor[i].id = CAN_3508_ALL_ID + i;
+			flywheel_motor[i].id = CAN_3508_ALL_ID + 1 + i;
 			flywheel_motor[i].can = LAUNCHER_MOTOR_CAN;
 
 			flywheel_motor[i].rpm_pid.kp = FRICTION_KP;

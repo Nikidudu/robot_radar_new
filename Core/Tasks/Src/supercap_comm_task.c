@@ -12,20 +12,21 @@
 
 #include "motor_config.h"
 
-CAN_TxHeaderTypeDef TxHeader;
+extern ref_game_robot_data2_t ref_robot_data;
+extern ref_game_state_t ref_game_state;
 
 float chassis_power;
 uint8_t charging_state;
 uint32_t supercap_last_receive_time = 0;
-int supercap_enabled = 1;
+int supercap_enabled = 1; // controls whether level of robot increases by 10
+uint8_t enable_supercap_module = 1;
 
 #ifdef SUPERCAP_PRESENT
 
 void supercap_comm_task(void *argument) {
 	 uint8_t enable_supercap_module = 1;
 	 uint8_t reset_supercap_module = 0;
-	 extern ref_game_robot_data2_t ref_robot_data;
-	 extern ref_game_state_t ref_game_state;
+
 
 	 CAN_TxHeaderTypeDef TxHeader;
 	 ref_msg_packet txMsg;
@@ -59,7 +60,7 @@ void supercap_comm_task(void *argument) {
 		 }
 
 		 if (HAL_CAN_AddTxMessage(&hcan2, &TxHeader, (uint8_t *)&txMsg, &TxMailbox) != HAL_OK) {
-			 uint8_t i = 1;
+			 Error_Handler();
 		 }
 
 		 if(ref_robot_data.current_HP <= 0 || ref_game_state.game_progress == 5)
