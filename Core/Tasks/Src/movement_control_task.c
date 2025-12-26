@@ -143,7 +143,7 @@ void send_chassis_current_to_motor() {
 
 	CAN_tx_message.StdId = 0x200; // CAN_3508_1_TO_4_ID
 
-	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN) {
 		CAN_send_data[0] = 0;
 		CAN_send_data[1] = 0;
 		CAN_send_data[2] = 0;

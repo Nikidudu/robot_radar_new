@@ -198,7 +198,7 @@ void send_launcher_current_to_motor() {
 
 	// send to friction wheels
 	CAN_tx_message.StdId = CAN_3508_1_TO_4_ID;
-	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
+	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
 		CAN_send_data[0] = 0;
 		CAN_send_data[1] = 0;
 		CAN_send_data[2] = 0;
@@ -229,7 +229,7 @@ void send_launcher_current_to_motor() {
 
 	// send to feeder motor
 	CAN_tx_message.StdId = CAN_2006_5_TO_8_ID;
-	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
+	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
 		CAN_send_data[0] = 0;
 		CAN_send_data[1] = 0;
 		CAN_send_data[2] = 0;

@@ -30,8 +30,9 @@ extern motor_data_t feeder_motor;
  * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING
  * converts the raw can data to the motor_data struct form as well
  */
+CAN_RxHeaderTypeDef RxHeader;
+
 void can_ISR(CAN_HandleTypeDef *hcan) {
-	CAN_RxHeaderTypeDef RxHeader;
 	uint8_t RxData[CAN_BUFFER_SIZE];
 
 	if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData)) {
@@ -80,12 +81,12 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 
 
 //		yaw motor
-		case CAN_6020_ALL_ID - 2:
+		case CAN_6020_ALL_ID + 5:
 				convert_raw_can_data(&yaw_motor,
 						RxHeader.StdId, (uint8_t*) RxData);
 			break;
 		default:
-
+//0x202
 		}
 	}
 

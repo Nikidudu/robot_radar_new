@@ -276,7 +276,7 @@ void send_current_to_yaw_motor() {
 	CAN_tx_message.RTR = CAN_RTR_DATA;
 	CAN_tx_message.DLC = 0x08;
 	CAN_tx_message.StdId = CAN_6020_5_TO_8_ID;
-	if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN) {
+	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN) {
 		CAN_send_data[0] = 0;
 		CAN_send_data[1] = 0;
 		CAN_send_data[2] = 0;

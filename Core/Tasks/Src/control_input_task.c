@@ -50,8 +50,6 @@ void control_input_task(void *argument) {
 	chassis_yaw_pid_init();
 	gimbal_ctrl_data.imu_mode = GIMBAL_MODE;
 	remote_uart_start();
-	gear_speed.curr_gear = GEAR_DEFAULT;
-	set_gear();
 	g_safety_toggle = 1;
 	vTaskDelay(100);
 	uint8_t rc_check;
