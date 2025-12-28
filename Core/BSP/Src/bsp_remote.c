@@ -62,7 +62,6 @@ remote_cmd_t g_remote_cmd = { 0 };
 
 /* External variables --------------------------------------------------------*/
 extern TaskHandle_t control_input_task_handle;
-extern DMA_HandleTypeDef hdma_usart1_rx;
 
 /* Private function prototypes -----------------------------------------------*/
 static uint16_t get_crc16_check_sum(uint8_t *p_msg, uint16_t len, uint16_t crc16);

@@ -171,15 +171,20 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.850718065" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.647140356" name="usb_task.c" rcbsApplicability="disable" resourcePath="Core/Tasks/Src/usb_task.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.914110174.1333184792">
+						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.914110174.1333184792" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.914110174"/>
+					</fileInfo>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.1607294916" name="hud_task.h" rcbsApplicability="disable" resourcePath="Core/Tasks/Inc/hud_task.h" toolsToInvoke=""/>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.1413303518" name="control_sbc.h" rcbsApplicability="disable" resourcePath="Core/Tasks/Inc/control_sbc.h" toolsToInvoke=""/>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.2082039128" name="hud_new.h" rcbsApplicability="disable" resourcePath="Core/Tasks/Inc/hud_new.h" toolsToInvoke=""/>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.532264082" name="bsp_dbus_input.h" rcbsApplicability="disable" resourcePath="Core/BSP/Inc/bsp_dbus_input.h" toolsToInvoke=""/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.225880244" name="bsp_hall.h" rcbsApplicability="disable" resourcePath="Core/BSP/Inc/bsp_hall.h" toolsToInvoke=""/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.2132590852" name="crc8_crc16.h" rcbsApplicability="disable" resourcePath="Core/BSP/Inc/crc8_crc16.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="BSP/Inc/bsp_dbus_input.h|BSP/Src/bsp_dbus_input.c|Tasks/Src/control_sbc.c|Tasks/Src/telemetry_task.c|Tasks/Src/can_relay_task.c|Tasks/Inc/hud_new.h|Tasks/Inc/hud_task.h|Tasks/Src/hud_task.c|Tasks/Src/launcher_control_tasksnail.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry excluding="Threads/Src/SuperCapCommThread.cpp|BRoCo/src/RoCanDriver.cpp|BRoCo/src/CANBus.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="System"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
+						<entry excluding="Tasks/Src/usb_task.c|BSP/Inc/bsp_hall.h|BSP/Src/bsp_hall.c|BSP/Inc/crc8_crc16.h|BSP/Src/crc8_crc16.c|BSP/Src/bsp_usb_redir.c|BSP/Inc/bsp_dbus_input.h|BSP/Src/bsp_dbus_input.c|Tasks/Src/control_sbc.c|Tasks/Src/telemetry_task.c|Tasks/Src/can_relay_task.c|Tasks/Inc/hud_new.h|Tasks/Inc/hud_task.h|Tasks/Src/hud_task.c|Tasks/Src/launcher_control_tasksnail.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
+						<entry excluding="Threads/Src/SuperCapCommThread.cpp|BRoCo/src/RoCanDriver.cpp|BRoCo/src/CANBus.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="System"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="USB_DEVICE"/>
 					</sourceEntries>
 				</configuration>

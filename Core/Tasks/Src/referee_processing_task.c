@@ -55,7 +55,7 @@ void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart){
 		HAL_UART_DMAStop(&REMOTE_UART);
 		remote_uart_start();
 	} else if (huart == &REFEREE_UART){
-	    __HAL_DMA_DISABLE(&hdma_usart6_rx);
+	    __HAL_DMA_DISABLE(&HDMA_REFEREE_RX);
 	    ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
 	}
 }
@@ -139,9 +139,8 @@ void referee_processing_task(void *argument) {
 			}
 		}
 		if (!has_data){
-		    __HAL_DMA_DISABLE(&hdma_usart6_rx);
+		    __HAL_DMA_DISABLE(&HDMA_REFEREE_RX);
 		    ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
-
 		}
 	}
 }
