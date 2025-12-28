@@ -273,8 +273,6 @@ typedef struct
 	uint8_t enabled;
 	uint8_t gimbal_rdy;
 	uint8_t g_spinspin_mode;
-	uint8_t supercap_dash;
-	uint8_t supercap_enabled;
 }chassis_control_t;
 
 typedef struct
@@ -369,6 +367,7 @@ typedef struct{
 	float accel_mult;
 }speed_shift_t;
 
+// sent to supercap module
 typedef struct __attribute__((packed)){
     uint8_t enable_module;	//enable once and leave it (regulation on or off)
     uint8_t reset;			//reset in case got error eg cap voltage too low, UVLO active
@@ -376,12 +375,19 @@ typedef struct __attribute__((packed)){
     uint16_t energy_buffer;	//send over refsys "virtual energy buffer" to abuse
 }ref_msg_packet;
 
-
+// received from supercap module
 typedef struct __attribute__((packed)){
 	float chassis_power;	//originally meant for feedback,  but not really relevant now, use it however you want eg if exceed too long and sc is dead kill motors for a while??
 	uint8_t error;			//any error state
 	uint8_t cap_energy;		//normalized energy left in supercap (impt one)
 }supercap_msg_packet;
+
+typedef struct {
+	float chassis_power;	// idk for now
+	uint8_t charging_state; // amount of energy in supercap (0 - 100)
+	int supercap_enabled;	// AKA should robot go faster
+	uint32_t last_time[2];
+} supercap_data;
 
 enum motor_params
 {
@@ -450,11 +456,4 @@ enum feeder_state_e {
 	FEEDER_FIRING_3
 };
 
-/*
-enum aimbot_data
-{
-	//to be done
-};
-
-*/
 #endif /* TASKS_INC_TYPEDEFS_H_ */

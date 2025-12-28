@@ -463,10 +463,10 @@
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
 #define PITCH_MOTOR_ID 		0x81
-#define PITCH_MOTOR_CAN_PTR	&hcan1
+#define PITCH_MOTOR_CAN		&hcan1
 #ifndef CHASSIS_MCU
 #define YAW_MOTOR_ID 		9
-#define YAW_MOTOR_CAN_PTR	&hcan1
+#define YAW_MOTOR_CAN		&hcan1
 #endif
 
 #define BR_ANG_X			-(3*PI/4)
@@ -475,7 +475,7 @@
 #define	BR_DIST				312
 #define BR_VX_MULT			1		//-cos(BR_ANG_Y - BR_ANG_PASSIVE)/sin(BR_ANG_PASSIVE)
 #define BR_VY_MULT			-1		//-sin(BR_ANG_Y - BR_ANG_PASSIVE)/sin(BR_ANG_PASSIVE)
-#define BR_YAW_MULT			1	//((-BR_DIST * sin(BR_ANG_Y - BR_ANG_PASSIVE - BR_ANG_X)) / (sin(BR_ANG_PASSIVE) * WHEEL_CIRC))
+#define BR_YAW_MULT			1		//((-BR_DIST * sin(BR_ANG_Y - BR_ANG_PASSIVE - BR_ANG_X)) / (sin(BR_ANG_PASSIVE) * WHEEL_CIRC))
 
 /*********************** OTHERS ***********************/
 

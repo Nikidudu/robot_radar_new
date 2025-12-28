@@ -11,21 +11,15 @@
 #include "typedefs.h"
 #include "master_task.h"
 #include "board_lib.h"
+#include "can_msg_processor.h"
+#include "chassis_can_message_task.h"
 
 // CAN message IDs
-#define CHASSIS_DATA_1_ID 0x100
-#define CHASSIS_DATA_2_ID 0x101
 #define CHASSIS_HB_ID 	  0x119
-
 // CAN transmission period
 #define CAN_TX_PERIOD_MS 10
-
 // Chassis heartbeat transmission period
 #define CAN_HB_PERIOD_MS 1000
-
-// scaling factor to pack float into 2 bytes
-// should be the same on both top and bottom dev C
-#define SCALE 1000.0f
 
 // Global Variables
 extern chassis_control_t chassis_ctrl_data;
@@ -45,6 +39,8 @@ static float lvl_max_accel;
 static float lvl_max_spin;
 static float spin_accel = SPIN_ACCELERATION;
 uint8_t tx_buffer[8];
+
+supercap_data supercap;
 
 void chassis_can_message_task(void *argument) {
 
@@ -113,23 +109,17 @@ void chassis_can_message_task(void *argument) {
     	int16_t send_horizontal = pack_value(rel_horizontal);
     	int16_t send_yaw = pack_value(rel_yaw);
 
-//    	// pack enable_supercap_module and
-//    	uint8_t last_byte = 0;
-//    	/* Bit 7 = supercap */
-//    	if (chassis_ctrl_data.supercap_enabled) {
-//    	    last_byte |= (1 << 7);  // set MSB
-//    	}
-//    	/* Bits 6-0 = power limit (mask to 7 bits just in case) */
-//    	last_byte |= (ref_robot_data.chassis_power_limit & 0x7F);
+    	// pack enable_supercap_module and
+    	uint8_t last_byte = 0;
+    	/* Bit 7 = supercap */
+    	if (supercap.supercap_enabled) {
+    	    last_byte |= (1 << 7);  // set MSB
+    	}
+    	/* Bits 6-0 = power limit (mask to 7 bits just in case) */
+    	last_byte |= (ref_robot_data.chassis_power_limit & 0x7F);
 
     	// ===== Send CHASSIS_DATA_1 ===== //
         memset(tx_buffer, 0, 8);
-
-//        memcpy(&tx_buffer[0], &send_forward, sizeof(int16_t));
-//        memcpy(&tx_buffer[2], &send_horizontal, sizeof(int16_t));
-//        memcpy(&tx_buffer[4], &send_yaw, sizeof(int16_t));
-//        memcpy(&tx_buffer[6], &chassis_ctrl_data.enabled, sizeof(uint8_t));
-//	      memcpy(&tx_buffer[7], &ref_robot_data.chassis_power_limit, sizeof(uint8_t));
 
         tx_buffer[0] = send_forward & 0xFF;
         tx_buffer[1] = send_forward >> 8;
@@ -139,7 +129,7 @@ void chassis_can_message_task(void *argument) {
         tx_buffer[5] = send_yaw >> 8;
         tx_buffer[6] = chassis_ctrl_data.enabled;           // set explicitly
         tx_buffer[7] = ref_robot_data.chassis_power_limit;  // set explicitly
-        tx_header.StdId = CHASSIS_DATA_1_ID;
+        tx_header.StdId = DEV_C_TOP_TO_BOT_ID;
 
         // Wait for a free mailbox and send
         while(HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0) {
@@ -206,7 +196,7 @@ void level_config(float *lvl_max_speed, float *lvl_max_accel,
 	//	prev_robot_level = ref_robot_data.robot_level;
 	uint8_t curr_level = ref_robot_data.robot_level;
 
-	if (chassis_ctrl_data.supercap_dash && chassis_ctrl_data.supercap_enabled) {
+	if (supercap.supercap_enabled) {
 		curr_level += 10;
 	}
 

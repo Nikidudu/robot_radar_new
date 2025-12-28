@@ -16,7 +16,7 @@ extern motor_data_t yaw_motor;
 extern motor_data_t pitch_motor;
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
-extern motor_data_t chassis_wheel[4];
+//extern motor_data_t chassis_wheel[4];
 extern motor_data_t flywheel_motor[4];
 extern motor_data_t feeder_motor;
 
@@ -193,27 +193,27 @@ uint16_t check_motors() {
 	uint16_t error = 0;
 	uint32_t curr_time = get_microseconds();
 
-	// chassis wheels
-	if (curr_time - chassis_wheel[FR_MOTOR_ID].last_time[0] > MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (0);
-	} else if (chassis_wheel[FR_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
-		motor_temp_bz(1, 1);
-	}
-	if (curr_time - chassis_wheel[FL_MOTOR_ID].last_time[0] > MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (1);
-	} else if (chassis_wheel[FL_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
-		motor_temp_bz(1, 2);
-	}
-	if (curr_time - chassis_wheel[BL_MOTOR_ID].last_time[0] > MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (2);
-	} else if (chassis_wheel[BL_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
-		motor_temp_bz(1, 3);
-	}
-	if (curr_time - chassis_wheel[BR_MOTOR_ID].last_time[0] > MOTOR_TIMEOUT_MAX) {
-		error |= 1 << (3);
-	} else if (chassis_wheel[BR_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
-		motor_temp_bz(1, 4);
-	}
+//	// chassis wheels
+//	if (curr_time - chassis_wheel[FR_MOTOR_ID].last_time[0] > MOTOR_TIMEOUT_MAX) {
+//		error |= 1 << (0);
+//	} else if (chassis_wheel[FR_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
+//		motor_temp_bz(1, 1);
+//	}
+//	if (curr_time - chassis_wheel[FL_MOTOR_ID].last_time[0] > MOTOR_TIMEOUT_MAX) {
+//		error |= 1 << (1);
+//	} else if (chassis_wheel[FL_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
+//		motor_temp_bz(1, 2);
+//	}
+//	if (curr_time - chassis_wheel[BL_MOTOR_ID].last_time[0] > MOTOR_TIMEOUT_MAX) {
+//		error |= 1 << (2);
+//	} else if (chassis_wheel[BL_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
+//		motor_temp_bz(1, 3);
+//	}
+//	if (curr_time - chassis_wheel[BR_MOTOR_ID].last_time[0] > MOTOR_TIMEOUT_MAX) {
+//		error |= 1 << (3);
+//	} else if (chassis_wheel[BR_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
+//		motor_temp_bz(1, 4);
+//	}
 
 	// launcher flywheels and feeder
 	if (curr_time

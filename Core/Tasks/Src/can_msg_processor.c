@@ -9,11 +9,11 @@
 #include "motor_config.h"
 #include "can_msg_processor.h"
 #include "supercap_comm_task.h"
+#include "chassis_can_message_task.h"
 
 extern EventGroupHandle_t gimbal_event_group;
 extern EventGroupHandle_t chassis_event_group;
 extern EventGroupHandle_t launcher_event_group;
-#define SPEED_LPF 0
 
 //where is this number from lmao
 motor_map_t dm_motor_map[15];
@@ -26,26 +26,70 @@ extern motor_data_t chassis_wheel[4];
 extern motor_data_t flywheel_motor[4];
 extern motor_data_t feeder_motor;
 
+/* Function Prototypes */
+void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer);
+
 /**
- * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING
+ * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING or RxFifo1MsgPendingCallback
  * converts the raw can data to the motor_data struct form as well
  */
-CAN_RxHeaderTypeDef RxHeader;
-
 void can_ISR(CAN_HandleTypeDef *hcan) {
+	CAN_RxHeaderTypeDef RxHeader;
 	uint8_t RxData[CAN_BUFFER_SIZE];
 
-	if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData)) {
-		/* Reception Error */
-		Error_Handler();
-	}
+	// check which CAN bus received it
+	// required because the 2 can buses use seperate FIFOs for receive
+	// CAN1: FIFO0; CAN2: FIFO1
 
-	if (hcan->Instance == CAN2) {
+	if (hcan->Instance == CAN1) {
+		if (can1_get_msg(&RxHeader, RxData) != HAL_OK) {
+			return;
+		}
 
 		switch (RxHeader.StdId) {
-// launcher motors (flywheels + feeder)
-// currently launchers and chassis use the same CAN. works since one is for dev C in
-// chassis and one is for dev C in gimbal
+		// information from bottom dev C
+		case DEV_C_BOT_TO_TOP_ID:
+			process_bot_dev_c_can_msg(&RxHeader.StdId, (uint8_t*) RxData);
+			break;
+
+		// feeder motor
+		case CAN_3508_ALL_ID + 4:
+			if (FEEDER_MOTOR_CAN == &hcan1) {
+				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
+						(uint8_t*) RxData);
+			}
+			break;
+
+		// pitch motor
+		case 0x91: //todo: replace with normal pitch code when switched to DJI mode
+			if (PITCH_MOTOR_CAN == &hcan1) {
+				dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
+			}
+			break;
+//		case PITCH_MOTOR_ID:
+//			if(PITCH_MOTOR_CAN_PTR == &hcan1) {
+//
+//			}
+
+		// yaw motor
+		case CAN_6020_ALL_ID + 5:
+			if (YAW_MOTOR_CAN == &hcan1) {
+				convert_raw_can_data(&yaw_motor,
+						RxHeader.StdId, (uint8_t*) RxData);
+			}
+			break;
+		default:
+//0x202
+		}
+	}
+
+	else if (hcan->Instance == CAN2) {
+		if (can2_get_msg(&RxHeader, RxData) != HAL_OK) {
+			return;
+		}
+
+		switch (RxHeader.StdId) {
+		// launcher motors (flywheels + feeder)
 		case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID:
 		case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID:
 		case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID:
@@ -56,44 +100,18 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
 			break;
-		}
-	}
-	if (hcan->Instance == CAN1) {
-
-		switch (RxHeader.StdId) {
-
-		case CAN_3508_ALL_ID + 4:
-			if (FEEDER_MOTOR_CAN == &hcan1) {
-				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
-						(uint8_t*) RxData);
-			}
-			break;
-
-		// pitch motor
-		case 0x91: //todo: replace with normal pitch code when switched to DJI mode
-			dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
-			break;
-
-//		case PITCH_MOTOR_ID:
-//			if(PITCH_MOTOR_CAN_PTR == &hcan1	) {
-//
-//			}
-
-
-//		yaw motor
-		case CAN_6020_ALL_ID + 5:
-				convert_raw_can_data(&yaw_motor,
-						RxHeader.StdId, (uint8_t*) RxData);
-			break;
 		default:
-//0x202
+
 		}
 	}
+}
 
-//#ifdef SUPERCAP_PRESENT
-//				else if (RxHeader.StdId == DEVC_NODE_ID) {
-//					supercapISR(RxData);
-//				}
+void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer) {
+    supercap.charging_state = rx_buffer[0];
+
+    if (supercap.charging_state < SUPERCAP_DISABLE_THRESHOLD) {
+    	supercap.supercap_enabled = 0;
+    }
 }
 
 void map_dm_motor(uint16_t motor_id, motor_data_t *motor_data) {
@@ -122,7 +140,6 @@ void map_dm_motor(uint16_t motor_id, motor_data_t *motor_data) {
 
 void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 		uint8_t *rx_buffer) {
-	uint16_t idnum = motor_id - 0x200;
 
 	motor_data_t *curr_motor = can_motor_data;
 	//convert the raw data back into the respective values

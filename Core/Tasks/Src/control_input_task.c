@@ -13,6 +13,7 @@
 #include "control_remote.h"
 #include "control_sbc.h"
 #include "INS_task.h"
+#include "chassis_can_message_task.h"
 
 //extern TaskHandle_t buzzing_task_handle;
 //extern TaskHandle_t gimbal_control_task_handle;
@@ -35,7 +36,6 @@ gun_control_t launcher_ctrl_data;
 gimbal_control_t gimbal_ctrl_data;
 pid_data_t yaw_pid_data;
 int aimbot_mode = 0;
-extern int supercap_enabled;
 
 uint8_t control_mode = CONTROL_DEFAULT;
 uint8_t g_safety_toggle = ARM_SWITCH;
@@ -154,7 +154,7 @@ void chassis_centering_config() {
 
 	uint8_t curr_level = ref_robot_data.robot_level;
 
-	if (chassis_ctrl_data.supercap_dash && chassis_ctrl_data.supercap_enabled) {
+	if (supercap.supercap_enabled) {
 		curr_level += 4;
 	}
 	switch (curr_level) {
@@ -298,8 +298,6 @@ void control_reset() {
 	chassis_ctrl_data.yaw = 0;
 	chassis_ctrl_data.enabled = 0;
 	chassis_ctrl_data.g_spinspin_mode = 0;
-	chassis_ctrl_data.supercap_dash = 0;
-	chassis_ctrl_data.supercap_enabled = 0;
 	gimbal_ctrl_data.pitch = 0;
 	gimbal_ctrl_data.yaw = imu_heading.yaw;
 	gimbal_ctrl_data.enabled = 0;

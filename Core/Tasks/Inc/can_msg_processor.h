@@ -12,8 +12,12 @@
 extern "C" {
 #endif
 
-#define DEVC_NODE_ID			0x077
-#define SUPERCAP_NODE_ID        0x067
+// definitions
+#define DEV_C_TOP_TO_BOT_ID 	0x100
+#define DEV_C_BOT_TO_TOP_ID 	0x101
+
+// low-pass-filters: between 0(no filtering) and 1(frozen value)
+#define SPEED_LPF 0
 
 void map_lk_motor(uint16_t motor_id, motor_data_t* motor_data);
 void map_dji_motor(uint16_t motor_id, motor_data_t* motor_data);

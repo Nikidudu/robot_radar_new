@@ -9,7 +9,6 @@
 #ifndef TASKS_INC_MOTOR_CONFIG_H_
 #define TASKS_INC_MOTOR_CONFIG_H_
 
-
 void config_motors();
 void motor_calib_task(void* argument);
 

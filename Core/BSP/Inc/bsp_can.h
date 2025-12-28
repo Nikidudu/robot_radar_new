@@ -40,8 +40,8 @@ void can_ISR(CAN_HandleTypeDef *hcan);
  * @param rx_buffer     Buffer to store received data in. Minimum size of this buffer
  *                      must be 8 bytes.
  */
-HAL_StatusTypeDef can1_get_msg(CAN_HandleTypeDef *hcan, CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer);
-HAL_StatusTypeDef can2_get_msg(CAN_HandleTypeDef *hcan, CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer);
+HAL_StatusTypeDef can1_get_msg(CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer);
+HAL_StatusTypeDef can2_get_msg(CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer);
 /**
  * Sends a message on the selected CAN bus.
  *

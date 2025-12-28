@@ -8,9 +8,6 @@
 #ifndef TASKS_INC_SUPERCAP_COMM_TASK_H_
 #define TASKS_INC_SUPERCAP_COMM_TASK_H_
 
-#include <stm32f4xx_hal.h>
-#include <main.h>
-
 // Energy threshold below which supercap usage is disabled (%)
 #define SUPERCAP_DISABLE_THRESHOLD    20
 // Energy threshold above which supercap usage is re-enabled (%)

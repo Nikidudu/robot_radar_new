@@ -7,17 +7,11 @@
 
 
 #include "board_lib.h"
-#include "bsp_queue.h"
-#include "bsp_referee.h"
-#include "bsp_usart.h"
 #include "hud_new.h"
 #include "referee_msgs.h"
-#include "robot_config.h"
-#include "rtos_g_vars.h"
 #include "hud_constants.h"
-#include "typedefs.h"
-#include "arm_math.h"
-#include "supercap_def.h"
+#include "chassis_can_message_task.h"
+#include "supercap_comm_task.h"
 
 static uint16_t g_client_id = 0;
 extern ref_game_robot_data_t ref_robot_data;
@@ -28,7 +22,7 @@ extern motor_data_t yaw_motor;
 
 int prev_spinspin = 0;
 
-int prev_supercap_dash = 0;
+int prev_supercap_enabled = 0;
 
 extern int aimbot_mode;
 int prev_aimbot = 0;
@@ -56,7 +50,6 @@ extern uint16_t g_motor_fault;
 int prev_motor_error = 0;
 
 extern remote_cmd_t g_remote_cmd;
-extern uint8_t charging_state;
 
 void map_robot_id(uint16_t robot_id){
 	switch (robot_id) {
@@ -263,8 +256,8 @@ void draw_char(uint8_t modify) {
 		}
 #endif
 #ifdef SUPERCAP
-		if (prev_supercap_dash != chassis_ctrl_data.supercap_dash) {
-			prev_supercap_dash = chassis_ctrl_data.supercap_dash;
+		if (prev_supercap_enabled != supercap.supercap_enabled) {
+			prev_supercap_enabled = supercap.supercap_enabled;
 			draw_aimbot(modify, supercap_coords);
 		}
 #endif
@@ -278,7 +271,7 @@ void draw_char(uint8_t modify) {
 		draw_aimbot(modify, aimbot_coords);
 #endif
 #ifdef SUPERCAP
-		prev_supercap_dash = chassis_ctrl_data.supercap_dash;
+		prev_supercap_enabled = supercap.supercap_enabled;
 		draw_aimbot(modify, supercap_coords);
 #endif
 	}
@@ -446,7 +439,7 @@ uint16_t draw_spin_border(uint8_t* tx_buffer, uint8_t modify, uint32_t x_coords)
 
 uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
-	graphic_data->color = (charging_state > SUPERCAP_ENABLE_THRESHOLD) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = (supercap.charging_state > SUPERCAP_ENABLE_THRESHOLD) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'S';
 	graphic_data->graphic_name[1] = 'U';
@@ -459,9 +452,9 @@ uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
 	graphic_data->details_a = 270; // Start angle
 
 	// Show supercap charge, where 0% = min charge and 100% = max charge
-	int supercap_range = 100 - SUPERCAP_DISABLE_THRESHOLD;
+	int supercap_range = 100;// - SUPERCAP_DISABLE_THRESHOLD;
 	float mapped_charging_state = fmaxf(0.0f, fminf(1.0f,
-	    (float)(charging_state - SUPERCAP_DISABLE_THRESHOLD) / (float)supercap_range));
+	    (float)(supercap.charging_state - SUPERCAP_DISABLE_THRESHOLD) / (float)supercap_range));
 
 	int curr_lvl = fmaxf(1, (int)(mapped_charging_state * ANGLE_LIMIT));
 
@@ -484,12 +477,12 @@ void draw_supercap_status(uint8_t modify, uint32_t x_coords) {
 	char char_buffer[30];
 	graphic_data_struct_t* graphic_data;
 #ifdef SUPERCAP
-	char_len = chassis_ctrl_data.supercap_dash ?
+	char_len = supercap.supercap_enabled ?
 			snprintf((char*) char_buffer, 30, "CAP ON") :
 			snprintf((char*) char_buffer, 30, "CAP OFF");
 	curr_pos = draw_char_header(tx_buffer, char_len);
 	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
-	graphic_data->color = chassis_ctrl_data.supercap_dash ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = supercap.supercap_enabled ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 
 #endif
 

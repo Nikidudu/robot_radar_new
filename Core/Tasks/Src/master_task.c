@@ -8,7 +8,6 @@
 #include "board_lib.h"
 //#include "startup_task.h"
 #include "gimbal_control_task.h"
-#include "movement_control_task.h"
 #include "referee_processing_task.h"
 #include "control_input_task.h"
 #include "launcher_control_task.h"
@@ -19,7 +18,6 @@
 #include "motor_control_task.h"
 #include "INS_task.h"
 #include "hud_new.h"
-#include "supercap_comm_task.h"
 #include "master_task.h"
 #include "error_handler_task.h"
 
@@ -40,7 +38,6 @@ TaskHandle_t imu_processing_task_handle;
 TaskHandle_t telemetry_task_handle;
 TaskHandle_t motor_control_task_handle;
 TaskHandle_t hud_task_handle;
-TaskHandle_t supercap_task_handle;
 TaskHandle_t dm_motor_control_task_handle;
 TaskHandle_t INS_task_handle;
 TaskHandle_t chassis_heartbeat_task_handle;
@@ -108,20 +105,15 @@ void master_task(void *argument) {
 	xTaskCreate(buzzing_task, "buzzer_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &buzzing_task_handle);
 
-	if (usb_continue_semaphore == NULL) {
-		//error handler
-	} else {
-		xTaskCreate(usb_task, "usb_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &usb_task_handle);
-	}
+//	if (usb_continue_semaphore == NULL) {
+//		//error handler
+//	} else {
+//		xTaskCreate(usb_task, "usb_task",
+//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &usb_task_handle);
+//	}
 
 //	xTaskCreate(telemetry_task, "telemetry_task", 700, (void*) 1,
 //			(UBaseType_t) 5, &telemetry_task_handle);
-
-#ifdef SUPERCAP_PRESENT
-	xTaskCreate(supercap_comm_task, "supercap_comm_task",
-	configMINIMAL_STACK_SIZE, NULL, (UBaseType_t) 1, &supercap_task_handle);
-#endif
 
 	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3, (UBaseType_t) 5,
 			&hud_task_handle);

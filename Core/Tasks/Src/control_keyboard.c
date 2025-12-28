@@ -11,6 +11,7 @@
 #include "control_input_task.h"
 #include "control_keyboard.h"
 #include "motor_control.h"
+#include "chassis_can_message_task.h"
 
 extern remote_cmd_t g_remote_cmd;
 extern QueueHandle_t g_buzzing_task_msg;
@@ -75,7 +76,7 @@ void keyboard_chassis_input() {
 			}
 			if (g_remote_cmd.keyboard_keys & KEY_OFFSET_SHIFT) {
 			    if (shift_prev_state == 0 && HAL_GetTick() - shift_last_change_time > debounce_time) {
-			        chassis_ctrl_data.supercap_dash ^= 1;  // toggle 0 ↔ 1
+			        supercap.supercap_enabled ^= 1;  // toggle 0 ↔ 1
 			        shift_prev_state = 1;
 			        shift_last_change_time = HAL_GetTick();
 			    }

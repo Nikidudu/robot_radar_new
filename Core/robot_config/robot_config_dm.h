@@ -315,10 +315,10 @@
  //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
  //with any id 6 motors
  #define PITCH_MOTOR_ID 		8
- #define PITCH_MOTOR_CAN_PTR	&hcan1
+ #define PITCH_MOTOR_CAN	&hcan1
  #ifndef CHASSIS_MCU
  #define YAW_MOTOR_ID 		17
- #define YAW_MOTOR_CAN_PTR	&hcan2
+ #define YAW_MOTOR_CAN	&hcan2
  #endif
  
  

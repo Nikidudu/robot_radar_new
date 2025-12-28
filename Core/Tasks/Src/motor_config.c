@@ -9,7 +9,6 @@
 #include "robot_config.h"
 #include "motor_config.h"
 #include "gimbal_control_task.h"
-#include "movement_control_task.h"
 #include "launcher_control_task.h"
 #include "motor_control_task.h"
 #include "can_msg_processor.h"
@@ -239,7 +238,7 @@ void dm_set_pitch_motor() {
 	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
 	dm_pitch_motor.id = PITCH_MOTOR_ID;
 	dm_pitch_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
-	dm4310_enable(PITCH_MOTOR_CAN_PTR, &dm_pitch_motor);
+	dm4310_enable(PITCH_MOTOR_CAN, &dm_pitch_motor);
 
 //    PID_Init(&gimbal_pid_pitch, DM_PITCH_MIT_KP, DM_PITCH_MIT_KI, DM_PITCH_MIT_KD,
 //    		DM_PITCH_MIT_INT_MAX, DM_PITCH_MIT_MAX_OUT);
