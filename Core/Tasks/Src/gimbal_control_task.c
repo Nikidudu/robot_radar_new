@@ -10,6 +10,8 @@
 #include "gimbal_control_task.h"
 #include "INS_task.h"
 #include "motor_control.h"
+#include "imu_processing_task.h"
+#include "control_input_task.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -37,17 +39,12 @@ static pid_data_t g_yaw_ff_pid = {
 /* From other tasks (extern) */
 // input variables
 extern uint8_t control_mode;
-extern uint8_t aimbot_mode;
 extern remote_cmd_t g_remote_cmd;
 extern uint8_t g_safety_toggle;
-
-extern gimbal_control_t gimbal_ctrl_data;
-extern chassis_control_t chassis_ctrl_data;
 
 extern uint8_t gimbal_upper_bound;
 extern uint8_t gimbal_lower_bound;
 // imu values
-extern orientation_data_t imu_heading;
 extern INS_t INS;
 
 // dm motors (todo: to be removed)

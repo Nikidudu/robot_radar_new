@@ -10,6 +10,7 @@
 #include "can_msg_processor.h"
 #include "supercap_comm_task.h"
 #include "chassis_can_message_task.h"
+#include "gimbal_control_task.h"
 
 extern EventGroupHandle_t gimbal_event_group;
 extern EventGroupHandle_t chassis_event_group;
@@ -20,7 +21,6 @@ motor_map_t dm_motor_map[15];
 
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
-extern motor_data_t yaw_motor;
 
 extern motor_data_t chassis_wheel[4];
 extern motor_data_t flywheel_motor[4];

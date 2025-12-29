@@ -14,16 +14,11 @@
 #include "control_sbc.h"
 #include "INS_task.h"
 #include "chassis_can_message_task.h"
-
-//extern TaskHandle_t buzzing_task_handle;
-//extern TaskHandle_t gimbal_control_task_handle;
-//extern TaskHandle_t movement_control_task_handle;
-//extern TaskHandle_t control_input_task_handle;
+#include "imu_processing_task.h"
 
 extern motor_data_t pitch_motor;
 extern motor_data_t yaw_motor;
 
-extern orientation_data_t imu_heading;
 extern INS_t INS;
 extern QueueHandle_t g_buzzing_task_msg;
 extern remote_cmd_t g_remote_cmd;
@@ -35,7 +30,7 @@ chassis_control_t chassis_ctrl_data;
 gun_control_t launcher_ctrl_data;
 gimbal_control_t gimbal_ctrl_data;
 pid_data_t yaw_pid_data;
-int aimbot_mode = 0;
+uint8_t aimbot_mode;
 
 uint8_t control_mode = CONTROL_DEFAULT;
 uint8_t g_safety_toggle = ARM_SWITCH;
@@ -257,39 +252,6 @@ void chassis_kill_ctrl() {
 	chassis_ctrl_data.forward = 0;
 	chassis_ctrl_data.horizontal = 0;
 	chassis_ctrl_data.yaw = 0;
-}
-uint8_t gimbal_aim_at_damaged_plate(float *yaw_rad) {
-	static uint32_t last_dmg_data;
-	if (last_dmg_data != ref_dmg_data_txno) {
-		last_dmg_data = ref_dmg_data_txno;
-		if (ref_dmg_data.dmg_type == 0) {
-			switch (ref_dmg_data.armor_type) {
-			case 1:
-				*yaw_rad = imu_heading.yaw - yaw_motor.angle_data.adj_ang
-						+ (PI / 2);
-
-				return 1;
-			case 2:
-				*yaw_rad = imu_heading.yaw - yaw_motor.angle_data.adj_ang
-						+ (PI);
-
-				return 1;
-			case 3:
-				*yaw_rad = imu_heading.yaw - yaw_motor.angle_data.adj_ang
-						- (PI / 2);
-
-				return 1;
-			case 0:
-				*yaw_rad = imu_heading.yaw - yaw_motor.angle_data.adj_ang;
-
-				return 1;
-			default:
-				break;
-
-			}
-		}
-	}
-	return 0;
 }
 
 void control_reset() {

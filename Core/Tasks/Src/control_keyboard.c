@@ -12,10 +12,10 @@
 #include "control_keyboard.h"
 #include "motor_control.h"
 #include "chassis_can_message_task.h"
+#include "imu_processing_task.h"
 
 extern remote_cmd_t g_remote_cmd;
 extern QueueHandle_t g_buzzing_task_msg;
-extern orientation_data_t imu_heading;
 extern chassis_control_t chassis_ctrl_data;
 extern gun_control_t launcher_ctrl_data;
 extern gimbal_control_t gimbal_ctrl_data;
@@ -23,7 +23,6 @@ extern uint8_t g_safety_toggle;
 extern uint8_t launcher_safety_toggle;
 
 static float curr_spinspin = 0;
-extern int aimbot_mode;
 
 uint32_t supercap_timer = 0;
 extern float supercap_test;

@@ -5,14 +5,10 @@
  *      Author: zhan-hao
  */
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "can.h"
-#include "typedefs.h"
-#include "master_task.h"
 #include "board_lib.h"
 #include "can_msg_processor.h"
 #include "chassis_can_message_task.h"
+#include "gimbal_control_task.h"
 
 // CAN message IDs
 #define CHASSIS_HB_ID 	  0x119
@@ -25,7 +21,6 @@
 extern chassis_control_t chassis_ctrl_data;
 extern TaskHandle_t chassis_heartbeat_task_handle;
 extern ref_game_robot_data_t ref_robot_data;
-extern motor_data_t yaw_motor;
 
 // Function Declarations
 void chassis_heartbeat_task(void *argument);

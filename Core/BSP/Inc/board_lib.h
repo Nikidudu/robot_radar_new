@@ -12,7 +12,6 @@ extern "C" {
 /* --- RTOS & Middleware --- */
 #include "cmsis_os.h"
 #include "FreeRTOS.h"
-#include "usart.h"
 #include "usbd_cdc_if.h"
 /* --- Project Config --- */
 #include "board_settings.h"

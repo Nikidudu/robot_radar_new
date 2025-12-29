@@ -5,9 +5,16 @@
  *      Author: wx
  */
 #include "board_lib.h"
-#include "bsp_imu.h"
-#include "robot_config.h"
 #include "imu_processing_task.h"
+
+void imu_proc_task_notif();
+void gyro_data_ready(gyro_data_t gyro_data);
+void accel_data_ready(accel_data_t accel_data);
+void mag_data_ready(mag_data_t mag_data);
+void imu_processing_task(void *argument);
+void init_quaternion(void);
+void imu_ahrs_update(void);
+void imu_attitude_update(void);
 
 float imu_test[6];
 static volatile float q0 = 1.0f;

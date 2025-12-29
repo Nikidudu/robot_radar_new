@@ -5,26 +5,21 @@
  *      Author: cw
  */
 
-
 #include "board_lib.h"
 #include "hud_new.h"
 #include "referee_msgs.h"
 #include "hud_constants.h"
 #include "chassis_can_message_task.h"
 #include "supercap_comm_task.h"
+#include "control_input_task.h"
+#include "gimbal_control_task.h"
 
 static uint16_t g_client_id = 0;
 extern ref_game_robot_data_t ref_robot_data;
 extern uint8_t g_ref_tx_seq;
-extern chassis_control_t chassis_ctrl_data;
-
-extern motor_data_t yaw_motor;
 
 int prev_spinspin = 0;
-
 int prev_supercap_enabled = 0;
-
-extern int aimbot_mode;
 int prev_aimbot = 0;
 
 static uint32_t spin_coords = 0;
@@ -36,7 +31,6 @@ int prev_feeder_state;
 extern float rel_pitch_angle;
 int feeder_state_enabled = 0;
 
-extern gimbal_control_t gimbal_ctrl_data;
 extern float rel_pitch_angle;
 extern motor_data_t pitch_motor;
 

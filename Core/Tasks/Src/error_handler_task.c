@@ -9,11 +9,10 @@
 #include "error_handler_task.h"
 #include "master_task.h"
 #include "motor_config.h"
+#include "gimbal_control_task.h"
 
 extern QueueHandle_t g_buzzing_task_msg;
 
-extern motor_data_t yaw_motor;
-extern motor_data_t pitch_motor;
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
 //extern motor_data_t chassis_wheel[4];
