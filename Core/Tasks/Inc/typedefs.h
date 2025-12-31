@@ -268,11 +268,9 @@ typedef struct
 	float forward;
 	float horizontal;
 	float yaw;
-	float max_linear_accel;
-	float max_rad_accel;
 	uint8_t enabled;
-	uint8_t gimbal_rdy;
 	uint8_t g_spinspin_mode;
+	uint32_t last_time[2]; 	// time stamps of previous communication between Dev C's
 }chassis_control_t;
 
 typedef struct

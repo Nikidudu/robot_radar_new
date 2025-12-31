@@ -40,7 +40,6 @@ TaskHandle_t motor_control_task_handle;
 TaskHandle_t hud_task_handle;
 TaskHandle_t dm_motor_control_task_handle;
 TaskHandle_t INS_task_handle;
-TaskHandle_t chassis_heartbeat_task_handle;
 
 EventGroupHandle_t gimbal_event_group;
 EventGroupHandle_t chassis_event_group;
@@ -81,9 +80,11 @@ void master_task(void *argument) {
 	/* add threads, ... */
 	//todo: adjust priorities
 	//Threads creation
+#ifdef SENTRY
 	xTaskCreate(INS_task, "INS_task",
 	        configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 	        &INS_task_handle);
+#endif
 
 	xTaskCreate(imu_processing_task, "IMU_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,

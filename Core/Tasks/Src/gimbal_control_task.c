@@ -283,14 +283,14 @@ void send_current_to_yaw_motor() {
 		CAN_send_data[6] = 0;
 		CAN_send_data[7] = 0;
 	} else {
-		CAN_send_data[0] = (0 >> 8) & 0xFF;
-		CAN_send_data[1] = (0) & 0xFF;
+		CAN_send_data[0] = (yaw_motor.output >> 8) & 0xFF;
+		CAN_send_data[1] = (yaw_motor.output) & 0xFF;
 		CAN_send_data[2] = (0 >> 8) & 0xFF;
 		CAN_send_data[3] = (0) & 0xFF;
 		CAN_send_data[4] = (0 >> 8) & 0xFF;
 		CAN_send_data[5] = (0) & 0xFF;
-		CAN_send_data[6] = (yaw_motor.output >> 8) & 0xFF;
-		CAN_send_data[7] = (yaw_motor.output) & 0xFF;
+		CAN_send_data[6] = (0 >> 8) & 0xFF;
+		CAN_send_data[7] = (0) & 0xFF;
 	}
 	HAL_CAN_AddTxMessage(YAW_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 			send_mail_box);

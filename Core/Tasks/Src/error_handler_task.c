@@ -7,15 +7,13 @@
 
 #include "board_lib.h"
 #include "error_handler_task.h"
-#include "master_task.h"
-#include "motor_config.h"
 #include "gimbal_control_task.h"
+#include "control_input_task.h"
 
 extern QueueHandle_t g_buzzing_task_msg;
 
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
-//extern motor_data_t chassis_wheel[4];
 extern motor_data_t flywheel_motor[4];
 extern motor_data_t feeder_motor;
 
@@ -56,14 +54,14 @@ void error_handler_task(void *argument) {
 					delay += 600;
 				}
 			}
-			// launcher motors
+			// launcher motors (2 flywheels + 1 feeder)
 			for (uint8_t i = 4; i < 7; i++) {
 				if (error & (1 << (i))) {
 					bz_buzzer(2, (i - 3));
 					delay += 600;
 				}
 			}
-			// gimbal motors
+			// gimbal motors (pitch + yaw)
 			for (uint8_t i = 7; i < 9; i++) {
 				if (error & (1 << (i))) {
 					bz_buzzer(3, (i - 6));
@@ -79,6 +77,14 @@ void error_handler_task(void *argument) {
 				}
 			}
 #endif
+			// bottom dev C
+			for (uint8_t i = 11; i < 12; i++) {
+				if (error & (1 << (i))) {
+					bz_buzzer(4, (i - 10));
+					delay += 600;
+				}
+			}
+
 			vTaskDelay(delay);
 		}
 	}
@@ -127,6 +133,13 @@ void error_handler_task(void *argument) {
 					}
 				}
 #endif
+				for (uint8_t i = 11; i < 12; i++) {
+					if (error & (1 << (i))) {
+						bz_buzzer(4, (i - 10));
+						delay += 600;
+					}
+				}
+
 				vTaskDelay(delay);
 				continue;
 			} else if (MOTOR_ONLINE_CHECK == 0) {
@@ -216,15 +229,15 @@ uint16_t check_motors() {
 
 	// launcher flywheels and feeder
 	if (curr_time
-			- flywheel_motor[LFRICTION_MOTOR_ID].last_time[0]> MOTOR_TIMEOUT_MAX) {
+			- flywheel_motor[LFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << (4);
-	} else if (flywheel_motor[LFRICTION_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
+	} else if (flywheel_motor[LFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 		motor_temp_bz(2, 1);
 	}
 	if (curr_time
-			- flywheel_motor[RFRICTION_MOTOR_ID].last_time[0]> MOTOR_TIMEOUT_MAX) {
+			- flywheel_motor[RFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << (5);
-	} else if (flywheel_motor[RFRICTION_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
+	} else if (flywheel_motor[RFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 		motor_temp_bz(2, 2);
 	}
 	if (curr_time
@@ -236,15 +249,15 @@ uint16_t check_motors() {
 
 #ifdef ACTIVE_GUIDANCE
 	if (curr_time
-			- flywheel_motor[BFRICTION_MOTOR_ID].last_time[0]> MOTOR_TIMEOUT_MAX) {
+			- flywheel_motor[BFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 9;
-	} else if (flywheel_motor[BFRICTION_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
+	} else if (flywheel_motor[BFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(2, 4);
 	}
 	if (curr_time
-			- flywheel_motor[GFRICTION_MOTOR_ID].last_time[0]> MOTOR_TIMEOUT_MAX) {
+			- flywheel_motor[GFRICTION_MOTOR_ID - 1].last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 10;
-	} else if (flywheel_motor[GFRICTION_MOTOR_ID].raw_data.temp > HITEMP_WARNING) {
+	} else if (flywheel_motor[GFRICTION_MOTOR_ID - 1].raw_data.temp > HITEMP_WARNING) {
 			motor_temp_bz(2, 5);
 	}
 #endif
@@ -258,8 +271,7 @@ uint16_t check_motors() {
 	} else if (dm_pitch_motor.para.state != 9) {
 		// pitch motor not accepting data from dev c
 		dm_pitch_motor.para.disconnect_time++;
-		if (dm_pitch_motor.para.state != 9
-				&& dm_pitch_motor.para.disconnect_time > 100) {
+		if (dm_pitch_motor.para.state != 9 && dm_pitch_motor.para.disconnect_time > 100) {
 			error |= 1 << 7;
 			dm_set_pitch_motor();
 		}
@@ -286,7 +298,7 @@ uint16_t check_motors() {
 		// yaw motor not accepting data from dev c
         dm_yaw_motor.para.disconnect_time++;
 		if (dm_yaw_motor.para.state != 9 && dm_yaw_motor.para.disconnect_time > 100) {
-			error |= 1 << 7;
+			error |= 1 << 8;
 			dm_set_yaw_motor();
 		}
 	} else if (dm_yaw_motor.para.Tcoil > HITEMP_WARNING) {
@@ -294,13 +306,17 @@ uint16_t check_motors() {
 	}
     dm_yaw_motor.para.disconnect_time = 0;
 #else
-	if (curr_time
-			- yaw_motor.last_time[0]> MOTOR_TIMEOUT_MAX) {
+	if (curr_time - yaw_motor.last_time[0]> MOTOR_TIMEOUT_MAX) {
 		error |= 1 << 8;
 	} else if (yaw_motor.raw_data.temp > HITEMP_WARNING) {
 		motor_temp_bz(3, 2);
 	}
 #endif
+
+	// bottom dev C
+	if (curr_time - chassis_ctrl_data.last_time[0] > MOTOR_TIMEOUT_MAX) {
+		error |= 1 << 8;
+	}
 
 	return error;
 }

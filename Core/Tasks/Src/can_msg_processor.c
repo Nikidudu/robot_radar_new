@@ -61,7 +61,7 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 			break;
 
 		// pitch motor
-		case 0x91: //todo: replace with normal pitch code when switched to DJI mode
+		case DM_PITCH_MOTOR_ID: //todo: replace with normal pitch code when switched to DJI mode
 			if (PITCH_MOTOR_CAN == &hcan1) {
 				dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
 			}
@@ -72,14 +72,14 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 //			}
 
 		// yaw motor
-		case CAN_6020_ALL_ID + 5:
+		case CAN_6020_ALL_ID + YAW_MOTOR_ID:
 			if (YAW_MOTOR_CAN == &hcan1) {
 				convert_raw_can_data(&yaw_motor,
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
 			break;
 		default:
-//0x202
+
 		}
 	}
 
@@ -89,7 +89,7 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 		}
 
 		switch (RxHeader.StdId) {
-		// launcher motors (flywheels + feeder)
+		// launcher motors (flywheels)
 		case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID:
 		case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID:
 		case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID:
@@ -112,13 +112,9 @@ void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer) {
     if (supercap.charging_state < SUPERCAP_DISABLE_THRESHOLD) {
     	supercap.supercap_enabled = 0;
     }
-}
 
-void map_dm_motor(uint16_t motor_id, motor_data_t *motor_data) {
-	if (motor_id > 0x200 && motor_id <= 0x20E) {
-		dm_motor_map[motor_id - 0x200].motor_id = motor_id;
-		dm_motor_map[motor_id - 0x200].motor_data = motor_data;
-	}
+	supercap.last_time[1] = supercap.last_time[0];
+	supercap.last_time[0] = get_microseconds();
 }
 
 /*
@@ -137,7 +133,6 @@ void map_dm_motor(uint16_t motor_id, motor_data_t *motor_data) {
  *
  * For GM6020 motors, it recenters the motor angle data and converts it to radians.
  */
-
 void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 		uint8_t *rx_buffer) {
 

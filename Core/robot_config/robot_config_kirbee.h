@@ -442,71 +442,31 @@
 #define YAW_MIN_ANG				5*-PI
 
 /*********************** MOTOR CONFIGURATION *******************/
-//CAN ids for the motors, for motors on the CAN2 bus, add 12
-//ADD 4 TO GM6020 IDS i.e. flashing 5 times = ID 9
-#ifndef CHASSIS_MCU
+// NOTE: two motors on the same CAN CANNOT have the same flashing number
+
 #define CHASSIS_MOTOR_CAN 	&hcan2
-#define	FR_MOTOR_ID  		0   // Front Right
-#define	FL_MOTOR_ID   		1   // Front Left
-#define	BL_MOTOR_ID   		2   // Back Left
-#define	BR_MOTOR_ID   		3   // Back Right
-#endif
+#define	FR_MOTOR_ID  		1   // Front Right
+#define	FL_MOTOR_ID   		2   // Front Left
+#define	BL_MOTOR_ID   		3   // Back Left
+#define	BR_MOTOR_ID   		4   // Back Right
 
 #define LAUNCHER_MOTOR_CAN	&hcan2
-#define FEEDER_MOTOR_CAN	&hcan1
 #define LFRICTION_MOTOR_ID	1
 #define RFRICTION_MOTOR_ID	2
 #define BFRICTION_MOTOR_ID	3
 #define GFRICTION_MOTOR_ID	4
+#define FEEDER_MOTOR_CAN	&hcan1
 #define FEEDER_MOTOR_ID		5
 
-//NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
-//with any id 6 motors
-#define PITCH_MOTOR_ID 		0x81
 #define PITCH_MOTOR_CAN		&hcan1
-#ifndef CHASSIS_MCU
-#define YAW_MOTOR_ID 		9
+#define PITCH_MOTOR_ID 		0x81
+#define DM_PITCH_MOTOR_ID	0x91 // for DM receiving can ID
 #define YAW_MOTOR_CAN		&hcan1
-#endif
-
-#define BR_ANG_X			-(3*PI/4)
-#define BR_ANG_Y 			-PI/2
-#define BR_ANG_PASSIVE		-PI/4
-#define	BR_DIST				312
-#define BR_VX_MULT			1		//-cos(BR_ANG_Y - BR_ANG_PASSIVE)/sin(BR_ANG_PASSIVE)
-#define BR_VY_MULT			-1		//-sin(BR_ANG_Y - BR_ANG_PASSIVE)/sin(BR_ANG_PASSIVE)
-#define BR_YAW_MULT			1		//((-BR_DIST * sin(BR_ANG_Y - BR_ANG_PASSIVE - BR_ANG_X)) / (sin(BR_ANG_PASSIVE) * WHEEL_CIRC))
+#define YAW_MOTOR_ID 		5
 
 /*********************** OTHERS ***********************/
 
-#define WHEEL_CIRC			7.625	//in CM
-#define WHEEL_RADIUS		76.0f
-#define CHASSIS_RADIUS		210.0f
-
-#define FR_ANG_X			-PI/4
-#define FR_ANG_Y 			-PI/2
-#define FR_ANG_PASSIVE		PI/4
-#define FR_DIST				312
-#define FR_VX_MULT			-1		//-cos(FR_ANG_Y - FR_ANG_PASSIVE)/sin(FR_ANG_PASSIVE)
-#define FR_VY_MULT			-1		//-sin(FR_ANG_Y - FR_ANG_PASSIVE)/sin(FR_ANG_PASSIVE)
-#define FR_YAW_MULT			1		//((-FR_DIST * sin(FR_ANG_Y - FR_ANG_PASSIVE - FR_ANG_X)) / (sin(FR_ANG_PASSIVE) * WHEEL_CIRC))
-
-#define FL_ANG_X			PI/4
-#define FL_ANG_Y 			PI/2
-#define FL_ANG_PASSIVE		-PI/4
-#define FL_DIST				312
-#define FL_VX_MULT			-1 		//-cos(FL_ANG_Y - FL_ANG_PASSIVE)/sin(FL_ANG_PASSIVE)
-#define FL_VY_MULT			1		//-sin(FL_ANG_Y - FL_ANG_PASSIVE)/sin(FL_ANG_PASSIVE)
-#define FL_YAW_MULT			1	//((-FL_DIST * sin(FL_ANG_Y - FL_ANG_PASSIVE - FL_ANG_X)) / (sin(FL_ANG_PASSIVE) * WHEEL_CIRC))
-
-#define BL_ANG_X			(3*PI/4)
-#define BL_ANG_Y 			PI/2
-#define BL_ANG_PASSIVE		PI/4
-#define BL_DIST				312
-#define BL_VX_MULT			1		//-cos(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
-#define BL_VY_MULT			1		//-sin(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
-#define BL_YAW_MULT			1	//((-BL_DIST * sin(BL_ANG_Y - BL_ANG_PASSIVE - BL_ANG_X)) / (sin(BL_ANG_PASSIVE) * WHEEL_CIRC))
-
+#define WHEEL_CIRC			47.1	//in CM
 
 #define CONTROL_DELAY 		5
 #define GIMBAL_DELAY		2
@@ -515,6 +475,5 @@
 
 //microsecond timer used for PIDs
 #define TIMER_FREQ			1000000 //Cannot be too high if not the ISRs overload the CPU
-
 
 #endif /* ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE_H_ */
