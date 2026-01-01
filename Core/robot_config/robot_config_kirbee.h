@@ -458,11 +458,11 @@
 #define BFRICTION_MOTOR_ID	3
 #define GFRICTION_MOTOR_ID	4
 #define FEEDER_MOTOR_CAN	&hcan1
-#define FEEDER_MOTOR_ID		5
+#define FEEDER_MOTOR_ID		1
 
 #define PITCH_MOTOR_CAN		&hcan1
-#define PITCH_MOTOR_ID 		1
-#define DM_PITCH_MOTOR_ID	0x91 // for DM receiving can ID
+#define PITCH_MOTOR_ID 		0x1
+//#define DM_PITCH_MOTOR_ID	0x91 // for DM receiving can ID
 #define YAW_MOTOR_CAN		&hcan1
 #define YAW_MOTOR_ID 		5
 

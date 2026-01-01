@@ -53,7 +53,7 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 			break;
 
 		// feeder motor
-		case CAN_3508_ALL_ID + 4:
+		case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
 			if (FEEDER_MOTOR_CAN == &hcan1) {
 				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
 						(uint8_t*) RxData);
@@ -78,7 +78,7 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 #endif
 
 		// yaw motor
-		case CAN_6020_ALL_ID + YAW_MOTOR_ID:
+		case CAN_6020_ALL_ID + YAW_MOTOR_ID - 1:
 			if (YAW_MOTOR_CAN == &hcan1) {
 				convert_raw_can_data(&yaw_motor,
 						RxHeader.StdId, (uint8_t*) RxData);
@@ -96,13 +96,13 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 
 		switch (RxHeader.StdId) {
 		// launcher motors (flywheels)
-		case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID:
-		case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID:
-		case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID:
-		case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID:
+		case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID - 1:
+		case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID - 1:
+		case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID - 1:
+		case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID - 1:
 			if (LAUNCHER_MOTOR_CAN == &hcan2) {
 				convert_raw_can_data(
-						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID - 1],
+						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID],
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
 			break;

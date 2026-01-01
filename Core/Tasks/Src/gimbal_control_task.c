@@ -117,7 +117,7 @@ void gimbal_control_task(void *argument) {
 void yaw_init() {
 #if defined(YAW_MOTOR_ID) && (YAW_MOTOR_TYPE != TYPE_DM4310_MIT)
 	yaw_motor.motor_type = TYPE_GM6020_720;
-	yaw_motor.id = YAW_MOTOR_ID;
+	yaw_motor.id = CAN_6020_ALL_ID + YAW_MOTOR_ID - 1;
 	yaw_motor.can = YAW_MOTOR_CAN;
 
 	yaw_motor.angle_data.center_ang = YAW_CENTER;
@@ -193,26 +193,20 @@ void send_current_to_yaw_motor() {
 	CAN_tx_message.IDE = CAN_ID_STD;
 	CAN_tx_message.RTR = CAN_RTR_DATA;
 	CAN_tx_message.DLC = 0x08;
-	CAN_tx_message.StdId = CAN_6020_5_TO_8_ID;
-	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN) {
-		CAN_send_data[0] = 0;
-		CAN_send_data[1] = 0;
-		CAN_send_data[2] = 0;
-		CAN_send_data[3] = 0;
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
+	if (YAW_MOTOR_ID > 4) {
+		CAN_tx_message.StdId = CAN_6020_5_TO_8_ID;
 	} else {
-		CAN_send_data[0] = (yaw_motor.output >> 8) & 0xFF;
-		CAN_send_data[1] = (yaw_motor.output) & 0xFF;
-		CAN_send_data[2] = (0 >> 8) & 0xFF;
-		CAN_send_data[3] = (0) & 0xFF;
-		CAN_send_data[4] = (0 >> 8) & 0xFF;
-		CAN_send_data[5] = (0) & 0xFF;
-		CAN_send_data[6] = (0 >> 8) & 0xFF;
-		CAN_send_data[7] = (0) & 0xFF;
+		CAN_tx_message.StdId = CAN_6020_1_TO_4_ID;
 	}
+
+	// Clear entire packet first
+	memset(CAN_send_data, 0, 8);
+
+	// fill data packet with yaw data
+	if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
+	    CAN_set_motor_output(CAN_send_data, YAW_MOTOR_ID, yaw_motor.output);
+	}
+
 	HAL_CAN_AddTxMessage(YAW_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 			send_mail_box);
 #endif
@@ -221,33 +215,28 @@ void send_current_to_yaw_motor() {
 void send_current_to_pitch_motor() {
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
 	dm4310_ctrl_send(PITCH_MOTOR_CAN, &dm_pitch_motor);
-#else
+#elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
 	CAN_tx_message.IDE = CAN_ID_STD;
 	CAN_tx_message.RTR = CAN_RTR_DATA;
 	CAN_tx_message.DLC = 0x08;
-	CAN_tx_message.StdId = 0x3FE;
-	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
-		CAN_send_data[0] = 0;
-		CAN_send_data[1] = 0;
-		CAN_send_data[2] = 0;
-		CAN_send_data[3] = 0;
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
+
+	if (PITCH_MOTOR_ID > 4) {
+		CAN_tx_message.StdId = 0x3FE;
 	} else {
-		CAN_send_data[0] = (pitch_motor.output >> 8) & 0xFF;
-		CAN_send_data[1] = (pitch_motor.output) & 0xFF;
-		CAN_send_data[2] = (0 >> 8) & 0xFF;
-		CAN_send_data[3] = (0) & 0xFF;
-		CAN_send_data[4] = (0 >> 8) & 0xFF;
-		CAN_send_data[5] = (0) & 0xFF;
-		CAN_send_data[6] = (0) & 0xFF;
-		CAN_send_data[7] = (0) & 0xFF;
+		CAN_tx_message.StdId = 0x4FE;
 	}
+
+	// Clear entire packet first
+	memset(CAN_send_data, 0, 8);
+
+	// fill data packet with pitch data
+	if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
+	    CAN_set_motor_output(CAN_send_data, PITCH_MOTOR_ID, pitch_motor.output);
+	}
+
 	HAL_CAN_AddTxMessage(PITCH_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 			send_mail_box);
 #endif

@@ -277,6 +277,17 @@ void dm_set_yaw_motor() {
 #endif
 }
 
+// fills 8-byte data packet with motor output in slot corresponding to motor id
+void CAN_set_motor_output(uint8_t *data, uint8_t motor_id, int16_t output) {
+	if (motor_id > 4) motor_id -= 4;
+
+    uint8_t idx = (motor_id - 1) * 2;
+    if (idx < 8) {
+        data[idx]     = (output >> 8) & 0xFF;
+        data[idx + 1] = output & 0xFF;
+    }
+}
+
 void config_motors() {
 //	for (uint8_t i = 0; i < 24; i++) {
 //		//reset all the values to 0

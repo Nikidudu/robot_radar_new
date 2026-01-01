@@ -108,7 +108,7 @@ void launcher_init() {
 #else
 	feeder_motor.motor_type = TYPE_M2006;
 #endif
-//		feeder_motor[i].id = CAN_3508_ALL_ID + i;
+	feeder_motor.id = CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1;
 	feeder_motor.can = LAUNCHER_MOTOR_CAN;
 
 	feeder_motor.rpm_pid.kp = FEEDER_KP;
@@ -151,7 +151,7 @@ void launcher_init() {
 
 	for (size_t i = 0; i < number_of_flywheels; i++) {
 			flywheel_motor[i].motor_type = TYPE_M3508_NGEARBOX;
-			flywheel_motor[i].id = CAN_3508_ALL_ID + 1 + i;
+			flywheel_motor[i].id = CAN_3508_ALL_ID + i;
 			flywheel_motor[i].can = LAUNCHER_MOTOR_CAN;
 
 			flywheel_motor[i].rpm_pid.kp = FRICTION_KP;
@@ -228,26 +228,20 @@ void send_launcher_current_to_motor() {
 			send_mail_box);
 
 	// send to feeder motor
-	CAN_tx_message.StdId = CAN_2006_5_TO_8_ID;
-	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
-		CAN_send_data[0] = 0;
-		CAN_send_data[1] = 0;
-		CAN_send_data[2] = 0;
-		CAN_send_data[3] = 0;
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
+	if (FEEDER_MOTOR_ID > 4) {
+		CAN_tx_message.StdId = CAN_2006_5_TO_8_ID;
 	} else {
-		CAN_send_data[0] = (feeder_motor.output >> 8) & 0xFF;
-		CAN_send_data[1] = (feeder_motor.output) & 0xFF;
-		CAN_send_data[2] = 0;
-		CAN_send_data[3] = 0;
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
+		CAN_tx_message.StdId = CAN_2006_1_TO_4_ID;
 	}
+
+	// Clear entire packet first
+	memset(CAN_send_data, 0, 8);
+
+	// fill data packet with yaw data
+	if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
+	    CAN_set_motor_output(CAN_send_data, FEEDER_MOTOR_ID, feeder_motor.output);
+	}
+
 	HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 			send_mail_box);
 }
