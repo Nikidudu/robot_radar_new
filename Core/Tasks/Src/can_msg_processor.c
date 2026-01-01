@@ -61,15 +61,21 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 			break;
 
 		// pitch motor
-		case DM_PITCH_MOTOR_ID: //todo: replace with normal pitch code when switched to DJI mode
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+		case DM_PITCH_MOTOR_ID:
 			if (PITCH_MOTOR_CAN == &hcan1) {
 				dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
 			}
 			break;
-//		case PITCH_MOTOR_ID:
-//			if(PITCH_MOTOR_CAN_PTR == &hcan1) {
-//
-//			}
+#elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
+		case 0x300 + PITCH_MOTOR_ID:
+			if (PITCH_MOTOR_CAN == &hcan1) {
+				convert_raw_can_data(&pitch_motor, RxHeader.StdId,
+						(uint8_t*) RxData);			}
+			break;
+#else
+		// for some other non-DM motor
+#endif
 
 		// yaw motor
 		case CAN_6020_ALL_ID + YAW_MOTOR_ID:

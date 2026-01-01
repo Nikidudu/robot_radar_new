@@ -17,11 +17,9 @@
 
 // Global Variables
 extern chassis_control_t chassis_ctrl_data;
-extern TaskHandle_t chassis_heartbeat_task_handle;
 extern ref_game_robot_data_t ref_robot_data;
 
 // Function Declarations
-void chassis_heartbeat_task(void *argument);
 void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
 float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
 int16_t pack_value(float x);

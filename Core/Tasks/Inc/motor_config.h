@@ -46,6 +46,7 @@ void motor_calib_task(void* argument);
 #define	TYPE_LK_MG5010E_MULTI_ANG	12
 #define TYPE_DM8009_MIT         	13
 #define TYPE_DM4310_MIT				14
+#define TYPE_DM4310_DJI_MODE		15
 
 /* CAN DJI 3508 motor */
 #define CAN_3508_ALL_ID		0x200 // receive CAN data from motors
