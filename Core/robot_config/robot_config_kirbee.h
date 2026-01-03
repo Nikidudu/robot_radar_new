@@ -11,7 +11,7 @@
 #include "motor_config.h"
 #include "hud_kirbee.h"
 #define BULLET_17
-
+#define HAS_SBC
 /********************* DEV C IMU CONFIGURATION ***********/
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right

@@ -13,11 +13,7 @@
 #include "motor_control.h"
 #include "imu_processing_task.h"
 
-extern remote_cmd_t g_remote_cmd;
 extern QueueHandle_t g_buzzing_task_msg;
-extern chassis_control_t chassis_ctrl_data;
-extern gun_control_t launcher_ctrl_data;
-extern gimbal_control_t gimbal_ctrl_data;
 extern uint8_t g_safety_toggle;
 extern uint8_t launcher_safety_toggle;
 float remote_deadzone = 3;
@@ -63,7 +59,6 @@ void remote_control_input() {
 
 void remote_chassis_input() {
 	if (g_safety_toggle || g_remote_cmd.sw != SW_ALL_ON) {
-//		chassis_ctrl_data.enabled = 0;
 		chassis_kill_ctrl();
 	} else {
 			chassis_ctrl_data.enabled = 1;

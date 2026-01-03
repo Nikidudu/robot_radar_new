@@ -57,8 +57,9 @@ static const uint16_t crc16_tab[256] =
 	0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
 	0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
 };
-uint8_t remote_raw_data[REMOTE_DATA_SIZE] = {0};
+
 remote_cmd_t g_remote_cmd = { 0 };
+uint8_t remote_raw_data[REMOTE_DATA_SIZE] = {0};
 
 /* External variables --------------------------------------------------------*/
 extern TaskHandle_t control_input_task_handle;

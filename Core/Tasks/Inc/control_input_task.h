@@ -31,6 +31,10 @@ void gimbal_set_ang(float pit_radians, float yaw_radians);
 void chassis_yaw_pid_init();
 void ramp(float *curr_val, float target_val, float max_ramp);
 
+extern chassis_control_t chassis_ctrl_data;
+extern gun_control_t launcher_ctrl_data;
+extern gimbal_control_t gimbal_ctrl_data;
+
 #ifdef __cplusplus
 }
 #endif

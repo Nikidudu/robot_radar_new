@@ -1,17 +1,64 @@
-///*
-// * control_sbc.c
-// *
-// *  Created on: 6 Jul 2023
-// *      Author: wx
-// */
-//
-//#include "board_lib.h"
-//#include "robot_config.h"
-//#include "motor_config.h"
-//#include "control_input_task.h"
-//#include "control_sbc.h"
-//#include "motor_control.h"
-//
+/*
+ * control_sbc.c
+ *
+ *  Created on: 6 Jul 2023
+ *      Author: wx
+ */
+
+#include "board_lib.h"
+#include "control_input_task.h"
+#include "control_sbc.h"
+#include "INS_task.h"
+#include "usb_task.h"
+
+extern uint8_t g_safety_toggle;
+
+#define AIMBOT_DEADZONE 0.005f
+#define AIMBOT_YAW_KP   -2.5f
+#define AIMBOT_PITCH_KP 0.4f
+#define FILTER_ALPHA 	0.35f  // 0.0 = no filter, 0.5 = moderate smoothing
+
+void sbc_gimbal_input();
+
+void sbc_control_input() {
+	sbc_gimbal_input();
+//	sbc_chassis_input();
+//	sbc_launcher_control_input();
+}
+
+void sbc_gimbal_input() {
+    static float filtered_pitch_error = 0.0f;
+
+	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN) {
+		gimbal_ctrl_data.enabled = 0;
+	} else {
+		gimbal_ctrl_data.enabled = 1;
+
+		float raw_yaw   = g_aimbot_cmd.yaw;
+		float raw_pitch = g_aimbot_cmd.pitch;
+
+		if (fabs(raw_yaw) < AIMBOT_DEADZONE) raw_yaw = 0;
+		if (fabs(raw_pitch) < AIMBOT_DEADZONE) raw_pitch = 0;
+
+		raw_yaw *= AIMBOT_YAW_KP;
+        filtered_pitch_error = filtered_pitch_error * (1.0f - FILTER_ALPHA) + raw_pitch * FILTER_ALPHA;
+        filtered_pitch_error += INS.Pitch;
+//        if ((HAL_GetTick() - last_aimbot_update_tick) > 300) {
+//        	filtered_pitch_error *= 0.95f;
+//        }
+
+		gimbal_set_ang(filtered_pitch_error, raw_yaw);
+	}
+}
+
+
+
+
+
+
+
+
+
 //extern remote_cmd_t g_remote_cmd;
 //extern QueueHandle_t g_buzzing_task_msg;
 //extern sbc_data_t sbc_data;

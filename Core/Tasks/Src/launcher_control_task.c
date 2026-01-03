@@ -8,8 +8,8 @@
 /* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
 #include "launcher_control_task.h"
-#include "bsp_microswitch.h"
 #include "motor_control.h"
+#include "control_input_task.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -28,10 +28,7 @@ enum feeder_state_e feeder_state;
 
 /* From other tasks (extern) */
 extern uint8_t projectile_loaded;
-// target actions to achieve
-extern gun_control_t launcher_ctrl_data;
 // remote/keyboard data
-extern remote_cmd_t g_remote_cmd;
 extern uint8_t g_safety_toggle;
 // referee system data
 extern ref_game_state_t ref_game_state;
