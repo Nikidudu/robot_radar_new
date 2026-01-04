@@ -16,7 +16,7 @@
 #define IMU_ORIENTATION	1
 
 #define BULLET_42
-#define PITCH_ARM		// uses 4 bar linkage for pitch control
+//#define PITCH_ARM		// uses 4 bar linkage for pitch control
 
 //doesn't do anything
 #define IMU_TARGET_TEMP	50
@@ -137,8 +137,9 @@
 //#define CHASSIS_POWER_BUFFER_LIMITER
 //#define CHASSIS_POWER_LPF 0.02
 //#define CHASSIS_POWER_DELTA_LIM 0.1
-
+#define	PROJECTILE_SPEED		10//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
 #define PROJECTILE_SPEED_RATIO	375//365								//rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define FEEDER_SPEED			400//1200//800//480//480
 #define FEEDER_SPEED_RATIO		5								//projectiles per round of the feeder
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
@@ -367,25 +368,26 @@
 //#define CHASSIS_MCU
 
 #ifndef CHASSIS_MCU
-#define FR_MOTOR_ID 		13
-#define FR_MOTOR_CAN_PTR	&hcan2
-#define FL_MOTOR_ID 		14
-#define FL_MOTOR_CAN_PTR	&hcan2
+#define FR_MOTOR_ID 		1
+#define FR_MOTOR_CAN_PTR	&hcan1
+#define FL_MOTOR_ID 		2
+#define FL_MOTOR_CAN_PTR	&hcan1
 #define BL_MOTOR_ID 		15
 #define BL_MOTOR_CAN_PTR	&hcan2
 #define BR_MOTOR_ID 		16
 #define BR_MOTOR_CAN_PTR	&hcan2
 #endif
 #define FEEDER_MOTOR_ID		7
-#define FEEDER_MOTOR_CAN_PTR	&hcan1
-#define LFRICTION_MOTOR_ID	6
-#define LFRICTION_MOTOR_CAN_PTR	&hcan1
-#define RFRICTION_MOTOR_ID	5
-#define RFRICTION_MOTOR_CAN_PTR	&hcan1
+#define FEEDER_MOTOR_CAN	&hcan1
+#define LFRICTION_MOTOR_ID	13
+#define LFRICTION_MOTOR_CAN_PTR	&hcan2
+#define RFRICTION_MOTOR_ID	14
+#define RFRICTION_MOTOR_CAN_PTR	&hcan2
+#define LAUNCHER_MOTOR_CAN	&hcan2
 
 //NOTE: two motors CANNOT have the same __flashing__ number (i.e. GM6020 id 9 cannot be used
 //with any id 6 motors
-#define PITCH_MOTOR_ID 		0x141
+#define DM_PITCH_MOTOR_ID 		0x141
 #define PITCH_MOTOR_CAN	&hcan1
 #ifndef CHASSIS_MCU
 #define YAW_MOTOR_ID 		17
@@ -434,6 +436,7 @@
 #define CONTROL_DELAY 			5
 #define GIMBAL_DELAY			4
 #define CHASSIS_DELAY 			5
+#define LAUNCHER_DELAY		5
 //#define SPIN_WHEN_DAMAGED
 
 //microsecond timer used for PIDs

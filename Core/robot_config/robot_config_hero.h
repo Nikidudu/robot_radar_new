@@ -290,18 +290,18 @@
 #define FR_MOTOR_CAN_PTR	&hcan2
 #define FL_MOTOR_ID 		16
 #define FL_MOTOR_CAN_PTR	&hcan2
-#define BL_MOTOR_ID 		13
-#define BL_MOTOR_CAN_PTR	&hcan2
-#define BR_MOTOR_ID 		14
-#define BR_MOTOR_CAN_PTR	&hcan2
+#define BL_MOTOR_ID 		1
+#define BL_MOTOR_CAN_PTR	&hcan1
+#define BR_MOTOR_ID 		2
+#define BR_MOTOR_CAN_PTR	&hcan1
 #endif
 #define FEEDER_MOTOR_ID		18
 #define FEEDER_MOTOR_CAN_PTR	&hcan2
 
-#define LFRICTION_MOTOR_ID	2
-#define LFRICTION_MOTOR_CAN_PTR	&hcan1
-#define RFRICTION_MOTOR_ID	1
-#define RFRICTION_MOTOR_CAN_PTR	&hcan1
+#define LFRICTION_MOTOR_ID	13
+#define LFRICTION_MOTOR_CAN_PTR	&hcan2
+#define RFRICTION_MOTOR_ID	14
+#define RFRICTION_MOTOR_CAN_PTR	&hcan2
 
 #define ACTIVE_GUIDANCE
 #ifdef ACTIVE_GUIDANCE
