@@ -12,20 +12,6 @@
 #include <event_groups.h>
 
 //switch goes from 1-3-2 from top to down
-enum left_switch
-{
-	ge_LSW_UNSAFE = 1,
-	ge_LSW_CONFIG = 3,
-	ge_LSW_STANDBY = 2
-};
-
-enum right_switch
-{
-	ge_RSW_SHUTDOWN = 1,
-	ge_RSW_GIMBAL = 3,
-	ge_RSW_ALL_ON = 2,
-};
-
 enum sw
 {
 	SW_SHUTDOWN = 1,
@@ -37,7 +23,6 @@ enum button_press
 {
 	BUTTON_NOT_PRESSED = 0,
 	BUTTON_PRESSED = 1,
-
 };
 
 #define KEYBOARD_CTRL_MODE	1
