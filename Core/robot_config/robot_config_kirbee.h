@@ -447,10 +447,10 @@
 // NOTE: two motors on the same CAN CANNOT have the same flashing number
 
 #define CHASSIS_MOTOR_CAN 	&hcan2
-#define	FR_MOTOR_ID  		4   // Front Right
-#define	FL_MOTOR_ID   		1   // Front Left
+#define	FR_MOTOR_ID  		1   // Front Right
+#define	FL_MOTOR_ID   		2   // Front Left
 #define	BL_MOTOR_ID   		3   // Back Left
-#define	BR_MOTOR_ID   		2   // Back Right
+#define	BR_MOTOR_ID   		4   // Back Right
 
 #define LAUNCHER_MOTOR_CAN	&hcan2
 #define LFRICTION_MOTOR_ID	1
