@@ -112,7 +112,6 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.min_raw_ticks = -4096;
 		motor->angle_data.raw_ticks_range = motor->angle_data.max_raw_ticks - motor->angle_data.min_raw_ticks;
 		motor->angle_data.ang_range = motor->angle_data.max_ang - motor->angle_data.min_ang;
-		map_dji_motor(motor->id, motor);
 		break;
 
 	case TYPE_M3508_NGEARBOX:
@@ -131,8 +130,6 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.max_ang = PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-
-		map_dji_motor(motor->id, motor);
 		break;
 
 	case TYPE_GM6020:
@@ -151,8 +148,6 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.min_ang = -PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-
-		map_dji_motor(motor->id, motor);
 		break;
 
 	case TYPE_GM6020_720:
@@ -171,8 +166,6 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.max_ang = 2 * PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-
-		map_dji_motor(motor->id, motor);
 		break;
 
 	case TYPE_M2006:
@@ -193,8 +186,6 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.max_ang = PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-
-		map_dji_motor(motor->id, motor);
 		break;
 
 	case TYPE_LK_MG5010E_SPD:
@@ -213,7 +204,7 @@ void set_motor_config(motor_data_t *motor) {
 		motor->angle_data.min_ang = -PI;
 		motor->angle_data.ang_range = motor->angle_data.max_ang
 				- motor->angle_data.min_ang;
-		map_lk_motor(motor->id, motor);
+//		map_lk_motor(motor->id, motor);
 		lk_set_pid(motor, 500000);
 		break;
 
@@ -239,9 +230,6 @@ void dm_set_pitch_motor() {
 	dm_pitch_motor.id = PITCH_MOTOR_ID;
 	dm_pitch_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
 	dm4310_enable(PITCH_MOTOR_CAN, &dm_pitch_motor);
-
-//    PID_Init(&gimbal_pid_pitch, DM_PITCH_MIT_KP, DM_PITCH_MIT_KI, DM_PITCH_MIT_KD,
-//    		DM_PITCH_MIT_INT_MAX, DM_PITCH_MIT_MAX_OUT);
 
 	dm_pitch_motor.angle_pid.kp = DM_PITCH_KP;
 	dm_pitch_motor.angle_pid.ki = DM_PITCH_KI;
@@ -287,6 +275,17 @@ void dm_set_yaw_motor() {
     dm_yaw_motor.angle_data.phy_max_ang = YAW_MAX_ANG;
     dm_yaw_motor.angle_data.phy_min_ang = YAW_MIN_ANG;
 #endif
+}
+
+// fills 8-byte data packet with motor output in slot corresponding to motor id
+void CAN_set_motor_output(uint8_t *data, uint8_t motor_id, int16_t output) {
+	if (motor_id > 4) motor_id -= 4;
+
+    uint8_t idx = (motor_id - 1) * 2;
+    if (idx < 8) {
+        data[idx]     = (output >> 8) & 0xFF;
+        data[idx + 1] = output & 0xFF;
+    }
 }
 
 void config_motors() {

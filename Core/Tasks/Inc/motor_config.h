@@ -11,7 +11,7 @@
 
 void config_motors();
 void motor_calib_task(void* argument);
-
+void CAN_set_motor_output(uint8_t *data, uint8_t motor_id, int16_t output);
 
 #define GM6020_MAX_OUTPUT 	20000
 #define GM6020_MAX_RPM		400
@@ -46,14 +46,15 @@ void motor_calib_task(void* argument);
 #define	TYPE_LK_MG5010E_MULTI_ANG	12
 #define TYPE_DM8009_MIT         	13
 #define TYPE_DM4310_MIT				14
+#define TYPE_DM4310_DJI_MODE		15
 
 /* CAN DJI 3508 motor */
-#define CAN_3508_ALL_ID		0x200 // receive CAN data from motors
+#define CAN_3508_ALL_ID		0x201 // receive CAN data from motors
 #define CAN_3508_1_TO_4_ID	0x200 // send CAN data to motors
 #define CAN_3508_5_TO_8_ID	0x1FF
 
 /* CAN DJI 6020 motor */
-#define CAN_6020_ALL_ID		0x204
+#define CAN_6020_ALL_ID		0x205
 #define CAN_6020_1_TO_4_ID	0x1FF
 #define CAN_6020_5_TO_8_ID	0x2FF
 

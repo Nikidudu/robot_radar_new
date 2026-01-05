@@ -297,7 +297,7 @@ void control_mode_change(uint8_t control_mode_button, uint8_t fn_1) {
 	}
 
     // Change control mode between remote and keyboard
-	if (fn_1 == 1) {
+	if (fn_1 == BUTTON_PRESSED) {
         if (HAL_GetTick() - last_trig_time > 1000) { // 1-second debounce
         	switch (control_mode) {
 				case KEYBOARD_CTRL_MODE:

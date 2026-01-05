@@ -367,20 +367,20 @@
  * Centers for DM motors should be -PI to PI.
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_MOTOR_TYPE		TYPE_DM4310_MIT
+#define PITCH_MOTOR_TYPE		TYPE_DM4310_DJI_MODE
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 
-#define PITCH_ANGLE_KP	  		200
-#define PITCH_ANGLE_KI  		0.2
+#define PITCH_ANGLE_KP	  		20
+#define PITCH_ANGLE_KI  		0
 #define PITCH_ANGLE_KD  		0
 #define PITCH_ANGLE_INT_MAX		0.1
 
 #define PITCH_MAX_RPM			60
 
-#define PITCHRPM_KP				1000
-#define PITCHRPM_KI				1
-#define PITCHRPM_KD				100
+#define PITCHRPM_KP				100
+#define PITCHRPM_KI				0
+#define PITCHRPM_KD				0
 #define PITCHRPM_INT_MAX		4000
 #define PITCH_MAX_CURRENT		205000
 
@@ -401,19 +401,21 @@
 
 #endif
 
-#define PITCH_CENTER			0.392513275
+#define PITCH_CENTER			857
 #define PITCH_MAX_ANG			1.0
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
+#define YAW_MOTOR_TYPE 			TYPE_GM6020_720
+
 #define YAW_ANGLE_KP			60
-#define YAW_ANGLE_KI			0.02
+#define YAW_ANGLE_KI			0
 #define YAW_ANGLE_KD			120
 #define YAW_ANGLE_INT_MAX		0.1
 #define YAW_MAX_RPM				85
 
-#define YAWRPM_KP				2000
+#define YAWRPM_KP				200
 #define YAWRPM_KI				0
 #define YAWRPM_KD				0
 #define YAWRPM_INT_MAX			5000
@@ -456,11 +458,11 @@
 #define BFRICTION_MOTOR_ID	3
 #define GFRICTION_MOTOR_ID	4
 #define FEEDER_MOTOR_CAN	&hcan1
-#define FEEDER_MOTOR_ID		5
+#define FEEDER_MOTOR_ID		1
 
 #define PITCH_MOTOR_CAN		&hcan1
-#define PITCH_MOTOR_ID 		0x81
-#define DM_PITCH_MOTOR_ID	0x91 // for DM receiving can ID
+#define PITCH_MOTOR_ID 		0x1
+//#define DM_PITCH_MOTOR_ID	0x91 // for DM receiving can ID
 #define YAW_MOTOR_CAN		&hcan1
 #define YAW_MOTOR_ID 		5
 

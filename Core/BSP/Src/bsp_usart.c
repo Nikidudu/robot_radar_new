@@ -13,6 +13,7 @@
 extern queue_t *ref_UART_queue;
 extern uint8_t ref_dma_buf[REF_DMA_BUF_SIZE];
 extern uint8_t remote_raw_data[REMOTE_DATA_SIZE];
+extern TaskHandle_t referee_processing_task_handle;
 
 /* Private user code ---------------------------------------------------------*/
 
@@ -27,20 +28,32 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
     	remote_ISR();  // REMOTE UART ISR handler
 
-    } else if (huart == &REFEREE_UART) {
-    	referee_ISR(); // REFEREE UART ISR handler
     }
+//    else if (huart == &REFEREE_UART) {
+//    	referee_ISR(); // REFEREE UART ISR handler
+//    }
 }
 
-/**
-* @brief  UART receive half-complete callback.
-* @note   This function is called by the HAL library when a UART DMA
-*         reception has filled half of the buffer.
- */
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
-{
+///**
+//* @brief  UART receive half-complete callback.
+//* @note   This function is called by the HAL library when a UART DMA
+//*         reception has filled half of the buffer.
+// */
+//void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+//{
+//	if (huart == &REFEREE_UART) {
+//		referee_half_ISR(); // REFEREE UART ISR handler
+//	}
+//}
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size) {
 	if (huart == &REFEREE_UART) {
-		referee_half_ISR(); // REFEREE UART ISR handler
+		queue_append_bytes(ref_UART_queue, ref_dma_buf, size);
+
+	    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+	    vTaskNotifyGiveFromISR(referee_processing_task_handle,
+	                           &xHigherPriorityTaskWoken);
+	    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 	}
 }
 
@@ -65,7 +78,7 @@ HAL_StatusTypeDef remote_uart_start(void)
 /**
  * This function starts the circular DMA for referee UART port
  */
-HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t Size,queue_t *uart_queue)
+HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t size, queue_t *uart_queue)
 {
     /* Store & init queue (same behavior as before) */
     ref_UART_queue = uart_queue;
@@ -75,7 +88,7 @@ HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart,uint8_t *pData, uint
         return HAL_BUSY;
 
     /* Start DMA reception */
-    if (HAL_UART_Receive_DMA(&REFEREE_UART, ref_dma_buf, REF_DMA_BUF_SIZE)) {
+    if (HAL_UARTEx_ReceiveToIdle_DMA(&REFEREE_UART, ref_dma_buf, size)) {
         return HAL_ERROR;
     }
 
