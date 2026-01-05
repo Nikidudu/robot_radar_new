@@ -96,6 +96,7 @@ void launcher_control_task(void *argument) {
 		status_led(4, off_led);
 
 		send_launcher_current_to_motor();
+		send_feeder_current_to_motor();
 
 		vTaskDelayUntil(&launcher_ctrl_time, LAUNCHER_DELAY);
 	}
@@ -222,6 +223,44 @@ void launcher_init() {
 	}
 }
 
+void send_feeder_current_to_motor(){
+	CAN_TxHeaderTypeDef CAN_tx_message;
+	uint8_t CAN_send_data[8];
+	uint32_t send_mail_box[3];
+	CAN_tx_message.IDE = CAN_ID_STD;
+	CAN_tx_message.RTR = CAN_RTR_DATA;
+	CAN_tx_message.DLC = 0x08;
+
+
+	// send to feeder motor
+	if (FEEDER_MOTOR_ID > 4) {
+	  CAN_tx_message.StdId = CAN_2006_5_TO_8_ID;
+	 } else {
+	  CAN_tx_message.StdId = CAN_2006_1_TO_4_ID;
+	 }
+	  if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
+	    CAN_send_data[0] = 0;
+	    CAN_send_data[1] = 0;
+	    CAN_send_data[2] = 0;
+	    CAN_send_data[3] = 0;
+	    CAN_send_data[4] = 0;
+	    CAN_send_data[5] = 0;
+	    CAN_send_data[6] = 0;
+	    CAN_send_data[7] = 0;
+	  } else {
+	    CAN_send_data[0] = 0;
+	    CAN_send_data[1] = 0;
+	    CAN_send_data[2] = 0;
+	    CAN_send_data[3] = 0;
+	    CAN_send_data[4] = (feeder_motor.output >> 8) & 0xFF;
+	    CAN_send_data[5] = (feeder_motor.output) & 0xFF;
+	    CAN_send_data[6] = 0;
+	    CAN_send_data[7] = 0;
+	  }
+	  HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
+	      send_mail_box);
+}
+
 void send_launcher_current_to_motor() {
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
@@ -262,28 +301,28 @@ void send_launcher_current_to_motor() {
 			send_mail_box);
 
 	// send to feeder motor
-	CAN_tx_message.StdId = 515;
-	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
-		CAN_send_data[0] = 0;
-		CAN_send_data[1] = 0;
-		CAN_send_data[2] = 0;
-		CAN_send_data[3] = 0;
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
-	} else {
-		CAN_send_data[0] = (feeder_motor.output >> 8) & 0xFF;
-		CAN_send_data[1] = (feeder_motor.output) & 0xFF;
-		CAN_send_data[2] = 0;
-		CAN_send_data[3] = 0;
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
-	}
-	HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
-			send_mail_box);
+//	CAN_tx_message.StdId = 515;
+//	  if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
+//	    CAN_send_data[0] = 0;
+//	    CAN_send_data[1] = 0;
+//	    CAN_send_data[2] = 0;
+//	    CAN_send_data[3] = 0;
+//	    CAN_send_data[4] = 0;
+//	    CAN_send_data[5] = 0;
+//	    CAN_send_data[6] = 0;
+//	    CAN_send_data[7] = 0;
+//	  } else {
+//	    CAN_send_data[0] = 0;
+//	    CAN_send_data[1] = 0;
+//	    CAN_send_data[2] = 0;
+//	    CAN_send_data[3] = 0;
+//	    CAN_send_data[4] = (feeder_motor.output >> 8) & 0xFF;
+//	    CAN_send_data[5] = (feeder_motor.output) & 0xFF;
+//	    CAN_send_data[6] = 0;
+//	    CAN_send_data[7] = 0;
+//	  }
+//	  HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
+//	      send_mail_box);
 }
 
 uint16_t check_overheat() {
@@ -349,9 +388,9 @@ uint16_t check_overheat() {
 #endif
 
 #ifdef BULLET_42
-	ammo_remaining = (ref_robot_data.shooter_barrel_heat_limit
-			- ref_power_data.shooter_42mm_barrel_heat - OVERHEAT_OFFSET) / BULLET_42_HEAT;
-	//				ammo_remaining = 100;
+	//ammo_remaining = (ref_robot_data.shooter_barrel_heat_limit
+		//	- ref_power_data.shooter_42mm_barrel_heat - OVERHEAT_OFFSET) / BULLET_42_HEAT;
+					ammo_remaining = 100;
 
 	if (ammo_remaining < OVERHEAT_MARGIN) {
 		return 0;

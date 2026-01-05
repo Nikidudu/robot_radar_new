@@ -209,10 +209,29 @@
 #define FEEDER_CUTOFF_TEMP  	60
 
 // FRICTION WHEELS PID VALUES
-#define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
-#define FRICTION_KP  			5
-#define FRICTION_KI  			0.0001
-#define FRICTION_KD  			0
+//#define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
+//#define FRICTION_KP  			5
+//#define FRICTION_KI  			0.0001
+//#define FRICTION_KD  			0
+//#define FRICTION_MAX_CURRENT 	16384
+//#define FRICTION_MAX_INT		10000
+//#define FRICTION_INVERT			-1
+//#define LAUNCHER_MARGIN			50
+//#define LAUNCHER_DIFF_MARGIN	50
+//#define FRICTION_OFFSET			40//100
+
+#define ANGLE_FEEDER
+#define ANGLE_FEEDER_MARGIN		0.87 //0.174 //margin in radians
+#define ANGLE_FEEDER_SPD_MARGIN 20 //rpm after gearbox margin
+#define ANGLE_FEEDER_TIMEOUT    800 //if stuck in angle feeder for more than 2s, timeout
+#define ANGLE_FEEDER_DELAY		100 //time between each shots, in ms
+
+
+#define STEPPER_ANGLE			1.8
+#define FRICTION_SB_SPIN		(LV1_PROJECTILE * PROJECTILE_SPEED_RATIO)
+#define FRICTION_KP  			5				// |
+#define FRICTION_KI  			0.0001			// | - FRICTION WHEELS PID VALUES
+#define FRICTION_KD  			0//10				// |
 #define FRICTION_MAX_CURRENT 	16384
 #define FRICTION_MAX_INT		10000
 #define FRICTION_INVERT			-1
@@ -220,7 +239,10 @@
 #define LAUNCHER_DIFF_MARGIN	50
 #define FRICTION_OFFSET			40//100
 
+
 #define CLEAR_DELAY				1000
+
+//#define CLEAR_DELAY				1000
 
 /*********************** CHASSIS CONFIGURATION ***********************/
 #define CHASSIS_KP  		4

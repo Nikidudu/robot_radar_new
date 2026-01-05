@@ -12,6 +12,7 @@
 #include "hud_hero.h"
 #define BULLET_42
 #define NEW_HERO_2026
+//#define ANGLE_FEEDER
 
 /********************* DEV C IMU CONFIGURATION ***********/
 //#define BOARD_DOWN
@@ -110,7 +111,7 @@
 #define FEEDER_KP 			5
 #define FEEDER_KI  			0.01
 #define FEEDER_KD  			3
-#define FEEDER_MAX_INT		20000
+#define FEEDER_MAX_INT		10000
 
 // FEEDER_ANGLE PID VALUES
 #define FEEDER_ANGLE_KP 		200
@@ -123,7 +124,7 @@
 #define FEEDER_JAM_RPM			100				// if feeeder is below this rpm, it is jammed
 #define FEEDER_UNJAM_SPD  		20			// Reverse unjam
 #define FEEDER_UNJAM_TIME		5000000
-#define FEEDER_MAX_CURRENT		30000
+#define FEEDER_MAX_CURRENT		16000
 #define FEEDER_INVERT			1
 
 // FRICTION WHEELS PID VALUES
