@@ -55,39 +55,39 @@ void launcher_control_task(void *argument) {
 		if (launcher_ctrl_data.enabled) {
 			// Flywheel control
 #ifdef ACTIVE_GUIDANCE
-			guidance_flywheel(&flywheel_motor[LFRICTION_MOTOR_ID],
-					&flywheel_motor[RFRICTION_MOTOR_ID],
-					&flywheel_motor[BFRICTION_MOTOR_ID]);
+			guidance_flywheel(&flywheel_motor[LFRICTION_MOTOR_ID - 1],
+					&flywheel_motor[RFRICTION_MOTOR_ID - 1],
+					&flywheel_motor[BFRICTION_MOTOR_ID - 1]);
 #else
-			flywheel_control(&flywheel_motor[LFRICTION_MOTOR_ID],
-					&flywheel_motor[RFRICTION_MOTOR_ID]);
+			flywheel_control(&flywheel_motor[LFRICTION_MOTOR_ID - 1],
+					&flywheel_motor[RFRICTION_MOTOR_ID - 1]);
 #endif
 
 			// Feeder control
 #ifdef ACTIVE_GUIDANCE
-			guidance_feeder(&flywheel_motor[LFRICTION_MOTOR_ID],
-					&flywheel_motor[RFRICTION_MOTOR_ID],
-					&flywheel_motor[BFRICTION_MOTOR_ID],
-					&flywheel_motor[GFRICTION_MOTOR_ID],
+			guidance_feeder(&flywheel_motor[LFRICTION_MOTOR_ID - 1],
+					&flywheel_motor[RFRICTION_MOTOR_ID - 1],
+					&flywheel_motor[BFRICTION_MOTOR_ID - 1],
+					&flywheel_motor[GFRICTION_MOTOR_ID - 1],
 					&feeder_motor);
 #elif defined(ANGLE_FEEDER)
-			launcher_angle_control(&flywheel_motor[LFRICTION_MOTOR_ID],
-					&flywheel_motor[RFRICTION_MOTOR_ID],
+			launcher_angle_control(&flywheel_motor[LFRICTION_MOTOR_ID - 1],
+					&flywheel_motor[RFRICTION_MOTOR_ID - 1],
 					&feeder_motor);
 
 #else
-			launcher_control(&flywheel_motor[LFRICTION_MOTOR_ID],
-					&flywheel_motor[RFRICTION_MOTOR_ID],
+			launcher_control(&flywheel_motor[LFRICTION_MOTOR_ID - 1],
+					&flywheel_motor[RFRICTION_MOTOR_ID - 1],
 					&feeder_motor);
 #endif
 
 		} else {
-			flywheel_motor[LFRICTION_MOTOR_ID].output = 0;
-			flywheel_motor[RFRICTION_MOTOR_ID].output = 0;
+			flywheel_motor[LFRICTION_MOTOR_ID - 1].output = 0;
+			flywheel_motor[RFRICTION_MOTOR_ID - 1].output = 0;
 			feeder_motor.output = 0;
 #ifdef ACTIVE_GUIDANCE
-			flywheel_motor[BFRICTION_MOTOR_ID].output = 0;
-			flywheel_motor[GFRICTION_MOTOR_ID].output = 0;
+			flywheel_motor[BFRICTION_MOTOR_ID - 1].output = 0;
+			flywheel_motor[GFRICTION_MOTOR_ID - 1].output = 0;
 #endif
 		}
 		status_led(4, off_led);

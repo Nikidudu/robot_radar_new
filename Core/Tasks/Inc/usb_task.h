@@ -58,6 +58,7 @@ extern uint32_t g_usb_pps;           // packets per second (updated every 1s)
  * Call this from your main init (e.g. after MX_USB_DEVICE_Init())
  */
 void USB_Firmware_Init(void);
+void UsbParserTask(void *argument);
 
 /**
  * @brief Internal: Called from usbd_cdc_if.c in CDC_Receive_FS

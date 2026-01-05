@@ -114,7 +114,7 @@ typedef enum {
     STATE_CRC_HI
 } usb_parse_state_t;
 
-static void UsbParserTask(void *argument)
+void UsbParserTask(void *argument)
 {
     usb_parse_state_t state = STATE_WAIT_MAGIC;
     uint16_t payload_len = 0;
@@ -142,7 +142,7 @@ static void UsbParserTask(void *argument)
         // Wait for data
         if (usb_rb_bytes_available() == 0)
         {
-            vTaskDelay(pdMS_TO_TICKS(1));
+            vTaskDelay(pdMS_TO_TICKS(1)); // todo: change to xTaskNotifyFromISR preferably
             continue;
         }
 

@@ -83,7 +83,7 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 		}
 	}
 
-	else if (hcan->Instance == CAN2) {
+	if (hcan->Instance == CAN2) {
 		if (can2_get_msg(&RxHeader, RxData) != HAL_OK) {
 			return;
 		}

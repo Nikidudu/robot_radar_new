@@ -20,6 +20,7 @@
 #include "hud_new.h"
 #include "master_task.h"
 #include "error_handler_task.h"
+#include "usb_task.h"
 
 #define ISR_SEMAPHORE_COUNT 1
 #define QUEUE_SIZE 1
@@ -104,13 +105,6 @@ void master_task(void *argument) {
 	xTaskCreate(buzzing_task, "buzzer_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &buzzing_task_handle);
 
-//	if (usb_continue_semaphore == NULL) {
-//		//error handler
-//	} else {
-//		xTaskCreate(usb_task, "usb_task",
-//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &usb_task_handle);
-//	}
-
 //	xTaskCreate(telemetry_task, "telemetry_task", 700, (void*) 1,
 //			(UBaseType_t) 5, &telemetry_task_handle);
 
@@ -120,6 +114,9 @@ void master_task(void *argument) {
 	xTaskCreate(error_handler_task, "error_handler_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 9,
 			&error_handler_task_handle);
+
+    xTaskCreate(UsbParserTask, "UsbParser", 512, NULL, 12, NULL);
+
 
 //	vTaskDelete(master_task_handle);
 	while (1) {
