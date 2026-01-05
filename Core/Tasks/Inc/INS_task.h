@@ -23,7 +23,6 @@
 #define INS_TASK_PERIOD 1
 //Referred to https://nitinjsanket.github.io/tutorials/attitudeest/mahony.html
 
-
 typedef struct
 {
     float q[4]; // ��Ԫ������ֵ
@@ -79,6 +78,8 @@ void INS_task(void *argument);
 
 void BodyFrameToEarthFrame(const float *vecBF, float *vecEF, float *q);
 void EarthFrameToBodyFrame(const float *vecEF, float *vecBF, float *q);
+
+extern INS_t INS;
 
 #endif
 

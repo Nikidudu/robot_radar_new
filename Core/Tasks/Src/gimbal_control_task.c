@@ -39,13 +39,10 @@ static pid_data_t g_yaw_ff_pid = {
 /* From other tasks (extern) */
 // input variables
 extern uint8_t control_mode;
-extern remote_cmd_t g_remote_cmd;
 extern uint8_t g_safety_toggle;
 
 extern uint8_t gimbal_upper_bound;
 extern uint8_t gimbal_lower_bound;
-// imu values
-extern INS_t INS;
 
 // dm motors (todo: to be removed)
 extern dm_motor_t dm_pitch_motor;
@@ -224,9 +221,9 @@ void send_current_to_pitch_motor() {
 	CAN_tx_message.DLC = 0x08;
 
 	if (PITCH_MOTOR_ID > 4) {
-		CAN_tx_message.StdId = 0x3FE;
-	} else {
 		CAN_tx_message.StdId = 0x4FE;
+	} else {
+		CAN_tx_message.StdId = 0x3FE;
 	}
 
 	// Clear entire packet first

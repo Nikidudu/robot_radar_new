@@ -15,7 +15,6 @@ extern "C" {
 #include "usbd_cdc_if.h"
 /* --- Project Config --- */
 #include "board_settings.h"
-#include "typedefs.h"
 #include "crc8_crc16.h"
 #include "robot_config.h"
 /* --- BSP Drivers --- */
@@ -34,6 +33,7 @@ extern "C" {
 #include "bsp_damiao.h"
 #include "bsp_lk_motor.h"
 #include "bsp_microswitch.h"
+#include "bsp_servo.h"
 
 #ifdef __cplusplus
 }

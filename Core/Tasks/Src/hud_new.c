@@ -32,7 +32,6 @@ extern float rel_pitch_angle;
 int feeder_state_enabled = 0;
 
 extern float rel_pitch_angle;
-extern motor_data_t pitch_motor;
 
 int top_graphics = 0;
 int dynamic_graphics = 0;
@@ -42,8 +41,6 @@ extern ref_game_state_t ref_game_state;
 int motor_fault_enabled = 0;
 extern uint16_t g_motor_fault;
 int prev_motor_error = 0;
-
-extern remote_cmd_t g_remote_cmd;
 
 void map_robot_id(uint16_t robot_id){
 	switch (robot_id) {

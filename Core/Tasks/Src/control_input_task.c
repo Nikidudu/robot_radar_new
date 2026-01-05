@@ -5,32 +5,30 @@
  *      Author: wx
  */
 #include "board_lib.h"
-#include "robot_config.h"
 #include "motor_config.h"
 #include "control_input_task.h"
 #include "motor_control.h"
 #include "control_keyboard.h"
 #include "control_remote.h"
 #include "control_sbc.h"
-#include "INS_task.h"
 #include "chassis_can_message_task.h"
 #include "imu_processing_task.h"
+#include "control_sbc.h"
 
 extern motor_data_t pitch_motor;
 extern motor_data_t yaw_motor;
 
-extern INS_t INS;
 extern QueueHandle_t g_buzzing_task_msg;
-extern remote_cmd_t g_remote_cmd;
 extern ref_robot_dmg_t ref_dmg_data;
 extern uint32_t ref_dmg_data_txno;
 extern ref_game_robot_data2_t ref_robot_data;
 
+pid_data_t yaw_pid_data;
+uint8_t aimbot_mode;
+
 chassis_control_t chassis_ctrl_data;
 gun_control_t launcher_ctrl_data;
 gimbal_control_t gimbal_ctrl_data;
-pid_data_t yaw_pid_data;
-uint8_t aimbot_mode;
 
 uint8_t control_mode = CONTROL_DEFAULT;
 uint8_t g_safety_toggle = ARM_SWITCH;
@@ -101,11 +99,10 @@ void control_input_task(void *argument) {
 					break;
 #ifdef HAS_SBC
 				case SBC_CTRL_MODE:
-					//sbc_control_input();
-					nx_control_input();
+					sbc_control_input();
+//					nx_control_input();
 					break;
 #endif
-
 				default:
 					break;
 
@@ -316,6 +313,22 @@ void control_mode_change(uint8_t control_mode_button, uint8_t fn_1) {
         	}
             last_trig_time = HAL_GetTick(); // update trigger time
         }
+	} else if (g_remote_cmd.mouse_right) {
+    	switch (control_mode) {
+			case KEYBOARD_CTRL_MODE:
+			case REMOTE_CTRL_MODE:
+				control_mode = SBC_CTRL_MODE;
+				temp_msg = control_sbc;
+				xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+				break;
+
+			case SBC_CTRL_MODE:
+				control_mode = REMOTE_CTRL_MODE;
+				temp_msg = control_control;
+				xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+				launcher_safety_toggle = LAUNCHER_SAFETY;
+				break;
+    	}
 	}
 }
 
@@ -336,7 +349,8 @@ void gimbal_turn_ang(float pit_radians, float yaw_radians) {
 	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
 //	gimbal_ctrl_data.yaw = yaw_radians;
 }
-//SETs angle to gimbal ctrl
+
+//SETs angle to gimbal ctrl; for aimbot
 void gimbal_set_ang(float pit_radians, float yaw_radians) {
 	while (yaw_radians > PI) {
 		yaw_radians -= 2 * PI;
@@ -344,8 +358,9 @@ void gimbal_set_ang(float pit_radians, float yaw_radians) {
 	while (yaw_radians < -PI) {
 		yaw_radians += 2 * PI;
 	}
+
 	gimbal_ctrl_data.pitch = pit_radians;
-	gimbal_ctrl_data.yaw = yaw_radians;
+	gimbal_ctrl_data.delta_yaw = yaw_radians;
 }
 
 void chassis_yaw_pid_init() {

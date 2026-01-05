@@ -6,16 +6,13 @@
  */
 
 #include "board_lib.h"
-#include "stm32f4xx.h"
 #include "stm32f4xx_hal_spi.h"
 #include "spi.h"
 #include "i2c.h"
-#include "typedefs.h"
 #include "BMI088reg.h"
 #include "ist8310_reg.h"
 #include "bsp_imu.h"
 #include "imu_processing_task.h"
-#include "robot_config.h"
 
 #ifdef FREERTOS_ENABLED
   #include "cmsis_os.h"  // For FreeRTOS delays

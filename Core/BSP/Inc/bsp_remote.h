@@ -47,4 +47,6 @@ typedef __packed struct
 	uint16_t crc16;
 } remote_data_t;
 
+extern remote_cmd_t g_remote_cmd;
+
 #endif /* BSP_INC_BSP_REMOTE_H_ */
