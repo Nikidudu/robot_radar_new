@@ -371,16 +371,16 @@
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 
-#define PITCH_ANGLE_KP	  		20
+#define PITCH_ANGLE_KP	  		60
 #define PITCH_ANGLE_KI  		0
-#define PITCH_ANGLE_KD  		0
-#define PITCH_ANGLE_INT_MAX		0.1
+#define PITCH_ANGLE_KD  		1.725
+#define PITCH_ANGLE_INT_MAX		0
 
 #define PITCH_MAX_RPM			60
 
-#define PITCHRPM_KP				100
+#define PITCHRPM_KP				0.5
 #define PITCHRPM_KI				0
-#define PITCHRPM_KD				0
+#define PITCHRPM_KD				0.05
 #define PITCHRPM_INT_MAX		4000
 #define PITCH_MAX_CURRENT		205000
 
@@ -402,22 +402,22 @@
 #endif
 
 #define PITCH_CENTER			857
-#define PITCH_MAX_ANG			1.0
+#define PITCH_MAX_ANG			0.2
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #define YAW_MOTOR_TYPE 			TYPE_GM6020_720
 
-#define YAW_ANGLE_KP			60
-#define YAW_ANGLE_KI			0
-#define YAW_ANGLE_KD			120
+#define YAW_ANGLE_KP			400
+#define YAW_ANGLE_KI			0.0001
+#define YAW_ANGLE_KD			40
 #define YAW_ANGLE_INT_MAX		0.1
-#define YAW_MAX_RPM				85
+#define YAW_MAX_RPM				132//85
 
-#define YAWRPM_KP				200
+#define YAWRPM_KP				300
 #define YAWRPM_KI				0
-#define YAWRPM_KD				0
+#define YAWRPM_KD				15
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
@@ -445,18 +445,11 @@
 
 /*********************** MOTOR CONFIGURATION *******************/
 // NOTE: two motors on the same CAN CANNOT have the same flashing number
-
-#define CHASSIS_MOTOR_CAN 	&hcan2
-#define	FR_MOTOR_ID  		1   // Front Right
-#define	FL_MOTOR_ID   		2   // Front Left
-#define	BL_MOTOR_ID   		3   // Back Left
-#define	BR_MOTOR_ID   		4   // Back Right
-
 #define LAUNCHER_MOTOR_CAN	&hcan2
 #define LFRICTION_MOTOR_ID	1
 #define RFRICTION_MOTOR_ID	2
-#define BFRICTION_MOTOR_ID	3
-#define GFRICTION_MOTOR_ID	4
+//#define BFRICTION_MOTOR_ID	3
+//#define GFRICTION_MOTOR_ID	4
 #define FEEDER_MOTOR_CAN	&hcan1
 #define FEEDER_MOTOR_ID		1
 

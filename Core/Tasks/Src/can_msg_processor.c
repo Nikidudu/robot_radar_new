@@ -36,7 +36,7 @@ void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer);
 void can_ISR(CAN_HandleTypeDef *hcan) {
 	CAN_RxHeaderTypeDef RxHeader;
 	uint8_t RxData[CAN_BUFFER_SIZE];
-
+// todo: allow for can definition from config file alone
 	// check which CAN bus received it
 	// required because the 2 can buses use seperate FIFOs for receive
 	// CAN1: FIFO0; CAN2: FIFO1
@@ -53,7 +53,7 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 			break;
 
 		// feeder motor
-		case CAN_3508_ALL_ID + 3:
+		case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
 			if (FEEDER_MOTOR_CAN == &hcan1) {
 				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
 						(uint8_t*) RxData);
@@ -61,23 +61,45 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 			break;
 
 		// pitch motor
-		case DM_PITCH_MOTOR_ID: //todo: replace with normal pitch code when switched to DJI mode
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+		case DM_PITCH_MOTOR_ID:
 			if (PITCH_MOTOR_CAN == &hcan1) {
 				dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
 			}
 			break;
-//		case PITCH_MOTOR_ID:
-//			if(PITCH_MOTOR_CAN_PTR == &hcan1) {
-//
-//			}
+#elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
+		case CAN_DM_ALL_ID + PITCH_MOTOR_ID - 1:
+			if (PITCH_MOTOR_CAN == &hcan1) {
+				convert_raw_can_data(&pitch_motor, RxHeader.StdId,
+						(uint8_t*) RxData);
+			}
+			break;
+#else
+			// for some other non-DM pitch motor
+#endif
 
 		// yaw motor
-		case CAN_6020_ALL_ID + YAW_MOTOR_ID:
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+		case DM_YAW_MOTOR_ID:
+			if (YAW_MOTOR_CAN == &hcan1) {
+				dm4310_fbdata(&dm_yaw_motor, &RxData[0]);
+			}
+			break;
+#elif YAW_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
+		case CAN_DM_ALL_ID + YAW_MOTOR_ID - 1:
+			if (YAW_MOTOR_CAN == &hcan1) {
+				convert_raw_can_data(&yaw_motor, RxHeader.StdId,
+						(uint8_t*) RxData);
+			}
+			break;
+#else
+		case CAN_6020_ALL_ID + YAW_MOTOR_ID - 1:
 			if (YAW_MOTOR_CAN == &hcan1) {
 				convert_raw_can_data(&yaw_motor,
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
 			break;
+#endif
 		default:
 
 		}
@@ -90,13 +112,15 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 
 		switch (RxHeader.StdId) {
 		// launcher motors (flywheels)
-		case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID:
-		case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID:
-		//case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID:
-		//case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID:
+		case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID - 1:
+		case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID - 1:
+#ifdef ACTIVE_GUIDANCE
+		//case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID - 1:
+		//case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID - 1:
+#endif
 			if (LAUNCHER_MOTOR_CAN == &hcan2) {
 				convert_raw_can_data(
-						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID - 1],
+						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID],
 						RxHeader.StdId, (uint8_t*) RxData);
 			}
 			break;

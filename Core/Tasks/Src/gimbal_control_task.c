@@ -113,8 +113,7 @@ void gimbal_control_task(void *argument) {
 
 void yaw_init() {
 #if defined(YAW_MOTOR_ID) && (YAW_MOTOR_TYPE != TYPE_DM4310_MIT)
-	yaw_motor.motor_type = TYPE_GM6020_720;
-	yaw_motor.id = CAN_6020_ALL_ID + YAW_MOTOR_ID - 1;
+	yaw_motor.motor_type = YAW_MOTOR_TYPE;
 	yaw_motor.can = YAW_MOTOR_CAN;
 
 	yaw_motor.angle_data.center_ang = YAW_CENTER;
@@ -150,13 +149,15 @@ void yaw_init() {
 }
 
 void pitch_init() {
-#if defined(PITCH_MOTOR_ID) && PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
+#if defined(PITCH_MOTOR_ID) && (PITCH_MOTOR_TYPE != TYPE_DM4310_MIT)
 	pitch_motor.motor_type = PITCH_MOTOR_TYPE;
-	pitch_motor.id = PITCH_MOTOR_ID;
 	pitch_motor.can = PITCH_MOTOR_CAN;
 
 	pitch_motor.angle_data.center_ang = PITCH_CENTER;
 	pitch_motor.angle_data.wheel_circ = 0;
+	pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
+	pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
+
 	pitch_motor.angle_pid.kp = PITCH_ANGLE_KP;
 	pitch_motor.angle_pid.ki = PITCH_ANGLE_KI;
 	pitch_motor.angle_pid.kd = PITCH_ANGLE_KD;
@@ -169,9 +170,6 @@ void pitch_init() {
 	pitch_motor.rpm_pid.int_max = PITCHRPM_INT_MAX;
 	pitch_motor.rpm_pid.max_out = PITCH_MAX_CURRENT;
 
-	pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
-	pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
-
 	set_motor_config(&pitch_motor);
 
 #elif PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
@@ -183,25 +181,18 @@ void pitch_init() {
 void send_current_to_yaw_motor() {
 #if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
 		dm4310_ctrl_send(YAW_MOTOR_CAN, &dm_yaw_motor);
+
 #else
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
-	CAN_tx_message.IDE = CAN_ID_STD;
-	CAN_tx_message.RTR = CAN_RTR_DATA;
-	CAN_tx_message.DLC = 0x08;
-	if (YAW_MOTOR_ID > 4) {
-		CAN_tx_message.StdId = CAN_6020_5_TO_8_ID;
-	} else {
-		CAN_tx_message.StdId = CAN_6020_1_TO_4_ID;
-	}
 
 	// Clear entire packet first
 	memset(CAN_send_data, 0, 8);
 
 	// fill data packet with yaw data
 	if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
-	    CAN_set_motor_output(CAN_send_data, YAW_MOTOR_ID, yaw_motor.output);
+	    CAN_set_motor_output(&CAN_tx_message, CAN_send_data, YAW_MOTOR_ID, yaw_motor.motor_type, yaw_motor.output);
 	}
 
 	HAL_CAN_AddTxMessage(YAW_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
@@ -212,26 +203,18 @@ void send_current_to_yaw_motor() {
 void send_current_to_pitch_motor() {
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
 	dm4310_ctrl_send(PITCH_MOTOR_CAN, &dm_pitch_motor);
+
 #elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
-	CAN_tx_message.IDE = CAN_ID_STD;
-	CAN_tx_message.RTR = CAN_RTR_DATA;
-	CAN_tx_message.DLC = 0x08;
-
-	if (PITCH_MOTOR_ID > 4) {
-		CAN_tx_message.StdId = 0x4FE;
-	} else {
-		CAN_tx_message.StdId = 0x3FE;
-	}
 
 	// Clear entire packet first
 	memset(CAN_send_data, 0, 8);
 
 	// fill data packet with pitch data
 	if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
-	    CAN_set_motor_output(CAN_send_data, PITCH_MOTOR_ID, pitch_motor.output);
+	    CAN_set_motor_output(&CAN_tx_message, CAN_send_data, PITCH_MOTOR_ID, yaw_motor.motor_type, pitch_motor.output);
 	}
 
 	HAL_CAN_AddTxMessage(PITCH_MOTOR_CAN, &CAN_tx_message, CAN_send_data,

@@ -12,7 +12,8 @@
 #include "hud_hero.h"
 #define BULLET_42
 #define NEW_HERO_2026
-//#define ANGLE_FEEDER
+#define HAS_SBC
+//#define ANGLE_FEEDER //update hero to single shot w angle_feeder definition some day
 
 /********************* DEV C IMU CONFIGURATION ***********/
 //#define BOARD_DOWN
@@ -278,7 +279,7 @@
  * Centers for DM motors should be -PI to PI.
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_MOTOR_TYPE		TYPE_DM4310_MIT
+#define PITCH_MOTOR_TYPE		TYPE_DM4310_DJI_MODE
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 
@@ -316,6 +317,8 @@
 #define PITCH_MAX_ANG			1.0
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0
+
+#define YAW_MOTOR_TYPE			TYPE_DM4310_DJI_MODE
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #define YAW_ANGLE_KP			60
@@ -364,8 +367,8 @@
 #define LAUNCHER_MOTOR_CAN	&hcan2
 #define LFRICTION_MOTOR_ID	1
 #define RFRICTION_MOTOR_ID	2
-#define BFRICTION_MOTOR_ID	3
-#define GFRICTION_MOTOR_ID	4
+//#define BFRICTION_MOTOR_ID	3
+//#define GFRICTION_MOTOR_ID	4
 #define FEEDER_MOTOR_CAN	&hcan1
 #define FEEDER_MOTOR_ID		3
 

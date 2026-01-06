@@ -11,7 +11,7 @@
 
 void config_motors();
 void motor_calib_task(void* argument);
-void CAN_set_motor_output(uint8_t *data, uint8_t motor_id, int16_t output);
+void CAN_set_motor_output(CAN_TxHeaderTypeDef *CAN_tx_message, uint8_t *data, uint8_t motor_id, uint8_t motor_type, int16_t output);
 
 #define GM6020_MAX_OUTPUT 	20000
 #define GM6020_MAX_RPM		400
@@ -62,6 +62,11 @@ void CAN_set_motor_output(uint8_t *data, uint8_t motor_id, int16_t output);
 #define CAN_2006_ALL_ID 	0x201
 #define CAN_2006_1_TO_4_ID 	0x200
 #define CAN_2006_5_TO_8_ID	0x1FF
+
+/* CAN Damiao motor in DJI 1-to-4 formate */
+#define CAN_DM_ALL_ID 		0x301
+#define CAN_DM_1_TO_4_ID 	0x3FE
+#define CAN_DM_5_TO_8_ID	0x4FE
 
 void motor_calib_task(void *argument);
 void set_motor_config(motor_data_t *motor);

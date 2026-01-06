@@ -210,6 +210,7 @@ void set_motor_config(motor_data_t *motor) {
 
 	default:
 		break;
+	// todo: add switch case for TYPE_DM4310_DJI_MODE
 	}
 	motor->angle_data.init = 0;
 }
@@ -278,7 +279,55 @@ void dm_set_yaw_motor() {
 }
 
 // fills 8-byte data packet with motor output in slot corresponding to motor id
-void CAN_set_motor_output(uint8_t *data, uint8_t motor_id, int16_t output) {
+void CAN_set_motor_output(CAN_TxHeaderTypeDef *CAN_tx_message, uint8_t *data, uint8_t motor_id, uint8_t motor_type, int16_t output) {
+	CAN_tx_message->IDE = CAN_ID_STD;
+	CAN_tx_message->RTR = CAN_RTR_DATA;
+	CAN_tx_message->DLC = 0x08;
+
+	if (motor_id > 4) {
+		switch (motor_type) {
+		case TYPE_M2006:
+		case TYPE_M2006_STEPS:
+		case TYPE_M2006_ANGLE:
+			CAN_tx_message->StdId = CAN_2006_5_TO_8_ID;
+			break;
+		case TYPE_M3508:
+		case TYPE_M3508_NGEARBOX:
+		case TYPE_M3508_STEPS:
+		case TYPE_M3508_ANGLE:
+			CAN_tx_message->StdId = CAN_3508_5_TO_8_ID;
+			break;
+		case TYPE_GM6020:
+		case TYPE_GM6020_720:
+			CAN_tx_message->StdId = CAN_6020_5_TO_8_ID;
+			break;
+		case TYPE_DM4310_DJI_MODE:
+			CAN_tx_message->StdId = CAN_DM_5_TO_8_ID;
+			break;
+		}
+	} else {
+		switch (motor_type) {
+		case TYPE_M2006:
+		case TYPE_M2006_STEPS:
+		case TYPE_M2006_ANGLE:
+			CAN_tx_message->StdId = CAN_2006_1_TO_4_ID;
+			break;
+		case TYPE_M3508:
+		case TYPE_M3508_NGEARBOX:
+		case TYPE_M3508_STEPS:
+		case TYPE_M3508_ANGLE:
+			CAN_tx_message->StdId = CAN_3508_1_TO_4_ID;
+			break;
+		case TYPE_GM6020:
+		case TYPE_GM6020_720:
+			CAN_tx_message->StdId = CAN_6020_1_TO_4_ID;
+			break;
+		case TYPE_DM4310_DJI_MODE:
+			CAN_tx_message->StdId = CAN_DM_1_TO_4_ID;
+			break;
+		}
+	}
+
 	if (motor_id > 4) motor_id -= 4;
 
     uint8_t idx = (motor_id - 1) * 2;

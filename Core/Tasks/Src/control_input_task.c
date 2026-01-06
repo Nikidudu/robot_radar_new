@@ -290,10 +290,11 @@ void control_mode_change(uint8_t control_mode_button, uint8_t fn_1) {
 					break;
         	}
             last_trig_time = HAL_GetTick(); // update trigger time
+            return;
         }
 	}
 
-    // Change control mode between remote and keyboard
+    // Change control mode between remote/keyboard and aimbot mode
 	if (fn_1 == BUTTON_PRESSED) {
         if (HAL_GetTick() - last_trig_time > 1000) { // 1-second debounce
         	switch (control_mode) {

@@ -171,9 +171,6 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.850718065" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.663726850" name="control_sbc.c" rcbsApplicability="disable" resourcePath="Core/Tasks/Src/control_sbc.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.914110174.1972244541">
-						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.914110174.1972244541" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.914110174"/>
-					</fileInfo>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.1607294916" name="hud_task.h" rcbsApplicability="disable" resourcePath="Core/Tasks/Inc/hud_task.h" toolsToInvoke=""/>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.1413303518" name="control_sbc.h" rcbsApplicability="disable" resourcePath="Core/Tasks/Inc/control_sbc.h" toolsToInvoke=""/>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.1130037502" name="supercap_comm_task.h" rcbsApplicability="disable" resourcePath="Core/Tasks/Inc/supercap_comm_task.h" toolsToInvoke=""/>

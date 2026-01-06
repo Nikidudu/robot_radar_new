@@ -40,8 +40,8 @@ static uint32_t prev_power_data_no = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void launcher_init();
-void send_launcher_current_to_motor();
-
+void send_flywheel_current_to_motor();
+void send_feeder_current_to_motor();
 /* Private user code ---------------------------------------------------------*/
 
 void launcher_control_task(void *argument) {
@@ -92,7 +92,8 @@ void launcher_control_task(void *argument) {
 		}
 		status_led(4, off_led);
 
-		send_launcher_current_to_motor();
+		send_flywheel_current_to_motor();
+		send_feeder_current_to_motor();
 
 		vTaskDelayUntil(&launcher_ctrl_time, LAUNCHER_DELAY);
 	}
@@ -182,7 +183,6 @@ void launcher_init() {
 
 	for (size_t i = 0; i < number_of_flywheels; i++) {
 			flywheel_motor[i].motor_type = TYPE_M3508_NGEARBOX;
-			flywheel_motor[i].id = CAN_3508_ALL_ID + 1 + i;
 			flywheel_motor[i].can = LAUNCHER_MOTOR_CAN;
 
 			flywheel_motor[i].rpm_pid.kp = FRICTION_KP;
@@ -220,7 +220,7 @@ void launcher_init() {
 }
 
 
-void send_launcher_current_to_motor() {
+void send_flywheel_current_to_motor() {
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
@@ -258,32 +258,20 @@ void send_launcher_current_to_motor() {
 	}
 	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 			send_mail_box);
+}
+void send_feeder_current_to_motor() {
+	CAN_TxHeaderTypeDef CAN_tx_message;
+	uint8_t CAN_send_data[8];
+	uint32_t send_mail_box[3];
 
-	// send to feeder motor
-	if (FEEDER_MOTOR_ID > 4) {
-	  CAN_tx_message.StdId = CAN_2006_5_TO_8_ID;
-	 } else {
-	  CAN_tx_message.StdId = CAN_2006_1_TO_4_ID;
-	 }
-	  if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
-	    CAN_send_data[0] = 0;
-	    CAN_send_data[1] = 0;
-	    CAN_send_data[2] = 0;
-	    CAN_send_data[3] = 0;
-	    CAN_send_data[4] = 0;
-	    CAN_send_data[5] = 0;
-	    CAN_send_data[6] = 0;
-	    CAN_send_data[7] = 0;
-	  } else {
-	    CAN_send_data[0] = 0;
-	    CAN_send_data[1] = 0;
-	    CAN_send_data[2] = 0;
-	    CAN_send_data[3] = 0;
-	    CAN_send_data[4] = (feeder_motor.output >> 8) & 0xFF;
-	    CAN_send_data[5] = (feeder_motor.output) & 0xFF;
-	    CAN_send_data[6] = 0;
-	    CAN_send_data[7] = 0;
-	  }
+	// Clear entire packet first
+	memset(CAN_send_data, 0, 8);
+
+	// fill data packet with feeder data
+	if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
+	    CAN_set_motor_output(&CAN_tx_message, CAN_send_data, FEEDER_MOTOR_ID, feeder_motor.motor_type, feeder_motor.output);
+	}
+
 	  HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 	      send_mail_box);
 }
