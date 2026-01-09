@@ -339,9 +339,9 @@ uint16_t check_overheat() {
 #endif
 
 #ifdef BULLET_42
-	//ammo_remaining = (ref_robot_data.shooter_barrel_heat_limit
-		//	- ref_power_data.shooter_42mm_barrel_heat - OVERHEAT_OFFSET) / BULLET_42_HEAT;
-					ammo_remaining = 100;
+	ammo_remaining = (ref_robot_data.shooter_barrel_heat_limit
+			- ref_power_data.shooter_42mm_barrel_heat - OVERHEAT_OFFSET) / BULLET_42_HEAT;
+					//ammo_remaining = 100;
 
 	if (ammo_remaining < OVERHEAT_MARGIN) {
 		return 0;
@@ -436,7 +436,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 	int16_t feeder_speed = launcher_ctrl_data.firing
 			* FEEDER_SPEED * FEEDER_INVERT
 			/ FEEDER_SPEED_RATIO;
-	int16_t friction_wheel_speed = 0;//PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
+	int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
 
 	int16_t rpm_diff = abs(l_flywheel->raw_data.rpm + r_flywheel->raw_data.rpm);
 	int16_t avg_rpm = abs(l_flywheel->raw_data.rpm - r_flywheel->raw_data.rpm)

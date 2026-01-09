@@ -214,7 +214,7 @@ void send_current_to_pitch_motor() {
 
 	// fill data packet with pitch data
 	if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
-	    CAN_set_motor_output(&CAN_tx_message, CAN_send_data, PITCH_MOTOR_ID, yaw_motor.motor_type, pitch_motor.output);
+	    CAN_set_motor_output(&CAN_tx_message, CAN_send_data, PITCH_MOTOR_ID, pitch_motor.motor_type, pitch_motor.output);
 	}
 
 	HAL_CAN_AddTxMessage(PITCH_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
