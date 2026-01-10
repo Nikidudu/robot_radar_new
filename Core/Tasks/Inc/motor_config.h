@@ -32,6 +32,9 @@ void CAN_set_motor_output(CAN_TxHeaderTypeDef *CAN_tx_message, uint8_t *data, ui
 #define DM4310_MAX_RPM		200
 #define DM4310_MAX_TORQUE	7
 
+#define DM_TO_DJI_MAX_OUTPUT	16384
+#define DM_TO_DJI_MAX_RPM		120
+
 #define	TYPE_GM6020 				1
 #define	TYPE_M2006 					2
 #define	TYPE_M3508 					3

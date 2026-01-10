@@ -210,8 +210,8 @@ void set_motor_config(motor_data_t *motor) {
 
 	case TYPE_DM4310_DJI_MODE:
 		motor->angle_data.gearbox_ratio = 1;
-		motor->angle_pid.physical_max = GM6020_MAX_RPM;
-		motor->rpm_pid.physical_max = GM6020_MAX_OUTPUT;
+		motor->angle_pid.physical_max = DM_TO_DJI_MAX_RPM;
+		motor->rpm_pid.physical_max = DM_TO_DJI_MAX_OUTPUT;
 		motor->angle_data.min_ticks = -4096;
 		motor->angle_data.max_ticks = 4096;
 		motor->angle_data.tick_range = motor->angle_data.max_ticks
