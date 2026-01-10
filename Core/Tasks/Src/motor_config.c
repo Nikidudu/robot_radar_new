@@ -42,7 +42,7 @@ void motor_calib_task(void *argument) {
 
 	//check motors
 	//start motor control tasks after initialisation of motors
-	//shift function to master task.c probably
+	//todo shift function to master task.c probably
 
 	//xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
 	//		(UBaseType_t) 8, &motor_control_task_handle);
@@ -206,6 +206,24 @@ void set_motor_config(motor_data_t *motor) {
 				- motor->angle_data.min_ang;
 //		map_lk_motor(motor->id, motor);
 		lk_set_pid(motor, 500000);
+		break;
+
+	case TYPE_DM4310_DJI_MODE:
+		motor->angle_data.gearbox_ratio = 1;
+		motor->angle_pid.physical_max = GM6020_MAX_RPM;
+		motor->rpm_pid.physical_max = GM6020_MAX_OUTPUT;
+		motor->angle_data.min_ticks = -4096;
+		motor->angle_data.max_ticks = 4096;
+		motor->angle_data.tick_range = motor->angle_data.max_ticks
+				- motor->angle_data.min_ticks;
+
+		motor->angle_data.max_raw_ticks = 4096;
+		motor->angle_data.min_raw_ticks = -4096;
+		motor->angle_data.raw_ticks_range = motor->angle_data.max_raw_ticks - motor->angle_data.min_raw_ticks;
+		motor->angle_data.max_ang = PI;
+		motor->angle_data.min_ang = -PI;
+		motor->angle_data.ang_range = motor->angle_data.max_ang
+				- motor->angle_data.min_ang;
 		break;
 
 	default:

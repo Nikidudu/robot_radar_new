@@ -185,6 +185,7 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 	//motor must be initialised in motor_config.c first
 	if (curr_motor->motor_type > 0) {
 		switch (curr_motor->motor_type) {
+		case TYPE_DM4310_DJI_MODE: // added DM motor case statement
 		case TYPE_GM6020:
 			motor_calc_odometry(&curr_motor->raw_data, &curr_motor->angle_data,
 					curr_motor->last_time);
