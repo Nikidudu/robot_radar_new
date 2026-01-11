@@ -468,12 +468,12 @@ void yaw_control(motor_data_t *yaw_motor) {
 //		oangle_pid(gimbal_ctrl_data.yaw, imu_heading.yaw, yaw_motor, g_chassis_rot);
 
 //	float chassis_yaw_speed = g_chassis_yaw * FR_DIST * 2 * PI * chassis_rpm / 19.2;
-	int32_t temp_output = yaw_motor->rpm_pid.output
-			+ (chassis_ctrl_data.yaw * YAW_SPINSPIN_CONSTANT
-					/ CHASSIS_SPINSPIN_MAX);
-	temp_output = (temp_output > 20000) ? 20000 :
-					(temp_output < -20000) ? -20000 : temp_output;
-	yaw_motor->output = temp_output;
+//	int32_t temp_output = yaw_motor->rpm_pid.output
+//			+ (chassis_ctrl_data.yaw * YAW_SPINSPIN_CONSTANT
+//					/ CHASSIS_SPINSPIN_MAX);
+//	temp_output = (temp_output > 20000) ? 20000 :
+//					(temp_output < -20000) ? -20000 : temp_output;
+	yaw_motor->output = yaw_motor->rpm_pid.output;
 
 #ifdef YAW_FEEDFORWARD
 //	speed_pid(yaw_motor->raw_data.rpm + yaw_motor->angle_pid.output, g_chassis_rot, &g_yaw_ff_pid);

@@ -409,9 +409,9 @@
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #define YAW_MOTOR_TYPE 			TYPE_GM6020_720
 
-#define YAW_ANGLE_KP			400
+#define YAW_ANGLE_KP			200
 #define YAW_ANGLE_KI			0.0001
-#define YAW_ANGLE_KD			40
+#define YAW_ANGLE_KD			320
 #define YAW_ANGLE_INT_MAX		0.1
 #define YAW_MAX_RPM				132//85
 
@@ -439,7 +439,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	5000
-#define YAW_CENTER 				3282
+#define YAW_CENTER 				5005
 #define YAW_MAX_ANG				5*PI
 #define YAW_MIN_ANG				5*-PI
 

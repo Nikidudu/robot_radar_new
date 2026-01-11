@@ -351,7 +351,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	5000
-#define YAW_CENTER 				3282
+#define YAW_CENTER 				-965
 #define YAW_MAX_ANG				5*PI
 #define YAW_MIN_ANG				5*-PI
 

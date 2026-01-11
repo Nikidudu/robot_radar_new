@@ -129,7 +129,7 @@ void control_input_task(void *argument) {
 float chassis_center_yaw() {
 	chassis_centering_config(); // set chassis centering pid based on level
 
-	speed_pid(0, yaw_motor.angle_data.adj_ang, &yaw_pid_data);
+	speed_pid(0, -yaw_motor.angle_data.adj_ang, &yaw_pid_data);
 	if (fabs(yaw_pid_data.output) < CHASSIS_YAW_MIN) {
 		return 0;
 	}
