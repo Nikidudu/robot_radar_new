@@ -371,13 +371,12 @@
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 
-#define PITCH_ANGLE_KP	  		60
+#define PITCH_ANGLE_KP	  		80
 #define PITCH_ANGLE_KI  		0
-#define PITCH_ANGLE_KD  		1.725
+#define PITCH_ANGLE_KD  		3
 #define PITCH_ANGLE_INT_MAX		0
 
 #define PITCH_MAX_RPM			60
-
 #define PITCHRPM_KP				0.5
 #define PITCHRPM_KI				0
 #define PITCHRPM_KD				0.05
