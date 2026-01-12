@@ -10,11 +10,11 @@
 //#include "robot_config_hero.h"
 //#include "robot_config_NEW_HERO.h"
 
-//#include "robot_config_kirbee.h"
+#include "robot_config_kirbee.h"
 //#include "robot_config_sentry.h"
 //#include "robot_config_TALI_LK.h"
 //#include "robot_config_waddledee.h"
-#include "robot_config_Hero_testing.h"
+//#include "robot_config_Hero_testing.h"
 
 
 // COMMON CONFIGURATION

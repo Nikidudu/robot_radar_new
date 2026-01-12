@@ -499,7 +499,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 //				< -(FEEDER_JAM_TORQUE * FEEDER_INVERT)) {
 //			feeder_state = FEEDER_SPINUP;
 //		}
-//		break;
+		break;
 
 	case FEEDER_OVERHEAT:
 		if (check_overheat() > OVERHEAT_EXCESS) {

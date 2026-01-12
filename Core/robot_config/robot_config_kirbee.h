@@ -116,13 +116,13 @@
 #define FEEDER_ANGLE_KD  		0
 #define FEEDER_ANGLE_KI  		0
 #define FEEDER_ANGLE_INT_MAX  	0
-#define FEEDER_MAX_RPM			100
+#define FEEDER_MAX_RPM			180
 
-#define FEEDER_JAM_TORQUE  		9800			// Before feeder deemed to be jammed
-#define FEEDER_JAM_RPM			100				// if feeeder is below this rpm, it is jammed
-#define FEEDER_UNJAM_SPD  		20			// Reverse unjam
-#define FEEDER_UNJAM_TIME		5000000
-#define FEEDER_MAX_CURRENT		10000
+#define FEEDER_JAM_TORQUE  		30000	//20000		// Before feeder deemed to be jammed
+#define FEEDER_JAM_RPM			20				// if feeder is below this rpm, it is jammed
+#define FEEDER_UNJAM_SPD  		100		//100	// Reverse unjam
+#define FEEDER_UNJAM_TIME		5000   //30000
+#define FEEDER_MAX_CURRENT		60000   //60000
 #define FEEDER_INVERT			-1
 
 // FRICTION WHEELS PID VALUES
@@ -406,16 +406,16 @@
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0
 
-#if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #define YAW_MOTOR_TYPE 			TYPE_GM6020_720
+#if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 
-#define YAW_ANGLE_KP			200
-#define YAW_ANGLE_KI			0.0001
-#define YAW_ANGLE_KD			320
+#define YAW_ANGLE_KP			400
+#define YAW_ANGLE_KI			0.00 // 0.0001Should be very small, just to correct run-off or oscillation errors
+#define YAW_ANGLE_KD			1200
 #define YAW_ANGLE_INT_MAX		0.1
 #define YAW_MAX_RPM				132//85
 
-#define YAWRPM_KP				300
+#define YAWRPM_KP				400
 #define YAWRPM_KI				0
 #define YAWRPM_KD				15
 #define YAWRPM_INT_MAX			5000
@@ -451,7 +451,7 @@
 //#define BFRICTION_MOTOR_ID	3
 //#define GFRICTION_MOTOR_ID	4
 #define FEEDER_MOTOR_CAN	&hcan1
-#define FEEDER_MOTOR_ID		1
+#define FEEDER_MOTOR_ID		7
 
 #define PITCH_MOTOR_CAN		&hcan1
 #define PITCH_MOTOR_ID 		0x1
