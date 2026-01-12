@@ -411,13 +411,13 @@
 
 #define YAW_ANGLE_KP			400
 #define YAW_ANGLE_KI			0.00 // 0.0001Should be very small, just to correct run-off or oscillation errors
-#define YAW_ANGLE_KD			1200
+#define YAW_ANGLE_KD			2975 //3000
 #define YAW_ANGLE_INT_MAX		0.1
 #define YAW_MAX_RPM				132//85
 
 #define YAWRPM_KP				400
 #define YAWRPM_KI				0
-#define YAWRPM_KD				15
+#define YAWRPM_KD				0 //15
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
