@@ -344,10 +344,10 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 
 	pit_lim = limit_pitch(&rel_pitch_angle, pitch_motor);
 
-//	if (pit_lim == 1) {
-//		gimbal_ctrl_data.pitch = rel_pitch_angle + imu_heading.pit
-//				- (pitch_motor->angle_data.adj_ang);
-//	}
+	if (pit_lim == 1) {
+		gimbal_ctrl_data.pitch = -rel_pitch_angle - imu_heading.pit
+				+ (pitch_motor->angle_data.adj_ang);
+	}
 
 	yangle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor,
 			imu_heading.pit, &prev_pit,0);

@@ -24,7 +24,7 @@
 
 //flip until motor angle and yaw angle matches
 #define IMU_YAW_INVERT		-1
-#define IMU_PITCH_INVERT	1
+#define IMU_PITCH_INVERT	-1
 //nothing uses roll.....yet
 #define IMU_ROLL_INVERT		1
 //#define IST8310
@@ -96,7 +96,7 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_SPEED				100//1200//800//480//480
+#define FEEDER_SPEED				300//1200//800//480//480
 #define	PROJECTILE_SPEED			16.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
 
 #define PROJECTILE_SPEED_RATIO	375//340//355//360				//rpm per m/s of the friction wheels ish don't think this will work well lmao
@@ -135,7 +135,7 @@
 #define FRICTION_KD  			0//10
 #define FRICTION_MAX_CURRENT 	16384
 #define FRICTION_MAX_INT		10000
-#define FRICTION_INVERT			1
+#define FRICTION_INVERT			-1
 #define LAUNCHER_MARGIN			300
 #define LAUNCHER_DIFF_MARGIN	300
 #define FRICTION_OFFSET			0//100
@@ -283,16 +283,16 @@
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 
-#define PITCH_ANGLE_KP	  		60
+#define PITCH_ANGLE_KP	  		80
 #define PITCH_ANGLE_KI  		0
-#define PITCH_ANGLE_KD  		1.725
+#define PITCH_ANGLE_KD  		5
 #define PITCH_ANGLE_INT_MAX		0
 
 #define PITCH_MAX_RPM			60
 
-#define PITCHRPM_KP				0.5
+#define PITCHRPM_KP				0.8
 #define PITCHRPM_KI				0
-#define PITCHRPM_KD				0.05
+#define PITCHRPM_KD				0.135
 #define PITCHRPM_INT_MAX		4000
 #define PITCH_MAX_CURRENT		205000
 
@@ -313,9 +313,9 @@
 
 #endif
 
-#define PITCH_CENTER			857
-#define PITCH_MAX_ANG			0.2
-#define PITCH_MIN_ANG			-0.52
+#define PITCH_CENTER			-2713
+#define PITCH_MAX_ANG			0.6
+#define PITCH_MIN_ANG			-2.2
 #define PITCH_CONST 			0
 
 #define YAW_MOTOR_TYPE			TYPE_DM4310_DJI_MODE
@@ -351,7 +351,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	5000
-#define YAW_CENTER 				-965
+#define YAW_CENTER 				-1827
 #define YAW_MAX_ANG				5*PI
 #define YAW_MIN_ANG				5*-PI
 
