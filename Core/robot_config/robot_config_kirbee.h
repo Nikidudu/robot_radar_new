@@ -118,7 +118,7 @@
 #define FEEDER_ANGLE_INT_MAX  	0
 #define FEEDER_MAX_RPM			180
 
-#define FEEDER_JAM_TORQUE  		30000	//20000		// Before feeder deemed to be jammed
+#define FEEDER_JAM_TORQUE  		35000	//20000		// Before feeder deemed to be jammed
 #define FEEDER_JAM_RPM			20				// if feeder is below this rpm, it is jammed
 #define FEEDER_UNJAM_SPD  		100		//100	// Reverse unjam
 #define FEEDER_UNJAM_TIME		5000   //30000
