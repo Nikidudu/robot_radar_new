@@ -449,6 +449,7 @@ void yaw_control(motor_data_t *yaw_motor) {
 		turn_ang += 2 * PI;
 
 	}
+
 	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore, portMAX_DELAY);
 	gimbal_ctrl_data.delta_yaw -= turn_ang;
 
@@ -463,16 +464,6 @@ void yaw_control(motor_data_t *yaw_motor) {
 			&prev_yaw, 0);
 	xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 
-//	yangle_pid(gimbal_ctrl_data.yaw, imu_heading.yaw, yaw_motor,
-//			imu_heading.yaw, &prev_yaw);
-//		oangle_pid(gimbal_ctrl_data.yaw, imu_heading.yaw, yaw_motor, g_chassis_rot);
-
-//	float chassis_yaw_speed = g_chassis_yaw * FR_DIST * 2 * PI * chassis_rpm / 19.2;
-//	int32_t temp_output = yaw_motor->rpm_pid.output
-//			+ (chassis_ctrl_data.yaw * YAW_SPINSPIN_CONSTANT
-//					/ CHASSIS_SPINSPIN_MAX);
-//	temp_output = (temp_output > 20000) ? 20000 :
-//					(temp_output < -20000) ? -20000 : temp_output;
 	yaw_motor->output = yaw_motor->rpm_pid.output;
 
 #ifdef YAW_FEEDFORWARD
