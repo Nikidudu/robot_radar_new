@@ -401,7 +401,7 @@
 #endif
 
 #define PITCH_CENTER			857
-#define PITCH_MAX_ANG			0.2
+#define PITCH_MAX_ANG			0.75
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0
 
