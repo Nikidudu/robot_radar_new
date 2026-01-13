@@ -60,13 +60,15 @@ void sbc_gimbal_input() {
         float yaw_command = p_out + d_out;
 
         filtered_pitch_error = filtered_pitch_error * (1.0f - filter_alpha) + raw_pitch * filter_alpha;
-        float pitch_command = filtered_pitch_error + INS.Pitch;
+        float pitch_command = filtered_pitch_error;
 
         // Timeout Logic
         if ((HAL_GetTick() - last_aimbot_update_tick) > 300) {
             filtered_pitch_error *= 0.95f;
             yaw_command = 0.0f;
         }
+        yaw_command -= 0.040f;
+        pitch_command -= 0.10f;
 
         gimbal_set_ang(pitch_command, yaw_command);
     }
@@ -74,7 +76,7 @@ void sbc_gimbal_input() {
 
 
 void sbc_launcher_control_input() {
-	if (g_aimbot_cmd.fire == 1) {
+	if (g_aimbot_cmd.fire == 1 && g_remote_cmd.trigger == 1) {
 		launcher_ctrl_data.enabled = 1;
 		launcher_ctrl_data.projectile_speed = 1;
 		launcher_ctrl_data.firing = 1;

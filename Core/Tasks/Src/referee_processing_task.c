@@ -93,7 +93,6 @@ void referee_processing_task(void *argument) {
 						memcpy(&ref_robot_data, &g_ref_msg_buffer.data,
 								sizeof(ref_game_robot_data2_t));
 						// Send when the current HP changes
-						USB_Send_HP(ref_robot_data.current_HP);
 						ref_robot_data_txno++;
 						break;
 					case REF_ROBOT_POS_DATA_CMD_ID:

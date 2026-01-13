@@ -114,7 +114,7 @@ typedef enum {
     STATE_CRC_HI
 } usb_parse_state_t;
 
-static void UsbParserTask(void *argument)
+void UsbParserTask(void *argument)
 {
     usb_parse_state_t state = STATE_WAIT_MAGIC;
     uint16_t payload_len = 0;
@@ -223,32 +223,6 @@ static void UsbParserTask(void *argument)
     }
 }
 
-
-/**
- * @brief Sends the current HP to the host via USB
- * @param hp The current HP value (uint16_t)
- */
-void USB_Send_HP(uint16_t hp)
-{
-    // Protocol: [Magic(1)] [Len_LSB(1)] [Len_MSB(1)] [Type(1)] [Payload(N)] [CRC_LSB(1)] [CRC_MSB(1)]
-    uint16_t payload_len = 2;
-    uint8_t tx_buf[4 + 2 + 2]; // Header(4) + Payload(2) + CRC(2) = 8 bytes
-
-    tx_buf[0] = USB_MAGIC_BYTE;
-    tx_buf[1] = payload_len & 0xFF;
-    tx_buf[2] = (payload_len >> 8) & 0xFF;
-    tx_buf[3] = USB_PKT_HP_DATA;
-
-    tx_buf[4] = hp & 0xFF;
-    tx_buf[5] = (hp >> 8) & 0xFF;
-
-    uint16_t crc = crc16(tx_buf, 4 + payload_len);
-
-    tx_buf[6] = crc & 0xFF;
-    tx_buf[7] = (crc >> 8) & 0xFF;
-
-    CDC_Transmit_FS(tx_buf, sizeof(tx_buf));
-}
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Initialization */
