@@ -5,10 +5,10 @@
 
 #include "typedefs.h"
 
-//#include "robot_config_kirbee.h"
+#include "robot_config_kirbee.h"
 //#include "robot_config_sentry.h"
 //#include "robot_config_waddledee.h"
-#include "robot_config_Hero_testing.h"
+//#include "robot_config_Hero_testing.h"
 
 
 // COMMON CONFIGURATION

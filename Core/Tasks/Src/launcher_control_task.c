@@ -120,6 +120,7 @@ void launcher_init() {
 	feeder_motor.angle_pid.max_out = FEEDER_MAX_RPM;
 
 	feeder_motor.angle_data.wheel_circ = 0;
+	set_motor_config(&feeder_motor);
 
 	int number_of_flywheels = 2; // LFRICTION + RFRICTION
 #else
@@ -139,6 +140,7 @@ void launcher_init() {
 	feeder_motor.angle_pid.max_out = FEEDER_MAX_RPM;
 
 	feeder_motor.angle_data.wheel_circ = 0;
+	set_motor_config(&feeder_motor);
 
 	int number_of_flywheels = 2; // LFRICTION + RFRICTION
 #endif
@@ -428,8 +430,8 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 
 	case FEEDER_FIRING:
 		//check for feeder jam first, prioritise unjamming
-		if ((feeder->raw_data.torque)
-				> (FEEDER_JAM_TORQUE * FEEDER_INVERT) && (abs(feeder->raw_data.rpm) < FEEDER_JAM_RPM)) {
+		if (abs(feeder->raw_data.torque)
+				> (FEEDER_JAM_TORQUE) && (abs(feeder->raw_data.rpm) < FEEDER_JAM_RPM)) {
 			jam_start_time = get_microseconds();
 			feeder->rpm_pid.integral = 0;
 			feeder_state = FEEDER_JAM;

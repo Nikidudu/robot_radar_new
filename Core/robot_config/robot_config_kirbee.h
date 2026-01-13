@@ -123,7 +123,7 @@
 #define FEEDER_UNJAM_SPD  		100		//100	// Reverse unjam
 #define FEEDER_UNJAM_TIME		5000	//30000
 #define FEEDER_MAX_CURRENT		60000   //60000
-#define FEEDER_INVERT			-1
+#define FEEDER_INVERT			1
 
 // FRICTION WHEELS PID VALUES
 #define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
@@ -450,7 +450,7 @@
 //#define BFRICTION_MOTOR_ID	3
 //#define GFRICTION_MOTOR_ID	4
 #define FEEDER_MOTOR_CAN	&hcan1
-#define FEEDER_MOTOR_ID		7
+#define FEEDER_MOTOR_ID		3
 
 #define PITCH_MOTOR_CAN		&hcan1
 #define PITCH_MOTOR_ID 		0x1
