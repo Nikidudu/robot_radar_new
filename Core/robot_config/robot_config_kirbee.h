@@ -93,10 +93,10 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_SPEED				1200//800//480//480
-#define	PROJECTILE_SPEED			20.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
+#define FEEDER_SPEED			1200
+#define	PROJECTILE_SPEED		20.5    //19 gives projectiles speed of 28-29m/s
 
-#define PROJECTILE_SPEED_RATIO	310//340//355//360				//rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define PROJECTILE_SPEED_RATIO	310		//rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		-8								//projectiles per round of the feeder
 
 // prevents pilots from overheating when firing
@@ -105,12 +105,12 @@
 #define OVERHEAT_EXCESS 	2
 #define OVERHEAT_OFFSET		20
 
+#define FEEDER_MOTOR_TYPE	TYPE_M3508
 // FEEDER PID VALUES
 #define FEEDER_KP 			5
 #define FEEDER_KI  			0.02
 #define FEEDER_KD  			3
 #define FEEDER_MAX_INT		10000
-
 // FEEDER_ANGLE PID VALUES
 #define FEEDER_ANGLE_KP 		1000
 #define FEEDER_ANGLE_KD  		0
@@ -118,10 +118,10 @@
 #define FEEDER_ANGLE_INT_MAX  	0
 #define FEEDER_MAX_RPM			180
 
-#define FEEDER_JAM_TORQUE  		35000	//20000		// Before feeder deemed to be jammed
-#define FEEDER_JAM_RPM			20				// if feeder is below this rpm, it is jammed
+#define FEEDER_JAM_TORQUE  		4915	//35000	//20000		// Before feeder deemed to be jammed
+#define FEEDER_JAM_RPM			20		// if feeder is below this rpm, it is jammed
 #define FEEDER_UNJAM_SPD  		100		//100	// Reverse unjam
-#define FEEDER_UNJAM_TIME		5000   //30000
+#define FEEDER_UNJAM_TIME		5000	//30000
 #define FEEDER_MAX_CURRENT		60000   //60000
 #define FEEDER_INVERT			-1
 

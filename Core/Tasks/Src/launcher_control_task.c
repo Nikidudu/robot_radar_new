@@ -103,8 +103,7 @@ void launcher_control_task(void *argument) {
 void launcher_init() {
 #ifdef ANGLE_FEEDER
 	feeder_motor.motor_type = TYPE_M3508_ANGLE;
-#else
-#ifdef NEW_HERO_2026
+#elif FEEDER_MOTOR_TYPE == TYPE_M3508
 	feeder_motor.motor_type = TYPE_M3508;
 	feeder_motor.can = LAUNCHER_MOTOR_CAN;
 
@@ -113,30 +112,16 @@ void launcher_init() {
 	feeder_motor.rpm_pid.kd = FEEDER_KD;
 	feeder_motor.rpm_pid.int_max = FEEDER_MAX_INT;
 	feeder_motor.rpm_pid.max_out = FEEDER_MAX_CURRENT;
-	feeder_motor.rpm_pid.physical_max = M3508_MAX_OUTPUT;
 
 	feeder_motor.angle_pid.kp = FEEDER_ANGLE_KP;
 	feeder_motor.angle_pid.ki = FEEDER_ANGLE_KI;
 	feeder_motor.angle_pid.kd = FEEDER_ANGLE_KD;
 	feeder_motor.angle_pid.int_max = FEEDER_ANGLE_INT_MAX;
 	feeder_motor.angle_pid.max_out = FEEDER_MAX_RPM;
-	feeder_motor.angle_pid.physical_max = M3508_MAX_RPM;
 
-	feeder_motor.angle_data.gearbox_ratio = M3508_GEARBOX_RATIO;
-	feeder_motor.angle_data.min_ticks = -4096 * M3508_GEARBOX_RATIO;
-	feeder_motor.angle_data.max_ticks = 4096 * M3508_GEARBOX_RATIO;
-	feeder_motor.angle_data.tick_range = feeder_motor.angle_data.max_ticks
-			- feeder_motor.angle_data.min_ticks;
-	feeder_motor.angle_data.min_ang = -PI;
-	feeder_motor.angle_data.max_ang = PI;
-	feeder_motor.angle_data.max_raw_ticks = 4096;
-	feeder_motor.angle_data.min_raw_ticks = -4096;
-	feeder_motor.angle_data.raw_ticks_range = feeder_motor.angle_data.max_raw_ticks - feeder_motor.angle_data.min_raw_ticks;
-	feeder_motor.angle_data.raw_ticks_range =
-			feeder_motor.angle_data.max_raw_ticks
-					- feeder_motor.angle_data.min_raw_ticks;
+	feeder_motor.angle_data.wheel_circ = 0;
+
 	int number_of_flywheels = 2; // LFRICTION + RFRICTION
-//		feeder_motor[i].id = CAN_3508_ALL_ID + i;
 #else
 	feeder_motor.motor_type = TYPE_M2006;
 	feeder_motor.can = LAUNCHER_MOTOR_CAN;
@@ -146,36 +131,18 @@ void launcher_init() {
 	feeder_motor.rpm_pid.kd = FEEDER_KD;
 	feeder_motor.rpm_pid.int_max = FEEDER_MAX_INT;
 	feeder_motor.rpm_pid.max_out = FEEDER_MAX_CURRENT;
-	feeder_motor.rpm_pid.physical_max = M2006_MAX_OUTPUT;
 
 	feeder_motor.angle_pid.kp = FEEDER_ANGLE_KP;
 	feeder_motor.angle_pid.ki = FEEDER_ANGLE_KI;
 	feeder_motor.angle_pid.kd = FEEDER_ANGLE_KD;
 	feeder_motor.angle_pid.int_max = FEEDER_ANGLE_INT_MAX;
 	feeder_motor.angle_pid.max_out = FEEDER_MAX_RPM;
-	feeder_motor.angle_pid.physical_max = M2006_MAX_RPM;
 
 	feeder_motor.angle_data.wheel_circ = 0;
-	feeder_motor.angle_data.gearbox_ratio = M2006_GEARBOX_RATIO;
-	feeder_motor.angle_data.min_ticks = -4096 * M2006_GEARBOX_RATIO;
-	feeder_motor.angle_data.max_ticks = 4096 * M2006_GEARBOX_RATIO;
-	feeder_motor.angle_data.tick_range =
-			feeder_motor.angle_data.max_ticks
-					- feeder_motor.angle_data.min_ticks;
-	feeder_motor.angle_data.min_ang = -PI;
-	feeder_motor.angle_data.max_ang = PI;
-	feeder_motor.angle_data.ang_range =
-			feeder_motor.angle_data.max_ang
-					- feeder_motor.angle_data.min_ang;
-	feeder_motor.angle_data.max_raw_ticks = 4096;
-	feeder_motor.angle_data.min_raw_ticks = -4096;
-	feeder_motor.angle_data.raw_ticks_range =
-			feeder_motor.angle_data.max_raw_ticks
-					- feeder_motor.angle_data.min_raw_ticks;
 
 	int number_of_flywheels = 2; // LFRICTION + RFRICTION
 #endif
-#endif
+
 #ifdef ACTIVE_GUIDANCE
 	microswitch_int();
 	number_of_flywheels = 4; // + BFRICTION + GFRICTION
