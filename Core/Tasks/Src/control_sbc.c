@@ -102,18 +102,19 @@ void sbc_chassis_input() {
 
     chassis_ctrl_data.enabled = 1;
 
-    float horizontal_input = g_nav_cmd.vy / 660.0;
-    float forward_input = g_nav_cmd.vx / 660.0;
-    float yaw_input;
+    float horizontal_input = -g_nav_cmd.vy/5;
+    float forward_input = g_nav_cmd.vx/5;
+    // float yaw_input;
+    float yaw_input = g_nav_cmd.vz; //chassis_center_yaw();//g_nav_cmd.vz;
 
     // Apply deadband and centering
-    if (fabs(g_nav_cmd.vz) > 0.05f) {
-        yaw_input = g_nav_cmd.vz;
-    } else {
-        yaw_input = chassis_center_yaw();
-    }
+//    if (fabs(g_nav_cmd.vz) > 0.05f) {
+//        yaw_input = g_nav_cmd.vz;
+//    } else {g
+//        yaw_input = chassis_center_yaw();
+//    }
 
-    chassis_set_ctrl(forward_input, horizontal_input, 0.0f);
+    chassis_set_ctrl(forward_input, horizontal_input, yaw_input );
 }
 
 
