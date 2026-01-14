@@ -22,7 +22,7 @@ void sbc_gimbal_input();
 
 void sbc_control_input() {
 	sbc_gimbal_input();
-//	sbc_chassis_input();
+	sbc_chassis_input();
 	sbc_launcher_control_input();
 }
 
@@ -67,8 +67,8 @@ void sbc_gimbal_input() {
             filtered_pitch_error *= 0.95f;
             yaw_command = 0.0f;
         }
-        yaw_command -= 0.040f;
-        pitch_command -= 0.10f;
+//        yaw_command -= 0.040f;
+//        pitch_command -= 0.10f;
 
         gimbal_set_ang(pitch_command, yaw_command);
     }
@@ -86,7 +86,35 @@ void sbc_launcher_control_input() {
 }
 
 
+void sbc_chassis_input() {
+    if (g_safety_toggle || !gv_usb_connected) {
+        chassis_kill_ctrl();
+        return;
+    }
 
+    // Check if command is stale (>200ms old)
+    if (HAL_GetTick() - g_nav_cmd.last_update > 200) {
+        // No recent data, reset to safe state
+        g_nav_cmd.vx = 0;
+        g_nav_cmd.vy = 0;
+        g_nav_cmd.vz = 0;
+    }
+
+    chassis_ctrl_data.enabled = 1;
+
+    float horizontal_input = g_nav_cmd.vy / 660.0;
+    float forward_input = g_nav_cmd.vx / 660.0;
+    float yaw_input;
+
+    // Apply deadband and centering
+    if (fabs(g_nav_cmd.vz) > 0.05f) {
+        yaw_input = g_nav_cmd.vz;
+    } else {
+        yaw_input = chassis_center_yaw();
+    }
+
+    chassis_set_ctrl(forward_input, horizontal_input, 0.0f);
+}
 
 
 //extern remote_cmd_t g_remote_cmd;

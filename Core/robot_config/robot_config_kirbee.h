@@ -145,7 +145,7 @@
 #define CHASSIS_KI  		0.1
 #define CHASSIS_KD  		0.8
 #define CHASSIS_INT_MAX  	5000
-#define CHASSIS_MAX_CURRENT 6000//9000
+#define CHASSIS_MAX_CURRENT 1000//6000//9000
 #define CHASSIS_MIN_CURRENT 0
 #define BUFFER_MIN			0.22			// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
 											// tune this by seeing if pilot likes the speed
