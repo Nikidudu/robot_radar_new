@@ -57,7 +57,7 @@ void chassis_can_message_task(void *argument) {
 
     while(1) {
 
-    	float rel_angle = -yaw_motor.angle_data.adj_ang;
+    	float rel_angle = yaw_motor.angle_data.adj_ang;
 
     	// Setting translational and rotational speed and acceleration base on robot level
     	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
@@ -86,13 +86,9 @@ void chassis_can_message_task(void *argument) {
     	// translation and rotation speed of chassis for chassis yaw angle relative to gimbal
     	float rel_forward = ((-act_horizontal * sin(-rel_angle))
     			+ (act_forward * cos(-rel_angle)));
-    	float rel_horizontal = -((-act_horizontal * cos(-rel_angle))
+    	float rel_horizontal = ((-act_horizontal * cos(-rel_angle))
     			+ (act_forward * -sin(-rel_angle)));
     	float rel_yaw = act_yaw;
-
-//    	float rel_forward = act_forward;
-//    	float rel_horizontal = act_horizontal;
-//    	float rel_yaw = act_yaw;
 
     	// convert from float to int16_t
     	int16_t send_forward = pack_value(rel_forward);

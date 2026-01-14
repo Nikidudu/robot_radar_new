@@ -55,36 +55,41 @@ void imu_proc_task_notif() {
 void gyro_data_ready(gyro_data_t gyro_data) {
 #if IMU_ORIENTATION == 2
 	//flip roll with yaw
-		gyro_proc_data.gx = gyro_data.gz;
-		gyro_proc_data.gy = gyro_data.gy;
-		gyro_proc_data.gz = -gyro_data.gx;
+	gyro_proc_data.gx = gyro_data.gz;
+	gyro_proc_data.gy = gyro_data.gy;
+	gyro_proc_data.gz = -gyro_data.gx;
 #elif IMU_ORIENTATION == 3
-		//flip roll with yaw
-		gyro_proc_data.gx = gyro_data.gx;
-		gyro_proc_data.gy = gyro_data.gz;
-		gyro_proc_data.gz = gyro_data.gy;
+	//flip roll with yaw
+	gyro_proc_data.gx = gyro_data.gx;
+	gyro_proc_data.gy = gyro_data.gz;
+	gyro_proc_data.gz = gyro_data.gy;
 #elif IMU_ORIENTATION == 4
-		//
-		gyro_proc_data.gx = gyro_data.gz;
-		gyro_proc_data.gy = gyro_data.gx;
-		gyro_proc_data.gz = gyro_data.gy;
+	//
+	gyro_proc_data.gx = gyro_data.gz;
+	gyro_proc_data.gy = gyro_data.gx;
+	gyro_proc_data.gz = gyro_data.gy;
 #elif IMU_ORIENTATION == 5
-		//
-		gyro_proc_data.gx = gyro_data.gz;
-		gyro_proc_data.gy = gyro_data.gx;
-		gyro_proc_data.gz = gyro_data.gy;
+	//
+	gyro_proc_data.gx = gyro_data.gz;
+	gyro_proc_data.gy = gyro_data.gx;
+	gyro_proc_data.gz = gyro_data.gy;
 
 #elif IMU_ORIENTATION == 7
-
-        gyro_proc_data.gx = -gyro_data.gy; //flip neg as needed
-        gyro_proc_data.gy = gyro_data.gx;
-        gyro_proc_data.gz = gyro_data.gz;
+	gyro_proc_data.gx = -gyro_data.gy; //flip neg as needed
+	gyro_proc_data.gy = gyro_data.gx;
+	gyro_proc_data.gz = gyro_data.gz;
 
 #else
-		gyro_proc_data.gx = gyro_data.gx;
-		gyro_proc_data.gy = gyro_data.gy;
-		gyro_proc_data.gz = gyro_data.gz;
+	gyro_proc_data.gx = gyro_data.gx;
+	gyro_proc_data.gy = gyro_data.gy;
+	gyro_proc_data.gz = gyro_data.gz;
 #endif
+
+	// raw gyro, rad/s
+	imu_heading.gyro_raw_roll = gyro_proc_data.gx * IMU_ROLL_INVERT;
+	imu_heading.gyro_raw_pitch = -gyro_proc_data.gy * IMU_PITCH_INVERT;
+	imu_heading.gyro_raw_yaw = -gyro_proc_data.gz * IMU_YAW_INVERT;
+
 	gyro_proc_data.last_gyro_update = gyro_data.last_gyro_update;
 	imu_test[3] = gyro_data.gx;
 	imu_test[4] = gyro_data.gy;

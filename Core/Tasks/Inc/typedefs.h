@@ -203,6 +203,11 @@ typedef struct
 	float pit;
 	float rol;
 	float yaw;
+
+    /* RAW gyro (rad/s) — for speed PID ONLY */
+    float gyro_raw_roll;
+    float gyro_raw_pitch;
+    float gyro_raw_yaw;
 } orientation_data_t;
 
 typedef struct

@@ -132,7 +132,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  telemetry_setup_wrapper();
+//  telemetry_setup_wrapper();
   xTaskCreate(master_task, "master_task", configMINIMAL_STACK_SIZE,
 		  (void*) 1, (UBaseType_t) 12, &master_task_handle);
   /* USER CODE END RTOS_THREADS */
