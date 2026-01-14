@@ -12,11 +12,6 @@
 
 extern QueueHandle_t g_buzzing_task_msg;
 
-extern dm_motor_t dm_pitch_motor;
-extern dm_motor_t dm_yaw_motor;
-extern motor_data_t flywheel_motor[4];
-extern motor_data_t feeder_motor;
-
 uint16_t g_motor_fault; // for debugging
 
 /*

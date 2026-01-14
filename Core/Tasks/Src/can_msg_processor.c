@@ -12,19 +12,13 @@
 #include "chassis_can_message_task.h"
 #include "gimbal_control_task.h"
 
-//where is this number from lmao
-motor_map_t dm_motor_map[15];
-
-extern dm_motor_t dm_pitch_motor;
-extern dm_motor_t dm_yaw_motor;
-
-extern motor_data_t chassis_wheel[4];
-extern motor_data_t flywheel_motor[4];
-extern motor_data_t feeder_motor;
-
 /* Function Prototypes */
-void process_bot_dev_c_can_msg(uint32_t msg_id, uint8_t* rx_buffer);
-void parse_can_message(uint32_t std_id, uint8_t  *RxData, CAN_HandleTypeDef *hcan);
+void parse_can_message(uint32_t std_id, const uint8_t  *RxData, CAN_HandleTypeDef *hcan);
+void process_bot_dev_c_can_msg(uint32_t msg_id, const uint8_t* rx_buffer);
+void convert_raw_can_data(motor_data_t * can_motor_data, uint16_t motor_id, const uint8_t* rx_buffer);
+void angle_offset(raw_data_t *motor_data, angle_data_t *angle_data);
+void motor_calc_odometry(raw_data_t *motor_data, angle_data_t *angle_data, uint32_t feedback_times[]);
+
 /**
  * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING or RxFifo1MsgPendingCallback
  * converts the raw can data to the motor_data struct form as well
@@ -32,7 +26,6 @@ void parse_can_message(uint32_t std_id, uint8_t  *RxData, CAN_HandleTypeDef *hca
 void can_ISR(CAN_HandleTypeDef *hcan) {
 	CAN_RxHeaderTypeDef RxHeader;
 	uint8_t RxData[CAN_BUFFER_SIZE];
-// todo: allow for can definition from config file alone
 	// check which CAN bus received it
 	// required because the 2 can buses use seperate FIFOs for receive
 	// CAN1: FIFO0; CAN2: FIFO1
@@ -123,7 +116,7 @@ void parse_can_message(uint32_t std_id,
 	}
 }
 
-void process_bot_dev_c_can_msg(uint32_t msg_id, uint8_t* rx_buffer) {
+void process_bot_dev_c_can_msg(uint32_t msg_id, const uint8_t* rx_buffer) {
     supercap.charging_state = rx_buffer[0];
 
     if (supercap.charging_state < SUPERCAP_DISABLE_THRESHOLD) {
@@ -151,7 +144,7 @@ void process_bot_dev_c_can_msg(uint32_t msg_id, uint8_t* rx_buffer) {
  * For GM6020 motors, it recenters the motor angle data and converts it to radians.
  */
 void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
-		uint8_t *rx_buffer) {
+		const uint8_t *rx_buffer) {
 
 	motor_data_t *curr_motor = can_motor_data;
 	//convert the raw data back into the respective values

@@ -8,6 +8,8 @@
 #ifndef TASKS_INC_LAUNCHER_CONTROL_TASK_H_
 #define TASKS_INC_LAUNCHER_CONTROL_TASK_H_
 
+extern motor_data_t flywheel_motor[4]; // 4 friction wheels max
+extern motor_data_t feeder_motor;
 
 uint16_t check_overheat();
 
