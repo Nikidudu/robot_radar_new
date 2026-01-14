@@ -6,44 +6,8 @@
  */
 
 #include "board_lib.h"
-#include "motor_config.h"
-#include "gimbal_control_task.h"
-#include "launcher_control_task.h"
-#include "motor_control_task.h"
-#include "can_msg_processor.h"
-#include "chassis_can_message_task.h"
-
-extern gimbal_control_t gimbal_ctrl_data;
-
-dm_motor_t dm_pitch_motor;
-dm_motor_t dm_yaw_motor;
-
-void motor_calib_task(void *argument) {
-
-	while (1) {
-		vTaskDelay(1000);
-	}
-}
-
-uint8_t lk_set_pid(motor_data_t *motor, uint32_t timeout){
-	uint32_t timeout_time = get_microseconds() + timeout;
-	uint32_t curr_time = get_microseconds();
-	while (curr_time < timeout_time){
-		curr_time = get_microseconds();
-		if (motor->last_time[0] != 0 && (curr_time - motor->last_time[0]) < 10000){
-			lk_write_pid(motor->can, motor);
-			return 1;
-		} else {
-			lk_read_pid(motor->can, motor);
-			vTaskDelay(1);
-		}
-	}
-	//motor timed out, cannot write pid
-	return 0;
-}
 
 void set_motor_config(motor_data_t *motor) {
-	//general config:
 	switch (motor->motor_type) {
 	case TYPE_M3508_ANGLE:
 	case TYPE_M3508_STEPS:

@@ -23,8 +23,8 @@ extern motor_data_t flywheel_motor[4];
 extern motor_data_t feeder_motor;
 
 /* Function Prototypes */
-void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer);
-
+void process_bot_dev_c_can_msg(uint32_t msg_id, uint8_t* rx_buffer);
+void parse_can_message(uint32_t std_id, uint8_t  *RxData, CAN_HandleTypeDef *hcan);
 /**
  * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING or RxFifo1MsgPendingCallback
  * converts the raw can data to the motor_data struct form as well
@@ -41,92 +41,89 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 		if (can1_get_msg(&RxHeader, RxData) != HAL_OK) {
 			return;
 		}
-
-		switch (RxHeader.StdId) {
-		// information from bottom dev C
-		case DEV_C_BOT_TO_TOP_ID:
-			process_bot_dev_c_can_msg(&RxHeader.StdId, (uint8_t*) RxData);
-			break;
-
-		// feeder motor
-		case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
-			if (FEEDER_MOTOR_CAN == &hcan1) {
-				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
-						(uint8_t*) RxData);
-			}
-			break;
-
-		// pitch motor
-#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
-		case DM_PITCH_MOTOR_ID:
-			if (PITCH_MOTOR_CAN == &hcan1) {
-				dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
-			}
-			break;
-#elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
-		case CAN_DM_ALL_ID + PITCH_MOTOR_ID - 1:
-			if (PITCH_MOTOR_CAN == &hcan1) {
-				convert_raw_can_data(&pitch_motor, RxHeader.StdId,
-						(uint8_t*) RxData);
-			}
-			break;
-#else
-			// for some other non-DM pitch motor
-#endif
-
-		// yaw motor
-#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
-		case DM_YAW_MOTOR_ID:
-			if (YAW_MOTOR_CAN == &hcan1) {
-				dm4310_fbdata(&dm_yaw_motor, &RxData[0]);
-			}
-			break;
-#elif YAW_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
-		case CAN_DM_ALL_ID + YAW_MOTOR_ID - 1:
-			if (YAW_MOTOR_CAN == &hcan1) {
-				convert_raw_can_data(&yaw_motor, RxHeader.StdId,
-						(uint8_t*) RxData);
-			}
-			break;
-#else
-		case CAN_6020_ALL_ID + YAW_MOTOR_ID - 1:
-			if (YAW_MOTOR_CAN == &hcan1) {
-				convert_raw_can_data(&yaw_motor,
-						RxHeader.StdId, (uint8_t*) RxData);
-			}
-			break;
-#endif
-		default:
-
-		}
-	}
-
-	if (hcan->Instance == CAN2) {
+		parse_can_message(RxHeader.StdId, RxData, hcan);
+	} else if (hcan->Instance == CAN2) {
 		if (can2_get_msg(&RxHeader, RxData) != HAL_OK) {
 			return;
 		}
-
-		switch (RxHeader.StdId) {
-		// launcher motors (flywheels)
-		case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID - 1:
-		case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID - 1:
-#ifdef ACTIVE_GUIDANCE
-		//case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID - 1:
-		//case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID - 1:
-#endif
-			if (LAUNCHER_MOTOR_CAN == &hcan2) {
-				convert_raw_can_data(
-						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID],
-						RxHeader.StdId, (uint8_t*) RxData);
-			}
-			break;
-		default:
-
-		}
+		parse_can_message(RxHeader.StdId, RxData, hcan);
 	}
 }
 
-void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer) {
+void parse_can_message(uint32_t std_id,
+                       const uint8_t  *RxData,
+                       CAN_HandleTypeDef *hcan) {
+
+	switch (std_id) {
+	// information from bottom dev C
+	case DEV_C_BOT_TO_TOP_ID:
+		process_bot_dev_c_can_msg(std_id, RxData);
+		break;
+
+	// feeder motor
+	case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
+		if (hcan == FEEDER_MOTOR_CAN) {
+			convert_raw_can_data(&feeder_motor, std_id, RxData);
+		}
+		break;
+
+	// pitch motor
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+	case DM_PITCH_MOTOR_ID:
+		if (hcan == PITCH_MOTOR_CAN) {
+			dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
+		}
+		break;
+#elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
+	case CAN_DM_ALL_ID + PITCH_MOTOR_ID - 1:
+		if (hcan == PITCH_MOTOR_CAN) {
+			convert_raw_can_data(&pitch_motor, std_id, RxData);
+		}
+		break;
+#else
+	// for some other non-DM pitch motor
+#endif
+
+	// yaw motor
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+	case DM_YAW_MOTOR_ID:
+		if (hcan == YAW_MOTOR_CAN) {
+			dm4310_fbdata(&dm_yaw_motor, &RxData[0]);
+		}
+		break;
+#elif YAW_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
+	case CAN_DM_ALL_ID + YAW_MOTOR_ID - 1:
+		if (hcan == YAW_MOTOR_CAN) {
+			convert_raw_can_data(&yaw_motor, std_id, RxData);
+		}
+		break;
+#else
+	case CAN_6020_ALL_ID + YAW_MOTOR_ID - 1:
+		if (hcan == YAW_MOTOR_CAN) {
+			convert_raw_can_data(&yaw_motor, std_id, RxData);
+		}
+		break;
+#endif
+
+	// launcher motors (flywheels)
+	case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID - 1:
+	case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID - 1:
+#ifdef ACTIVE_GUIDANCE
+	//case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID - 1:
+	//case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID - 1:
+#endif
+		if (hcan == LAUNCHER_MOTOR_CAN) {
+			convert_raw_can_data(
+					&flywheel_motor[std_id - CAN_3508_ALL_ID], std_id, RxData);
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void process_bot_dev_c_can_msg(uint32_t msg_id, uint8_t* rx_buffer) {
     supercap.charging_state = rx_buffer[0];
 
     if (supercap.charging_state < SUPERCAP_DISABLE_THRESHOLD) {
@@ -204,7 +201,6 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 			break;
 		default:
 			break;
-
 		}
 	}
 }

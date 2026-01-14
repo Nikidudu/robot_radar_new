@@ -6,16 +6,10 @@
  */
 
 #include "board_lib.h"
-#include "bsp_queue.h"
-#include "bsp_referee.h"
-#include "bsp_usart.h"
 #include "referee_processing_task.h"
 #include "referee_msgs.h"
-#include "robot_config.h"
 
-extern int g_spinspin_mode;
 extern TaskHandle_t referee_processing_task_handle;
-extern DMA_HandleTypeDef hdma_usart6_rx;
 static ref_msg_t g_ref_msg_buffer;
 
 ref_game_state_t ref_game_state;
@@ -109,11 +103,6 @@ void referee_processing_task(void *argument) {
 						memcpy(&ref_dmg_data, &g_ref_msg_buffer.data,
 								sizeof(ref_robot_dmg_t));
 						ref_dmg_data_txno++;
-#ifdef SPIN_WHEN_DAMAGED
-						if (ref_dmg_data.dmg_type == 0){
-							g_spinspin_mode = 1;
-						}
-#endif
 						break;
 
 					case REF_ROBOT_HP_CMD_ID:

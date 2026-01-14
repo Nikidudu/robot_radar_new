@@ -32,7 +32,6 @@ TaskHandle_t referee_processing_task_handle;
 TaskHandle_t control_input_task_handle;
 TaskHandle_t launcher_control_task_handle;
 TaskHandle_t buzzing_task_handle;
-TaskHandle_t motor_calib_task_handle;
 TaskHandle_t error_handler_task_handle;
 TaskHandle_t usb_task_handle;
 TaskHandle_t imu_processing_task_handle;
@@ -93,10 +92,6 @@ void master_task(void *argument) {
 	xTaskCreate(imu_processing_task, "IMU_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 13,
 			&imu_processing_task_handle);
-
-	xTaskCreate(motor_calib_task, "motor_calib_task",
-	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 9,
-			&motor_calib_task_handle);
 
 	xTaskCreate(control_input_task, "RC_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,

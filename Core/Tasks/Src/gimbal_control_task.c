@@ -23,8 +23,12 @@
 static float prev_pit;
 static float prev_yaw;
 
+// non DM motors
 motor_data_t yaw_motor;
 motor_data_t pitch_motor;
+// normal motors (non DM, non LK)
+dm_motor_t dm_pitch_motor;
+dm_motor_t dm_yaw_motor;
 
 #ifdef YAW_FEEDFORWARD
 static pid_data_t g_yaw_ff_pid = {
@@ -35,11 +39,6 @@ static pid_data_t g_yaw_ff_pid = {
 			.max_out = YAW_FF_MAX_OUTPUT
 };
 #endif
-
-/* From other tasks (extern) */
-// dm motors
-extern dm_motor_t dm_pitch_motor;
-extern dm_motor_t dm_yaw_motor;
 
 /* Private function prototypes -----------------------------------------------*/
 void yaw_init();

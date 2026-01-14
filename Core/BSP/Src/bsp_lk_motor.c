@@ -9,6 +9,23 @@
 #include "can_msg_processor.h"
 #include <can.h>
 
+uint8_t lk_set_pid(motor_data_t *motor, uint32_t timeout){
+	uint32_t timeout_time = get_microseconds() + timeout;
+	uint32_t curr_time = get_microseconds();
+	while (curr_time < timeout_time){
+		curr_time = get_microseconds();
+		if (motor->last_time[0] != 0 && (curr_time - motor->last_time[0]) < 10000){
+			lk_write_pid(motor->can, motor);
+			return 1;
+		} else {
+			lk_read_pid(motor->can, motor);
+			vTaskDelay(1);
+		}
+	}
+	//motor timed out, cannot write pid
+	return 0;
+}
+
 void process_lk_motor(uint8_t *rx_buffer, motor_data_t *motor_data) {
 	motor_data->last_time[1] = motor_data->last_time[0];
 	motor_data->last_time[0] = get_microseconds();
