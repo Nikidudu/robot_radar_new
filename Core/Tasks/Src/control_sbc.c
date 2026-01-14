@@ -107,12 +107,6 @@ void sbc_chassis_input() {
     // float yaw_input;
     float yaw_input = g_nav_cmd.vz; //chassis_center_yaw();//g_nav_cmd.vz;
 
-    // Apply deadband and centering
-//    if (fabs(g_nav_cmd.vz) > 0.05f) {
-//        yaw_input = g_nav_cmd.vz;
-//    } else {g
-//        yaw_input = chassis_center_yaw();
-//    }
 
     chassis_set_ctrl(forward_input, horizontal_input, yaw_input );
 }
