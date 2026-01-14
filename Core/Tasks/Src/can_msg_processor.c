@@ -12,10 +12,6 @@
 #include "chassis_can_message_task.h"
 #include "gimbal_control_task.h"
 
-extern EventGroupHandle_t gimbal_event_group;
-extern EventGroupHandle_t chassis_event_group;
-extern EventGroupHandle_t launcher_event_group;
-
 //where is this number from lmao
 motor_map_t dm_motor_map[15];
 

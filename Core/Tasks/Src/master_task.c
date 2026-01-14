@@ -6,7 +6,6 @@
  */
 
 #include "board_lib.h"
-//#include "startup_task.h"
 #include "gimbal_control_task.h"
 #include "referee_processing_task.h"
 #include "control_input_task.h"
@@ -21,6 +20,7 @@
 #include "master_task.h"
 #include "error_handler_task.h"
 #include "usb_task.h"
+#include "chassis_can_message_task.h"
 
 #define ISR_SEMAPHORE_COUNT 1
 #define QUEUE_SIZE 1
@@ -60,6 +60,9 @@ extern gimbal_control_t gimbal_ctrl_data;
 
 void master_task(void *argument) {
 	imu_init();
+	can_start(&hcan1, 0x00000000, 0x00000000);
+	can_start(&hcan2, 0x00000000, 0x00000000);
+	vTaskDelay(1000);
 
 	gimbal_event_group = xEventGroupCreate();
 	chassis_event_group = xEventGroupCreate();
@@ -116,6 +119,18 @@ void master_task(void *argument) {
 			&error_handler_task_handle);
 
     xTaskCreate(UsbParserTask, "UsbParser", 512, NULL, 12, NULL);
+
+	xTaskCreate(chassis_can_message_task, "chassis_task",
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+			&chassis_can_message_task_handle);
+
+		xTaskCreate(launcher_control_task, "launcher_task",
+		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
+				&launcher_control_task_handle);
+
+	xTaskCreate(gimbal_control_task, "gimbal_task",
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
+			&gimbal_control_task_handle);
 
 
 //	vTaskDelete(master_task_handle);

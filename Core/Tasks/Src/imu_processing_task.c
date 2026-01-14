@@ -35,13 +35,9 @@ orientation_data_t imu_heading;
 static accel_data_t accel_proc_data;
 static gyro_data_t gyro_proc_data;
 static mag_data_t mag_proc_data;
-extern QueueHandle_t gyro_data_queue;
-extern QueueHandle_t accel_data_queue;
-extern QueueHandle_t mag_data_queue;
 extern TaskHandle_t imu_processing_task_handle;
 static uint32_t last_proc_times[2];
 static uint8_t update_flag = 0;
-
 
 void imu_proc_task_notif() {
 	//resets the flags

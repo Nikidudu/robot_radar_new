@@ -37,11 +37,7 @@ static pid_data_t g_yaw_ff_pid = {
 #endif
 
 /* From other tasks (extern) */
-// input variables
-extern uint8_t gimbal_upper_bound;
-extern uint8_t gimbal_lower_bound;
-
-// dm motors (todo: to be removed)
+// dm motors
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
 

@@ -6,71 +6,20 @@
  */
 
 #include "board_lib.h"
-#include "robot_config.h"
 #include "motor_config.h"
 #include "gimbal_control_task.h"
 #include "launcher_control_task.h"
 #include "motor_control_task.h"
 #include "can_msg_processor.h"
-#include "bsp_lk_motor.h"
 #include "chassis_can_message_task.h"
 
-extern TaskHandle_t master_task_handle;
-extern TaskHandle_t gimbal_control_task_handle;
-extern TaskHandle_t chassis_can_message_task_handle;
-extern TaskHandle_t launcher_control_task_handle;
-extern TaskHandle_t motor_calib_task_handle;
-extern TaskHandle_t telemetry_task_handle;
-extern TaskHandle_t motor_control_task_handle;
-
-extern EventGroupHandle_t gimbal_event_group;
-extern EventGroupHandle_t chassis_event_group;
-extern EventGroupHandle_t launcher_event_group;
-
 extern gimbal_control_t gimbal_ctrl_data;
-
-extern QueueHandle_t g_buzzing_task_msg;
 
 dm_motor_t dm_pitch_motor;
 dm_motor_t dm_yaw_motor;
 
 void motor_calib_task(void *argument) {
-	can_start(&hcan1, 0x00000000, 0x00000000);
-	can_start(&hcan2, 0x00000000, 0x00000000);
-	vTaskDelay(1000);
-	//config_motors();
 
-	//check motors
-	//start motor control tasks after initialisation of motors
-	//todo shift function to master task.c probably
-
-	//xTaskCreate(motor_control_task, "motor_control_task", 512, (void*) 3,
-	//		(UBaseType_t) 8, &motor_control_task_handle);
-
-	if (chassis_event_group == NULL) {
-		//error handler
-	} else {
-		xTaskCreate(chassis_can_message_task, "chassis_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-				&chassis_can_message_task_handle);
-	}
-
-
-	if (launcher_event_group == NULL) {
-		//error handler
-	} else {
-		xTaskCreate(launcher_control_task, "launcher_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-				&launcher_control_task_handle);
-	}
-
-	if (gimbal_event_group == NULL) {
-		//error handler implement next time!
-	} else {
-		xTaskCreate(gimbal_control_task, "gimbal_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
-				&gimbal_control_task_handle);
-	}
 	while (1) {
 		vTaskDelay(1000);
 	}

@@ -5,14 +5,10 @@
 
 #include "typedefs.h"
 
-#include "robot_config_kirbee.h"
-//#include "robot_config_sentry.h"
-//#include "robot_config_waddledee.h"
-//#include "robot_config_Hero_testing.h"
-
+//#include "robot_config_kirbee.h"
+#include "robot_config_Hero_testing.h"
 
 // COMMON CONFIGURATION
-
 #define SPINSPIN_RANDOM_DELAY 50
 #define MOTOR_ONLINE_CHECK 	-1
 //1 for annoying beep sound, 0 for some error beeps every 3s, -1 for absolute peace and tranquility (with pancik
@@ -32,13 +28,9 @@
 //#define CONTROL_DEFAULT			SBC_CTRL_MODE
 #endif
 
-#ifndef DAMAGE_TIMEOUT
+// for aimbot. todo: move it to sbc
 #define DAMAGE_TIMEOUT 5000
-#endif
-
-#ifndef PITCH_SURVEILLANCE
 #define PITCH_SURVEILLANCE -0.1
-#endif
 
 /*********************** OTHERS ***********************/
 #define MOTOR_TIMEOUT_MAX	1000000

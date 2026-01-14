@@ -14,9 +14,7 @@
 #include "chassis_can_message_task.h"
 #include "imu_processing_task.h"
 #include "control_sbc.h"
-
-extern motor_data_t pitch_motor;
-extern motor_data_t yaw_motor;
+#include "gimbal_control_task.h"
 
 extern QueueHandle_t g_buzzing_task_msg;
 extern ref_robot_dmg_t ref_dmg_data;

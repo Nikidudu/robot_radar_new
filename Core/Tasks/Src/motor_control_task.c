@@ -14,7 +14,6 @@
 
 extern motor_map_t dji_motor_map[25];
 extern QueueHandle_t g_buzzing_task_msg;
-extern remote_cmd_t g_remote_cmd;
 
 volatile uint32_t g_motor_control_time;
 

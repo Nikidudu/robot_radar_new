@@ -12,7 +12,6 @@
 #include "referee_processing_task.h"
 #include "referee_msgs.h"
 #include "robot_config.h"
-#include "rtos_g_vars.h"
 
 extern int g_spinspin_mode;
 extern TaskHandle_t referee_processing_task_handle;
