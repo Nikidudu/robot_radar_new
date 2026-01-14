@@ -38,9 +38,6 @@ static pid_data_t g_yaw_ff_pid = {
 
 /* From other tasks (extern) */
 // input variables
-extern uint8_t control_mode;
-extern uint8_t g_safety_toggle;
-
 extern uint8_t gimbal_upper_bound;
 extern uint8_t gimbal_lower_bound;
 
@@ -174,7 +171,6 @@ void pitch_init() {
 #elif PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
 	dm_set_pitch_motor();
 #endif
-
 }
 
 void send_current_to_gimbal_motors() {
@@ -182,7 +178,7 @@ void send_current_to_gimbal_motors() {
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
 	if ((PITCH_MOTOR_TYPE == YAW_MOTOR_TYPE) && (PITCH_MOTOR_TYPE != TYPE_DM4310_MIT) && (PITCH_MOTOR_CAN == YAW_MOTOR_CAN)) {
-		// motors have the same type, and are not TYPE_DM4310_MIT
+		// if motors have the same type, CAN, and are not TYPE_DM4310_MIT
 
 		// Clear entire packet first
 		memset(CAN_send_data, 0, 8);
@@ -238,12 +234,11 @@ void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor) {
 	if (prev_yaw == imu_heading.yaw || prev_pit == imu_heading.pit) {
 		return;
 	}
-	pitch_control(pitch_motor);
+
+	// Yaw control
 	yaw_control(yaw_motor);
-}
 
-void pitch_control(motor_data_t *pitch_motor) {
-
+	// Pitch control
 #if defined(PITCH_ARM)
     // 4-bar linkage mechanism (Tali)
     calculate_linkage_pitch(pitch_motor);

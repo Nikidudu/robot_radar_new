@@ -221,6 +221,9 @@ void UsbParserTask(void *argument)
             state = STATE_WAIT_MAGIC;
         }
     }
+
+    //should not run here
+	osThreadTerminate(NULL);
 }
 
 

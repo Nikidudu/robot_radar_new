@@ -28,8 +28,6 @@ enum feeder_state_e feeder_state;
 
 /* From other tasks (extern) */
 extern uint8_t projectile_loaded;
-// remote/keyboard data
-extern uint8_t g_safety_toggle;
 // referee system data
 extern ref_game_state_t ref_game_state;
 extern ref_game_robot_data_t ref_robot_data;

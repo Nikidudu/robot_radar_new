@@ -14,8 +14,6 @@
 #include "imu_processing_task.h"
 
 extern QueueHandle_t g_buzzing_task_msg;
-extern uint8_t g_safety_toggle;
-extern uint8_t launcher_safety_toggle;
 float remote_deadzone = 3;
 
 

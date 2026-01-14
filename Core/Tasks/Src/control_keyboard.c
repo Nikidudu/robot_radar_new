@@ -15,15 +15,11 @@
 #include "imu_processing_task.h"
 
 extern QueueHandle_t g_buzzing_task_msg;
-extern uint8_t g_safety_toggle;
-extern uint8_t launcher_safety_toggle;
 
 static float curr_spinspin = 0;
 
 uint32_t supercap_timer = 0;
 extern float supercap_test;
-
-
 
 void keyboard_control_input() {
 	mouse_gimbal_input();

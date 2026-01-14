@@ -100,6 +100,8 @@ typedef struct {
 } dm_motor_t;
 
 // Function prototypes
+void dm_set_pitch_motor();
+void dm_set_yaw_motor();
 void dm4310_motor_init(void);
 void dm4310_enable(CAN_HandleTypeDef* hcan, dm_motor_t* motor);
 void dm4310_disable(CAN_HandleTypeDef* hcan, dm_motor_t* motor);

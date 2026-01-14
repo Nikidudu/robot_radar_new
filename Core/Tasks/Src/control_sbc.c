@@ -11,8 +11,6 @@
 #include "INS_task.h"
 #include "usb_task.h"
 
-extern uint8_t g_safety_toggle;
-
 #define AIMBOT_DEADZONE 0.005f
 #define AIMBOT_YAW_KP   -2.5f
 #define AIMBOT_PITCH_KP 0.4f

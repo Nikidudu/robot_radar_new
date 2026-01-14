@@ -73,7 +73,6 @@ void CAN_set_motor_output(CAN_TxHeaderTypeDef *CAN_tx_message, uint8_t *data, ui
 
 void motor_calib_task(void *argument);
 void set_motor_config(motor_data_t *motor);
-void config_motors();
 void dm_set_pitch_motor();
 void dm_set_yaw_motor();
 void bz_buzzer(uint8_t high, uint8_t low);
