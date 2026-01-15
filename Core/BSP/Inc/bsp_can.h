@@ -22,6 +22,7 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_can.h"
 #include "can.h"
+
 #include "can_msg_processor.h"
 
 #define CAN_BUFFER_SIZE 8

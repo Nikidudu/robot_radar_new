@@ -5,37 +5,37 @@
  *      Author: zhan-hao
  */
 
+/* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
-#include "can_msg_processor.h"
 #include "chassis_can_message_task.h"
 #include "gimbal_control_task.h"
 #include "control_input_task.h"
+#include "can_msg_processor.h"
 
-// CAN message IDs
-#define CHASSIS_HB_ID 	  0x119
-// CAN transmission period
-#define CAN_TX_PERIOD_MS 5
+/* Private define ------------------------------------------------------------*/
+#define CAN_TX_PERIOD_MS 5 // CAN transmission period
 
-// Global Variables
-extern ref_game_robot_data_t ref_robot_data;
-
-// Function Declarations
-void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
-float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
-int16_t pack_value(float x);
-
-//Global Variables (only in this file)
+/* Private variables ---------------------------------------------------------*/
 static float lvl_max_speed;
 static float lvl_max_accel;
 static float lvl_max_spin;
 static float spin_accel = SPIN_ACCELERATION;
-uint8_t tx_buffer[8];
 
+/* External variables --------------------------------------------------------*/
 supercap_data supercap;
+
+/* Exported variables -------------------------------------------------------*/
+extern ref_game_robot_data_t ref_robot_data;
+
+/* Private function prototypes -----------------------------------------------*/
+void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
+float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
+int16_t pack_value(float x);
 
 void chassis_can_message_task(void *argument) {
     CAN_TxHeaderTypeDef tx_header;
     uint32_t tx_mailbox;
+    uint8_t tx_buffer[8];
     TickType_t xLastWakeTime;
 
     // Configure CAN TX header

@@ -8,8 +8,9 @@
 #ifndef ROBOT_CONFIG_ROBOT_CONFIG_HERO_GIMBAL_H_
 #define ROBOT_CONFIG_ROBOT_CONFIG_HERO_GIMBAL_H_
 
-#include "motor_config.h"
 #include "hud_hero.h"
+
+#include "motor_config.h"
 //#define BOARD_DOWN
 
 //#define OVERHEAT_PROTECTION

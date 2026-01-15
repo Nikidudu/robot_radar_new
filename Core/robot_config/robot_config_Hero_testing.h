@@ -8,8 +8,9 @@
 #ifndef ROBOT_CONFIG_ROBOT_CONFIG_HERO_TEST_H_
 #define ROBOT_CONFIG_ROBOT_CONFIG_HERO_TEST_H_
 
-#include "motor_config.h"
 #include "hud_hero.h"
+#include "motor_config.h"
+
 #define BULLET_42
 #define HAS_SBC
 //#define ANGLE_FEEDER //update hero to single shot w angle_feeder definition some day

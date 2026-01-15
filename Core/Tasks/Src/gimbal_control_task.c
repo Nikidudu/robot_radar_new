@@ -9,26 +9,15 @@
 #include "board_lib.h"
 #include "gimbal_control_task.h"
 #include "INS_task.h"
-#include "motor_control.h"
 #include "imu_processing_task.h"
 #include "control_input_task.h"
-
-/* Private typedef -----------------------------------------------------------*/
-
-/* Private define ------------------------------------------------------------*/
-
-/* Private macro -------------------------------------------------------------*/
+#include "motor_control.h"
+#include "typedefs.h"
+#include "motor_config.h"
 
 /* Private variables ---------------------------------------------------------*/
 static float prev_pit;
 static float prev_yaw;
-
-// non DM motors
-motor_data_t yaw_motor;
-motor_data_t pitch_motor;
-// normal motors (non DM, non LK)
-dm_motor_t dm_pitch_motor;
-dm_motor_t dm_yaw_motor;
 
 #ifdef YAW_FEEDFORWARD
 static pid_data_t g_yaw_ff_pid = {
@@ -40,11 +29,20 @@ static pid_data_t g_yaw_ff_pid = {
 };
 #endif
 
+/* External variables --------------------------------------------------------*/
+// non DM motors
+motor_data_t yaw_motor;
+motor_data_t pitch_motor;
+// normal motors (non DM, non LK)
+dm_motor_t dm_pitch_motor;
+dm_motor_t dm_yaw_motor;
+
 /* Private function prototypes -----------------------------------------------*/
 void yaw_init();
 void pitch_init();
 void send_current_to_yaw_motor();
 void send_current_to_gimbal_motors();
+
 void gimbal_control(motor_data_t *pitch_motor, motor_data_t *yaw_motor);
 void pitch_control(motor_data_t *pitch_motor);
 void calculate_lead_screw_pitch(motor_data_t *pitch_motor);

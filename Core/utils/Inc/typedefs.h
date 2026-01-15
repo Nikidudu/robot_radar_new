@@ -5,8 +5,8 @@
  *      Author: wx
  */
 
-#ifndef TASKS_INC_TYPEDEFS_H_
-#define TASKS_INC_TYPEDEFS_H_
+#ifndef UTILS_INC_TYPEDEFS_H_
+#define UTILS_INC_TYPEDEFS_H_
 
 #include <semphr.h>
 #include <event_groups.h>
@@ -444,4 +444,4 @@ enum feeder_state_e {
 	FEEDER_FIRING_3
 };
 
-#endif /* TASKS_INC_TYPEDEFS_H_ */
+#endif /* UTILS_INC_TYPEDEFS_H_ */

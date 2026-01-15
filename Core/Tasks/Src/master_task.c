@@ -5,75 +5,37 @@
  *      Author: cwx
  */
 
+/* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
+#include "master_task.h"
 #include "gimbal_control_task.h"
+#include "launcher_control_task.h"
+#include "chassis_can_message_task.h"
 #include "referee_processing_task.h"
 #include "control_input_task.h"
-#include "launcher_control_task.h"
 #include "imu_processing_task.h"
 #include "buzzing_task.h"
 #include "usb_task.h"
-#include "telemetry_task.h"
-#include "motor_control_task.h"
 #include "INS_task.h"
 #include "hud_new.h"
-#include "master_task.h"
 #include "error_handler_task.h"
-#include "usb_task.h"
-#include "chassis_can_message_task.h"
+#include "startup.h"
 
-#define ISR_SEMAPHORE_COUNT 1
-#define QUEUE_SIZE 1
-
-extern TaskHandle_t master_task_handle;
-TaskHandle_t gimbal_control_task_handle;
-TaskHandle_t chassis_can_message_task_handle;
+/* External variables --------------------------------------------------------*/
 TaskHandle_t referee_processing_task_handle;
 TaskHandle_t control_input_task_handle;
-TaskHandle_t launcher_control_task_handle;
-TaskHandle_t buzzing_task_handle;
-TaskHandle_t error_handler_task_handle;
-TaskHandle_t usb_task_handle;
 TaskHandle_t imu_processing_task_handle;
-TaskHandle_t telemetry_task_handle;
-TaskHandle_t motor_control_task_handle;
-TaskHandle_t hud_task_handle;
-TaskHandle_t dm_motor_control_task_handle;
-TaskHandle_t INS_task_handle;
-
-EventGroupHandle_t gimbal_event_group;
-EventGroupHandle_t chassis_event_group;
-EventGroupHandle_t launcher_event_group;
-
-SemaphoreHandle_t usb_continue_semaphore;
-
-QueueHandle_t gyro_data_queue;
-QueueHandle_t accel_data_queue;
-QueueHandle_t mag_data_queue;
-
 QueueHandle_t g_buzzing_task_msg;
-QueueHandle_t xvr_data_queue;
-QueueHandle_t uart_data_queue;
 
+/* Exported variables -------------------------------------------------------*/
+extern TaskHandle_t master_task_handle;
 extern gimbal_control_t gimbal_ctrl_data;
 
 void master_task(void *argument) {
-	imu_init();
-	can_start(&hcan1, 0x00000000, 0x00000000);
-	can_start(&hcan2, 0x00000000, 0x00000000);
+	system_init();
 	vTaskDelay(1000);
 
-	gimbal_event_group = xEventGroupCreate();
-	chassis_event_group = xEventGroupCreate();
-	launcher_event_group = xEventGroupCreate();
-
-	usb_continue_semaphore = xSemaphoreCreateBinary();
-
-	gyro_data_queue = xQueueCreate(5, sizeof(gyro_data_t));
-	accel_data_queue = xQueueCreate(5, sizeof(accel_data_t));
-	mag_data_queue = xQueueCreate(5, sizeof(mag_data_t));
 	g_buzzing_task_msg = xQueueCreate(48, sizeof(uint8_t));
-//	uart_data_queue = xQueueCreate(5, sizeof(ref_msg_t));
 
 	gimbal_ctrl_data.yaw_semaphore = xSemaphoreCreateBinary();
 	xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
@@ -85,8 +47,7 @@ void master_task(void *argument) {
 	//Threads creation
 #ifdef SENTRY
 	xTaskCreate(INS_task, "INS_task",
-	        configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-	        &INS_task_handle);
+	        configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4, NULL);
 #endif
 
 	xTaskCreate(imu_processing_task, "IMU_task",
@@ -101,31 +62,23 @@ void master_task(void *argument) {
 			(UBaseType_t) 2, &referee_processing_task_handle);
 
 	xTaskCreate(buzzing_task, "buzzer_task",
-	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &buzzing_task_handle);
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, NULL);
 
-//	xTaskCreate(telemetry_task, "telemetry_task", 700, (void*) 1,
-//			(UBaseType_t) 5, &telemetry_task_handle);
-
-	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3, (UBaseType_t) 5,
-			&hud_task_handle);
+	xTaskCreate(new_hud_task, "new_hud_task", 512, (void*) 3, (UBaseType_t) 5, NULL);
 
 	xTaskCreate(error_handler_task, "error_handler_task",
-	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 9,
-			&error_handler_task_handle);
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 9, NULL);
 
     xTaskCreate(UsbParserTask, "UsbParser", 512, NULL, 12, NULL);
 
 	xTaskCreate(chassis_can_message_task, "chassis_task",
-	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-			&chassis_can_message_task_handle);
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4, NULL);
 
-		xTaskCreate(launcher_control_task, "launcher_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
-				&launcher_control_task_handle);
+	xTaskCreate(launcher_control_task, "launcher_task",
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4, NULL);
 
 	xTaskCreate(gimbal_control_task, "gimbal_task",
-	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7,
-			&gimbal_control_task_handle);
+	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7, NULL);
 
 
 //	vTaskDelete(master_task_handle);

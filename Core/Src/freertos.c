@@ -28,7 +28,6 @@
 #include "can.h"
 #include "stdint.h"
 #include "master_task.h"
-#include "wrapper.h"
 
 /* USER CODE END Includes */
 

@@ -5,16 +5,15 @@
  *      Author: wx
  */
 #include "board_lib.h"
-#include "motor_config.h"
 #include "control_input_task.h"
-#include "motor_control.h"
+#include "chassis_can_message_task.h"
+#include "imu_processing_task.h"
+#include "gimbal_control_task.h"
 #include "control_keyboard.h"
 #include "control_remote.h"
 #include "control_sbc.h"
-#include "chassis_can_message_task.h"
-#include "imu_processing_task.h"
-#include "control_sbc.h"
-#include "gimbal_control_task.h"
+#include "motor_config.h"
+#include "motor_control.h"
 
 extern QueueHandle_t g_buzzing_task_msg;
 extern ref_robot_dmg_t ref_dmg_data;

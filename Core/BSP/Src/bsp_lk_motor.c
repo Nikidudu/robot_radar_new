@@ -6,8 +6,8 @@
  */
 #include "board_lib.h"
 #include "bsp_lk_motor.h"
-#include "can_msg_processor.h"
 #include <can.h>
+#include "can_msg_processor.h"
 
 uint8_t lk_set_pid(motor_data_t *motor, uint32_t timeout){
 	uint32_t timeout_time = get_microseconds() + timeout;

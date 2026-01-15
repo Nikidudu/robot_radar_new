@@ -8,25 +8,23 @@
 /* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
 #include "launcher_control_task.h"
-#include "motor_control.h"
 #include "control_input_task.h"
-
-/* Private typedef -----------------------------------------------------------*/
+#include "motor_control.h"
+#include "motor_config.h"
 
 /* Private define ------------------------------------------------------------*/
-#define BULLET_17_HEAT 10
-#define BULLET_42_HEAT 100
-
-/* Private macro -------------------------------------------------------------*/
+#define BULLET_17_HEAT 10U
+#define BULLET_42_HEAT 100U
 
 /* Private variables ---------------------------------------------------------*/
+static enum launcher_state_e flywheel_state;
+
+/* External variables --------------------------------------------------------*/
 motor_data_t flywheel_motor[4]; // 4 friction wheels max
 motor_data_t feeder_motor;
-
-enum launcher_state_e flywheel_state;
 enum feeder_state_e feeder_state;
 
-/* From other tasks (extern) */
+/* Exported variables -------------------------------------------------------*/
 extern uint8_t projectile_loaded;
 // referee system data
 extern ref_game_state_t ref_game_state;
@@ -37,11 +35,20 @@ extern uint32_t ref_power_data_txno;
 static uint32_t prev_power_data_no = 0;
 
 /* Private function prototypes -----------------------------------------------*/
-void launcher_init();
-void send_flywheel_current_to_motor();
-void send_feeder_current_to_motor();
-/* Private user code ---------------------------------------------------------*/
+static void launcher_init();
+static void send_flywheel_current_to_motor();
+static void send_feeder_current_to_motor();
+static uint16_t check_overheat();
 
+static void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel);
+static void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
+static void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
+
+static void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel);
+static void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel,
+		motor_data_t *g_flywheel, motor_data_t *feeder);
+
+/* Private user code ---------------------------------------------------------*/
 void launcher_control_task(void *argument) {
 	TickType_t launcher_ctrl_time;
 	launcher_init();
@@ -187,7 +194,7 @@ void launcher_init() {
 }
 
 
-void send_flywheel_current_to_motor() {
+static void send_flywheel_current_to_motor() {
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
@@ -247,13 +254,13 @@ uint16_t check_overheat() {
 
 #ifdef OVERHEAT_PROTECTION
 	int32_t ammo_remaining;
-	static uint32_t last_time;
 	if (ref_robot_data.robot_id == 0) {
 		//referee system not connected
 		return 10;
 	}
 
 #ifdef BULLET_17
+	static uint32_t last_time;
 	uint8_t active_feeder = 2;
 	//else active_feeder == 2, for both heat0 and heat 1 launchers
 

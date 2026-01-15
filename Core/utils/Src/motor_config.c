@@ -6,6 +6,7 @@
  */
 
 #include "board_lib.h"
+#include "motor_config.h"
 
 void set_motor_config(motor_data_t *motor) {
 	switch (motor->motor_type) {

@@ -8,8 +8,8 @@
 #ifndef TASKS_INC_ROBOT_CONFIG_ALI_H_
 #define TASKS_INC_ROBOT_CONFIG_ALI_H_
 
-#include "motor_config.h"
 #include "hud_tali.h"
+#include "motor_config.h"
 
 //#define OVERHEAT_PROTECTION
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right

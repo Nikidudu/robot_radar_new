@@ -11,7 +11,6 @@ extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
 extern motor_data_t pitch_motor;
 extern motor_data_t yaw_motor;
-extern EventGroupHandle_t gimbal_event_group;
 
 void dm_set_pitch_motor() {
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
@@ -271,12 +270,8 @@ void dm4310_fbdata(dm_motor_t *motor, uint8_t *rx_data)
 
     // Map feedback data based on motor ID
     if (motor->id == dm_yaw_motor.id) {
-		xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b10,
-				&xHigherPriorityTaskWoken);
         dmmapyawfbdata(motor);
     } else if (motor->id == dm_pitch_motor.id) {
-		xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
-				&xHigherPriorityTaskWoken);
         dmmappitchfbdata(motor);
     }
 }

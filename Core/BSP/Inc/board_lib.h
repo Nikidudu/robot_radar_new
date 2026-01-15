@@ -16,6 +16,7 @@ extern "C" {
 /* --- Project Config --- */
 #include "board_settings.h"
 #include "crc8_crc16.h"
+#include "typedefs.h"
 #include "robot_config.h"
 /* --- BSP Drivers --- */
 #include "bsp_queue.h"

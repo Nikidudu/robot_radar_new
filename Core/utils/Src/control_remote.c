@@ -5,13 +5,14 @@
  *      Author: wx
  */
 
+
 #include "board_lib.h"
-#include "robot_config.h"
-#include "motor_config.h"
-#include "control_input_task.h"
 #include "control_remote.h"
-#include "motor_control.h"
+#include "robot_config.h"
+#include "control_input_task.h"
 #include "imu_processing_task.h"
+#include "motor_config.h"
+#include "motor_control.h"
 
 extern QueueHandle_t g_buzzing_task_msg;
 float remote_deadzone = 3;

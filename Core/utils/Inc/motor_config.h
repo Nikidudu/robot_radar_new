@@ -6,8 +6,8 @@
  */
 
 
-#ifndef TASKS_INC_MOTOR_CONFIG_H_
-#define TASKS_INC_MOTOR_CONFIG_H_
+#ifndef UTILS_INC_MOTOR_CONFIG_H_
+#define UTILS_INC_MOTOR_CONFIG_H_
 
 void config_motors();
 void motor_calib_task(void* argument);
@@ -80,4 +80,4 @@ void motor_temp_bz(uint8_t hi, uint8_t low);
 uint16_t check_motors();
 uint8_t lk_set_pid(motor_data_t *motor, uint32_t timeout);
 
-#endif /* TASKS_INC_MOTOR_CONFIG_H_ */
+#endif /* UTILS_INC_MOTOR_CONFIG_H_ */

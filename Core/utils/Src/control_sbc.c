@@ -6,8 +6,8 @@
  */
 
 #include "board_lib.h"
-#include "control_input_task.h"
 #include "control_sbc.h"
+#include "control_input_task.h"
 #include "INS_task.h"
 #include "usb_task.h"
 
@@ -17,6 +17,7 @@
 #define FILTER_ALPHA 	0.35f  // 0.0 = no filter, 0.5 = moderate smoothing
 
 void sbc_gimbal_input();
+void sbc_launcher_control_input();
 
 void sbc_control_input() {
 	sbc_gimbal_input();

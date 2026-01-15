@@ -5,14 +5,20 @@
  *      Author: Hans Kurnia
  */
 
+/* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
-#include "motor_config.h"
 #include "can_msg_processor.h"
 #include "supercap_comm_task.h"
 #include "chassis_can_message_task.h"
+#include "launcher_control_task.h"
 #include "gimbal_control_task.h"
+#include "motor_config.h"
 
-/* Function Prototypes */
+/* Private define ------------------------------------------------------------*/
+// low-pass-filters: between 0(no filtering) and 1(frozen value)
+#define SPEED_LPF 0
+
+/* Private function prototypes -----------------------------------------------*/
 void parse_can_message(uint32_t std_id, const uint8_t  *RxData, CAN_HandleTypeDef *hcan);
 void process_bot_dev_c_can_msg(uint32_t msg_id, const uint8_t* rx_buffer);
 void convert_raw_can_data(motor_data_t * can_motor_data, uint16_t motor_id, const uint8_t* rx_buffer);

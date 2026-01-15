@@ -3,8 +3,6 @@
 #ifndef TASKS_INC_ROBOT_CONFIG_H_
 #define TASKS_INC_ROBOT_CONFIG_H_
 
-#include "typedefs.h"
-
 //#include "robot_config_kirbee.h"
 #include "robot_config_Hero_testing.h"
 
