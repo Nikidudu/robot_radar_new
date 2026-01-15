@@ -8,7 +8,6 @@
 #include "board_lib.h"
 #include "control_sbc.h"
 #include "control_input_task.h"
-#include "INS_task.h"
 #include "usb_task.h"
 
 #define AIMBOT_DEADZONE 0.005f
