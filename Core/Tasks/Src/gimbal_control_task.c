@@ -175,14 +175,13 @@ void send_current_to_gimbal_motors() {
 
 		// Clear entire packet first
 		memset(CAN_send_data, 0, 8);
+
 		// fill data packet with pitch data
-		if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
-			CAN_set_motor_output(&CAN_tx_message, CAN_send_data, PITCH_MOTOR_ID, pitch_motor.motor_type, pitch_motor.output);
-		}
+		CAN_set_motor_output(&CAN_tx_message, CAN_send_data, PITCH_MOTOR_ID, pitch_motor.motor_type, pitch_motor.output);
+
 		// fill data packet with yaw data
-		if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
-			CAN_set_motor_output(&CAN_tx_message, CAN_send_data, YAW_MOTOR_ID, yaw_motor.motor_type, yaw_motor.output);
-		}
+		CAN_set_motor_output(&CAN_tx_message, CAN_send_data, YAW_MOTOR_ID, yaw_motor.motor_type, yaw_motor.output);
+
 		HAL_CAN_AddTxMessage(PITCH_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 				send_mail_box);
 	} else {
@@ -193,10 +192,10 @@ void send_current_to_gimbal_motors() {
 #elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
 		// Clear entire packet first
 		memset(CAN_send_data, 0, 8);
+
 		// fill data packet with pitch data
-		if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
-			CAN_set_motor_output(&CAN_tx_message, CAN_send_data, PITCH_MOTOR_ID, pitch_motor.motor_type, pitch_motor.output);
-		}
+		CAN_set_motor_output(&CAN_tx_message, CAN_send_data, PITCH_MOTOR_ID, pitch_motor.motor_type, pitch_motor.output);
+
 		HAL_CAN_AddTxMessage(PITCH_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 				send_mail_box);
 #endif
@@ -207,10 +206,10 @@ void send_current_to_gimbal_motors() {
 #else
 		// Clear entire packet first
 		memset(CAN_send_data, 0, 8);
+
 		// fill data packet with yaw data
-		if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
-			CAN_set_motor_output(&CAN_tx_message, CAN_send_data, YAW_MOTOR_ID, yaw_motor.motor_type, yaw_motor.output);
-		}
+		CAN_set_motor_output(&CAN_tx_message, CAN_send_data, YAW_MOTOR_ID, yaw_motor.motor_type, yaw_motor.output);
+
 		HAL_CAN_AddTxMessage(YAW_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 				send_mail_box);
 #endif

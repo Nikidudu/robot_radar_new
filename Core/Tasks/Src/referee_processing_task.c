@@ -8,8 +8,8 @@
 #include "board_lib.h"
 #include "referee_processing_task.h"
 #include "referee_msgs.h"
+#include "master_task.h"
 
-extern TaskHandle_t referee_processing_task_handle;
 static ref_msg_t g_ref_msg_buffer;
 
 ref_game_state_t ref_game_state;

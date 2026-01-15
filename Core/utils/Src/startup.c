@@ -5,10 +5,6 @@
  *      Author: wx
  */
 
-/*
- * todo: initialise IMU here?
- */
-
 #include "board_lib.h"
 
 void system_init() {

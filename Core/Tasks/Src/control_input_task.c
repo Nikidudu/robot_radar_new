@@ -14,8 +14,8 @@
 #include "control_sbc.h"
 #include "motor_config.h"
 #include "motor_control.h"
+#include "master_task.h"
 
-extern QueueHandle_t g_buzzing_task_msg;
 extern ref_robot_dmg_t ref_dmg_data;
 extern uint32_t ref_dmg_data_txno;
 extern ref_game_robot_data2_t ref_robot_data;
@@ -28,8 +28,6 @@ gun_control_t launcher_ctrl_data;
 gimbal_control_t gimbal_ctrl_data;
 
 uint8_t control_mode = CONTROL_DEFAULT;
-uint8_t g_safety_toggle = ARM_SWITCH;
-uint8_t launcher_safety_toggle = (ARM_SWITCH | LAUNCHER_SAFETY);
 
 uint32_t reset_debounce_time = 0;
 uint32_t reset_start_time = 0;
@@ -40,7 +38,6 @@ void control_input_task(void *argument) {
 	chassis_yaw_pid_init();
 	gimbal_ctrl_data.imu_mode = GIMBAL_MODE;
 	remote_uart_start();
-	g_safety_toggle = 1;
 	vTaskDelay(100);
 	uint8_t rc_check;
 
@@ -57,10 +54,10 @@ void control_input_task(void *argument) {
 			vTaskDelay(200);
 		}
 	}
-	g_safety_toggle = ARM_SWITCH;
 
+	// remote uart packets should be aligned properly at this point
 	while (1) {
-		rc_check = ulTaskNotifyTake(pdTRUE, 200);
+		rc_check = ulTaskNotifyTake(pdTRUE, 200); // wait for notification from remote_ISR()
 		if (rc_check) {
 			status_led(1, on_led);
 			start_time = xTaskGetTickCount();
@@ -82,9 +79,8 @@ void control_input_task(void *argument) {
 				}
 
 				control_mode_change(g_remote_cmd.control_mode, g_remote_cmd.fn_1);
-				g_safety_toggle = 0;
-				launcher_safety_toggle = 0;
-				control_reset();
+				control_reset(); // resets control data to 0
+
 			} else {
 
 				switch (control_mode) {
@@ -97,7 +93,6 @@ void control_input_task(void *argument) {
 #ifdef HAS_SBC
 				case SBC_CTRL_MODE:
 					sbc_control_input();
-//					nx_control_input();
 					break;
 #endif
 				default:
@@ -107,16 +102,13 @@ void control_input_task(void *argument) {
 				status_led(1, off_led);
 			}
 		} else {
-			//restart remote uart
+			// rc_check has timed out; restart remote uart
 			if (HAL_GetTick() - g_remote_cmd.last_time > 100) {
 				HAL_UART_DMAStop(&REMOTE_UART);
 				remote_uart_start();
 				g_remote_cmd.last_time = HAL_GetTick();
 			}
 			control_reset();
-			launcher_safety_toggle = LAUNCHER_SAFETY;
-			g_safety_toggle = 1;
-
 		}
 		vTaskDelayUntil(&start_time, CONTROL_DELAY);
 	}
@@ -241,13 +233,6 @@ void chassis_set_ctrl(float forward, float horizontal, float yaw) {
 	chassis_ctrl_data.yaw = yaw;
 }
 
-void chassis_kill_ctrl() {
-	chassis_ctrl_data.enabled = 0;
-	chassis_ctrl_data.forward = 0;
-	chassis_ctrl_data.horizontal = 0;
-	chassis_ctrl_data.yaw = 0;
-}
-
 void control_reset() {
 	chassis_ctrl_data.forward = 0;
 	chassis_ctrl_data.horizontal = 0;
@@ -278,14 +263,12 @@ void control_mode_change(uint8_t control_mode_button, uint8_t fn_1) {
 					control_mode = REMOTE_CTRL_MODE;
 					temp_msg = control_control;
 					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-					launcher_safety_toggle = LAUNCHER_SAFETY;
 					break;
 
 				case REMOTE_CTRL_MODE:
 					control_mode = KEYBOARD_CTRL_MODE;
 					temp_msg = control_keyboard;
 					xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-					launcher_safety_toggle = LAUNCHER_SAFETY;
 					break;
         	}
             last_trig_time = HAL_GetTick(); // update trigger time
@@ -308,7 +291,6 @@ void control_mode_change(uint8_t control_mode_button, uint8_t fn_1) {
                     control_mode = REMOTE_CTRL_MODE;
                     temp_msg = control_control;
                     xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-					launcher_safety_toggle = LAUNCHER_SAFETY;
                     break;
         	}
             last_trig_time = HAL_GetTick(); // update trigger time
@@ -326,7 +308,6 @@ void control_mode_change(uint8_t control_mode_button, uint8_t fn_1) {
 				control_mode = REMOTE_CTRL_MODE;
 				temp_msg = control_control;
 				xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
-				launcher_safety_toggle = LAUNCHER_SAFETY;
 				break;
     	}
 	}

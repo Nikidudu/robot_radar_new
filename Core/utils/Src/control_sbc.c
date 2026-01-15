@@ -35,7 +35,7 @@ void sbc_gimbal_input() {
     const float YAW_KP = -1.8f;  // Lowered slightly to reduce initial vibration
     const float YAW_KD = -0.15f; // The "Brake" (Derivative gain)
 
-    if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN) {
+    if (g_remote_cmd.sw == SW_SHUTDOWN) {
         gimbal_ctrl_data.enabled = 0;
         last_yaw_err = 0;
     } else {
@@ -73,11 +73,10 @@ void sbc_gimbal_input() {
     }
 }
 
-
 void sbc_launcher_control_input() {
+	launcher_ctrl_data.enabled = 1;
+
 	if (g_aimbot_cmd.fire == 1 && g_remote_cmd.trigger == 1) {
-		launcher_ctrl_data.enabled = 1;
-		launcher_ctrl_data.projectile_speed = 1;
 		launcher_ctrl_data.firing = 1;
 	} else {
 		launcher_ctrl_data.firing = 0;

@@ -202,34 +202,23 @@ static void send_flywheel_current_to_motor() {
 	CAN_tx_message.RTR = CAN_RTR_DATA;
 	CAN_tx_message.DLC = 0x08;
 
+	// Clear entire packet first
+	memset(CAN_send_data, 0, 8);
+
 	// send to friction wheels
 	CAN_tx_message.StdId = CAN_3508_1_TO_4_ID;
-	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
-		CAN_send_data[0] = 0;
-		CAN_send_data[1] = 0;
-		CAN_send_data[2] = 0;
-		CAN_send_data[3] = 0;
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
-	} else {
-		CAN_send_data[0] = (flywheel_motor[0].output >> 8) & 0xFF;
-		CAN_send_data[1] = (flywheel_motor[0].output) & 0xFF;
-		CAN_send_data[2] = (flywheel_motor[1].output >> 8) & 0xFF;
-		CAN_send_data[3] = (flywheel_motor[1].output) & 0xFF;
+
+	CAN_send_data[0] = (flywheel_motor[0].output >> 8) & 0xFF;
+	CAN_send_data[1] = (flywheel_motor[0].output) & 0xFF;
+	CAN_send_data[2] = (flywheel_motor[1].output >> 8) & 0xFF;
+	CAN_send_data[3] = (flywheel_motor[1].output) & 0xFF;
 #ifdef ACTIVE_GUIDANCE
-		CAN_send_data[4] = (flywheel_motor[2].output >> 8) & 0xFF;
-		CAN_send_data[5] = (flywheel_motor[2].output) & 0xFF;
-		CAN_send_data[6] = (flywheel_motor[3].output >> 8) & 0xFF;
-		CAN_send_data[7] = (flywheel_motor[3].output) & 0xFF;
-#else
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
+	CAN_send_data[4] = (flywheel_motor[2].output >> 8) & 0xFF;
+	CAN_send_data[5] = (flywheel_motor[2].output) & 0xFF;
+	CAN_send_data[6] = (flywheel_motor[3].output >> 8) & 0xFF;
+	CAN_send_data[7] = (flywheel_motor[3].output) & 0xFF;
 #endif
-	}
+
 	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 			send_mail_box);
 }
@@ -242,11 +231,9 @@ void send_feeder_current_to_motor() {
 	memset(CAN_send_data, 0, 8);
 
 	// fill data packet with feeder data
-	if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
-	    CAN_set_motor_output(&CAN_tx_message, CAN_send_data, FEEDER_MOTOR_ID, feeder_motor.motor_type, feeder_motor.output);
-	}
+	CAN_set_motor_output(&CAN_tx_message, CAN_send_data, FEEDER_MOTOR_ID, feeder_motor.motor_type, feeder_motor.output);
 
-	  HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
+	HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 	      send_mail_box);
 }
 

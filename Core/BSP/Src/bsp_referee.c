@@ -5,9 +5,9 @@
  *      Author: wx
  */
 
-#include "bsp_queue.h"
 #include "board_lib.h"
 #include "bsp_referee.h"
+#include "master_task.h"
 
 queue_t *ref_UART_queue;
 uint8_t ref_dma_buf[REF_DMA_BUF_SIZE];
@@ -16,8 +16,6 @@ enum ref_proc_state{
 	HEADER,
 	DATA
 };
-
-extern TaskHandle_t referee_processing_task_handle;
 
 ref_processing_status_t ref_process_data(queue_t *uart_queue, ref_msg_t *proc_msg){
 	static uint8_t state = 0;

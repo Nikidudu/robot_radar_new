@@ -10,8 +10,6 @@
 #define SPINSPIN_RANDOM_DELAY 50
 #define MOTOR_ONLINE_CHECK 	-1
 //1 for annoying beep sound, 0 for some error beeps every 3s, -1 for absolute peace and tranquility (with pancik
-#define ARM_SWITCH 			0			//set to 1 to enable remote up and down arming switch
-#define FIRING_DISABLE		0			//set to 1 to stop firing
 #define LAUNCHER_SAFETY		0			//set to 1 to enable launcher arm safety
 #define FRICTION_SB_SPIN_ON	0
 // set to allow flywheels to spin during standby

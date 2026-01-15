@@ -6,8 +6,8 @@
  */
 #include "board_lib.h"
 #include "buzzing_task.h"
+#include "master_task.h"
 
-#include "typedefs.h"
 #define BUZZER_HIGH 880
 #define BUZZER_LOW	440
 #define DEBUG_LOW_FREQ 		370
