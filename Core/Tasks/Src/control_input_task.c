@@ -245,6 +245,7 @@ void control_reset() {
 
 	gimbal_ctrl_data.pitch = 0;
 	gimbal_ctrl_data.yaw = imu_heading.yaw;
+	gimbal_ctrl_data.delta_yaw = 0;
 	gimbal_ctrl_data.enabled = 0;
 
 	launcher_ctrl_data.firing = 0;
@@ -318,7 +319,6 @@ void control_mode_change(uint8_t control_mode_button, uint8_t fn_1) {
 
 //ADDs angle to gimbal ctrl
 void gimbal_turn_ang(float pit_radians, float yaw_radians) {
-//	yaw_radians = gimbal_ctrl_data.yaw + yaw_radians;
 	while (yaw_radians > PI) {
 		yaw_radians -= 2 * PI;
 	}
@@ -331,7 +331,6 @@ void gimbal_turn_ang(float pit_radians, float yaw_radians) {
 	xSemaphoreTake(gimbal_ctrl_data.pitch_semaphore, portMAX_DELAY);
 	gimbal_ctrl_data.pitch += pit_radians;
 	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
-//	gimbal_ctrl_data.yaw = yaw_radians;
 }
 
 //SETs angle to gimbal ctrl; for aimbot

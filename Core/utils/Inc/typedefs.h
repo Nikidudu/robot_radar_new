@@ -153,53 +153,6 @@ typedef struct {
 
 typedef struct
 {
-	float gx;
-	float gy;
-	float gz;
-	uint32_t last_gyro_update;
-}gyro_data_t;
-
-typedef struct
-{
-	float ax;
-	float ay;
-	float az;
-	uint32_t last_accel_update;
-}accel_data_t;
-
-typedef struct
-{
-	int16_t mx;
-	int16_t my;
-	int16_t mz;
-	uint32_t last_mag_update;
-}mag_data_t;
-
-
-typedef struct
-{
-	gyro_data_t gyro_data;
-	accel_data_t accel_data;
-	mag_data_t mag_data;
-
-	int16_t ax_offset;
-	int16_t ay_offset;
-	int16_t az_offset;
-
-	int16_t gx_offset;
-	int16_t gy_offset;
-	int16_t gz_offset;
-} imu_raw_t;
-
-
-typedef struct{
-	float ax;
-	float ay;
-	float az;
-}linear_accel_t;
-
-typedef struct
-{
 	float pit;
 	float rol;
 	float yaw;
@@ -209,24 +162,6 @@ typedef struct
     float gyro_raw_pitch;
     float gyro_raw_yaw;
 } orientation_data_t;
-
-typedef struct
-{
-	float temp;
-
-	float wx; /*!< omiga, +- 2000dps => +-32768  so gx/16.384/57.3 =	rad/s */
-	float wy;
-	float wz;
-
-	float vx;
-	float vy;
-	float vz;
-
-	float gx;
-	float gy;
-	float gz;
-
-} imu_processor_t;
 
 typedef struct
 {
@@ -244,14 +179,13 @@ typedef struct
 typedef struct
 {
 	float pitch;
-	float yaw;
-	float delta_yaw;
-	uint8_t imu_mode;
+	float yaw; 			// only used if GIMBAL_MODE == 0
+	float delta_yaw;	// this is the one used for yaw IMU control mode (GIMBAL_MODE == 1)
+	uint8_t imu_mode;	// GIMBAL_MODE (1 for IMU control, 0 for absolute angle based control)
 	uint8_t enabled;
 	SemaphoreHandle_t yaw_semaphore;
 	SemaphoreHandle_t pitch_semaphore;
-}gimbal_control_t;
-
+} gimbal_control_t;
 
 typedef struct
 {
@@ -261,7 +195,7 @@ typedef struct
 	uint8_t enabled;
 	uint8_t g_spinspin_mode;
 	uint32_t last_time[2]; 	// time stamps of previous communication between Dev C's
-}chassis_control_t;
+} chassis_control_t;
 
 typedef struct
 {
@@ -269,28 +203,11 @@ typedef struct
 	int16_t firing;
 	uint8_t override;
 	uint8_t enabled;
-}gun_control_t;
-
-typedef struct
-{
-	uint8_t frame_header;
-	int16_t y_pos;
-	int16_t x_pos;
-	float x_norm;
-	float y_norm;
-	uint8_t end_check;
-	pid_data_t yaw_pid;
-	pid_data_t pitch_pid;
-	float x_offset;
-	float y_offset;
-	uint32_t last_time;
-}xavier_packet_t;
-
+} gun_control_t;
 
 #define SBC_GIMBAL_TURN_ANG_ID 0x11
 #define SBC_GIMBAL_SET_ANG_ID 0x12
 #define SBC_AIMBOT_NORM_ID 0x13
-
 
 typedef __PACKED_STRUCT {
 	float pitch;
@@ -299,22 +216,6 @@ typedef __PACKED_STRUCT {
 	int8_t spinspin;
 	char padding[2];
 }sbc_gimbal_data_t;
-
-
-#define SBC_YOLO_BB_ID 0x21
-typedef __PACKED_STRUCT {
-	int16_t x_coord;
-	int16_t y_coord;
-	int16_t x_max;
-	int16_t x_min;
-	int16_t y_max;
-	int16_t y_min;
-}sbc_yolo_data_t;
-
-typedef __PACKED_UNION {
-	sbc_gimbal_data_t gimbal_data;
-	sbc_yolo_data_t yolo_data;
-}sbc_data_u;
 
 typedef __PACKED_STRUCT {
     uint8_t header;
@@ -326,34 +227,7 @@ typedef __PACKED_STRUCT {
     uint16_t ammo;
     uint8_t padding[5];
     uint8_t end_byte;
-}sbc_game_data_t;
-
-typedef __PACKED_STRUCT {
-    uint8_t header;
-    uint8_t cmd_id; //set to 0x80
-    float pitch;
-    float roll;
-    float yaw;
-    uint8_t end_byte;
-}sbc_imu_data_t;
-
-typedef struct {
-	uint8_t cmd_id;
-	sbc_data_u data;
-}sbc_data_t;
-
-typedef struct {
-	uint8_t frame_header;
-	sbc_data_t data;
-	uint8_t frame_ender;
-}sbc_raw_t;
-
-typedef struct{
-	uint8_t curr_gear;
-	float spin_mult;
-	float trans_mult;
-	float accel_mult;
-}speed_shift_t;
+} sbc_game_data_t;
 
 // sent to supercap module
 typedef struct __attribute__((packed)){
@@ -361,14 +235,14 @@ typedef struct __attribute__((packed)){
     uint8_t reset;			//reset in case got error eg cap voltage too low, UVLO active
     uint8_t pow_limit;		//set power regulation point, ie set to current level power
     uint16_t energy_buffer;	//send over refsys "virtual energy buffer" to abuse
-}ref_msg_packet;
+} ref_msg_packet;
 
 // received from supercap module
 typedef struct __attribute__((packed)){
 	float chassis_power;	//originally meant for feedback,  but not really relevant now, use it however you want eg if exceed too long and sc is dead kill motors for a while??
 	uint8_t error;			//any error state
 	uint8_t cap_energy;		//normalized energy left in supercap (impt one)
-}supercap_msg_packet;
+} supercap_msg_packet;
 
 typedef struct {
 	float chassis_power;	// idk for now
@@ -376,36 +250,6 @@ typedef struct {
 	int supercap_enabled;	// AKA should robot go faster
 	uint32_t last_time[2];
 } supercap_data;
-
-enum motor_params
-{
-	rpm_kp		= 1,
-	rpm_ki		= 2,
-	rpm_kd		= 3,
-	angle_kp 	= 4,
-	angle_ki 	= 5,
-	angle_kd 	= 6,
-	max_torque	= 7,
-	center_angle= 8,
-	max_angle	= 9,
-	min_angle	= 10,
-	max_rpm		=11,
-};
-
-enum motor_data
-{
-	motor_type	= 1,
-	rpm			= 2,
-	temp		= 3,
-	angle 		= 4,
-};
-
-enum referee_data
-{
-	feeder_speed_limit = 1,
-	projectile_speed_limit =2,
-	chassis_power_limit = 3,
-};
 
 typedef enum {
 	song,
@@ -422,8 +266,7 @@ typedef enum {
 	bz_debug_hi_temp,
 	bz_temp_hi,
 	bz_temp_low,
-}buzzing_type;
-
+} buzzing_type;
 
 enum launcher_state_e {
 	WHEEL_STANDBY,

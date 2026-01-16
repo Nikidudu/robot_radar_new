@@ -27,9 +27,9 @@
 #define IMU_ROLL_INVERT		1
 //#define IST8310
 #define REF_POWER_LIM
-#define G_X_OFFSET			-7 // todo: should these be set to 0?? is this the cause of our imu drift?
-#define G_Y_OFFSET 			-16
-#define G_Z_OFFSET	 		5
+#define G_X_OFFSET			0 //-7 	// todo: should these be set to 0?? is this the cause of our imu drift?
+#define G_Y_OFFSET 			0 // -16
+#define G_Z_OFFSET	 		0 // -5
 #define ZERO_ROLL
 
 /********************* CONTROL SENSITIVITIES ***********/
@@ -368,15 +368,16 @@
  * Centers for DM motors should be -PI to PI.
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
+#define PITCH_SINGLE_PID_LOOP // declare to
 #define PITCH_MOTOR_TYPE		TYPE_DM4310_DJI_MODE
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
-
+#ifndef PITCH_SINGLE_PID_LOOP
 #define PITCH_ANGLE_KP	  		80
 #define PITCH_ANGLE_KI  		0
 #define PITCH_ANGLE_KD  		3
 #define PITCH_ANGLE_INT_MAX		0
-
+#endif
 #define PITCH_MAX_RPM			60
 #define PITCHRPM_KP				0.5
 #define PITCHRPM_KI				0
@@ -406,8 +407,11 @@
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0
 
+#define YAW_SINGLE_PID_LOOP
 #define YAW_MOTOR_TYPE 			TYPE_GM6020_720
+
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
+#ifndef YAW_SINGLE_PID_LOOP
 
 #define YAW_ANGLE_KP			400
 #define YAW_ANGLE_KI			0.00 // 0.0001Should be very small, just to correct run-off or oscillation errors
@@ -415,9 +419,11 @@
 #define YAW_ANGLE_INT_MAX		0.1
 #define YAW_MAX_RPM				132//85
 
-#define YAWRPM_KP				400
+#endif
+
+#define YAWRPM_KP				100000
 #define YAWRPM_KI				0
-#define YAWRPM_KD				0 //15
+#define YAWRPM_KD				700000
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 

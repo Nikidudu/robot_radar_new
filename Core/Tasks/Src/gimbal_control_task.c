@@ -109,13 +109,13 @@ void yaw_init() {
 	yaw_motor.angle_data.phy_max_ang = YAW_MAX_ANG;
 	yaw_motor.angle_data.phy_min_ang = YAW_MIN_ANG; //angle before it overflows
 	yaw_motor.angle_data.wheel_circ = 0;
-
+#ifndef YAW_SINGLE_PID_LOOP
 	yaw_motor.angle_pid.kp = YAW_ANGLE_KP;
 	yaw_motor.angle_pid.ki = YAW_ANGLE_KI;
 	yaw_motor.angle_pid.kd = YAW_ANGLE_KD;
 	yaw_motor.angle_pid.int_max = YAW_ANGLE_INT_MAX;
 	yaw_motor.angle_pid.max_out = YAW_MAX_RPM;
-
+#endif
 	yaw_motor.rpm_pid.kp = YAWRPM_KP;
 	yaw_motor.rpm_pid.ki = YAWRPM_KI;
 	yaw_motor.rpm_pid.kd = YAWRPM_KD;
@@ -146,13 +146,13 @@ void pitch_init() {
 	pitch_motor.angle_data.wheel_circ = 0;
 	pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
 	pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
-
+#ifndef PITCH_SINGLE_PID_LOOP
 	pitch_motor.angle_pid.kp = PITCH_ANGLE_KP;
 	pitch_motor.angle_pid.ki = PITCH_ANGLE_KI;
 	pitch_motor.angle_pid.kd = PITCH_ANGLE_KD;
 	pitch_motor.angle_pid.int_max = PITCH_ANGLE_INT_MAX;
 	pitch_motor.angle_pid.max_out = PITCH_MAX_RPM;
-
+#endif
 	pitch_motor.rpm_pid.kp = PITCHRPM_KP;
 	pitch_motor.rpm_pid.ki = PITCHRPM_KI;
 	pitch_motor.rpm_pid.kd = PITCHRPM_KD;
@@ -331,7 +331,7 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 #else
 
 	xSemaphoreTake(gimbal_ctrl_data.pitch_semaphore,portMAX_DELAY);
-
+// todo: add back pitch limits and ensure that it is working
 //	uint8_t pit_lim = 0;
 //	float rel_pitch_angle = pitch_motor->angle_data.adj_ang
 //				+ gimbal_ctrl_data.pitch - imu_heading.pit;
@@ -341,10 +341,13 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 //				- (pitch_motor->angle_data.adj_ang);
 //	}
 
+#ifdef PITCH_SINGLE_PID_LOOP
+	speed_pid(gimbal_ctrl_data.pitch, imu_heading.pit, &pitch_motor->rpm_pid);
+#else
 //	yangle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor,
 //			imu_heading.pit, &prev_pit,0);
-	sk_angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor, imu_heading.gyro_raw_pitch, 0);
-
+	imu_angle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor, imu_heading.gyro_raw_pitch, 0);
+#endif
 	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
 
 	int32_t temp_pit_output = pitch_motor->rpm_pid.output + PITCH_CONST;
@@ -380,7 +383,7 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
     PITCH_MOTOR_TYPE == TYPE_LK_MG5010E_MULTI_ANG
 
 	//lazy max
-	//covnert radians back to degrees
+	//convert radians back to degrees
 	int32_t pitch_ang = rel_pitch_angle * 57320;
 	pitch_motor.output = pitch_ang;
 	if (HAL_CAN_GetTxMailboxesFreeLevel(pitch_motor.can) == 0){
@@ -391,19 +394,6 @@ void calculate_linkage_pitch(motor_data_t *pitch_motor) {
 #else
 	angle_pid(rel_pitch_angle, pitch_motor->angle_data.adj_ang, pitch_motor, 1);
 #endif
-}
-
-uint8_t limit_pitch(float *rel_pitch_angle, motor_data_t *pitch_motor) {
-	uint8_t pit_lim = 0;
-	if (*rel_pitch_angle > pitch_motor->angle_data.phy_max_ang) {
-		*rel_pitch_angle = pitch_motor->angle_data.phy_max_ang;
-		pit_lim = 1;
-	}
-	if (*rel_pitch_angle < pitch_motor->angle_data.phy_min_ang) {
-		*rel_pitch_angle = pitch_motor->angle_data.phy_min_ang;
-		pit_lim = 1;
-	}
-	return pit_lim;
 }
 
 void yaw_control(motor_data_t *yaw_motor) {
@@ -421,13 +411,6 @@ void yaw_control(motor_data_t *yaw_motor) {
 	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
 	gimbal_ctrl_data.delta_yaw -= turn_ang;
 
-//	if (gimbal_ctrl_data.delta_yaw > 1.5 * PI) {
-//		gimbal_ctrl_data.delta_yaw = 1.5 * PI;
-//	}
-//	if (gimbal_ctrl_data.delta_yaw < -1.5 * PI) {
-//		gimbal_ctrl_data.delta_yaw = -1.5 * PI;
-//	}
-
 	 yaw_pid(0, -gimbal_ctrl_data.delta_yaw, &dm_yaw_motor.angle_pid);
 	 xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 
@@ -441,7 +424,6 @@ void yaw_control(motor_data_t *yaw_motor) {
 		turn_ang -= 2 * PI;
 	} else if (turn_ang < -PI) {
 		turn_ang += 2 * PI;
-
 	}
 
 	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore, portMAX_DELAY);
@@ -454,9 +436,13 @@ void yaw_control(motor_data_t *yaw_motor) {
 		gimbal_ctrl_data.delta_yaw = -PI;
 	}
 
-	sk_angle_pid(gimbal_ctrl_data.delta_yaw, 0, yaw_motor, imu_heading.gyro_raw_yaw, 0);
+#ifdef YAW_SINGLE_PID_LOOP
+	speed_pid(gimbal_ctrl_data.delta_yaw, 0, &yaw_motor->rpm_pid);
+#else
+	imu_angle_pid(gimbal_ctrl_data.delta_yaw, 0, yaw_motor, imu_heading.gyro_raw_yaw, 0);
 //	yangle_pid(gimbal_ctrl_data.delta_yaw, 0, yaw_motor, imu_heading.yaw,
 //			&prev_yaw, 0);
+#endif
 	xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 
 	yaw_motor->output = yaw_motor->rpm_pid.output;
