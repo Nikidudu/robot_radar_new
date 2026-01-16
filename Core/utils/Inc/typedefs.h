@@ -11,7 +11,6 @@
 #include <semphr.h>
 #include <event_groups.h>
 
-//switch goes from 1-3-2 from top to down
 enum sw
 {
 	SW_SHUTDOWN = 1,
@@ -47,7 +46,7 @@ typedef struct
 	float output; 			// PID output
 	float physical_max; 	// physical maximum the motor can handle
 	uint32_t last_time[2]; 	// timestampes of previous PID updates
-}pid_data_t;
+} pid_data_t;
 
 typedef struct	{
 	// processed encoder/odometry data for a motor
@@ -82,7 +81,7 @@ typedef struct {
 	int16_t rpm;
 	int16_t torque;
 	uint8_t temp;
-}raw_data_t;
+} raw_data_t;
 
 typedef struct {
 	CAN_HandleTypeDef *can;
@@ -95,12 +94,6 @@ typedef struct {
 	int32_t output;
 	uint32_t last_time[2];
 } motor_data_t;
-
-
-typedef struct {
-	uint16_t motor_id;
-	motor_data_t* motor_data;
-}motor_map_t;
 
 /* Struct containing cleaned data from remote */
 typedef struct {
@@ -147,7 +140,6 @@ typedef struct {
 	 * Bit15 -- B 键
 	 */
 	uint16_t keyboard_keys;
-
 	uint32_t last_time;
 } remote_cmd_t;
 
@@ -172,9 +164,7 @@ typedef struct
 	uint8_t robot_level;
 	float chassis_power;
 	uint32_t last_update_time;
-
-}referee_limit_t;
-
+} referee_limit_t;
 
 typedef struct
 {
@@ -204,18 +194,6 @@ typedef struct
 	uint8_t override;
 	uint8_t enabled;
 } gun_control_t;
-
-#define SBC_GIMBAL_TURN_ANG_ID 0x11
-#define SBC_GIMBAL_SET_ANG_ID 0x12
-#define SBC_AIMBOT_NORM_ID 0x13
-
-typedef __PACKED_STRUCT {
-	float pitch;
-	float yaw;
-	uint8_t fire;
-	int8_t spinspin;
-	char padding[2];
-}sbc_gimbal_data_t;
 
 typedef __PACKED_STRUCT {
     uint8_t header;

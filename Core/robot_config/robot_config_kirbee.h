@@ -17,8 +17,6 @@
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
 #define IMU_ORIENTATION 	1
-//doesn't do anything, todo: implement pid for heater
-#define IMU_TARGET_TEMP		50
 
 //flip until motor angle and yaw angle matches
 #define IMU_YAW_INVERT		-1
@@ -36,20 +34,20 @@
 #define REMOTE_YAW_SPEED 	 	0.1 			//Speed of gimbal yaw turning
 #define REMOTE_PITCH_SPEED 	 	-0.1//0.005		//Speed of gimbal pitch turning
 
-#define MOUSE_X_SENSITIVITY		(300 * REMOTE_YAW_SPEED)				//Speed of yaw turning with mouse, dependent on above speed
-#define MOUSE_Y_SENSITIVITY 	(150 * REMOTE_PITCH_SPEED)				//Speed of pitch turning with mouse,  dependent on above speed
+#define MOUSE_X_SENSITIVITY		(300 * REMOTE_YAW_SPEED)	//Speed of yaw turning with mouse, dependent on above speed
+#define MOUSE_Y_SENSITIVITY 	(150 * REMOTE_PITCH_SPEED)	//Speed of pitch turning with mouse,  dependent on above speed
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
-#define YAW_INVERT  			-1				//1 to invert control -1 to disable
-#define PITCH_INVERT  			-1				//1 to invert control -1 to disable
+#define YAW_INVERT  			-1				// 1 to invert control -1 to disable
+#define PITCH_INVERT  			-1				// 1 to invert control -1 to disable
 
-#define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
-#define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
+#define MOUSE_X_INVERT			1				// Set to -1 if it needs to be inverted
+#define	MOUSE_Y_INVERT			-1				// Set to -1 if it needs to be inverted
 
-#define KEYBD_MAX_SPD 			1//0.8//0.5				//% of max speed
+#define KEYBD_MAX_SPD 			1//0.8//0.5		// % of max speed
 
-#define GIMBAL_MODE 			1				//1 for IMU control, 0 for absolute angle based control
+#define GIMBAL_MODE 			1				// 1 for IMU control, 0 for absolute angle based control
 
 /*********************** SUPERCAP CONFIGURATION *******************/
 #define SUPERCAP_PRESENT
@@ -59,23 +57,7 @@
 
 
 /*********************** AIMBOT CONFIGURATION *******************/
-#define AIMBOT_YAW_MULT 		0.552 //0.602		//FOV of X axis/2 and invert
-#define AIMBOT_PIT_MULT 		0.45 //0.4			//FOV of y aaxis/2 and invert
-#define XAVIER_TIMEOUT 			100					//Time before robot returns to manual control
 
-#define AIMBOT_Y_OFFSET			0					//Y point for the robot to aim at
-#define AIMBOT_Y_KP				1
-#define AIMBOT_Y_KI				0
-#define AIMBOT_Y_KD				0
-
-#define AIMBOT_X_OFFSET			0					//X Point for the robot to aim at
-#define AIMBOT_X_KP				1
-#define AIMBOT_X_KI				0
-#define AIMBOT_X_KD				0
-#define FOV_MULT				(0.747/2)			//FOV of the camera in radians, change depending on lens specs
-#define AIMBOT_KI_MAX			1
-
-#define OBC_DATA_SIZE			8					//Packet size
 
 /* PID TUNING GUIDE
  * For all motors, there are 2 different PID values, angle PID and speed PID
@@ -368,7 +350,7 @@
  * Centers for DM motors should be -PI to PI.
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
-#define PITCH_SINGLE_PID_LOOP // declare to
+#define PITCH_SINGLE_PID_LOOP	// define to enable single PID loop instead of cascade PID for pitch
 #define PITCH_MOTOR_TYPE		TYPE_DM4310_DJI_MODE
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
@@ -407,17 +389,17 @@
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0
 
-#define YAW_SINGLE_PID_LOOP
+#define YAW_SINGLE_PID_LOOP		// define to enable single PID loop instead of cascade PID for yaw
 #define YAW_MOTOR_TYPE 			TYPE_GM6020_720
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #ifndef YAW_SINGLE_PID_LOOP
 
 #define YAW_ANGLE_KP			400
-#define YAW_ANGLE_KI			0.00 // 0.0001Should be very small, just to correct run-off or oscillation errors
-#define YAW_ANGLE_KD			2975 //3000
+#define YAW_ANGLE_KI			0.00	// 0.0001 Should be very small, just to correct run-off or oscillation errors
+#define YAW_ANGLE_KD			2975	//3000
 #define YAW_ANGLE_INT_MAX		0.1
-#define YAW_MAX_RPM				132//85
+#define YAW_MAX_RPM				132		//85
 
 #endif
 
@@ -446,27 +428,33 @@
 
 #define YAW_SPINSPIN_CONSTANT	5000
 #define YAW_CENTER 				5005
-#define YAW_MAX_ANG				5*PI
-#define YAW_MIN_ANG				5*-PI
+#define YAW_MAX_ANG				0 // unused
+#define YAW_MIN_ANG				0 // unused
 
-/*********************** MOTOR CONFIGURATION *******************/
+/*********************** MOTOR ID CONFIGURATIONS *******************/
 // NOTE: two motors on the same CAN CANNOT have the same flashing number
+//#define ACTIVE_GUIDANCE	// define to enable 4 flwheel firing system (for sniping hero)
 #define LAUNCHER_MOTOR_CAN	&hcan2
 #define LFRICTION_MOTOR_ID	1
 #define RFRICTION_MOTOR_ID	2
+#ifdef ACTIVE_GUIDANCE
 //#define BFRICTION_MOTOR_ID	3
 //#define GFRICTION_MOTOR_ID	4
+#endif
+
 #define FEEDER_MOTOR_CAN	&hcan1
 #define FEEDER_MOTOR_ID		3
 
 #define PITCH_MOTOR_CAN		&hcan1
 #define PITCH_MOTOR_ID 		0x1
-//#define DM_PITCH_MOTOR_ID	0x91 // for DM receiving can ID
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+#define DM_PITCH_MOTOR_ID	0x91 // for DM receiving can ID
+#endif
+
 #define YAW_MOTOR_CAN		&hcan1
 #define YAW_MOTOR_ID 		5
 
 /*********************** OTHERS ***********************/
-
 #define WHEEL_CIRC			47.1	//in CM
 
 #define CONTROL_DELAY 		5
