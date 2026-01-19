@@ -9,8 +9,8 @@
 #define ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE_H_
 
 #include "hud_kirbee.h"
-
 #include "motor_config.h"
+
 #define BULLET_17
 #define HAS_SBC
 /********************* DEV C IMU CONFIGURATION ***********/
@@ -118,7 +118,7 @@
 #define FRICTION_INVERT			-1
 #define LAUNCHER_MARGIN			300
 #define LAUNCHER_DIFF_MARGIN	300
-#define FRICTION_OFFSET			0//100
+#define FRICTION_OFFSET			0
 
 #define CLEAR_DELAY				1000
 
@@ -130,13 +130,13 @@
 #define CHASSIS_INT_MAX  	5000
 #define CHASSIS_MAX_CURRENT 6000//9000
 #define CHASSIS_MIN_CURRENT 0
-#define BUFFER_MIN			0.22			// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
-											// tune this by seeing if pilot likes the speed
+#define BUFFER_MIN			0.22	// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
+									// tune this by seeing if pilot likes the speed
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
 
-#define LVL_TUNING		// scales chassis speed as level increases
-#define ONE_VS_ONE		// 1v1 standard configuration (vs 3v3)
+//#define LVL_TUNING		// scales chassis speed as level increases
+//#define ONE_VS_ONE		// 1v1 standard configuration (vs 3v3)
 
 #ifdef LVL_TUNING
 /* Speed Value Guide:
@@ -361,9 +361,9 @@
 #define PITCH_ANGLE_INT_MAX		0
 #endif
 #define PITCH_MAX_RPM			60
-#define PITCHRPM_KP				0.5
+#define PITCHRPM_KP				30
 #define PITCHRPM_KI				0
-#define PITCHRPM_KD				0.05
+#define PITCHRPM_KD				50
 #define PITCHRPM_INT_MAX		4000
 #define PITCH_MAX_CURRENT		205000
 
@@ -384,7 +384,7 @@
 
 #endif
 
-#define PITCH_CENTER			857
+#define PITCH_CENTER			990 	// irrelevant for imu control
 #define PITCH_MAX_ANG			0.75
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0

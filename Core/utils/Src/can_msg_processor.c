@@ -134,15 +134,16 @@ void process_bot_dev_c_can_msg(uint32_t msg_id, const uint8_t* rx_buffer) {
 }
 
 /*
+ * For DJI motors
  * Converts raw CAN data over to the motor_data_t struct
  * 7 bytes of CAN data is sent from the motors:
- * High byte for motor angle data
- * Low byte for motor angle data
- * High byte for RPM
- * Low byte for RPM
- * High byte for Torque
- * Low byte for Torque
- * 1 byte for temperature
+ * 	High byte for motor angle data
+ * 	Low byte for motor angle data
+ * 	High byte for RPM
+ * 	Low byte for RPM
+ * 	High byte for Torque
+ * 	Low byte for Torque
+ * 	1 byte for temperature
  *
  * This function combines the respective high and low bytes into 1 single 16bit integer, then stores them
  * in the struct for the motor.
@@ -174,7 +175,6 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 	//process the angle data differently depending on the motor type to get radians in the
 	//adj_angle value
 
-	//motor must be initialised in motor_config.c first
 	if (curr_motor->motor_type > 0) {
 		switch (curr_motor->motor_type) {
 		case TYPE_DM4310_DJI_MODE: // added DM motor case statement
