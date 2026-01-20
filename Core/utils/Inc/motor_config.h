@@ -6,12 +6,8 @@
  */
 
 
-#ifndef TASKS_INC_MOTOR_CONFIG_H_
-#define TASKS_INC_MOTOR_CONFIG_H_
-
-void config_motors();
-void motor_calib_task(void* argument);
-void CAN_set_motor_output(CAN_TxHeaderTypeDef *CAN_tx_message, uint8_t *data, uint8_t motor_id, uint8_t motor_type, int16_t output);
+#ifndef UTILS_INC_MOTOR_CONFIG_H_
+#define UTILS_INC_MOTOR_CONFIG_H_
 
 #define GM6020_MAX_OUTPUT 	20000
 #define GM6020_MAX_RPM		400
@@ -38,18 +34,18 @@ void CAN_set_motor_output(CAN_TxHeaderTypeDef *CAN_tx_message, uint8_t *data, ui
 #define	TYPE_GM6020 				1
 #define	TYPE_M2006 					2
 #define	TYPE_M3508 					3
-#define	TYPE_M3508_NGEARBOX 		4
+#define	TYPE_M3508_NGEARBOX 		4	// M3508 without gearbox
 #define	TYPE_M3508_STEPS 			5
 #define	TYPE_M2006_STEPS 			6
-#define	TYPE_M2006_ANGLE 			7
-#define	TYPE_M3508_ANGLE 			8
-#define	TYPE_GM6020_720				9
+#define	TYPE_M2006_ANGLE 			7	// M2006 but the motor angle data is recentered and converted to radians
+#define	TYPE_M3508_ANGLE 			8	// M3508 but the motor angle data is recentered and converted to radians
+#define	TYPE_GM6020_720				9	// GM6020 that keep tracks of 2 rounds of rotation (need change firmware to do so)
 #define	TYPE_LK_MG5010E_SPD			10
 #define	TYPE_LK_MG5010E_ANG			11
 #define	TYPE_LK_MG5010E_MULTI_ANG	12
-#define TYPE_DM8009_MIT         	13
-#define TYPE_DM4310_MIT				14
-#define TYPE_DM4310_DJI_MODE		15
+#define TYPE_DM8009_MIT         	13	// DM8009 controlled in MIT mode
+#define TYPE_DM4310_MIT				14	// DM motors controlled in MIT mode
+#define TYPE_DM4310_DJI_MODE		15	// DM motors converted to DJI mode
 
 /* CAN DJI 3508 motor */
 #define CAN_3508_ALL_ID		0x201 // receive CAN data from motors
@@ -71,14 +67,7 @@ void CAN_set_motor_output(CAN_TxHeaderTypeDef *CAN_tx_message, uint8_t *data, ui
 #define CAN_DM_1_TO_4_ID 	0x3FE
 #define CAN_DM_5_TO_8_ID	0x4FE
 
-void motor_calib_task(void *argument);
 void set_motor_config(motor_data_t *motor);
-void config_motors();
-void dm_set_pitch_motor();
-void dm_set_yaw_motor();
-void bz_buzzer(uint8_t high, uint8_t low);
-void motor_temp_bz(uint8_t hi, uint8_t low);
-uint16_t check_motors();
-uint8_t lk_set_pid(motor_data_t *motor, uint32_t timeout);
+void CAN_set_motor_output(CAN_TxHeaderTypeDef *CAN_tx_message, uint8_t *data, uint8_t motor_id, uint8_t motor_type, int16_t output);
 
-#endif /* TASKS_INC_MOTOR_CONFIG_H_ */
+#endif /* UTILS_INC_MOTOR_CONFIG_H_ */

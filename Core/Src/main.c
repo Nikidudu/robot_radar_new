@@ -34,7 +34,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "board_lib.h"
-#include "startup_task.h"
+
+#include "startup.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,7 +117,6 @@ int main(void)
   MX_CRC_Init();
   MX_TIM8_Init();
   /* USER CODE BEGIN 2 */
-  startup_task();
 //  MX_USB_DEVICE_Init();
   HAL_TIM_Base_Start(&htim3); //start micros clock
 //  NVIC_SetPriority(SysTick_IRQn, 15);

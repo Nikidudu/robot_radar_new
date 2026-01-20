@@ -5,8 +5,8 @@
  *      Author: wx
  */
 
-#ifndef TASKS_INC_CONTROL_SBC_H_
-#define TASKS_INC_CONTROL_SBC_H_
+#ifndef UTILS_INC_CONTROL_SBC_H_
+#define UTILS_INC_CONTROL_SBC_H_
 
 void sbc_control_input();
 
@@ -26,4 +26,4 @@ void sbc_control_input();
 //void sbc_chassis_control_input(uint8_t sbc_timeout);
 //void sbc_launcher_control_input(uint8_t timeout);
 
-#endif /* TASKS_INC_CONTROL_SBC_H_ */
+#endif /* UTILS_INC_CONTROL_SBC_H_ */

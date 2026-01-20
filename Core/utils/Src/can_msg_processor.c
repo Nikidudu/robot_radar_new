@@ -5,29 +5,25 @@
  *      Author: Hans Kurnia
  */
 
+/* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
-#include "motor_config.h"
 #include "can_msg_processor.h"
 #include "supercap_comm_task.h"
 #include "chassis_can_message_task.h"
+#include "launcher_control_task.h"
 #include "gimbal_control_task.h"
+#include "motor_config.h"
 
-extern EventGroupHandle_t gimbal_event_group;
-extern EventGroupHandle_t chassis_event_group;
-extern EventGroupHandle_t launcher_event_group;
+/* Private define ------------------------------------------------------------*/
+// low-pass-filters: between 0(no filtering) and 1(frozen value)
+#define SPEED_LPF 0
 
-//where is this number from lmao
-motor_map_t dm_motor_map[15];
-
-extern dm_motor_t dm_pitch_motor;
-extern dm_motor_t dm_yaw_motor;
-
-extern motor_data_t chassis_wheel[4];
-extern motor_data_t flywheel_motor[4];
-extern motor_data_t feeder_motor;
-
-/* Function Prototypes */
-void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer);
+/* Private function prototypes -----------------------------------------------*/
+void parse_can_message(uint32_t std_id, const uint8_t  *RxData, CAN_HandleTypeDef *hcan);
+void process_bot_dev_c_can_msg(uint32_t msg_id, const uint8_t* rx_buffer);
+void convert_raw_can_data(motor_data_t * can_motor_data, uint16_t motor_id, const uint8_t* rx_buffer);
+void angle_offset(raw_data_t *motor_data, angle_data_t *angle_data);
+void motor_calc_odometry(raw_data_t *motor_data, angle_data_t *angle_data, uint32_t feedback_times[]);
 
 /**
  * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING or RxFifo1MsgPendingCallback
@@ -36,7 +32,6 @@ void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer);
 void can_ISR(CAN_HandleTypeDef *hcan) {
 	CAN_RxHeaderTypeDef RxHeader;
 	uint8_t RxData[CAN_BUFFER_SIZE];
-// todo: allow for can definition from config file alone
 	// check which CAN bus received it
 	// required because the 2 can buses use seperate FIFOs for receive
 	// CAN1: FIFO0; CAN2: FIFO1
@@ -45,92 +40,89 @@ void can_ISR(CAN_HandleTypeDef *hcan) {
 		if (can1_get_msg(&RxHeader, RxData) != HAL_OK) {
 			return;
 		}
-
-		switch (RxHeader.StdId) {
-		// information from bottom dev C
-		case DEV_C_BOT_TO_TOP_ID:
-			process_bot_dev_c_can_msg(&RxHeader.StdId, (uint8_t*) RxData);
-			break;
-
-		// feeder motor
-		case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
-			if (FEEDER_MOTOR_CAN == &hcan1) {
-				convert_raw_can_data(&feeder_motor, RxHeader.StdId,
-						(uint8_t*) RxData);
-			}
-			break;
-
-		// pitch motor
-#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
-		case DM_PITCH_MOTOR_ID:
-			if (PITCH_MOTOR_CAN == &hcan1) {
-				dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
-			}
-			break;
-#elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
-		case CAN_DM_ALL_ID + PITCH_MOTOR_ID - 1:
-			if (PITCH_MOTOR_CAN == &hcan1) {
-				convert_raw_can_data(&pitch_motor, RxHeader.StdId,
-						(uint8_t*) RxData);
-			}
-			break;
-#else
-			// for some other non-DM pitch motor
-#endif
-
-		// yaw motor
-#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
-		case DM_YAW_MOTOR_ID:
-			if (YAW_MOTOR_CAN == &hcan1) {
-				dm4310_fbdata(&dm_yaw_motor, &RxData[0]);
-			}
-			break;
-#elif YAW_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
-		case CAN_DM_ALL_ID + YAW_MOTOR_ID - 1:
-			if (YAW_MOTOR_CAN == &hcan1) {
-				convert_raw_can_data(&yaw_motor, RxHeader.StdId,
-						(uint8_t*) RxData);
-			}
-			break;
-#else
-		case CAN_6020_ALL_ID + YAW_MOTOR_ID - 1:
-			if (YAW_MOTOR_CAN == &hcan1) {
-				convert_raw_can_data(&yaw_motor,
-						RxHeader.StdId, (uint8_t*) RxData);
-			}
-			break;
-#endif
-		default:
-
-		}
-	}
-
-	if (hcan->Instance == CAN2) {
+		parse_can_message(RxHeader.StdId, RxData, hcan);
+	} else if (hcan->Instance == CAN2) {
 		if (can2_get_msg(&RxHeader, RxData) != HAL_OK) {
 			return;
 		}
-
-		switch (RxHeader.StdId) {
-		// launcher motors (flywheels)
-		case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID - 1:
-		case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID - 1:
-#ifdef ACTIVE_GUIDANCE
-		//case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID - 1:
-		//case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID - 1:
-#endif
-			if (LAUNCHER_MOTOR_CAN == &hcan2) {
-				convert_raw_can_data(
-						&flywheel_motor[RxHeader.StdId - CAN_3508_ALL_ID],
-						RxHeader.StdId, (uint8_t*) RxData);
-			}
-			break;
-		default:
-
-		}
+		parse_can_message(RxHeader.StdId, RxData, hcan);
 	}
 }
 
-void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer) {
+void parse_can_message(uint32_t std_id,
+                       const uint8_t  *RxData,
+                       CAN_HandleTypeDef *hcan) {
+
+	switch (std_id) {
+	// information from bottom dev C
+	case DEV_C_BOT_TO_TOP_ID:
+		process_bot_dev_c_can_msg(std_id, RxData);
+		break;
+
+	// feeder motor
+	case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
+		if (hcan == FEEDER_MOTOR_CAN) {
+			convert_raw_can_data(&feeder_motor, std_id, RxData);
+		}
+		break;
+
+	// pitch motor
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+	case DM_PITCH_MOTOR_ID:
+		if (hcan == PITCH_MOTOR_CAN) {
+			dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
+		}
+		break;
+#elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
+	case CAN_DM_ALL_ID + PITCH_MOTOR_ID - 1:
+		if (hcan == PITCH_MOTOR_CAN) {
+			convert_raw_can_data(&pitch_motor, std_id, RxData);
+		}
+		break;
+#else
+	// for some other non-DM pitch motor
+#endif
+
+	// yaw motor
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+	case DM_YAW_MOTOR_ID:
+		if (hcan == YAW_MOTOR_CAN) {
+			dm4310_fbdata(&dm_yaw_motor, &RxData[0]);
+		}
+		break;
+#elif YAW_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
+	case CAN_DM_ALL_ID + YAW_MOTOR_ID - 1:
+		if (hcan == YAW_MOTOR_CAN) {
+			convert_raw_can_data(&yaw_motor, std_id, RxData);
+		}
+		break;
+#else
+	case CAN_6020_ALL_ID + YAW_MOTOR_ID - 1:
+		if (hcan == YAW_MOTOR_CAN) {
+			convert_raw_can_data(&yaw_motor, std_id, RxData);
+		}
+		break;
+#endif
+
+	// launcher motors (flywheels)
+	case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID - 1:
+	case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID - 1:
+#ifdef ACTIVE_GUIDANCE
+	//case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID - 1:
+	//case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID - 1:
+#endif
+		if (hcan == LAUNCHER_MOTOR_CAN) {
+			convert_raw_can_data(
+					&flywheel_motor[std_id - CAN_3508_ALL_ID], std_id, RxData);
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void process_bot_dev_c_can_msg(uint32_t msg_id, const uint8_t* rx_buffer) {
     supercap.charging_state = rx_buffer[0];
 
     if (supercap.charging_state < SUPERCAP_DISABLE_THRESHOLD) {
@@ -142,15 +134,16 @@ void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer) {
 }
 
 /*
+ * For DJI motors
  * Converts raw CAN data over to the motor_data_t struct
  * 7 bytes of CAN data is sent from the motors:
- * High byte for motor angle data
- * Low byte for motor angle data
- * High byte for RPM
- * Low byte for RPM
- * High byte for Torque
- * Low byte for Torque
- * 1 byte for temperature
+ * 	High byte for motor angle data
+ * 	Low byte for motor angle data
+ * 	High byte for RPM
+ * 	Low byte for RPM
+ * 	High byte for Torque
+ * 	Low byte for Torque
+ * 	1 byte for temperature
  *
  * This function combines the respective high and low bytes into 1 single 16bit integer, then stores them
  * in the struct for the motor.
@@ -158,7 +151,7 @@ void process_bot_dev_c_can_msg(uint32_t* msg_id, uint8_t* rx_buffer) {
  * For GM6020 motors, it recenters the motor angle data and converts it to radians.
  */
 void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
-		uint8_t *rx_buffer) {
+		const uint8_t *rx_buffer) {
 
 	motor_data_t *curr_motor = can_motor_data;
 	//convert the raw data back into the respective values
@@ -182,7 +175,6 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 	//process the angle data differently depending on the motor type to get radians in the
 	//adj_angle value
 
-	//motor must be initialised in motor_config.c first
 	if (curr_motor->motor_type > 0) {
 		switch (curr_motor->motor_type) {
 		case TYPE_DM4310_DJI_MODE: // added DM motor case statement
@@ -208,7 +200,6 @@ void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
 			break;
 		default:
 			break;
-
 		}
 	}
 }

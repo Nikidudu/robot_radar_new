@@ -13,6 +13,7 @@
 #define SCALE 1000.0f
 
 extern supercap_data supercap;
+
 void chassis_can_message_task(void *argument);
 
 #endif /* TASKS_INC_CHASSIS_CAN_MESSAGE_TASK_H_ */

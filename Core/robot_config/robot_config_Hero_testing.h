@@ -8,10 +8,10 @@
 #ifndef ROBOT_CONFIG_ROBOT_CONFIG_HERO_TEST_H_
 #define ROBOT_CONFIG_ROBOT_CONFIG_HERO_TEST_H_
 
-#include "motor_config.h"
 #include "hud_hero.h"
+#include "motor_config.h"
+
 #define BULLET_42
-#define NEW_HERO_2026
 #define HAS_SBC
 //#define ANGLE_FEEDER //update hero to single shot w angle_feeder definition some day
 
@@ -29,9 +29,9 @@
 #define IMU_ROLL_INVERT		1
 //#define IST8310
 #define REF_POWER_LIM
-#define G_X_OFFSET			-7 // todo: should these be set to 0?? is this the cause of our imu drift?
-#define G_Y_OFFSET 			-16
-#define G_Z_OFFSET	 		5
+//#define G_X_OFFSET			-7 // todo: should these be set to 0?? is this the cause of our imu drift?
+//#define G_Y_OFFSET 			-16
+//#define G_Z_OFFSET	 		5
 #define ZERO_ROLL
 
 /********************* CONTROL SENSITIVITIES ***********/
@@ -96,11 +96,11 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_SPEED				300//1200//800//480//480
-#define	PROJECTILE_SPEED			16.5//`b0//18//20//12      //19 gives projectiles speed of 28-29m/s
+#define FEEDER_SPEED			300
+#define	PROJECTILE_SPEED		16.5	//19 gives projectiles speed of 28-29m/s
 
-#define PROJECTILE_SPEED_RATIO	375//340//355//360				//rpm per m/s of the friction wheels ish don't think this will work well lmao
-#define FEEDER_SPEED_RATIO		5								//projectiles per round of the feeder
+#define PROJECTILE_SPEED_RATIO	375			//rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define FEEDER_SPEED_RATIO		5			//projectiles per round of the feeder
 
 // prevents pilots from overheating when firing
 #define OVERHEAT_PROTECTION
@@ -108,12 +108,12 @@
 #define OVERHEAT_EXCESS 	1
 #define OVERHEAT_OFFSET		40
 
+#define FEEDER_MOTOR_TYPE	TYPE_M3508
 // FEEDER PID VALUES
 #define FEEDER_KP 			5
 #define FEEDER_KI  			0.01
 #define FEEDER_KD  			3
 #define FEEDER_MAX_INT		10000
-
 // FEEDER_ANGLE PID VALUES
 #define FEEDER_ANGLE_KP 		200
 #define FEEDER_ANGLE_KD  		0
@@ -121,8 +121,8 @@
 #define FEEDER_ANGLE_INT_MAX  	0
 #define FEEDER_MAX_RPM			200
 
-#define FEEDER_JAM_TORQUE  		9800			// Before feeder deemed to be jammed
-#define FEEDER_JAM_RPM			100				// if feeeder is below this rpm, it is jammed
+#define FEEDER_JAM_TORQUE  		9800		// Before feeder deemed to be jammed
+#define FEEDER_JAM_RPM			100			// if feeeder is below this rpm, it is jammed
 #define FEEDER_UNJAM_SPD  		20			// Reverse unjam
 #define FEEDER_UNJAM_TIME		5000000
 #define FEEDER_MAX_CURRENT		16000
@@ -283,16 +283,16 @@
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 
-#define PITCH_ANGLE_KP	  		80
+#define PITCH_ANGLE_KP	  		1
 #define PITCH_ANGLE_KI  		0
-#define PITCH_ANGLE_KD  		5
+#define PITCH_ANGLE_KD  		0
 #define PITCH_ANGLE_INT_MAX		0
 
 #define PITCH_MAX_RPM			60
 
-#define PITCHRPM_KP				0.8
+#define PITCHRPM_KP				1
 #define PITCHRPM_KI				0
-#define PITCHRPM_KD				0.135
+#define PITCHRPM_KD				0
 #define PITCHRPM_INT_MAX		4000
 #define PITCH_MAX_CURRENT		205000
 
@@ -313,9 +313,9 @@
 
 #endif
 
-#define PITCH_CENTER			-2713
-#define PITCH_MAX_ANG			0.6
-#define PITCH_MIN_ANG			-2.2
+#define PITCH_CENTER			5010
+#define PITCH_MAX_ANG			3.14
+#define PITCH_MIN_ANG			-3.14
 #define PITCH_CONST 			0
 
 #define YAW_MOTOR_TYPE			TYPE_DM4310_DJI_MODE

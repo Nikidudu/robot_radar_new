@@ -8,28 +8,24 @@
 /* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
 #include "launcher_control_task.h"
-#include "motor_control.h"
 #include "control_input_task.h"
-
-/* Private typedef -----------------------------------------------------------*/
+#include "motor_control.h"
+#include "motor_config.h"
 
 /* Private define ------------------------------------------------------------*/
-#define BULLET_17_HEAT 10
-#define BULLET_42_HEAT 100
-
-/* Private macro -------------------------------------------------------------*/
+#define BULLET_17_HEAT 10U
+#define BULLET_42_HEAT 100U
 
 /* Private variables ---------------------------------------------------------*/
+static enum launcher_state_e flywheel_state;
+
+/* External variables --------------------------------------------------------*/
 motor_data_t flywheel_motor[4]; // 4 friction wheels max
 motor_data_t feeder_motor;
-
-enum launcher_state_e flywheel_state;
 enum feeder_state_e feeder_state;
 
-/* From other tasks (extern) */
+/* Exported variables -------------------------------------------------------*/
 extern uint8_t projectile_loaded;
-// remote/keyboard data
-extern uint8_t g_safety_toggle;
 // referee system data
 extern ref_game_state_t ref_game_state;
 extern ref_game_robot_data_t ref_robot_data;
@@ -39,11 +35,20 @@ extern uint32_t ref_power_data_txno;
 static uint32_t prev_power_data_no = 0;
 
 /* Private function prototypes -----------------------------------------------*/
-void launcher_init();
-void send_flywheel_current_to_motor();
-void send_feeder_current_to_motor();
-/* Private user code ---------------------------------------------------------*/
+static void launcher_init();
+static void send_flywheel_current_to_motor();
+static void send_feeder_current_to_motor();
+static uint16_t check_overheat();
 
+static void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel);
+static void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
+static void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
+
+static void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel);
+static void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel,
+		motor_data_t *g_flywheel, motor_data_t *feeder);
+
+/* Private user code ---------------------------------------------------------*/
 void launcher_control_task(void *argument) {
 	TickType_t launcher_ctrl_time;
 	launcher_init();
@@ -189,7 +194,7 @@ void launcher_init() {
 }
 
 
-void send_flywheel_current_to_motor() {
+static void send_flywheel_current_to_motor() {
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
@@ -197,34 +202,23 @@ void send_flywheel_current_to_motor() {
 	CAN_tx_message.RTR = CAN_RTR_DATA;
 	CAN_tx_message.DLC = 0x08;
 
+	// Clear entire packet first
+	memset(CAN_send_data, 0, 8);
+
 	// send to friction wheels
 	CAN_tx_message.StdId = CAN_3508_1_TO_4_ID;
-	if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN){
-		CAN_send_data[0] = 0;
-		CAN_send_data[1] = 0;
-		CAN_send_data[2] = 0;
-		CAN_send_data[3] = 0;
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
-	} else {
-		CAN_send_data[0] = (flywheel_motor[0].output >> 8) & 0xFF;
-		CAN_send_data[1] = (flywheel_motor[0].output) & 0xFF;
-		CAN_send_data[2] = (flywheel_motor[1].output >> 8) & 0xFF;
-		CAN_send_data[3] = (flywheel_motor[1].output) & 0xFF;
+
+	CAN_send_data[0] = (flywheel_motor[0].output >> 8) & 0xFF;
+	CAN_send_data[1] = (flywheel_motor[0].output) & 0xFF;
+	CAN_send_data[2] = (flywheel_motor[1].output >> 8) & 0xFF;
+	CAN_send_data[3] = (flywheel_motor[1].output) & 0xFF;
 #ifdef ACTIVE_GUIDANCE
-		CAN_send_data[4] = (flywheel_motor[2].output >> 8) & 0xFF;
-		CAN_send_data[5] = (flywheel_motor[2].output) & 0xFF;
-		CAN_send_data[6] = (flywheel_motor[3].output >> 8) & 0xFF;
-		CAN_send_data[7] = (flywheel_motor[3].output) & 0xFF;
-#else
-		CAN_send_data[4] = 0;
-		CAN_send_data[5] = 0;
-		CAN_send_data[6] = 0;
-		CAN_send_data[7] = 0;
+	CAN_send_data[4] = (flywheel_motor[2].output >> 8) & 0xFF;
+	CAN_send_data[5] = (flywheel_motor[2].output) & 0xFF;
+	CAN_send_data[6] = (flywheel_motor[3].output >> 8) & 0xFF;
+	CAN_send_data[7] = (flywheel_motor[3].output) & 0xFF;
 #endif
-	}
+
 	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 			send_mail_box);
 }
@@ -237,11 +231,9 @@ void send_feeder_current_to_motor() {
 	memset(CAN_send_data, 0, 8);
 
 	// fill data packet with feeder data
-	if (!(g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN)) {
-	    CAN_set_motor_output(&CAN_tx_message, CAN_send_data, FEEDER_MOTOR_ID, feeder_motor.motor_type, feeder_motor.output);
-	}
+	CAN_set_motor_output(&CAN_tx_message, CAN_send_data, FEEDER_MOTOR_ID, feeder_motor.motor_type, feeder_motor.output);
 
-	  HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
+	HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 	      send_mail_box);
 }
 
@@ -249,13 +241,13 @@ uint16_t check_overheat() {
 
 #ifdef OVERHEAT_PROTECTION
 	int32_t ammo_remaining;
-	static uint32_t last_time;
 	if (ref_robot_data.robot_id == 0) {
 		//referee system not connected
 		return 10;
 	}
 
 #ifdef BULLET_17
+	static uint32_t last_time;
 	uint8_t active_feeder = 2;
 	//else active_feeder == 2, for both heat0 and heat 1 launchers
 

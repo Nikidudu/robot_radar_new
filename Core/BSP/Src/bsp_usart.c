@@ -7,13 +7,12 @@
 
 #include <stdbool.h>
 #include "board_lib.h"
-#include "bsp_usart.h"
+#include "master_task.h"
 
 /* From other tasks (extern) */
 extern queue_t *ref_UART_queue;
 extern uint8_t ref_dma_buf[REF_DMA_BUF_SIZE];
 extern uint8_t remote_raw_data[REMOTE_DATA_SIZE];
-extern TaskHandle_t referee_processing_task_handle;
 
 /* Private user code ---------------------------------------------------------*/
 

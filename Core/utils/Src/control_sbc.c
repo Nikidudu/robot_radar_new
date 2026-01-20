@@ -19,6 +19,8 @@ extern uint8_t g_safety_toggle;
 #define FILTER_ALPHA 	0.35f  // 0.0 = no filter, 0.5 = moderate smoothing
 
 void sbc_gimbal_input();
+void sbc_chassis_input();
+void sbc_launcher_control_input();
 
 void sbc_control_input() {
 	sbc_gimbal_input();
@@ -36,7 +38,7 @@ void sbc_gimbal_input() {
     const float YAW_KP = -1.8f;  // Lowered slightly to reduce initial vibration
     const float YAW_KD = -0.15f; // The "Brake" (Derivative gain)
 
-    if (g_safety_toggle || g_remote_cmd.sw == SW_SHUTDOWN) {
+    if (g_remote_cmd.sw == SW_SHUTDOWN) {
         gimbal_ctrl_data.enabled = 0;
         last_yaw_err = 0;
     } else {
@@ -87,8 +89,12 @@ void sbc_launcher_control_input() {
 
 
 void sbc_chassis_input() {
-    if (g_safety_toggle || !gv_usb_connected) {
-        chassis_kill_ctrl();
+    if (!gv_usb_connected) {
+    	chassis_ctrl_data.enabled = 0;
+    	chassis_ctrl_data.forward = 0;
+    	chassis_ctrl_data.horizontal = 0;
+    	chassis_ctrl_data.yaw = 0;
+    	chassis_ctrl_data.g_spinspin_mode = 0;
         return;
     }
 
@@ -106,7 +112,6 @@ void sbc_chassis_input() {
     float forward_input = g_nav_cmd.vx/5;
     // float yaw_input;
     float yaw_input = g_nav_cmd.vz; //chassis_center_yaw();//g_nav_cmd.vz;
-
 
     chassis_set_ctrl(forward_input, horizontal_input, yaw_input );
 }

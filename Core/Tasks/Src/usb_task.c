@@ -221,6 +221,9 @@ void UsbParserTask(void *argument)
             state = STATE_WAIT_MAGIC;
         }
     }
+
+    //should not run here
+	osThreadTerminate(NULL);
 }
 
 void USB_Send_HP(uint16_t hp)

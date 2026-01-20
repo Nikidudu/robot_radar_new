@@ -13,6 +13,7 @@
 #include "supercap_comm_task.h"
 #include "control_input_task.h"
 #include "gimbal_control_task.h"
+#include "launcher_control_task.h"
 
 static uint16_t g_client_id = 0;
 extern ref_game_robot_data_t ref_robot_data;
@@ -26,7 +27,6 @@ static uint32_t spin_coords = 0;
 static uint32_t aimbot_coords = 0;
 static uint32_t supercap_coords = 0;
 
-extern enum feeder_state_e feeder_state;
 int prev_feeder_state;
 extern float rel_pitch_angle;
 int feeder_state_enabled = 0;

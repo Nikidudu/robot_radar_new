@@ -5,6 +5,7 @@
  *      Author: cw
  */
 #include "bsp_microswitch.h"
+
 uint8_t projectile_loaded;
 uint8_t gimbal_upper_bound;
 uint8_t gimbal_lower_bound;

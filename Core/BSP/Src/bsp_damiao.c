@@ -11,7 +11,59 @@ extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;
 extern motor_data_t pitch_motor;
 extern motor_data_t yaw_motor;
-extern EventGroupHandle_t gimbal_event_group;
+
+void dm_set_pitch_motor() {
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+	memset(&dm_pitch_motor, 0, sizeof(dm_pitch_motor));
+	dm_pitch_motor.id = PITCH_MOTOR_ID;
+	dm_pitch_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
+	dm4310_enable(PITCH_MOTOR_CAN, &dm_pitch_motor);
+
+	dm_pitch_motor.angle_pid.kp = DM_PITCH_KP;
+	dm_pitch_motor.angle_pid.ki = DM_PITCH_KI;
+	dm_pitch_motor.angle_pid.kd = DM_PITCH_KD;
+	dm_pitch_motor.angle_pid.int_max = DM_PITCH_INT_MAX;
+	dm_pitch_motor.angle_pid.max_out = DM_PITCH_MAX_OUT;
+
+	dm_pitch_motor.cmd.kp_set = DM_PITCH_MIT_KP;
+	dm_pitch_motor.cmd.kd_set = DM_PITCH_MIT_KD;
+	dm_pitch_motor.cmd.pos_set = DM_PITCH_MIT_POS;
+	dm_pitch_motor.cmd.vel_set = DM_PITCH_MIT_VEL;
+	dm_pitch_motor.cmd.tor_set = DM_PITCH_MIT_TOR;
+
+	dm_pitch_motor.angle_data.center_ang = PITCH_CENTER;
+	dm_pitch_motor.angle_data.phy_max_ang = PITCH_MAX_ANG;
+	dm_pitch_motor.angle_data.phy_min_ang = PITCH_MIN_ANG;
+#endif
+}
+
+void dm_set_yaw_motor() {
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+  	memset(&dm_yaw_motor, 0, sizeof(dm_yaw_motor));
+  	dm_yaw_motor.id = YAW_MOTOR_ID;
+  	dm_yaw_motor.ctrl.mode = 0; // 0 - MIT, 1 - Position, 2 - Speed
+  	dm4310_enable(YAW_MOTOR_CAN_PTR, &dm_yaw_motor);
+
+//    PID_Init(&gimbal_pid_yaw, DM_YAW_MIT_KP, DM_YAW_MIT_KI, DM_YAW_MIT_KD,
+//    		DM_YAW_MIT_INT_MAX, DM_YAW_MIT_MAX_OUT);
+
+    dm_yaw_motor.angle_pid.kp = DM_YAW_KP;
+    dm_yaw_motor.angle_pid.ki = DM_YAW_KI;
+    dm_yaw_motor.angle_pid.kd = DM_YAW_KD;
+    dm_yaw_motor.angle_pid.int_max = DM_YAW_INT_MAX;
+    dm_yaw_motor.angle_pid.max_out = DM_YAW_MAX_OUT;
+
+    dm_yaw_motor.cmd.kp_set = DM_YAW_MIT_KP;
+    dm_yaw_motor.cmd.kd_set = DM_YAW_MIT_KD;
+    dm_yaw_motor.cmd.pos_set = DM_YAW_MIT_POS;
+    dm_yaw_motor.cmd.vel_set = DM_YAW_MIT_VEL;
+    dm_yaw_motor.cmd.tor_set = DM_YAW_MIT_TOR;
+
+    dm_yaw_motor.angle_data.center_ang = YAW_CENTER;
+    dm_yaw_motor.angle_data.phy_max_ang = YAW_MAX_ANG;
+    dm_yaw_motor.angle_data.phy_min_ang = YAW_MIN_ANG;
+#endif
+}
 
 void dm4310_motor_init(void)
 {
@@ -218,12 +270,8 @@ void dm4310_fbdata(dm_motor_t *motor, uint8_t *rx_data)
 
     // Map feedback data based on motor ID
     if (motor->id == dm_yaw_motor.id) {
-		xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b10,
-				&xHigherPriorityTaskWoken);
         dmmapyawfbdata(motor);
     } else if (motor->id == dm_pitch_motor.id) {
-		xResult = xEventGroupSetBitsFromISR(gimbal_event_group, 0b01,
-				&xHigherPriorityTaskWoken);
         dmmappitchfbdata(motor);
     }
 }

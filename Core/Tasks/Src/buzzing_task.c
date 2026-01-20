@@ -6,7 +6,8 @@
  */
 #include "board_lib.h"
 #include "buzzing_task.h"
-#include "typedefs.h"
+#include "master_task.h"
+
 #define BUZZER_HIGH 880
 #define BUZZER_LOW	440
 #define DEBUG_LOW_FREQ 		370
@@ -16,7 +17,6 @@
 #define DEBUG_HI_TEMP3		NOTE_CS6
 #define BUZZ_TIME 70
 #define GAP_TIME 50
-extern TaskHandle_t buzzing_task_handle;
 extern QueueHandle_t g_buzzing_task_msg;
 
 //Never gonna give you up~

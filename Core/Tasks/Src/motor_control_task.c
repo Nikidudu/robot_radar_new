@@ -6,20 +6,16 @@
  */
 
 #include "board_lib.h"
-#include "robot_config.h"
 #include "can_msg_processor.h"
 #include "motor_control.h"
 #include "motor_control_task.h"
 #include "motor_config.h"
-#include "bsp_lk_motor.h"
+#include "control_input_task.h"
 
 extern motor_map_t dji_motor_map[25];
 extern QueueHandle_t g_buzzing_task_msg;
-extern remote_cmd_t g_remote_cmd;
 
-extern uint8_t g_safety_toggle;
 volatile uint32_t g_motor_control_time;
-extern motor_data_t pitch_motor;
 
 extern dm_motor_t dm_pitch_motor;
 extern dm_motor_t dm_yaw_motor;

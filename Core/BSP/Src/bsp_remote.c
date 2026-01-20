@@ -8,8 +8,8 @@
 /* Private includes ----------------------------------------------------------*/
 #include <stdbool.h>
 #include "board_lib.h"
-#include "robot_config.h"
 #include "bsp_remote.h"
+#include "master_task.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -60,9 +60,6 @@ static const uint16_t crc16_tab[256] =
 
 remote_cmd_t g_remote_cmd = { 0 };
 uint8_t remote_raw_data[REMOTE_DATA_SIZE] = {0};
-
-/* External variables --------------------------------------------------------*/
-extern TaskHandle_t control_input_task_handle;
 
 /* Private function prototypes -----------------------------------------------*/
 static uint16_t get_crc16_check_sum(uint8_t *p_msg, uint16_t len, uint16_t crc16);

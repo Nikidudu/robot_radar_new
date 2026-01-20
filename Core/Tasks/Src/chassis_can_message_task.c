@@ -5,37 +5,41 @@
  *      Author: zhan-hao
  */
 
+/* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
-#include "can_msg_processor.h"
 #include "chassis_can_message_task.h"
 #include "gimbal_control_task.h"
+#include "control_input_task.h"
+#include "can_msg_processor.h"
 
-// CAN message IDs
-#define CHASSIS_HB_ID 	  0x119
-// CAN transmission period
-#define CAN_TX_PERIOD_MS 5
+/* Private define ------------------------------------------------------------*/
+#define CAN_TX_PERIOD_MS 5 // CAN transmission period
 
-// Global Variables
-extern chassis_control_t chassis_ctrl_data;
-extern ref_game_robot_data_t ref_robot_data;
-
-// Function Declarations
-void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
-float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
-int16_t pack_value(float x);
-
-//Global Variables (only in this file)
+/* Private variables ---------------------------------------------------------*/
 static float lvl_max_speed;
 static float lvl_max_accel;
 static float lvl_max_spin;
 static float spin_accel = SPIN_ACCELERATION;
-uint8_t tx_buffer[8];
 
+float rel_forward;
+float rel_horizontal;
+float rel_yaw;
+
+/* External variables --------------------------------------------------------*/
 supercap_data supercap;
+
+/* Exported variables -------------------------------------------------------*/
+extern ref_game_robot_data_t ref_robot_data;
+
+/* Private function prototypes -----------------------------------------------*/
+void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
+float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
+int16_t pack_value(float x);
 
 void chassis_can_message_task(void *argument) {
     CAN_TxHeaderTypeDef tx_header;
     uint32_t tx_mailbox;
+    uint8_t tx_buffer[8];
     TickType_t xLastWakeTime;
 
     // Configure CAN TX header
@@ -57,7 +61,7 @@ void chassis_can_message_task(void *argument) {
 
     while(1) {
 
-    	float rel_angle = -yaw_motor.angle_data.adj_ang;
+    	float rel_angle = yaw_motor.angle_data.adj_ang;
 
     	// Setting translational and rotational speed and acceleration base on robot level
     	level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
@@ -84,15 +88,11 @@ void chassis_can_message_task(void *argument) {
     	act_yaw = rpm_ramp(limit_yaw, act_yaw, &spin_accel);
 
     	// translation and rotation speed of chassis for chassis yaw angle relative to gimbal
-    	float rel_forward = ((-act_horizontal * sin(-rel_angle))
-    			+ (act_forward * cos(-rel_angle)));
-    	float rel_horizontal = -((-act_horizontal * cos(-rel_angle))
-    			+ (act_forward * -sin(-rel_angle)));
-    	float rel_yaw = act_yaw;
-
-//    	float rel_forward = act_forward;
-//    	float rel_horizontal = act_horizontal;
-//    	float rel_yaw = act_yaw;
+    	rel_forward = (act_forward * cos(rel_angle))
+    			- (act_horizontal * sin(rel_angle));
+    	rel_horizontal = (act_forward * sin(rel_angle))
+    			+ (act_horizontal * cos(rel_angle));
+    	rel_yaw = act_yaw;
 
     	// convert from float to int16_t
     	int16_t send_forward = pack_value(rel_forward);

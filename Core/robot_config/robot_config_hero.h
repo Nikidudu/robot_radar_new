@@ -8,8 +8,9 @@
 #ifndef ROBOT_CONFIG_ROBOT_CONFIG_HERO_H_
 #define ROBOT_CONFIG_ROBOT_CONFIG_HERO_H_
 
-#include "motor_config.h"
 #include "hud_roburt.h"
+
+#include "motor_config.h"
 #define BULLET_42
 
 #define OVERHEAT_PROTECTION
