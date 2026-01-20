@@ -14,9 +14,12 @@
 #define USB_MAGIC_BYTE      0xAA
 #define USB_MAX_PAYLOAD_SIZE 240
 
+
 /* Packet Types */
 #define USB_PKT_AIMBOT      0xA1    // Gimbal aim + fire command (yaw, pitch, fire)
 #define USB_PKT_NAV         0xA2    // Chassis navigation: vx, vy, vz (3 x float)
+#define USB_PKT_HP_DATA		0xA3
+
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Global Command Structures (accessible from other tasks) */
@@ -33,10 +36,12 @@ extern aimbot_command_t g_aimbot_cmd;
 
 /* Navigation/Chassis velocity command received over USB */
 typedef struct {
-    float vx;       // forward/backward velocity (m/s or raw units)
-    float vy;       // left/right velocity
-    float vz;       // angular velocity (often omega, in rad/s)
+    float vx;
+    float vy;
+    float vz;
+    uint32_t last_update;  // ADD THIS
 } nav_command_t;
+
 
 extern nav_command_t g_nav_cmd;
 

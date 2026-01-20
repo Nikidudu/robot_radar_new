@@ -8,7 +8,10 @@
 #include "board_lib.h"
 #include "referee_processing_task.h"
 #include "referee_msgs.h"
-#include "master_task.h"
+#include "robot_config.h"
+#include "rtos_g_vars.h"
+#include "usb_task.h"
+
 
 static ref_msg_t g_ref_msg_buffer;
 
@@ -86,6 +89,7 @@ void referee_processing_task(void *argument) {
 						memcpy(&ref_robot_data, &g_ref_msg_buffer.data,
 								sizeof(ref_game_robot_data2_t));
 						// Send when the current HP changes
+						//USB_Send_HP(ref_robot_data.current_HP);
 						ref_robot_data_txno++;
 						break;
 					case REF_ROBOT_POS_DATA_CMD_ID:

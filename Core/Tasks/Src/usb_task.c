@@ -87,11 +87,11 @@ static void usb_handle_packet(uint8_t type, const uint8_t *payload, uint16_t len
             break;
 
         case USB_PKT_NAV:
-            if (len == 12)  // vx, vy, vz
-            {
+            if (len == 12) {
                 memcpy(&g_nav_cmd.vx, payload + 0, 4);
                 memcpy(&g_nav_cmd.vy, payload + 4, 4);
                 memcpy(&g_nav_cmd.vz, payload + 8, 4);
+                g_nav_cmd.last_update = HAL_GetTick();  // ADD THIS LINE
             }
             break;
 
@@ -225,6 +225,29 @@ void UsbParserTask(void *argument)
     //should not run here
 	osThreadTerminate(NULL);
 }
+
+void USB_Send_HP(uint16_t hp)
+{
+    // Protocol: [Magic(1)] [Len_LSB(1)] [Len_MSB(1)] [Type(1)] [Payload(N)] [CRC_LSB(1)] [CRC_MSB(1)]
+    uint16_t payload_len = 2;
+    uint8_t tx_buf[4 + 2 + 2]; // Header(4) + Payload(2) + CRC(2) = 8 bytes
+
+    tx_buf[0] = USB_MAGIC_BYTE;
+    tx_buf[1] = payload_len & 0xFF;
+    tx_buf[2] = (payload_len >> 8) & 0xFF;
+    tx_buf[3] = USB_PKT_HP_DATA;
+
+    tx_buf[4] = hp & 0xFF;
+    tx_buf[5] = (hp >> 8) & 0xFF;
+
+    uint16_t crc = crc16(tx_buf, 4 + payload_len);
+
+    tx_buf[6] = crc & 0xFF;
+    tx_buf[7] = (crc >> 8) & 0xFF;
+
+    CDC_Transmit_FS(tx_buf, sizeof(tx_buf));
+}
+
 
 
 /* ────────────────────────────────────────────────────────────────────────── */
