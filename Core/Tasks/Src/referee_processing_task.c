@@ -9,9 +9,7 @@
 #include "referee_processing_task.h"
 #include "referee_msgs.h"
 #include "robot_config.h"
-#include "rtos_g_vars.h"
 #include "usb_task.h"
-
 
 static ref_msg_t g_ref_msg_buffer;
 
