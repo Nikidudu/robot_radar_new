@@ -216,7 +216,7 @@ void dm4310_motor_init(void)
   	motor[Motor2].ctrl.tor_set = 0.0f;
 
   	// Configure Motor3 (Right Joint 2)
-  	motor[Motor3].id = 0x83;
+  	motor[Motor3].id = 0x03;
   	motor[Motor3].ctrl.mode = 0;		// MIT mode for precise torque control
   	motor[Motor3].ctrl.tor_set = 0.0f;
 
