@@ -1,4 +1,0 @@
-../Core/Tasks/Src/launcher_control_task.c:50:6:launcher_control_task	32	static
-../Core/Tasks/Src/launcher_control_task.c:86:10:check_overheat	24	static
-../Core/Tasks/Src/launcher_control_task.c:172:6:flywheel_control	40	static
-../Core/Tasks/Src/launcher_control_task.c:249:6:launcher_control	48	static

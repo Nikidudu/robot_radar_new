@@ -1,3 +1,0 @@
-../Core/Tasks/Src/PID.c:22:6:PID_Init	32	static
-../Core/Tasks/Src/PID.c:32:7:PID_Compute	48	static
-../Core/Tasks/Src/PID.c:52:6:PID_CascadeCalc	32	static

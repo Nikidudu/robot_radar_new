@@ -1,9 +1,0 @@
-../Core/BSP/Src/bsp_dwt.c:41:13:DWT_CNT_Update	16	static
-../Core/BSP/Src/bsp_dwt.c:60:6:DWT_Init	16	static
-../Core/BSP/Src/bsp_dwt.c:79:7:DWT_GetDeltaT	24	static
-../Core/BSP/Src/bsp_dwt.c:90:8:DWT_GetDeltaT64	40	static
-../Core/BSP/Src/bsp_dwt.c:101:6:DWT_SysTimeUpdate	128	static
-../Core/BSP/Src/bsp_dwt.c:117:7:DWT_GetTimeline_s	16	static
-../Core/BSP/Src/bsp_dwt.c:126:7:DWT_GetTimeline_ms	16	static
-../Core/BSP/Src/bsp_dwt.c:135:10:DWT_GetTimeline_us	24	static
-../Core/BSP/Src/bsp_dwt.c:144:6:DWT_Delay	24	static

@@ -51,12 +51,12 @@ void launcher_control_task(void *argument) {
 	TickType_t launcher_ctrl_time;
 	while (1) {
 		//event flags!
-		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE,
-		portMAX_DELAY);
+//		xEventGroupWaitBits(launcher_event_group, 0b111, pdTRUE, pdTRUE,
+//		portMAX_DELAY);
 		status_led(4, on_led);
 		launcher_ctrl_time = xTaskGetTickCount();
 
-		if (launcher_ctrl_data.enabled) {
+		if (1) {
 			flywheel_control(g_can_motors + LFRICTION_MOTOR_ID - 1,
 					g_can_motors + RFRICTION_MOTOR_ID - 1);
 #ifdef ANGLE_FEEDER
@@ -264,9 +264,10 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 	/**
 	 * Finite state machine for feeder
 	 */
+	feeder_state = FEEDER_FIRING;
 	switch (feeder_state) {
 	case FEEDER_STANDBY:
-		if (launcher_ctrl_data.firing != 0) {
+		if (launcher_ctrl_data.firing == 0) {
 			feeder_state = FEEDER_SPINUP;
 		}
 		break;
@@ -334,6 +335,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 		feeder_state = FEEDER_STANDBY;
 	}
 
+	feeder_state = FEEDER_FIRING;
 	switch (feeder_state) {
 	case FEEDER_STANDBY:
 	case FEEDER_SPINUP:

@@ -1,4 +1,0 @@
-../Core/Tasks/Src/control_remote.c:26:6:remote_control_input	8	static
-../Core/Tasks/Src/control_remote.c:33:6:remote_chassis_input	24	static
-../Core/Tasks/Src/control_remote.c:63:6:remote_gimbal_input	16	static
-../Core/Tasks/Src/control_remote.c:77:6:remote_launcher_control_input	4	static

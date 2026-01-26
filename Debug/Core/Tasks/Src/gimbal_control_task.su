@@ -1,5 +1,0 @@
-../Core/Tasks/Src/gimbal_control_task.c:51:7:calc_chassis_rot	24	static
-../Core/Tasks/Src/gimbal_control_task.c:62:9:check_yaw	8	static
-../Core/Tasks/Src/gimbal_control_task.c:76:6:gimbal_control_task	32	static
-../Core/Tasks/Src/gimbal_control_task.c:130:6:gimbal_control	56	static
-../Core/Tasks/Src/gimbal_control_task.c:255:6:gimbal_angle_control	24	static

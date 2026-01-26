@@ -256,6 +256,9 @@ void motor_control_task(void *argument) {
 		}
 
 
+
+
+
 #if PITCH_MOTOR_TYPE >= TYPE_LK_MG5010E_SPD
 		lk_read_motor_sang(&g_pitch_motor);
 #endif

@@ -1,3 +1,0 @@
-../Core/Tasks/Src/observe_task.c:63:7:Observe_task	24	static
-../Core/Tasks/Src/observe_task.c:101:6:xvEstimateKF_Init	16	static
-../Core/Tasks/Src/observe_task.c:120:6:xvEstimateKF_Update	32	static

@@ -1,3 +1,0 @@
-../Core/Tasks/Src/movement_control_task.c:71:6:movement_control_task	2
-../Core/Tasks/Src/movement_control_task.c:140:6:chassis_MCU_send_CAN	1
-../Core/Tasks/Src/movement_control_task.c:154:6:chassis_motion_control	15

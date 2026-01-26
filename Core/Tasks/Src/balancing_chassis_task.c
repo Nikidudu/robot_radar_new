@@ -553,7 +553,7 @@ void balancing_chassis_task(void *argument) {
         
         switch (chassis_state) {
             case 0: // Robot die
-                kill_chassis();
+//                kill_chassis();
                 jump_state = 0;
                 jump_time_l = 0;
                 jump_time_r = 0;
