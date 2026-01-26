@@ -11,8 +11,8 @@ extern "C" {
 #define SPEED_MODE		0x200
 #define POSI_MODE		  0x300
 
-#define P_MIN -12.5f
-#define P_MAX 12.5f
+#define P_MIN -3.14f
+#define P_MAX 3.14f
 #define V_MIN -45.0f
 #define V_MAX 45.0f
 #define KP_MIN 0.0f
