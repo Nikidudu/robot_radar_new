@@ -501,7 +501,7 @@ void gimbal_auto_front(){
 }
 
 PID Jan26Test1,Jan26Test2;
-float Jan26Target1 = 2.4, Jan26Target2 = 1;
+float Jan26Target1 = 3.14, Jan26Target2 = 1.57;
 int enable = 1;
 
 void balancing_chassis_task(void *argument) {
@@ -525,8 +525,8 @@ void balancing_chassis_task(void *argument) {
     manual_set_PidInit();
     osDelay(2000);
     
-    PID_Init(&Jan26Test1,3,0.5,1,-3,3);
-    PID_Init(&Jan26Test2,3,0.5,1,-2,2);
+    PID_Init(&Jan26Test1,3,0.5,1,-5,5);
+    PID_Init(&Jan26Test2,3,0.5,1,-5,5);
 
     while (1) {
         robot_ready = robot_check();
@@ -578,14 +578,30 @@ void balancing_chassis_task(void *argument) {
 //                	rightJoint0_tmp -= 6.28;
 //                }
 //                rightJoint0_tmp -= 3.14;
-                PID_Compute(&Jan26Test1, Jan26Target1, rightJoint[0].angle, dt, 0);
-                PID_Compute(&Jan26Test2, Jan26Target2, rightJoint[1].angle, dt, 0);
+
+                // Angle transformation to make the PID always choose the nearest path
+                float cur_right0 = rightJoint[0].angle;
+                if (cur_right0 > Jan26Target1 + 3.14){
+                	cur_right0 -= 2*3.14;
+                }else if(cur_right0 < Jan26Target1 - 3.14){
+                	cur_right0 += 2*3.14;
+                }
+                float cur_right1 = rightJoint[1].angle;
+                if (cur_right1 > Jan26Target2 + 3.14){
+                	cur_right1 -= 2*3.14;
+                }else if(cur_right1 < Jan26Target2 - 3.14){
+                	cur_right1 += 2*3.14;
+                }
+                // Angle transformation ends
+
+                PID_Compute(&Jan26Test1, Jan26Target1, cur_right0, dt, 0);
+                PID_Compute(&Jan26Test2, Jan26Target2, cur_right1, dt, 0);
 //                float rightJoint1_tmp = rightJoint[1].angle > 3.14 ? 6.28 - rightJoint[1].angle : rightJoint[1].angle;
 //                PID_Compute(&Jan26Test2, Jan26Target2, rightJoint1_tmp, dt, 0);
-                if(Jan26Test1.output <= 3.1 && Jan26Test1.output >= -3.1){
+                if(Jan26Test1.output <= 5.1 && Jan26Test1.output >= -5.1){
                     dm_set_tor[1] = -Jan26Test1.output;
                 }
-                if(Jan26Test2.output <= 3.1 && Jan26Test2.output >= -3.1){
+                if(Jan26Test2.output <= 5.1 && Jan26Test2.output >= -5.1){
                     dm_set_tor[2] = -Jan26Test2.output;
                 }
 
