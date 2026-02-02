@@ -367,91 +367,91 @@ void config_motors() {
 	}
 
 	//initialise motor data
-//#ifdef FR_MOTOR_ID
-//	uint8_t motor_id = FR_MOTOR_ID - 1;
-//	g_can_motors[motor_id].id = motor_id+1;
-//	g_can_motors[motor_id].motor_type = TYPE_M3508;
-//	g_can_motors[motor_id].can = FR_MOTOR_CAN_PTR;
-//	g_can_motors[motor_id].angle_data.center_ang = 0;
-//	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
-//	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
-//	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
-//	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
-//	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
-//	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
-//	set_motor_config(&g_can_motors[motor_id]);
-//	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
-//	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
-//#endif
+#ifdef FR_MOTOR_ID
+	uint8_t motor_id = FR_MOTOR_ID - 1;
+	g_can_motors[motor_id].id = motor_id+1;
+	g_can_motors[motor_id].motor_type = TYPE_M3508;
+	g_can_motors[motor_id].can = FR_MOTOR_CAN_PTR;
+	g_can_motors[motor_id].angle_data.center_ang = 0;
+	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
+	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
+	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
+	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
+	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
+	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
+	set_motor_config(&g_can_motors[motor_id]);
+	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
+	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
+#endif
+
+#ifdef FL_MOTOR_ID
+	motor_id = FL_MOTOR_ID - 1;
+	g_can_motors[motor_id].id = motor_id+1;
+	g_can_motors[motor_id].motor_type = TYPE_M3508;
+	g_can_motors[motor_id].can = FL_MOTOR_CAN_PTR;
+	g_can_motors[motor_id].angle_data.center_ang = 0;
+	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
+	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
+	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
+	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
+	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
+	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
+	set_motor_config(&g_can_motors[motor_id]);
+	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
+	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
+#endif
 //
-//#ifdef FL_MOTOR_ID
-//	motor_id = FL_MOTOR_ID - 1;
-//	g_can_motors[motor_id].id = motor_id+1;
-//	g_can_motors[motor_id].motor_type = TYPE_M3508;
-//	g_can_motors[motor_id].can = FL_MOTOR_CAN_PTR;
-//	g_can_motors[motor_id].angle_data.center_ang = 0;
-//	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
-//	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
-//	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
-//	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
-//	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
-//	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
-//	set_motor_config(&g_can_motors[motor_id]);
-//	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
-//	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
-//#endif
-//
-//#ifdef BL_MOTOR_ID
-//	motor_id = BL_MOTOR_ID - 1;
-//	g_can_motors[motor_id].id = motor_id+1;
-//	g_can_motors[motor_id].motor_type = TYPE_M3508;
-//	g_can_motors[motor_id].can = BL_MOTOR_CAN_PTR;
-//	g_can_motors[motor_id].angle_data.center_ang = 0;
-//	g_can_motors[motor_id].angle_data.max_ang = 0;
-//	g_can_motors[motor_id].angle_data.min_ang = 0;
-//	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
-//	g_can_motors[motor_id].angle_pid.kp = 0;
-//	g_can_motors[motor_id].angle_pid.ki = 0;
-//	g_can_motors[motor_id].angle_pid.kd = 0;
-//	g_can_motors[motor_id].angle_pid.int_max = 0;
-//	g_can_motors[motor_id].angle_pid.max_out = 0;
-//	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
-//	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
-//	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
-//	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
-//	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
-//	set_motor_config(&g_can_motors[motor_id]);
-//	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
-//	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
-//#endif
-//
-//#ifdef BR_MOTOR_ID
-//
-//	motor_id = BR_MOTOR_ID - 1;
-//	g_can_motors[motor_id].id = motor_id+1;
-//	g_can_motors[motor_id].motor_type = TYPE_M3508;
-//	g_can_motors[motor_id].can = BR_MOTOR_CAN_PTR;
-//	g_can_motors[motor_id].angle_data.center_ang = 0;
-//	g_can_motors[motor_id].angle_data.max_ang = 0;
-//	g_can_motors[motor_id].angle_data.min_ang = 0;
-//	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
-//	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
-//	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
-//	g_can_motors[motor_id].angle_pid.kp = 0;
-//	g_can_motors[motor_id].angle_pid.ki = 0;
-//	g_can_motors[motor_id].angle_pid.kd = 0;
-//	g_can_motors[motor_id].angle_pid.int_max = 0;
-//	g_can_motors[motor_id].angle_pid.max_out = 0;
-//	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
-//	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
-//	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
-//	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
-//	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
-//	set_motor_config(&g_can_motors[motor_id]);
-//#endif
+#ifdef BL_MOTOR_ID
+	motor_id = BL_MOTOR_ID - 1;
+	g_can_motors[motor_id].id = motor_id+1;
+	g_can_motors[motor_id].motor_type = TYPE_M3508;
+	g_can_motors[motor_id].can = BL_MOTOR_CAN_PTR;
+	g_can_motors[motor_id].angle_data.center_ang = 0;
+	g_can_motors[motor_id].angle_data.max_ang = 0;
+	g_can_motors[motor_id].angle_data.min_ang = 0;
+	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
+	g_can_motors[motor_id].angle_pid.kp = 0;
+	g_can_motors[motor_id].angle_pid.ki = 0;
+	g_can_motors[motor_id].angle_pid.kd = 0;
+	g_can_motors[motor_id].angle_pid.int_max = 0;
+	g_can_motors[motor_id].angle_pid.max_out = 0;
+	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
+	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
+	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
+	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
+	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
+	set_motor_config(&g_can_motors[motor_id]);
+	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
+	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
+#endif
+
+#ifdef BR_MOTOR_ID
+
+	motor_id = BR_MOTOR_ID - 1;
+	g_can_motors[motor_id].id = motor_id+1;
+	g_can_motors[motor_id].motor_type = TYPE_M3508;
+	g_can_motors[motor_id].can = BR_MOTOR_CAN_PTR;
+	g_can_motors[motor_id].angle_data.center_ang = 0;
+	g_can_motors[motor_id].angle_data.max_ang = 0;
+	g_can_motors[motor_id].angle_data.min_ang = 0;
+	g_can_motors[motor_id].angle_data.phy_max_ang = 2 * PI;
+	g_can_motors[motor_id].angle_data.phy_min_ang = -2 * PI;
+	g_can_motors[motor_id].angle_data.wheel_circ = WHEEL_CIRC;
+	g_can_motors[motor_id].angle_pid.kp = 0;
+	g_can_motors[motor_id].angle_pid.ki = 0;
+	g_can_motors[motor_id].angle_pid.kd = 0;
+	g_can_motors[motor_id].angle_pid.int_max = 0;
+	g_can_motors[motor_id].angle_pid.max_out = 0;
+	g_can_motors[motor_id].rpm_pid.kp = CHASSIS_KP;
+	g_can_motors[motor_id].rpm_pid.ki = CHASSIS_KI;
+	g_can_motors[motor_id].rpm_pid.kd = CHASSIS_KD;
+	g_can_motors[motor_id].rpm_pid.int_max = CHASSIS_INT_MAX;
+	g_can_motors[motor_id].rpm_pid.max_out = CHASSIS_MAX_CURRENT;
+	set_motor_config(&g_can_motors[motor_id]);
+#endif
 
 #ifdef LFRICTION_MOTOR_ID
-	uint8_t motor_id = LFRICTION_MOTOR_ID - 1;
+	motor_id = LFRICTION_MOTOR_ID - 1;
 	g_can_motors[motor_id].id = motor_id+1;
 	g_can_motors[motor_id].motor_type = TYPE_M3508_NGEARBOX;
 	g_can_motors[motor_id].can = LFRICTION_MOTOR_CAN_PTR;

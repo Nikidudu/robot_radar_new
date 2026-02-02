@@ -68,8 +68,9 @@ void gyro_data_ready(gyro_data_t gyro_data) {
 		gyro_proc_data.gy = gyro_data.gx;
 		gyro_proc_data.gz = gyro_data.gy;
 #else
-		gyro_proc_data.gx = gyro_data.gx;
-		gyro_proc_data.gy = gyro_data.gy;
+		// ! Note: Changed for Balancing Robot 2 Feb 2026
+		gyro_proc_data.gx = gyro_data.gy;
+		gyro_proc_data.gy = gyro_data.gx;
 		gyro_proc_data.gz = gyro_data.gz;
 #endif
 	gyro_proc_data.last_gyro_update = gyro_data.last_gyro_update;

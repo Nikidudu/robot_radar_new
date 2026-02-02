@@ -78,7 +78,7 @@ void motor_control_task(void *argument) {
 		delay = 0;
 		start_time = xTaskGetTickCount();
 		//if safety is on
-
+		if (0) // !!!! NOTE: THIS LINE DISABLES THE SAFETY TOGGLE
 		if (g_safety_toggle || g_remote_cmd.right_switch == ge_RSW_SHUTDOWN){
 
 #if PITCH_MOTOR_TYPE > TYPE_GM6020_720	//check if motor is LK or DJI
