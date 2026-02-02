@@ -40,7 +40,7 @@
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
 #define YAW_INVERT  			-1				// 1 to invert control -1 to disable
-#define PITCH_INVERT  			-1				// 1 to invert control -1 to disable
+#define PITCH_INVERT  			1				// 1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				// Set to -1 if it needs to be inverted
 #define	MOUSE_Y_INVERT			-1				// Set to -1 if it needs to be inverted
@@ -106,7 +106,7 @@
 #define FEEDER_UNJAM_SPD  		15		//100	// Reverse unjam
 #define FEEDER_UNJAM_TIME		7000	//30000
 #define FEEDER_MAX_CURRENT		60000   //60000
-#define FEEDER_INVERT			1
+#define FEEDER_INVERT			-1
 
 // FRICTION WHEELS PID VALUES
 #define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
@@ -361,11 +361,12 @@
 #define PITCH_ANGLE_INT_MAX		0
 #endif
 #define PITCH_MAX_RPM			60
-#define PITCHRPM_KP				30
-#define PITCHRPM_KI				0
-#define PITCHRPM_KD				50
-#define PITCHRPM_INT_MAX		4000
-#define PITCH_MAX_CURRENT		205000
+//single loop pid below!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#define PITCHRPM_KP				30		 //30 initial values
+#define PITCHRPM_KI				0   	 //0.5
+#define PITCHRPM_KD				5		 //50
+#define PITCHRPM_INT_MAX		4000	 //4000
+#define PITCH_MAX_CURRENT		20000	 //205000
 
 #else
 

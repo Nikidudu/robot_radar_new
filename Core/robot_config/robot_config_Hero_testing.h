@@ -44,7 +44,7 @@
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
 #define YAW_INVERT  			-1				//1 to invert control -1 to disable
-#define PITCH_INVERT  			-1				//1 to invert control -1 to disable
+#define PITCH_INVERT  			1				//1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
 #define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
@@ -279,20 +279,21 @@
  * Centers for DM motors should be -PI to PI.
  */
 /*********************** GIMBAL CONFIGURATION ***********************/
+#define PITCH_SINGLE_PID_LOOP
 #define PITCH_MOTOR_TYPE		TYPE_DM4310_DJI_MODE
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
-
-#define PITCH_ANGLE_KP	  		1
+#ifndef PITCH_SINGLE_PID_LOOP
+#define PITCH_ANGLE_KP	  		80
 #define PITCH_ANGLE_KI  		0
-#define PITCH_ANGLE_KD  		0
+#define PITCH_ANGLE_KD  		3
 #define PITCH_ANGLE_INT_MAX		0
-
+#endif
 #define PITCH_MAX_RPM			60
 
-#define PITCHRPM_KP				1
+#define PITCHRPM_KP				30
 #define PITCHRPM_KI				0
-#define PITCHRPM_KD				0
+#define PITCHRPM_KD				50
 #define PITCHRPM_INT_MAX		4000
 #define PITCH_MAX_CURRENT		205000
 
@@ -313,9 +314,9 @@
 
 #endif
 
-#define PITCH_CENTER			5010
-#define PITCH_MAX_ANG			3.14
-#define PITCH_MIN_ANG			-3.14
+#define PITCH_CENTER			-44 //990 | 5010
+#define PITCH_MAX_ANG			0.75 //0.75 | 3.14
+#define PITCH_MIN_ANG			-0.52 //-0.52 | -3.14
 #define PITCH_CONST 			0
 
 #define YAW_MOTOR_TYPE			TYPE_DM4310_DJI_MODE

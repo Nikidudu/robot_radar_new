@@ -342,7 +342,33 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 //	}
 
 #ifdef PITCH_SINGLE_PID_LOOP
-	speed_pid(gimbal_ctrl_data.pitch, imu_heading.pit, &pitch_motor->rpm_pid);
+	//Uncomment below code for previous logic
+	//speed_pid(gimbal_ctrl_data.pitch, imu_heading.pit, &pitch_motor->rpm_pid);
+
+    //COMMENT OUT BELOW FOR PREVIOUS PID LOGIC
+    //Detect target changes and reset integral
+    static float prev_target = 0;
+    static uint8_t first_run = 1;
+
+    if (first_run) {
+        prev_target = gimbal_ctrl_data.pitch;
+        first_run = 0;
+    }
+
+    float target_change = fabs(gimbal_ctrl_data.pitch - prev_target);
+    if (target_change > 0.005f) {
+        pitch_motor->rpm_pid.integral = 0;  // Reset on joystick movement
+    }
+    prev_target = gimbal_ctrl_data.pitch;
+	// Single-loop direct angle control
+    direct_angle_pid(
+        gimbal_ctrl_data.pitch,      // Target angle
+        imu_heading.pit,              // Current angle from IMU
+        imu_heading.gyro_raw_pitch,   // Current angular velocity from IMU
+        &pitch_motor->rpm_pid         // PID structure
+    );
+    //END HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #else
 //	yangle_pid(gimbal_ctrl_data.pitch,imu_heading.pit, pitch_motor,
 //			imu_heading.pit, &prev_pit,0);

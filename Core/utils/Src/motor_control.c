@@ -139,6 +139,58 @@ void imu_angle_pid(double setpoint, double curr_pt, motor_data_t *motor, float i
     speed_pid(target_rpm, imu_rpm, &motor->rpm_pid);
 }
 
+
+//COMMENT OUT BELOW direct_angle_pid FOR PREVIOUS LOGIC
+/* Function for direct angle PID (single-loop for position control)
+ * Outputs torque/current directly from angle error and angular velocity
+ * Used when PITCH_SINGLE_PID_LOOP is defined
+ *
+ * @param setpoint target angle (radians)
+ * @param curr_angle current angle from IMU (radians)
+ * @param curr_gyro current angular velocity from IMU gyroscope (rad/s)
+ * @param *pid pointer to the pid struct (typically rpm_pid)
+ */
+void direct_angle_pid(double setpoint, double curr_angle, double curr_gyro, pid_data_t *pid) {
+    /* ---------- 1. Update timestamps ---------- */
+    pid->last_time[1] = pid->last_time[0];
+    pid->last_time[0] = get_microseconds();
+
+    /* ---------- 2. Calculate dt ---------- */
+    float dt;
+    if (pid->last_time[0] > pid->last_time[1]) {
+        dt = (pid->last_time[0] - pid->last_time[1]) * 1e-6f;  // microseconds → seconds
+    } else {
+        dt = GIMBAL_DELAY * 1e-3f;  // fallback to expected loop time (ms → s)
+    }
+
+    /* ---------- 3. Calculate angle error ---------- */
+    pid->error[1] = pid->error[0];
+    pid->error[0] = setpoint - curr_angle;
+
+    /* ---------- 4. P term: Proportional to angle error ---------- */
+    float Pout = pid->error[0] * pid->kp;
+
+    /* ---------- 5. D term: Damping based on angular velocity ---------- */
+    // CRITICAL: Negative gyro for damping
+    float Dout = -curr_gyro * pid->kd;
+//    static float filtered_gyro = 0;
+//    float alpha = 0.3f;  // Filter strength (0.1-0.5, lower = more filtering)
+//    filtered_gyro = alpha * curr_gyro + (1.0f - alpha) * filtered_gyro;
+//
+//    float Dout = -filtered_gyro * pid->kd;
+
+    /* ---------- 6. I term: Gravity compensation ---------- */
+    pid->integral += pid->error[0] * pid->ki * dt;
+    float_minmax(&pid->integral, pid->int_max, -pid->int_max);
+    float Iout = pid->integral;
+
+    /* ---------- 7. Combine and output ---------- */
+    pid->output = Pout + Iout + Dout;
+    float_minmax(&pid->output, pid->max_out, -pid->max_out);
+}
+//END HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 /* Function for angle PID (i.e. aiming for a target angle rather than RPM)
  * Function calculates target RPM, then calls the speed PID
  * function to set the motor's rpm until it reaches the target angle
