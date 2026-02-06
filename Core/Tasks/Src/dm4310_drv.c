@@ -205,23 +205,23 @@ void dm4310_motor_init(void)
   	memset(&MF_motor[1], 0, sizeof(MF_motor[1]));
   	memset(&motor[Motor5], 0, sizeof(motor[Motor5]));
 
-  	// Configure Motor1 (Left Joint 1)
-  	motor[Motor1].id = 0x81;
+  	// Configure Motor1 (Left Joint 1) 0 Left Rear
+  	motor[Motor1].id = 0x01;
   	motor[Motor1].ctrl.mode = 0;		// MIT mode for precise torque control
   	motor[Motor1].ctrl.tor_set = 0.0f;
 
-  	// Configure Motor2 (Right Joint 1)
+  	// Configure Motor2 (Right Joint 1) 1 Right Rear
   	motor[Motor2].id = 0x82;
   	motor[Motor2].ctrl.mode = 0;		// MIT mode for precise torque control
   	motor[Motor2].ctrl.tor_set = 0.0f;
 
-  	// Configure Motor3 (Right Joint 2)
+  	// Configure Motor3 (Right Joint 2) 2 Right Front
   	motor[Motor3].id = 0x03;
   	motor[Motor3].ctrl.mode = 0;		// MIT mode for precise torque control
   	motor[Motor3].ctrl.tor_set = 0.0f;
 
-  	// Configure Motor4 (Left Joint 2)
-  	motor[Motor4].id = 0x84;
+  	// Configure Motor4 (Left Joint 2) 3 Left Front
+  	motor[Motor4].id = 0x04;
   	motor[Motor4].ctrl.mode = 0;		// MIT mode for precise torque control
   	motor[Motor4].ctrl.tor_set = 0.0f;
 

@@ -500,9 +500,9 @@ void calculate_T_TP(int touching_ground){
 void gimbal_auto_front(){
 }
 
-PID Jan26Test1,Jan26Test2;
-float Jan26Target1 = 3.14, Jan26Target2 = 1.57;
-int enable = 1;
+PID Jan26Test1,Jan26Test2,Jan26Test3,Jan26Test4;
+float Jan26Target1 = 3.14, Jan26Target2 = 1.57, Jan26Target3 = -1.7, Jan26Target4 = -1;
+int enable = 0;
 
 void balancing_chassis_task(void *argument) {
     float leftForce;
@@ -604,6 +604,9 @@ void balancing_chassis_task(void *argument) {
                 if(Jan26Test2.output <= 5.1 && Jan26Test2.output >= -5.1){
                     dm_set_tor[2] = -Jan26Test2.output;
                 }
+
+                dm_set_tor[1] = 0;
+                dm_set_tor[2] = 0;
 
                 break;
 
