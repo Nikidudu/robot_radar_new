@@ -366,6 +366,14 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.537912177" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release.1191568185.861496868" name="bsp_remote.h" rcbsApplicability="disable" resourcePath="Core/BSP/Inc/bsp_remote.h" toolsToInvoke="">
+						<tool announcement="Invoking: Resource Custom Build Step" customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.1319214590" name="Resource Custom Build Step">
+							<inputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.inputtype.1007690414" name="Resource Custom Build Step Input Type">
+								<additionalInput kind="additionalinputdependency" paths=""/>
+							</inputType>
+							<outputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.outputtype.2126083342" name="Resource Custom Build Step Output Type" outputNames=""/>
+						</tool>
+					</fileInfo>
 					<sourceEntries>
 						<entry excluding="Tasks/Src/launcher_control_tasksnail.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>

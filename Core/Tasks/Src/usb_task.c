@@ -1,5 +1,5 @@
 /*
- * usb_task.cpp
+ * usb_task.c
  *
  *  Created on: Feb 9, 2026
  *      Author: AI Assistant
@@ -9,10 +9,15 @@
 #include "task.h"
 #include "usbd_cdc_if.h"
 #include <string.h>
+#include <stdint.h>
 
-// Include BRoCo Protocol
-#include "Protocol/Protocol.h"
-#include "referee_msgs.h"
+// Include BRoCo Protocol (using C-compatible path if possible, or defining manually)
+// Since Protocol.h might include C++ headers, we will define the needed structures
+// based on what we saw in ProtocolNUS25.h to ensure C compatibility.
+
+// Use relative paths since System/BRoCo/include is not in the global include path for Core
+#include "../../../System/BRoCo/include/Protocol/ProtocolMacros.h"
+#include "../../../System/BRoCo/include/Protocol/ProtocolNUS25.h"
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Protocol IDs for NUS25 (Matching NetworkBus.cpp) */
@@ -35,11 +40,9 @@
 /* ────────────────────────────────────────────────────────────────────────── */
 /* External Referee Data */
 /* ────────────────────────────────────────────────────────────────────────── */
-extern "C" {
-    extern ref_game_state_t ref_game_state;
-    extern ref_game_robot_data2_t ref_robot_data;
-    extern ref_game_robot_HP_t ref_robot_hp;
-}
+extern ref_game_state_t ref_game_state;
+extern ref_game_robot_data2_t ref_robot_data;
+extern ref_game_robot_HP_t ref_robot_hp;
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Ring Buffer */
@@ -58,7 +61,7 @@ static inline uint32_t usb_rb_bytes_available(void)
     return (usb_rb_head - usb_rb_tail) & (USB_RING_BUFFER_SIZE - 1);
 }
 
-extern "C" void usb_ring_buffer_write(const uint8_t *data, uint32_t len)
+void usb_ring_buffer_write(const uint8_t *data, uint32_t len)
 {
     for (uint32_t i = 0; i < len; i++)
     {
@@ -85,27 +88,17 @@ static uint32_t last_stats_tick = 0;
 /* Helper Functions */
 /* ────────────────────────────────────────────────────────────────────────── */
 
-// Helper to send data with preamble and ID
-template <typename T>
-void USB_Send_Packet(uint8_t packet_id, T& packet)
+// Helper to send data with preamble and ID (C Version)
+void USB_Send_Raw(uint8_t packet_id, void* data, uint16_t size)
 {
-    MAKE_RELIABLE(packet);
+    uint8_t tx_buf[256];
+    if (size > 250) return;
+
+    tx_buf[0] = USB_MAGIC_BYTE; // 0x7F
+    tx_buf[1] = packet_id;
+    memcpy(&tx_buf[2], data, size);
     
-    uint8_t header[2];
-    header[0] = USB_MAGIC_BYTE; // 0x7F
-    header[1] = packet_id;
-    
-    // We send Header then Packet
-    // CDC_Transmit_FS expects a contiguous buffer if we want one USB packet, 
-    // but typically it handles multiple calls or we can copy to a buffer.
-    // For safety and atomicity, let's copy to a temp buffer.
-    
-    uint8_t tx_buf[2 + sizeof(T)];
-    tx_buf[0] = header[0];
-    tx_buf[1] = header[1];
-    memcpy(&tx_buf[2], &packet, sizeof(T));
-    
-    CDC_Transmit_FS(tx_buf, sizeof(tx_buf));
+    CDC_Transmit_FS(tx_buf, 2 + size);
 }
 
 void USB_Send_GameStatus()
@@ -120,18 +113,15 @@ void USB_Send_GameStatus()
     
     // Robot HPs
     packet.red_hero_hp = ref_robot_hp.red_1_HP;
-    packet.red_standard_hp = ref_robot_hp.red_3_HP; // Assuming Standard 1 is representative or we sum them? 
-                                                   // Usually dashboard wants specific bots. 
-                                                   // ProtocolNUS25 has singular 'standard_hp'? 
-                                                   // Actually it has red_standard_hp. Maybe main standard?
-                                                   // Let's use Standard 1 (ID 3) for now.
+    packet.red_standard_hp = ref_robot_hp.red_3_HP;
     packet.red_sentry_hp = ref_robot_hp.red_7_HP;
     
     packet.blue_hero_hp = ref_robot_hp.blu_1_HP;
     packet.blue_standard_hp = ref_robot_hp.blu_3_HP;
     packet.blue_sentry_hp = ref_robot_hp.blu_7_HP;
 
-    USB_Send_Packet(ID_COMPETITION_STATUS, packet);
+    MAKE_RELIABLE(packet);
+    USB_Send_Raw(ID_COMPETITION_STATUS, &packet, sizeof(packet));
 }
 
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -177,10 +167,6 @@ static void usb_handle_packet(uint8_t id, const uint8_t *payload, uint16_t len)
                 }
             }
             break;
-            
-        case ID_DUMMY:
-            // Heartbeat or ping
-            break;
 
         default:
             break;
@@ -197,7 +183,7 @@ typedef enum {
     STATE_WAIT_DATA
 } usb_parse_state_t;
 
-extern "C" void UsbParserTask(void *argument)
+void UsbParserTask(void *argument)
 {
     usb_parse_state_t state = STATE_WAIT_PREAMBLE;
     uint8_t pkt_id = 0;
@@ -262,7 +248,6 @@ extern "C" void UsbParserTask(void *argument)
                     case ID_AIM_COMMAND: payload_len = sizeof(aimCommandPacket); break;
                     case ID_IS_NAVIGATING: payload_len = sizeof(isNavigatingPacket); break;
                     default: 
-                        // Unknown ID, reset
                         state = STATE_WAIT_PREAMBLE; 
                         payload_len = 0;
                         break;
@@ -295,7 +280,7 @@ extern "C" void UsbParserTask(void *argument)
     }
 }
 
-extern "C" void USB_Firmware_Init(void)
+void USB_Firmware_Init(void)
 {
     xTaskCreate(UsbParserTask, "UsbParser", 512, NULL, 12, NULL);
 }

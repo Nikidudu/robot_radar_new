@@ -12,9 +12,13 @@
 
 #include "ProtocolMacros.h"
 
+#ifdef __cplusplus
 #include <cstdint>
-
 #include <vector>
+#else
+#include <stdint.h>
+#include <stdbool.h>
+#endif
 
 // RELIABLE_PACKET(IMUPacket,
 // float acceleration[3];				//[m/s^2]
