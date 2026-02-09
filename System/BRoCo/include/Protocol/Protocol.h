@@ -35,4 +35,8 @@
 #include "ProtocolNUS24.h"
 #endif
 
+#ifdef PROTOCOL_25
+#include "ProtocolNUS25.h"
+#endif
+
 #endif /* PROTOCOL_PROTOCOL_H_ */

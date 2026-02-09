@@ -8,16 +8,21 @@
 #ifndef TASKS_INC_USB_TASK_H_
 #define TASKS_INC_USB_TASK_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Protocol Constants */
 /* ────────────────────────────────────────────────────────────────────────── */
-#define USB_MAGIC_BYTE      0xAA
-#define USB_MAX_PAYLOAD_SIZE 240
+#define USB_MAGIC_BYTE      0x7F
+#define USB_MAX_PAYLOAD_SIZE 256
 
 
 /* Packet Types */
-#define USB_PKT_AIMBOT      0xA1    // Gimbal aim + fire command (yaw, pitch, fire)
-#define USB_PKT_NAV         0xA2    // Chassis navigation: vx, vy, vz (3 x float)
+// Deprecated constants kept for compatibility if needed, but new protocol uses IDs
+#define USB_PKT_AIMBOT      0xA1
+#define USB_PKT_NAV         0xA2
 #define USB_PKT_HP_DATA		0xA3
 
 
@@ -39,7 +44,7 @@ typedef struct {
     float vx;
     float vy;
     float vz;
-    uint32_t last_update;  // ADD THIS
+    uint32_t last_update;
 } nav_command_t;
 
 
@@ -70,5 +75,9 @@ void UsbParserTask(void *argument);
  * Do NOT call this manually.
  */
 void usb_ring_buffer_write(const uint8_t *data, uint32_t len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* TASKS_INC_USB_TASK_H_ */

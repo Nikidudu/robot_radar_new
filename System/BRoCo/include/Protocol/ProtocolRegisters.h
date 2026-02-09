@@ -41,3 +41,19 @@ REGISTER(cvFiringCommandPacket)
 REGISTER(cvAimCommandPacket)
 REGISTER(cvAimSendPacket)
 #endif
+
+#ifdef PROTOCOL_25
+REGISTER(dummyPacket)
+REGISTER(chassisSpeedCommandPacket)
+REGISTER(chassisSpinCommandPacket)
+REGISTER(leftTriggerPositionPacket)
+REGISTER(competitionStatusPacket)
+REGISTER(occupationStatusPacket)
+REGISTER(winStatusPacket)
+REGISTER(cvGimbalCommandPacket)
+REGISTER(firingCommandPacket)
+REGISTER(cvDetectedPacket)
+REGISTER(surveilCommandPacket)
+REGISTER(aimCommandPacket)
+REGISTER(isNavigatingPacket)
+#endif
