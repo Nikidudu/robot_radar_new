@@ -20,6 +20,7 @@
 #include "hud_new.h"
 #include "error_handler_task.h"
 #include "startup.h"
+#include "chassis_usart_message_task.h"
 
 /* External variables --------------------------------------------------------*/
 TaskHandle_t referee_processing_task_handle;
@@ -79,6 +80,9 @@ void master_task(void *argument) {
 
 	xTaskCreate(gimbal_control_task, "gimbal_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 7, NULL);
+
+	xTaskCreate(chassis_usart_message_task, "usart_chassis_task",
+	            256, (void*) 1, (UBaseType_t) 4, NULL);
 
 
 //	vTaskDelete(master_task_handle);

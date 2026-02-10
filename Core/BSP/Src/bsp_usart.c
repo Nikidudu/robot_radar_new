@@ -13,6 +13,9 @@
 extern queue_t *ref_UART_queue;
 extern uint8_t ref_dma_buf[REF_DMA_BUF_SIZE];
 extern uint8_t remote_raw_data[REMOTE_DATA_SIZE];
+extern uint8_t rx_counter;
+extern uint8_t rx_data[32];
+#define MEMSET_INTERVAL 100
 
 /* Private user code ---------------------------------------------------------*/
 
@@ -28,6 +31,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     	remote_ISR();  // REMOTE UART ISR handler
 
     }
+
+    else if (huart->Instance == USART6)
+	{
+		rx_counter++;
+
+		if (rx_counter >= MEMSET_INTERVAL)
+		{
+			memset(rx_data, 0, sizeof(rx_data));
+			rx_counter = 0;
+		}
+
+		// If USART6 is NOT in Circular mode, you MUST re-arm it here:
+		// HAL_UART_Receive_DMA(huart, rx_data, 19);
+	}
 //    else if (huart == &REFEREE_UART) {
 //    	referee_ISR(); // REFEREE UART ISR handler
 //    }
