@@ -1,4 +1,4 @@
-/*
+	/*
  * robot_config_kirbee.h
  *
  *  Created on: Mar 20, 2025
@@ -124,13 +124,13 @@
 
 /*********************** CHASSIS CONFIGURATION ***********************/
 // CHASSIS WHEELS PID VALUES
-#define CHASSIS_KP  		4
-#define CHASSIS_KI  		0.1
-#define CHASSIS_KD  		0.8
+#define CHASSIS_KP  		6.0
+#define CHASSIS_KI  		0
+#define CHASSIS_KD  		0.2
 #define CHASSIS_INT_MAX  	5000
-#define CHASSIS_MAX_CURRENT 1000//6000//9000
+#define CHASSIS_MAX_CURRENT 4000//6000//9000
 #define CHASSIS_MIN_CURRENT 0
-#define BUFFER_MIN			0.22	// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
+#define BUFFER_MIN			1.0	// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
 									// tune this by seeing if pilot likes the speed
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
@@ -199,10 +199,10 @@
  */
 //Chassis Acceleration
 #ifdef ONE_VS_ONE
-#define LV1_MAX_ACCEL			1.5//2.5//1.5 // for 1v1
-#define LV2_MAX_ACCEL			2.0
-#define LV3_MAX_ACCEL			2.0
-#define LV4_MAX_ACCEL			2.0
+#define LV1_MAX_ACCEL			1.0//2.5//1.5 // for 1v1
+#define LV2_MAX_ACCEL			1.5
+#define LV3_MAX_ACCEL			1.5
+#define LV4_MAX_ACCEL			1.5
 #define LV5_MAX_ACCEL			0.7
 #define LV6_MAX_ACCEL			0.5
 #define LV7_MAX_ACCEL			0.5
@@ -274,52 +274,52 @@
 #define LV10_CHASSIS_YAW_KI			0.02
 #define LV10_CHASSIS_YAW_KD			8
 #else
-#define LV1_CHASSIS_YAW_MAX_RPM		0.35
+#define LV1_CHASSIS_YAW_MAX_RPM		0.25
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0
 #define LV1_CHASSIS_YAW_KD			8//0 //for 1v1
 
-#define LV2_CHASSIS_YAW_MAX_RPM		0.45
+#define LV2_CHASSIS_YAW_MAX_RPM		0.35
 #define LV2_CHASSIS_YAW_KP			0.7
 #define LV2_CHASSIS_YAW_KI			0
 #define LV2_CHASSIS_YAW_KD			8
 
-#define LV3_CHASSIS_YAW_MAX_RPM		0.55
+#define LV3_CHASSIS_YAW_MAX_RPM		0.40
 #define LV3_CHASSIS_YAW_KP			0.7
 #define LV3_CHASSIS_YAW_KI			0
 #define LV3_CHASSIS_YAW_KD			8
 
-#define LV4_CHASSIS_YAW_MAX_RPM		0.6
+#define LV4_CHASSIS_YAW_MAX_RPM		0.40
 #define LV4_CHASSIS_YAW_KP			0.7
 #define LV4_CHASSIS_YAW_KI			0
 #define LV4_CHASSIS_YAW_KD			8
 
-#define LV5_CHASSIS_YAW_MAX_RPM		0.6
+#define LV5_CHASSIS_YAW_MAX_RPM		0.40
 #define LV5_CHASSIS_YAW_KP			0.7
 #define LV5_CHASSIS_YAW_KI			0
 #define LV5_CHASSIS_YAW_KD			8
 
-#define LV6_CHASSIS_YAW_MAX_RPM		0.6
+#define LV6_CHASSIS_YAW_MAX_RPM		0.40
 #define LV6_CHASSIS_YAW_KP			0.7
 #define LV6_CHASSIS_YAW_KI			0
 #define LV6_CHASSIS_YAW_KD			8
 
-#define LV7_CHASSIS_YAW_MAX_RPM		0.6
+#define LV7_CHASSIS_YAW_MAX_RPM		0.40
 #define LV7_CHASSIS_YAW_KP			0.7
 #define LV7_CHASSIS_YAW_KI			0
 #define LV7_CHASSIS_YAW_KD			8
 
-#define LV8_CHASSIS_YAW_MAX_RPM		0.6
+#define LV8_CHASSIS_YAW_MAX_RPM		0.40
 #define LV8_CHASSIS_YAW_KP			0.7
 #define LV8_CHASSIS_YAW_KI			0
 #define LV8_CHASSIS_YAW_KD			8
 
-#define LV9_CHASSIS_YAW_MAX_RPM		0.6
+#define LV9_CHASSIS_YAW_MAX_RPM		0.40
 #define LV9_CHASSIS_YAW_KP			0.7
 #define LV9_CHASSIS_YAW_KI			0
 #define LV9_CHASSIS_YAW_KD			8
 
-#define LV10_CHASSIS_YAW_MAX_RPM	0.6
+#define LV10_CHASSIS_YAW_MAX_RPM	0.40
 #define LV10_CHASSIS_YAW_KP			0.7
 #define LV10_CHASSIS_YAW_KI			0
 #define LV10_CHASSIS_YAW_KD			8
@@ -403,10 +403,10 @@
 
 #endif
 
-#define YAWRPM_KP				100000
+#define YAWRPM_KP				19000
 #define YAWRPM_KI				0
-#define YAWRPM_KD				700000
-#define YAWRPM_INT_MAX			5000
+#define YAWRPM_KD				475000
+#define YAWRPM_INT_MAX			1000
 #define YAW_MAX_CURRENT			20000
 
 #else
