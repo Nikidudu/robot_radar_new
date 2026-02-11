@@ -332,7 +332,7 @@ uint16_t check_motors() {
 
 	// bottom dev C
 	if (curr_time - chassis_ctrl_data.last_time[0] > MOTOR_TIMEOUT_MAX) {
-		error |= 1 << 8;
+		error |= 1 << 11;
 	}
 
 	return error;
