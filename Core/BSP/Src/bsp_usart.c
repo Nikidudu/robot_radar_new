@@ -15,7 +15,7 @@ extern uint8_t ref_dma_buf[REF_DMA_BUF_SIZE];
 extern uint8_t remote_raw_data[REMOTE_DATA_SIZE];
 extern uint8_t rx_counter;
 extern uint8_t rx_data[32];
-#define MEMSET_INTERVAL 100
+#define MEMSET_INTERVAL 10
 
 /* Private user code ---------------------------------------------------------*/
 

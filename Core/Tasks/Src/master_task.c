@@ -59,8 +59,8 @@ void master_task(void *argument) {
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4,
 			&control_input_task_handle);
 
-	xTaskCreate(referee_processing_task, "referee_task", 512, (void*) 1,
-			(UBaseType_t) 2, &referee_processing_task_handle);
+//	xTaskCreate(referee_processing_task, "referee_task", 512, (void*) 1,
+//			(UBaseType_t) 2, &referee_processing_task_handle);
 
 	xTaskCreate(buzzing_task, "buzzer_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, NULL);
