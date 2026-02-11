@@ -14,7 +14,7 @@
 #include "master_task.h"
 
 /* External variables --------------------------------------------------------*/
-uint16_t g_motor_fault;
+uint16_t g_motor_fault; // for debugging
 
 /* Private function prototypes -----------------------------------------------*/
 void buzzer_error_report(uint16_t error, uint32_t* delay);
