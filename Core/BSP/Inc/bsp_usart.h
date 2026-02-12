@@ -25,6 +25,6 @@
 #include "usart.h"
 
 HAL_StatusTypeDef remote_uart_start(void);
-HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t Size,queue_t *uart_queue);
+HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart, queue_t *uart_queue);
 
 #endif

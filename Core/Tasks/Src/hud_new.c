@@ -16,7 +16,7 @@
 #include "launcher_control_task.h"
 
 static uint16_t g_client_id = 0;
-extern ref_game_robot_data_t ref_robot_data;
+extern ref_game_robot_data2_t ref_robot_data;
 extern uint8_t g_ref_tx_seq;
 
 int prev_spinspin = 0;

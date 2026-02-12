@@ -28,7 +28,7 @@ enum feeder_state_e feeder_state;
 extern uint8_t projectile_loaded;
 // referee system data
 extern ref_game_state_t ref_game_state;
-extern ref_game_robot_data_t ref_robot_data;
+extern ref_game_robot_data2_t ref_robot_data;
 extern ref_robot_power_data_t ref_power_data;
 
 extern uint32_t ref_power_data_txno;

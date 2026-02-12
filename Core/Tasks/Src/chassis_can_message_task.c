@@ -29,7 +29,7 @@ float rel_yaw;
 supercap_data supercap;
 
 /* Exported variables -------------------------------------------------------*/
-extern ref_game_robot_data_t ref_robot_data;
+extern ref_game_robot_data2_t ref_robot_data;
 
 /* Private function prototypes -----------------------------------------------*/
 void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
