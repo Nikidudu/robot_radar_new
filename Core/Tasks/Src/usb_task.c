@@ -22,6 +22,7 @@
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Protocol IDs for NUS25 (Matching NetworkBus.cpp) */
 /* ────────────────────────────────────────────────────────────────────────── */
+#define ID_GIMBAL_JOINTS            3
 #define ID_DUMMY                    4
 #define ID_CHASSIS_SPEED            6
 #define ID_LEFT_TRIGGER             8
@@ -43,6 +44,7 @@
 extern ref_game_state_t ref_game_state;
 extern ref_game_robot_data2_t ref_robot_data;
 extern ref_game_robot_HP_t ref_robot_hp;
+extern orientation_data_t imu_heading;
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Ring Buffer */
@@ -124,6 +126,18 @@ void USB_Send_GameStatus()
     USB_Send_Raw(ID_COMPETITION_STATUS, &packet, sizeof(packet));
 }
 
+void USB_Send_GimbalStatus()
+{
+    gimbalJointsPacket packet;
+    memset(&packet, 0, sizeof(packet));
+
+    packet.yaw_angle = imu_heading.yaw;
+    packet.pitch_angle = imu_heading.pit;
+
+    MAKE_RELIABLE(packet);
+    USB_Send_Raw(ID_GIMBAL_JOINTS, &packet, sizeof(packet));
+}
+
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Packet Handler */
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -193,6 +207,7 @@ void UsbParserTask(void *argument)
 
     uint32_t timeout_cnt = 0;
     uint32_t last_send_tick = 0;
+    uint32_t last_gimbal_send_tick = 0;
 
     for (;;)
     {
@@ -211,6 +226,13 @@ void UsbParserTask(void *argument)
         {
             USB_Send_GameStatus();
             last_send_tick = tick;
+        }
+
+        // Send Gimbal Status @ 50Hz for smooth tracking
+        if (tick - last_gimbal_send_tick >= pdMS_TO_TICKS(20))
+        {
+            USB_Send_GimbalStatus();
+            last_gimbal_send_tick = tick;
         }
 
         // Process Incoming Data

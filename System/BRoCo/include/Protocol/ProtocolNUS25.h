@@ -31,10 +31,10 @@
 //float mag_raw[3];
 //)
 //
-//RELIABLE_PACKET(gimbalJointsPacket,
-//float yaw_angle;
-//float pitch_angle;
-//)
+RELIABLE_PACKET(gimbalJointsPacket,
+float yaw_angle;
+float pitch_angle;
+)
 //
 //RELIABLE_PACKET(chassisJointsPacket,
 //float front_right_angle;
