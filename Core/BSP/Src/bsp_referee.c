@@ -52,7 +52,7 @@ ref_processing_status_t ref_process_data(queue_t *uart_queue, ref_msg_t *proc_ms
                     protocol_packet[index++] = byte;
                     unpack_step = STEP_LENGTH_LOW;
                 } else {
-                    index = 0;  // Reset index on invalid byte
+                  index = 0;  // Reset index on invalid byte
                 }
                 break;
 

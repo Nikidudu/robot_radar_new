@@ -105,7 +105,7 @@
 #define FEEDER_JAM_RPM			20		// if feeder is below this rpm, it is jammed
 #define FEEDER_UNJAM_SPD  		15		//100	// Reverse unjam
 #define FEEDER_UNJAM_TIME		7000	//30000
-#define FEEDER_MAX_CURRENT		60000   //60000
+#define FEEDER_MAX_CURRENT		60000   //60000 // why??
 #define FEEDER_INVERT			-1
 
 // FRICTION WHEELS PID VALUES
@@ -391,7 +391,7 @@
 #define PITCH_CONST 			0
 
 #define YAW_SINGLE_PID_LOOP		// define to enable single PID loop instead of cascade PID for yaw
-#define YAW_MOTOR_TYPE 			TYPE_GM6020_720
+#define YAW_MOTOR_TYPE 			TYPE_DM4310_DJI_MODE
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #ifndef YAW_SINGLE_PID_LOOP
@@ -404,9 +404,9 @@
 
 #endif
 
-#define YAWRPM_KP				100000
+#define YAWRPM_KP				30//100000
 #define YAWRPM_KI				0
-#define YAWRPM_KD				700000
+#define YAWRPM_KD				5//700000
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
@@ -453,7 +453,7 @@
 #endif
 
 #define YAW_MOTOR_CAN		&hcan1
-#define YAW_MOTOR_ID 		5
+#define YAW_MOTOR_ID 		0x2
 
 /*********************** OTHERS ***********************/
 #define WHEEL_CIRC			47.1	//in CM

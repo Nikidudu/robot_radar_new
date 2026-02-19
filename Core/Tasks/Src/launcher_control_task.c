@@ -356,6 +356,7 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 	}
 
 	switch (flywheel_state) {
+	case WHEEL_CLEARING:
 	case WHEEL_STANDBY:
 		if (FRICTION_SB_SPIN_ON == 2 || (FRICTION_SB_SPIN_ON == 1 && ref_game_state.game_progress == 4)){
 			speed_pid(friction_wheel_speed * FRICTION_SB_SPIN * FRICTION_INVERT,
@@ -370,7 +371,6 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 		}
 		break;
 
-	case WHEEL_CLEARING:
 	case WHEEL_FIRING:
 		speed_pid(friction_wheel_speed * FRICTION_INVERT,
 				l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
