@@ -43,7 +43,7 @@
 #define PITCH_INVERT  			1				// 1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				// Set to -1 if it needs to be inverted
-#define	MOUSE_Y_INVERT			-1				// Set to -1 if it needs to be inverted
+#define	MOUSE_Y_INVERT			1				// Set to -1 if it needs to be inverted
 
 #define KEYBD_MAX_SPD 			1//0.8//0.5		// % of max speed
 

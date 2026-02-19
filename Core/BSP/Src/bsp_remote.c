@@ -71,58 +71,81 @@ static bool verify_remote_crc16_check_sum(uint8_t *p_msg, uint16_t len);
  *	@brief	Parses RC data and notifies control_task
  */
 void remote_ISR() {
-    remote_data_t *pkt = (remote_data_t *)remote_raw_data;
+	uint8_t *buf = remote_raw_data;
 
-    /* 1. Check SOF */
-    if (pkt->sof_1 != REMOTE_SOF1 || pkt->sof_2 != REMOTE_SOF2)
-    {
-        return; // drop frame
-    }
+	/* 1. Check SOF */
+	if (buf[0] != REMOTE_SOF1 || buf[1] != REMOTE_SOF2)
+	{
+	    return;
+	}
 
-    /* 2. Verify CRC */
-    if (!verify_remote_crc16_check_sum(remote_raw_data, REMOTE_DATA_SIZE))
-    {
-        return; // corrupted frame
-    }
+	/* 2. Verify CRC */
+	if (!verify_remote_crc16_check_sum(buf, REMOTE_DATA_SIZE))
+	{
+	    return;
+	}
 
-    /* 3. Parse joystick channels */
-    g_remote_cmd.right_x = pkt->ch_0 - JOYSTICK_OFFSET;
-    g_remote_cmd.right_y = pkt->ch_1 - JOYSTICK_OFFSET;
-    g_remote_cmd.left_y  = pkt->ch_2 - JOYSTICK_OFFSET;
-    g_remote_cmd.left_x  = pkt->ch_3 - JOYSTICK_OFFSET;
+	/* 3. Packed control block (61 bits -> use 8 bytes) */
+	uint64_t packed = 0;
 
-    /* 4. Switches / buttons */
-    g_remote_cmd.sw 	= pkt->mode_sw + 1;
-    g_remote_cmd.control_mode  = pkt->pause;
-    g_remote_cmd.fn_1   = pkt->fn_1;
-    g_remote_cmd.fn_2   = pkt->fn_2;
+	for (int i = 0; i < 8; i++)
+	{
+	    packed |= ((uint64_t)buf[2 + i]) << (8 * i);
+	}
 
-    /* 5. Wheel / trigger */
-    g_remote_cmd.side_dial = pkt->wheel - JOYSTICK_OFFSET;
-    g_remote_cmd.trigger   = pkt->trigger;
+	uint16_t ch0 = (packed >> 0)  & 0x7FF;
+	uint16_t ch1 = (packed >> 11) & 0x7FF;
+	uint16_t ch2 = (packed >> 22) & 0x7FF;
+	uint16_t ch3 = (packed >> 33) & 0x7FF;
 
-    /* 6. Mouse */
-    g_remote_cmd.mouse_x = pkt->mouse_x;
-    g_remote_cmd.mouse_y = pkt->mouse_y;
-    g_remote_cmd.mouse_z = pkt->mouse_z;
+	uint8_t mode_sw = (packed >> 44) & 0x03;
+	uint8_t pause   = (packed >> 46) & 0x01;
+	uint8_t fn1     = (packed >> 47) & 0x01;
+	uint8_t fn2     = (packed >> 48) & 0x01;
+	uint16_t wheel  = (packed >> 49) & 0x7FF;
+	uint8_t trigger = (packed >> 60) & 0x01;
 
-    g_remote_cmd.mouse_left   = pkt->mouse_left;
-    g_remote_cmd.mouse_right  = pkt->mouse_right;
-    g_remote_cmd.mouse_middle = pkt->mouse_middle;
+	/* 4. Joystick */
+	g_remote_cmd.right_x = (int16_t)ch0 - JOYSTICK_OFFSET;
+	g_remote_cmd.right_y = (int16_t)ch1 - JOYSTICK_OFFSET;
+	g_remote_cmd.left_y  = (int16_t)ch2 - JOYSTICK_OFFSET;
+	g_remote_cmd.left_x  = (int16_t)ch3 - JOYSTICK_OFFSET;
 
-    /* Optional accumulation */
-    g_remote_cmd.mouse_hori += pkt->mouse_x;
-    g_remote_cmd.mouse_vert += pkt->mouse_y;
+	/* 5. Switches */
+	g_remote_cmd.sw = mode_sw + 1;
+	g_remote_cmd.control_mode = pause;
+	g_remote_cmd.fn_1 = fn1;
+	g_remote_cmd.fn_2 = fn2;
+	g_remote_cmd.trigger = trigger;
 
-    /* 7. Keyboard */
-    g_remote_cmd.keyboard_keys = pkt->key;
+	/* 6. Dial */
+	g_remote_cmd.side_dial = (int16_t)wheel - JOYSTICK_OFFSET;
 
-    g_remote_cmd.last_time = HAL_GetTick();
+	/* 7. Mouse */
+	g_remote_cmd.mouse_x = (int16_t)(buf[10] | (buf[11] << 8));
+	g_remote_cmd.mouse_y = (int16_t)(buf[12] | (buf[13] << 8));
+	g_remote_cmd.mouse_z = (int16_t)(buf[14] | (buf[15] << 8));
 
-    /* 8. Notify control task */
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(control_input_task_handle, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	uint8_t mouse_btn = buf[16];
+
+	g_remote_cmd.mouse_left   = (mouse_btn >> 0) & 0x01;
+	g_remote_cmd.mouse_right  = (mouse_btn >> 1) & 0x01;
+	g_remote_cmd.mouse_middle = (mouse_btn >> 2) & 0x01;
+
+	/* Optional accumulation */
+	g_remote_cmd.mouse_hori += g_remote_cmd.mouse_x;
+	g_remote_cmd.mouse_vert += g_remote_cmd.mouse_y;
+
+	/* 8. Keyboard */
+	g_remote_cmd.keyboard_keys =
+	    (uint16_t)(buf[17] | (buf[18] << 8));
+
+	g_remote_cmd.last_time = HAL_GetTick();
+
+	/* 9. Notify control task */
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+	vTaskNotifyGiveFromISR(control_input_task_handle, &xHigherPriorityTaskWoken);
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 /**
