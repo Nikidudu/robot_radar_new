@@ -5,8 +5,8 @@
  *      Author: cw
  */
 
-#ifndef ROBOT_CONFIG_HUD_HERO_H_
-#define ROBOT_CONFIG_HUD_HERO_H_
+#ifndef ROBOT_CONFIG_HUD_HERO_2026_H_
+#define ROBOT_CONFIG_HUD_HERO_2026_H_
 
 #include "hud_constants.h"
 
@@ -86,4 +86,4 @@
 #define MOTOR_FAULT_START 	850
 #define MOTOR_FAULT_GAP		10
 
-#endif /* ROBOT_CONFIG_HUD_HERO_H_ */
+#endif /* ROBOT_CONFIG_HUD_HERO_2026_H_ */

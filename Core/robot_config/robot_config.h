@@ -3,8 +3,8 @@
 #ifndef TASKS_INC_ROBOT_CONFIG_H_
 #define TASKS_INC_ROBOT_CONFIG_H_
 
-//#include "robot_config_kirbee.h"
-#include "robot_config_Hero_testing.h"
+//#include "robot_config_sentry_2026.h"
+#include "robot_config_hero_2026.h"
 
 // COMMON CONFIGURATION
 #define SPINSPIN_RANDOM_DELAY 50 // todo: seems good to implement this eh

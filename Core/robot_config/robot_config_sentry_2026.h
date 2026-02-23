@@ -1,17 +1,17 @@
 /*
  * robot_config_kirbee.h
  *
- *  Created on: Jan 01, 2026
- *      Author: Yang Han
+ *  Created on: Mar 20, 2025
+ *      Author: cw
  */
 
-#ifndef ROBOT_CONFIG_ROBOT_CONFIG_HERO_TEST_H_
-#define ROBOT_CONFIG_ROBOT_CONFIG_HERO_TEST_H_
+#ifndef ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_2026_H_
+#define ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_2026_H_
 
-#include "hud_hero.h"
+#include "hud_sentry_2026.h"
 #include "motor_config.h"
 
-#define BULLET_42
+#define BULLET_17
 #define HAS_SBC
 /********************* DEV C IMU CONFIGURATION ***********/
 //#define BOARD_DOWN
@@ -40,10 +40,10 @@
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
 #define YAW_INVERT  			-1				// 1 to invert control -1 to disable
-#define PITCH_INVERT  			1				// 1 to invert control -1 to disable
+#define PITCH_INVERT  			-1				// 1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				// Set to -1 if it needs to be inverted
-#define	MOUSE_Y_INVERT			1				// Set to -1 if it needs to be inverted
+#define	MOUSE_Y_INVERT			-1				// Set to -1 if it needs to be inverted
 
 #define KEYBD_MAX_SPD 			1//0.8//0.5		// % of max speed
 
@@ -76,21 +76,21 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_SPEED			200
+#define FEEDER_SPEED			1200
 #define	PROJECTILE_SPEED		20.5    //19 gives projectiles speed of 28-29m/s
 
 #define PROJECTILE_SPEED_RATIO	310		//rpm per m/s of the friction wheels ish don't think this will work well lmao
-#define FEEDER_SPEED_RATIO		-6								//projectiles per round of the feeder
+#define FEEDER_SPEED_RATIO		-8								//projectiles per round of the feeder
 
 // prevents pilots from overheating when firing
 #define OVERHEAT_PROTECTION
-#define OVERHEAT_MARGIN 	0
-#define OVERHEAT_EXCESS 	0
+#define OVERHEAT_MARGIN 	2
+#define OVERHEAT_EXCESS 	2
 #define OVERHEAT_OFFSET		20
 
 #define FEEDER_MOTOR_TYPE	TYPE_M3508
 // FEEDER PID VALUES
-#define FEEDER_KP 			10
+#define FEEDER_KP 			5
 #define FEEDER_KI  			0.02
 #define FEEDER_KD  			3
 #define FEEDER_MAX_INT		10000
@@ -101,12 +101,12 @@
 #define FEEDER_ANGLE_INT_MAX  	0
 #define FEEDER_MAX_RPM			15
 
-#define FEEDER_JAM_TORQUE  		7000	//35000	//20000		// Before feeder deemed to be jammed
+#define FEEDER_JAM_TORQUE  		12000	//35000	//20000		// Before feeder deemed to be jammed
 #define FEEDER_JAM_RPM			20		// if feeder is below this rpm, it is jammed
-#define FEEDER_UNJAM_SPD  		100	// Reverse unjam
-#define FEEDER_UNJAM_TIME		300000
-#define FEEDER_MAX_CURRENT		60000   //60000 // why??
-#define FEEDER_INVERT			-1
+#define FEEDER_UNJAM_SPD  		15		//100	// Reverse unjam
+#define FEEDER_UNJAM_TIME		7000	//30000
+#define FEEDER_MAX_CURRENT		60000   //60000
+#define FEEDER_INVERT			1
 
 // FRICTION WHEELS PID VALUES
 #define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
@@ -124,207 +124,16 @@
 
 /*********************** CHASSIS CONFIGURATION ***********************/
 // CHASSIS WHEELS PID VALUES
-#define CHASSIS_KP  		4
-#define CHASSIS_KI  		0.1
-#define CHASSIS_KD  		0.8
+#define CHASSIS_KP  		6.0
+#define CHASSIS_KI  		0
+#define CHASSIS_KD  		0.2
 #define CHASSIS_INT_MAX  	5000
-#define CHASSIS_MAX_CURRENT 1000//6000//9000
+#define CHASSIS_MAX_CURRENT 4000//6000//9000
 #define CHASSIS_MIN_CURRENT 0
-#define BUFFER_MIN			0.22	// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
+#define BUFFER_MIN			1.0	// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
 									// tune this by seeing if pilot likes the speed
 #define CHASSIS_CAN_SPINSPIN
 #define CHASSIS_SPINSPIN_MAX 1
-
-//#define LVL_TUNING		// scales chassis speed as level increases
-//#define ONE_VS_ONE		// 1v1 standard configuration (vs 3v3)
-
-#ifdef LVL_TUNING
-/* Speed Value Guide:
- * Values are percentage of the max speed.
- * E.g. 0.5 = 50% max speed
- */
-#ifdef ONE_VS_ONE
-#define LV1_MAX_SPEED 		    0.34//0.20 // for 1v1
-#define LV2_MAX_SPEED  			0.34
-#define LV3_MAX_SPEED			0.34
-#define LV4_MAX_SPEED			0.34
-#define LV5_MAX_SPEED			0.34
-#define LV6_MAX_SPEED			0.34
-#define LV7_MAX_SPEED			0.34
-#define LV8_MAX_SPEED			0.34
-#define LV9_MAX_SPEED			0.34
-#define LV10_MAX_SPEED			0.34
-// supercap boosted values
-#define LV11_MAX_SPEED			1
-#define LV12_MAX_SPEED		    1
-#define LV13_MAX_SPEED			1
-#define LV14_MAX_SPEED			1
-#define LV15_MAX_SPEED			1
-#define LV16_MAX_SPEED			1
-#define LV17_MAX_SPEED			1
-#define LV18_MAX_SPEED			1
-#define LV19_MAX_SPEED			1
-#define LV20_MAX_SPEED			1
-#else
-#define SCALE 					0.40
-#define LV1_MAX_SPEED 		    0.24 * SCALE
-#define LV2_MAX_SPEED  			0.25 * SCALE
-#define LV3_MAX_SPEED			0.26 * SCALE
-#define LV4_MAX_SPEED			0.27 * SCALE
-#define LV5_MAX_SPEED			0.29 * SCALE
-#define LV6_MAX_SPEED			0.30 * SCALE
-#define LV7_MAX_SPEED			0.32 * SCALE
-#define LV8_MAX_SPEED			0.33 * SCALE
-#define LV9_MAX_SPEED			0.35 * SCALE
-#define LV10_MAX_SPEED			0.36 * SCALE
-// supercap boosted values
-#define LV11_MAX_SPEED			0.30
-#define LV12_MAX_SPEED		    0.32
-#define LV13_MAX_SPEED			0.34
-#define LV14_MAX_SPEED			0.35
-#define LV15_MAX_SPEED			0.36
-#define LV16_MAX_SPEED			0.36
-#define LV17_MAX_SPEED			0.36
-#define LV18_MAX_SPEED			0.36
-#define LV19_MAX_SPEED			0.36
-#define LV20_MAX_SPEED			0.36
-#endif
-/*	Acceleration Value Guide:
- * 	0.05 - Very Slow Acceleration
- * 	0.10 - Slow Acceleration
- * 	0.20 - Moderate Acceleration
- *  0.50 - Fast Acceleration
- *  1.00 - Very Fast Acceleration
- *  2.00 - Extremely Fast Acceleration
- */
-//Chassis Acceleration
-#ifdef ONE_VS_ONE
-#define LV1_MAX_ACCEL			1.5//2.5//1.5 // for 1v1
-#define LV2_MAX_ACCEL			2.0
-#define LV3_MAX_ACCEL			2.0
-#define LV4_MAX_ACCEL			2.0
-#define LV5_MAX_ACCEL			0.7
-#define LV6_MAX_ACCEL			0.5
-#define LV7_MAX_ACCEL			0.5
-#define LV8_MAX_ACCEL			0.5
-#define LV9_MAX_ACCEL			0.5
-#define LV10_MAX_ACCEL			2
-#else
-#define LV1_MAX_ACCEL			1.5//3.5//2.5//1.5 //for 1v1
-#define LV2_MAX_ACCEL			1.5
-#define LV3_MAX_ACCEL			1.5
-#define LV4_MAX_ACCEL			1.5
-#define LV5_MAX_ACCEL			1
-#define LV6_MAX_ACCEL			1
-#define LV7_MAX_ACCEL			1
-#define LV8_MAX_ACCEL			1
-#define LV9_MAX_ACCEL			1
-#define LV10_MAX_ACCEL			2
-#endif
-
-// Yaw max rpm - max RPM for chassis centering
-#ifdef ONE_VS_ONE
-#define LV1_CHASSIS_YAW_MAX_RPM		0.8//0.6
-#define LV1_CHASSIS_YAW_KP			0.7
-#define LV1_CHASSIS_YAW_KI			0.02
-#define LV1_CHASSIS_YAW_KD			8//30 // for 1v1
-
-#define LV2_CHASSIS_YAW_MAX_RPM		0.4
-#define LV2_CHASSIS_YAW_KP			0.7
-#define LV2_CHASSIS_YAW_KI			0
-#define LV2_CHASSIS_YAW_KD			0
-
-#define LV3_CHASSIS_YAW_MAX_RPM		0.4
-#define LV3_CHASSIS_YAW_KP			0.7
-#define LV3_CHASSIS_YAW_KI			0
-#define LV3_CHASSIS_YAW_KD			0
-
-#define LV4_CHASSIS_YAW_MAX_RPM		0.4
-#define LV4_CHASSIS_YAW_KP			0.7
-#define LV4_CHASSIS_YAW_KI			0
-#define LV4_CHASSIS_YAW_KD			0
-
-#define LV5_CHASSIS_YAW_MAX_RPM		0.4
-#define LV5_CHASSIS_YAW_KP			0.7
-#define LV5_CHASSIS_YAW_KI			0
-#define LV5_CHASSIS_YAW_KD			0
-
-#define LV6_CHASSIS_YAW_MAX_RPM		0.4
-#define LV6_CHASSIS_YAW_KP			0.7
-#define LV6_CHASSIS_YAW_KI			0
-#define LV6_CHASSIS_YAW_KD			0
-
-#define LV7_CHASSIS_YAW_MAX_RPM		0.4
-#define LV7_CHASSIS_YAW_KP			0.7
-#define LV7_CHASSIS_YAW_KI			0
-#define LV7_CHASSIS_YAW_KD			0
-
-#define LV8_CHASSIS_YAW_MAX_RPM		0.4
-#define LV8_CHASSIS_YAW_KP			0.7
-#define LV8_CHASSIS_YAW_KI			0
-#define LV8_CHASSIS_YAW_KD			0
-
-#define LV9_CHASSIS_YAW_MAX_RPM		0.4
-#define LV9_CHASSIS_YAW_KP			0.7
-#define LV9_CHASSIS_YAW_KI			0
-#define LV9_CHASSIS_YAW_KD			0
-
-#define LV10_CHASSIS_YAW_MAX_RPM	0.8
-#define LV10_CHASSIS_YAW_KP			0.7
-#define LV10_CHASSIS_YAW_KI			0.02
-#define LV10_CHASSIS_YAW_KD			8
-#else
-#define LV1_CHASSIS_YAW_MAX_RPM		0.35
-#define LV1_CHASSIS_YAW_KP			0.7
-#define LV1_CHASSIS_YAW_KI			0
-#define LV1_CHASSIS_YAW_KD			8//0 //for 1v1
-
-#define LV2_CHASSIS_YAW_MAX_RPM		0.45
-#define LV2_CHASSIS_YAW_KP			0.7
-#define LV2_CHASSIS_YAW_KI			0
-#define LV2_CHASSIS_YAW_KD			8
-
-#define LV3_CHASSIS_YAW_MAX_RPM		0.55
-#define LV3_CHASSIS_YAW_KP			0.7
-#define LV3_CHASSIS_YAW_KI			0
-#define LV3_CHASSIS_YAW_KD			8
-
-#define LV4_CHASSIS_YAW_MAX_RPM		0.6
-#define LV4_CHASSIS_YAW_KP			0.7
-#define LV4_CHASSIS_YAW_KI			0
-#define LV4_CHASSIS_YAW_KD			8
-
-#define LV5_CHASSIS_YAW_MAX_RPM		0.6
-#define LV5_CHASSIS_YAW_KP			0.7
-#define LV5_CHASSIS_YAW_KI			0
-#define LV5_CHASSIS_YAW_KD			8
-
-#define LV6_CHASSIS_YAW_MAX_RPM		0.6
-#define LV6_CHASSIS_YAW_KP			0.7
-#define LV6_CHASSIS_YAW_KI			0
-#define LV6_CHASSIS_YAW_KD			8
-
-#define LV7_CHASSIS_YAW_MAX_RPM		0.6
-#define LV7_CHASSIS_YAW_KP			0.7
-#define LV7_CHASSIS_YAW_KI			0
-#define LV7_CHASSIS_YAW_KD			8
-
-#define LV8_CHASSIS_YAW_MAX_RPM		0.6
-#define LV8_CHASSIS_YAW_KP			0.7
-#define LV8_CHASSIS_YAW_KI			0
-#define LV8_CHASSIS_YAW_KD			8
-
-#define LV9_CHASSIS_YAW_MAX_RPM		0.6
-#define LV9_CHASSIS_YAW_KP			0.7
-#define LV9_CHASSIS_YAW_KI			0
-#define LV9_CHASSIS_YAW_KD			8
-
-#define LV10_CHASSIS_YAW_MAX_RPM	0.6
-#define LV10_CHASSIS_YAW_KP			0.7
-#define LV10_CHASSIS_YAW_KI			0
-#define LV10_CHASSIS_YAW_KD			8
-#endif
-#else
 
 #define MAX_SPEED 		    0.34
 #define MAX_ACCEL			1.5
@@ -333,7 +142,6 @@
 #define CHASSIS_YAW_KP 			0.45
 #define CHASSIS_YAW_KI			0.05
 #define CHASSIS_YAW_KD 			2
-#endif
 
 #define CHASSIS_YAW_MIN			0.05	// value below which chassis yaw movement is ignored
 #define SPIN_ACCELERATION		1.0		// Same guideline as chassis acceleration
@@ -361,12 +169,11 @@
 #define PITCH_ANGLE_INT_MAX		0
 #endif
 #define PITCH_MAX_RPM			60
-//single loop pid below!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#define PITCHRPM_KP				30		 //30 initial values
-#define PITCHRPM_KI				0   	 //0.5
-#define PITCHRPM_KD				5		 //50
-#define PITCHRPM_INT_MAX		4000	 //4000
-#define PITCH_MAX_CURRENT		20000	 //205000
+#define PITCHRPM_KP				30
+#define PITCHRPM_KI				0
+#define PITCHRPM_KD				50
+#define PITCHRPM_INT_MAX		4000
+#define PITCH_MAX_CURRENT		205000
 
 #else
 
@@ -391,7 +198,7 @@
 #define PITCH_CONST 			0
 
 #define YAW_SINGLE_PID_LOOP		// define to enable single PID loop instead of cascade PID for yaw
-#define YAW_MOTOR_TYPE 			TYPE_DM4310_DJI_MODE
+#define YAW_MOTOR_TYPE 			TYPE_GM6020_720
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #ifndef YAW_SINGLE_PID_LOOP
@@ -404,10 +211,10 @@
 
 #endif
 
-#define YAWRPM_KP				80//100000
+#define YAWRPM_KP				19000
 #define YAWRPM_KI				0
-#define YAWRPM_KD				300//700000
-#define YAWRPM_INT_MAX			5000
+#define YAWRPM_KD				475000
+#define YAWRPM_INT_MAX			1000
 #define YAW_MAX_CURRENT			20000
 
 #else
@@ -428,7 +235,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	5000
-#define YAW_CENTER 				777
+#define YAW_CENTER 				5005
 #define YAW_MAX_ANG				0 // unused
 #define YAW_MIN_ANG				0 // unused
 
@@ -453,7 +260,7 @@
 #endif
 
 #define YAW_MOTOR_CAN		&hcan1
-#define YAW_MOTOR_ID 		0x2
+#define YAW_MOTOR_ID 		0x5
 
 /*********************** OTHERS ***********************/
 #define WHEEL_CIRC			47.1	//in CM
@@ -466,4 +273,4 @@
 //microsecond timer used for PIDs
 #define TIMER_FREQ			1000000 //Cannot be too high if not the ISRs overload the CPU
 
-#endif /* ROBOT_CONFIG_ROBOT_CONFIG_KIRBEE_H_ */
+#endif /* ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_2026_H_ */
