@@ -133,7 +133,7 @@ void error_handler_task(void *argument) {
  * 	{2, 5, 2, 5}, // GFRICTION
  *
  * 	{3, 1, 3, 1}, // PITCH
- * 	{2, 1, 3, 2}, // YAW
+ * 	{3, 2, 3, 2}, // YAW
  *
  * Notes:
  *  - Multiple active errors will be reported sequentially.
