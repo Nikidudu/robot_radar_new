@@ -133,7 +133,7 @@
 #define BUFFER_MIN			1.0	// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
 									// tune this by seeing if pilot likes the speed
 #define CHASSIS_CAN_SPINSPIN
-#define CHASSIS_SPINSPIN_MAX 1
+#define CHASSIS_SPINSPIN_MAX 0.9
 
 //#define LVL_TUNING		// scales chassis speed as level increases
 //#define ONE_VS_ONE		// 1v1 standard configuration (vs 3v3)
@@ -226,13 +226,13 @@
 #ifdef ONE_VS_ONE
 #define LV1_CHASSIS_YAW_MAX_RPM		0.8//0.6
 #define LV1_CHASSIS_YAW_KP			0.7
-#define LV1_CHASSIS_YAW_KI			0.02
-#define LV1_CHASSIS_YAW_KD			8//30 // for 1v1
+#define LV1_CHASSIS_YAW_KI			0
+#define LV1_CHASSIS_YAW_KD			2//30 // for 1v1
 
 #define LV2_CHASSIS_YAW_MAX_RPM		0.4
 #define LV2_CHASSIS_YAW_KP			0.7
 #define LV2_CHASSIS_YAW_KI			0
-#define LV2_CHASSIS_YAW_KD			0
+#define LV2_CHASSIS_YAW_KD			2
 
 #define LV3_CHASSIS_YAW_MAX_RPM		0.4
 #define LV3_CHASSIS_YAW_KP			0.7
@@ -271,13 +271,13 @@
 
 #define LV10_CHASSIS_YAW_MAX_RPM	0.8
 #define LV10_CHASSIS_YAW_KP			0.7
-#define LV10_CHASSIS_YAW_KI			0.02
-#define LV10_CHASSIS_YAW_KD			8
+#define LV10_CHASSIS_YAW_KI			0
+#define LV10_CHASSIS_YAW_KD			2
 #else
 #define LV1_CHASSIS_YAW_MAX_RPM		0.25
 #define LV1_CHASSIS_YAW_KP			0.7
 #define LV1_CHASSIS_YAW_KI			0
-#define LV1_CHASSIS_YAW_KD			8//0 //for 1v1
+#define LV1_CHASSIS_YAW_KD			2//0 //for 1v1
 
 #define LV2_CHASSIS_YAW_MAX_RPM		0.35
 #define LV2_CHASSIS_YAW_KP			0.7
@@ -287,56 +287,56 @@
 #define LV3_CHASSIS_YAW_MAX_RPM		0.40
 #define LV3_CHASSIS_YAW_KP			0.7
 #define LV3_CHASSIS_YAW_KI			0
-#define LV3_CHASSIS_YAW_KD			8
+#define LV3_CHASSIS_YAW_KD			2
 
 #define LV4_CHASSIS_YAW_MAX_RPM		0.40
 #define LV4_CHASSIS_YAW_KP			0.7
 #define LV4_CHASSIS_YAW_KI			0
-#define LV4_CHASSIS_YAW_KD			8
+#define LV4_CHASSIS_YAW_KD			2
 
 #define LV5_CHASSIS_YAW_MAX_RPM		0.40
 #define LV5_CHASSIS_YAW_KP			0.7
 #define LV5_CHASSIS_YAW_KI			0
-#define LV5_CHASSIS_YAW_KD			8
+#define LV5_CHASSIS_YAW_KD			2
 
 #define LV6_CHASSIS_YAW_MAX_RPM		0.40
 #define LV6_CHASSIS_YAW_KP			0.7
 #define LV6_CHASSIS_YAW_KI			0
-#define LV6_CHASSIS_YAW_KD			8
+#define LV6_CHASSIS_YAW_KD			2
 
 #define LV7_CHASSIS_YAW_MAX_RPM		0.40
 #define LV7_CHASSIS_YAW_KP			0.7
 #define LV7_CHASSIS_YAW_KI			0
-#define LV7_CHASSIS_YAW_KD			8
+#define LV7_CHASSIS_YAW_KD			2
 
 #define LV8_CHASSIS_YAW_MAX_RPM		0.40
 #define LV8_CHASSIS_YAW_KP			0.7
 #define LV8_CHASSIS_YAW_KI			0
-#define LV8_CHASSIS_YAW_KD			8
+#define LV8_CHASSIS_YAW_KD			2
 
 #define LV9_CHASSIS_YAW_MAX_RPM		0.40
 #define LV9_CHASSIS_YAW_KP			0.7
 #define LV9_CHASSIS_YAW_KI			0
-#define LV9_CHASSIS_YAW_KD			8
+#define LV9_CHASSIS_YAW_KD			2
 
 #define LV10_CHASSIS_YAW_MAX_RPM	0.40
 #define LV10_CHASSIS_YAW_KP			0.7
 #define LV10_CHASSIS_YAW_KI			0
-#define LV10_CHASSIS_YAW_KD			8
+#define LV10_CHASSIS_YAW_KD			2
 #endif
 #else
 
 #define MAX_SPEED 		    0.34
 #define MAX_ACCEL			1.5
 
-#define CHASSIS_YAW_MAX_RPM		0.75
-#define CHASSIS_YAW_KP 			0.45
-#define CHASSIS_YAW_KI			0.05
-#define CHASSIS_YAW_KD 			2
+#define CHASSIS_YAW_MAX_RPM   0.34
+#define CHASSIS_YAW_KP        0.20
+#define CHASSIS_YAW_KI        0.00
+#define CHASSIS_YAW_KD        1.25
 #endif
 
 #define CHASSIS_YAW_MIN			0.05	// value below which chassis yaw movement is ignored
-#define SPIN_ACCELERATION		1.0		// Same guideline as chassis acceleration
+#define SPIN_ACCELERATION		0.50	// Same guideline as chassis acceleration
 
 #define CHASSIS_SPEED_BOOST		0.15	// Increase MAX_SPEED when spinspin mode is deactivated
 
@@ -361,9 +361,9 @@
 #define PITCH_ANGLE_INT_MAX		0
 #endif
 #define PITCH_MAX_RPM			60
-#define PITCHRPM_KP				30
+#define PITCHRPM_KP				36
 #define PITCHRPM_KI				0
-#define PITCHRPM_KD				50
+#define PITCHRPM_KD				70
 #define PITCHRPM_INT_MAX		4000
 #define PITCH_MAX_CURRENT		205000
 

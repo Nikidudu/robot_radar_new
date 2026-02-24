@@ -12,6 +12,7 @@
 #include "imu_processing_task.h"
 #include "motor_config.h"
 #include "motor_control.h"
+#include <stdbool.h>
 
 void remote_control_input() {
 	remote_gimbal_input();
@@ -33,12 +34,27 @@ void remote_chassis_input() {
 
 		forward_input = (float) g_remote_cmd.left_y / RC_LIMITS;
 		horizontal_input = (float) g_remote_cmd.left_x / RC_LIMITS;
-		if (abs(g_remote_cmd.side_dial) > 50 ){
-			yaw_input = (float)g_remote_cmd.side_dial * CHASSIS_SPINSPIN_MAX/660;
+		// --- Yaw (spin) control with "freeze on release" to prevent snap-back ---
+		static int16_t last_side_dial = 0;
+		const int16_t DIAL_DB = 50;
+
+		int16_t dial = g_remote_cmd.side_dial;
+
+		bool dial_active   = (abs(dial) > DIAL_DB);
+		bool dial_released = (abs(last_side_dial) > DIAL_DB) && !dial_active;
+
+		if (dial_released) {
+		    // freeze chassis yaw centering reference to current yaw so it doesn't "return"
+		    chassis_freeze_yaw_hold();   // you'll add this function (step below)
 		}
-		else {
-			yaw_input = chassis_center_yaw();
+
+		if (dial_active) {
+		    yaw_input = ((float) dial / 660.0f) * CHASSIS_SPINSPIN_MAX;
+		} else {
+		    yaw_input = chassis_center_yaw();
 		}
+
+		last_side_dial = dial;
 		chassis_set_ctrl(forward_input, horizontal_input, yaw_input);
 	}
 }
