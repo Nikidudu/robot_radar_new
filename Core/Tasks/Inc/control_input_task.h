@@ -33,9 +33,10 @@ void gimbal_turn_ang(float pit_radians, float yaw_radians);
 void gimbal_set_ang(float pit_radians, float yaw_radians);
 void chassis_yaw_pid_init();
 void ramp(float *curr_val, float target_val, float max_ramp);
-
+void chassis_freeze_yaw_hold(void);
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* TASKS_INC_CONTROL_INPUT_TASK_H_ */
+
