@@ -1,55 +1,297 @@
+/*
+ * chassis_usart_message_task.c
+ *
+ *  Created on: Oct 25, 2025
+ *      Author: bed
+ */
 
-#include <stdio.h>
-#include <string.h>
-#include "main.h"
+/* Private includes ----------------------------------------------------------*/
+#include "board_lib.h"
+#include "chassis_usart_message_task.h"
+#include "gimbal_control_task.h"
+#include "control_input_task.h"
+#include "usart.h" 
 
+/* Private define ------------------------------------------------------------*/
+#define USART_TX_PERIOD_MS 5 // Transmission period
+
+/* Private variables ---------------------------------------------------------*/
+static float lvl_max_speed;
+static float lvl_max_accel;
+static float lvl_max_spin;
+static float spin_accel = SPIN_ACCELERATION;
+
+float rel_forward;
+float rel_horizontal;
+float rel_yaw;
+
+supercap_data supercap;
+
+/* External variables --------------------------------------------------------*/
+extern ref_game_robot_data_t ref_robot_data;
+extern motor_data_t yaw_motor;
 extern UART_HandleTypeDef huart6;
 
-// Private define
-#define UART_TX_PERIOD_MS 5
-#define UART_FRAME_HEADER 0xA5
-#define UART_PACKET_SIZE 26
-#define MEMSET_INTERVAL 100
-
-uint8_t tx_buf_A[UART_PACKET_SIZE];
-uint8_t tx_buf_B[UART_PACKET_SIZE];
-uint8_t *active_buf = tx_buf_A;
-
-uint8_t send_count = 0;
-uint8_t rx_data[UART_PACKET_SIZE];
-uint8_t rx_counter = 0;
+/* Private function prototypes -----------------------------------------------*/
+void level_config(float *lvl_max_speed, float *lvl_max_accel, float *lvl_max_spin);
+float rpm_ramp(float target_value, float current_value, float *lvl_max_accel);
+int16_t pack_value(float x);
 
 void chassis_usart_message_task(void *argument) {
-	HAL_UART_Receive_DMA(&huart6, rx_data, UART_PACKET_SIZE);
+    uint8_t tx_buffer[10];
+    TickType_t xLastWakeTime;
 
-	// Initial Trigger: Only done ONCE to start the chain
-	sprintf((char*)uart_tx_buf, "Hello from TOP devc %03u\r\n", (unsigned int)send_count);
-	HAL_UART_Transmit_DMA(&huart6, uart_tx_buf, UART_PACKET_SIZE); // Send exactly 25 bytes
+    // Speed and acceleration control variables
+    float limit_forward;
+    float limit_horizontal;
+    float limit_yaw;
+    float act_forward = 0.0f;
+    float act_horizontal = 0.0f;
+    float act_yaw = 0.0f;
 
+    // Initialize the xLastWakeTime variable with the current time
+    xLastWakeTime = xTaskGetTickCount();
 
-	while(1) {
-		vTaskDelay(1);
-	}
-}
+    while(1) {
+        // Use yaw_motor angle for field-centric control relative to gimbal
+        float rel_angle = yaw_motor.angle_data.adj_ang;
 
-void 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART6)
-    {
-        send_count = send_count + 1;
-        if (send_count > 999) send_count = 0;
+        // Setting translational and rotational speed and acceleration base on robot level
+        level_config(&lvl_max_speed, &lvl_max_accel, &lvl_max_spin);
 
-        if (active_buf == tx_buf_A) {
-			active_buf = tx_buf_B;
-		} else {
-			active_buf = tx_buf_A;
-		}
+        float speed_limit = lvl_max_speed;
+        float spin_limit = lvl_max_spin;
 
+        // Increase speed when spinspin mode is deactivated
+        if (chassis_ctrl_data.g_spinspin_mode == 0) {
+            speed_limit += CHASSIS_SPEED_BOOST;
+        }
 
-        sprintf((char*)active_buf, "Hello from TOP devc %03u\r\n", send_count);
-        HAL_UART_Transmit_DMA(huart, active_buf, UART_PACKET_SIZE);
+        // Clamp the values between -limit to limit
+        limit_forward = fmaxf(-speed_limit,
+                fminf(chassis_ctrl_data.forward, speed_limit));
+        limit_horizontal = fmaxf(-speed_limit,
+                fminf(chassis_ctrl_data.horizontal, speed_limit));
+        limit_yaw = fmaxf(-spin_limit,
+                fminf(chassis_ctrl_data.yaw, spin_limit));
+
+        // Smooths speed changes over time using acceleration constraints
+        act_forward = rpm_ramp(limit_forward, act_forward, &lvl_max_accel);
+        act_horizontal = rpm_ramp(limit_horizontal, act_horizontal, &lvl_max_accel);
+        act_yaw = rpm_ramp(limit_yaw, act_yaw, &spin_accel);
+
+        // translation and rotation speed of chassis for chassis yaw angle relative to gimbal
+        rel_forward = (act_forward * cos(rel_angle))
+                - (act_horizontal * sin(rel_angle));
+        rel_horizontal = (act_forward * sin(rel_angle))
+                + (act_horizontal * cos(rel_angle));
+        rel_yaw = act_yaw;
+
+        // convert from float to int16_t
+        int16_t send_forward = pack_value(rel_forward);
+        int16_t send_horizontal = pack_value(rel_horizontal);
+        int16_t send_yaw = pack_value(rel_yaw);
+
+        // pack enable_supercap_module and power limit
+        uint8_t last_byte = 0;
+        /* Bit 7 = supercap */
+        if (supercap.supercap_enabled) {
+            last_byte |= (1 << 7);  // set MSB
+        }
+        /* Bits 6-0 = power limit (mask to 7 bits just in case) */
+        last_byte |= (ref_robot_data.chassis_power_limit & 0x7F);
+
+        // ===== Send CHASSIS_DATA via USART ===== //
+        // Format: Header(0xA5) + Data(8 bytes) + Checksum(1 byte)
+        memset(tx_buffer, 0, 10);
+
+        tx_buffer[0] = 0xA5;
+        tx_buffer[1] = send_forward & 0xFF;
+        tx_buffer[2] = send_forward >> 8;
+        tx_buffer[3] = send_horizontal & 0xFF;
+        tx_buffer[4] = send_horizontal >> 8;
+        tx_buffer[5] = send_yaw & 0xFF;
+        tx_buffer[6] = send_yaw >> 8;
+        tx_buffer[7] = chassis_ctrl_data.enabled;
+        tx_buffer[8] = last_byte;
+        
+        // Calculate Checksum
+        uint8_t checksum = 0;
+        for(int i = 0; i < 9; i++) {
+            checksum += tx_buffer[i];
+        }
+        tx_buffer[9] = checksum;
+
+        // Send via USART DMA
+        HAL_UART_Transmit_DMA(&huart6, tx_buffer, 10);
+
+        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(USART_TX_PERIOD_MS));
     }
 }
 
+int16_t pack_value(float x) {
+    return (int16_t)lroundf(x * SCALE);
+}
 
+void level_config(float *lvl_max_speed, float *lvl_max_accel,
+        float *lvl_max_spin) {
+#ifdef LVL_TUNING
+    uint8_t curr_level = ref_robot_data.robot_level;
+
+    if (supercap.supercap_enabled) {
+        curr_level += 10;
+    }
+
+    switch (curr_level) {
+    case 1:
+        *lvl_max_speed = LV1_MAX_SPEED;
+        *lvl_max_accel = LV1_MAX_ACCEL;
+        *lvl_max_spin = LV1_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 2:
+        *lvl_max_speed = LV2_MAX_SPEED;
+        *lvl_max_accel = LV2_MAX_ACCEL;
+        *lvl_max_spin = LV2_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 3:
+        *lvl_max_speed = LV3_MAX_SPEED;
+        *lvl_max_accel = LV3_MAX_ACCEL;
+        *lvl_max_spin = LV3_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 4:
+        *lvl_max_speed = LV4_MAX_SPEED;
+        *lvl_max_accel = LV4_MAX_ACCEL;
+        *lvl_max_spin = LV4_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 5:
+        *lvl_max_speed = LV5_MAX_SPEED;
+        *lvl_max_accel = LV5_MAX_ACCEL;
+        *lvl_max_spin = LV5_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 6:
+        *lvl_max_speed = LV6_MAX_SPEED;
+        *lvl_max_accel = LV6_MAX_ACCEL;
+        *lvl_max_spin = LV6_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 7:
+        *lvl_max_speed = LV7_MAX_SPEED;
+        *lvl_max_accel = LV7_MAX_ACCEL;
+        *lvl_max_spin = LV7_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 8:
+        *lvl_max_speed = LV8_MAX_SPEED;
+        *lvl_max_accel = LV8_MAX_ACCEL;
+        *lvl_max_spin = LV8_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 9:
+        *lvl_max_speed = LV9_MAX_SPEED;
+        *lvl_max_accel = LV9_MAX_ACCEL;
+        *lvl_max_spin = LV9_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 10:
+        *lvl_max_speed = LV10_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    // Cases 11-20 for supercap enabled
+    case 11:
+        *lvl_max_speed = LV11_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 12:
+        *lvl_max_speed = LV12_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 13:
+        *lvl_max_speed = LV13_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 14:
+        *lvl_max_speed = LV14_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 15:
+        *lvl_max_speed = LV15_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 16:
+        *lvl_max_speed = LV16_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 17:
+        *lvl_max_speed = LV17_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 18:
+        *lvl_max_speed = LV18_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 19:
+        *lvl_max_speed = LV19_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    case 20:
+        *lvl_max_speed = LV20_MAX_SPEED;
+        *lvl_max_accel = LV10_MAX_ACCEL;
+        *lvl_max_spin = LV10_CHASSIS_YAW_MAX_RPM;
+        break;
+
+    default:
+        *lvl_max_speed = LV1_MAX_SPEED;
+        *lvl_max_accel = LV1_MAX_ACCEL;
+        *lvl_max_spin = LV1_CHASSIS_YAW_MAX_RPM;
+    }
+#else
+
+    *lvl_max_speed = MAX_SPEED;
+    *lvl_max_accel = MAX_ACCEL;
+    *lvl_max_spin  = CHASSIS_YAW_MAX_RPM;
+
+#endif
+    *lvl_max_speed = (*lvl_max_speed < 0) ? 0 : *lvl_max_speed; //Make sure is within 0 - 1 since it is a percentage
+    *lvl_max_speed = (*lvl_max_speed > 1) ? 1 : *lvl_max_speed; // Cap the max speed of motor
+}
+
+float rpm_ramp(float target_value, float current_value, float *lvl_max_accel) {
+    double dt = CHASSIS_DELAY / 1000.0; // Converting dt to minutes
+    double accel = *lvl_max_accel; //Default Chassis_Accel_max is LV1_ACCEL_MAX
+
+    double ramp_rate = accel * dt; //Calc ramp_rate from max_accel
+    float delta = target_value - current_value;
+
+    if (target_value == 0) {
+        return 0; //Instantly stop the robot;
+    } else if (fabs(delta) < ramp_rate) {
+        return target_value;  // close enough, just snap to target
+    } else {
+        return current_value + (delta > 0 ? ramp_rate : -ramp_rate);
+    }
+}

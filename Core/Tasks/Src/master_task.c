@@ -72,8 +72,8 @@ void master_task(void *argument) {
 
     xTaskCreate(UsbParserTask, "UsbParser", 512, NULL, 12, NULL);
 
-	xTaskCreate(chassis_can_message_task, "chassis_task",
-	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4, NULL);
+//	xTaskCreate(chassis_can_message_task, "chassis_task",
+//	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4, NULL);
 
 	xTaskCreate(launcher_control_task, "launcher_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 4, NULL);
