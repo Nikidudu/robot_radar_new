@@ -1,5 +1,3 @@
-
-
 #ifndef TASKS_INC_ROBOT_CONFIG_H_
 #define TASKS_INC_ROBOT_CONFIG_H_
 
@@ -8,12 +6,11 @@
 
 // COMMON CONFIGURATION
 #define SPINSPIN_RANDOM_DELAY 50 // todo: seems good to implement this eh
+
 // 1 for annoying beep sound, 0 for some error beeps every 3s, -1 for absolute peace and tranquility
 #define MOTOR_ONLINE_CHECK 	-1
-// set to 1 to enable launcher arm safety
-#define LAUNCHER_SAFETY		0
-// set to allow flywheels to spin during standby
-// 1 (spin when in comp), 2(always spin),
+
+// set to allow flywheels to spin during standby: 1(spin when in comp), 2(always spin),
 #define FRICTION_SB_SPIN_ON	0
 
 // if no overrides in the respective configs
@@ -22,10 +19,6 @@
 #define CONTROL_DEFAULT			REMOTE_CTRL_MODE
 //#define CONTROL_DEFAULT		SBC_CTRL_MODE
 #endif
-
-// for aimbot. todo: move it to sbc
-#define DAMAGE_TIMEOUT 5000
-#define PITCH_SURVEILLANCE -0.1
 
 /*********************** OTHERS ***********************/
 #define MOTOR_TIMEOUT_MAX	1000000	// time above which a motor is considered to be disconnected

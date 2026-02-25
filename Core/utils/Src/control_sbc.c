@@ -18,6 +18,9 @@ extern uint8_t g_safety_toggle;
 #define AIMBOT_PITCH_KP 0.4f
 #define FILTER_ALPHA 	0.35f  // 0.0 = no filter, 0.5 = moderate smoothing
 
+#define DAMAGE_TIMEOUT 5000
+#define PITCH_SURVEILLANCE -0.1
+
 void sbc_gimbal_input();
 void sbc_chassis_input();
 void sbc_launcher_control_input();

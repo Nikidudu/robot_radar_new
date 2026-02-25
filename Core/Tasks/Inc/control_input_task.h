@@ -18,8 +18,6 @@ extern gimbal_control_t gimbal_ctrl_data;
 
 extern uint8_t aimbot_mode;
 extern uint8_t control_mode;
-extern uint8_t g_safety_toggle;
-extern uint8_t launcher_safety_toggle;
 
 void control_input_task(void *argument);
 float chassis_center_yaw();
