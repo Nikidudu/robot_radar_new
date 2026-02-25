@@ -34,7 +34,7 @@ uint8_t control_mode = CONTROL_DEFAULT;
 
 uint32_t reset_debounce_time = 0;
 uint32_t reset_start_time = 0;
-static float chassis_yaw_hold_target = 0.0f;
+// static float chassis_yaw_hold_target = 0.0f;
 
 void control_input_task(void *argument) {
 	TickType_t start_time;
@@ -122,7 +122,7 @@ void control_input_task(void *argument) {
 float chassis_center_yaw() {
     chassis_centering_config();  // set PID based on level
 
-    speed_pid(chassis_yaw_hold_target, yaw_motor.angle_data.adj_ang, &yaw_pid_data);
+    speed_pid(0, yaw_motor.angle_data.adj_ang, &yaw_pid_data);
 
     if (fabs(yaw_pid_data.output) < CHASSIS_YAW_MIN) {
         return 0;
@@ -130,13 +130,11 @@ float chassis_center_yaw() {
     return yaw_pid_data.output;
 }
 
-void chassis_freeze_yaw_hold(void)
-{
-    chassis_yaw_hold_target = yaw_motor.angle_data.adj_ang;
-
+//void chassis_freeze_yaw_hold(void)
+//{
     // Optional: clear PID output/state to avoid any residual impulse
-    yaw_pid_data.output = 0;
-}
+  //  yaw_pid_data.output = 0;
+// }
 
 void chassis_centering_config() {
 #ifdef LVL_TUNING
@@ -253,7 +251,7 @@ void control_reset() {
 	chassis_ctrl_data.enabled = 0;
 	chassis_ctrl_data.g_spinspin_mode = 0;
 
-	chassis_yaw_hold_target = yaw_motor.angle_data.adj_ang;
+//	chassis_yaw_hold_target = yaw_motor.angle_data.adj_ang;
 
 	gimbal_ctrl_data.pitch = 0;
 	gimbal_ctrl_data.yaw = imu_heading.yaw;
