@@ -12,7 +12,6 @@
 #include "imu_processing_task.h"
 #include "motor_config.h"
 #include "motor_control.h"
-#include <stdbool.h>
 
 void remote_control_input() {
 	remote_gimbal_input();
@@ -21,42 +20,27 @@ void remote_control_input() {
 }
 
 void remote_chassis_input() {
-	if (g_remote_cmd.sw != SW_ALL_ON) {
-		chassis_ctrl_data.enabled = 0;
-		chassis_ctrl_data.forward = 0;
-		chassis_ctrl_data.horizontal = 0;
-		chassis_ctrl_data.yaw = 0;
-	} else {
-		chassis_ctrl_data.enabled = 1;
-		float horizontal_input = 0.0;
-		float forward_input = 0.0;
-		float yaw_input = 0.0;
+    if (g_remote_cmd.sw != SW_ALL_ON) {
+        chassis_ctrl_data.enabled = 0;
+        chassis_ctrl_data.forward = 0;
+        chassis_ctrl_data.horizontal = 0;
+        chassis_ctrl_data.yaw = 0;
+        return;
+    }
 
-		forward_input = (float) g_remote_cmd.left_y / RC_LIMITS;
-		horizontal_input = (float) g_remote_cmd.left_x / RC_LIMITS;
-		// --- Yaw (spin) control with "freeze on release" to prevent snap-back ---
-		static int16_t last_side_dial = 0;
-		const int16_t DIAL_DB = 50;
+    chassis_ctrl_data.enabled = 1;
 
-		int16_t dial = g_remote_cmd.side_dial;
+    float forward_input = (float)g_remote_cmd.left_y / RC_LIMITS;
+    float horizontal_input = (float)g_remote_cmd.left_x / RC_LIMITS;
+    float yaw_input = 0.0f;
 
-		bool dial_active   = (abs(dial) > DIAL_DB);
-		bool dial_released = (abs(last_side_dial) > DIAL_DB) && !dial_active;
+    if (abs(g_remote_cmd.side_dial) > 50) {
+        yaw_input = ((float)g_remote_cmd.side_dial / 660.0f) * CHASSIS_SPINSPIN_MAX;
+    } else {
+        yaw_input = chassis_center_yaw();
+    }
 
-		if (dial_released) {
-		    // freeze chassis yaw centering reference to current yaw so it doesn't "return"
-		    chassis_freeze_yaw_hold();   // you'll add this function (step below)
-		}
-
-		if (dial_active) {
-		    yaw_input = ((float) dial / 660.0f) * CHASSIS_SPINSPIN_MAX;
-		} else {
-		    yaw_input = chassis_center_yaw();
-		}
-
-		last_side_dial = dial;
-		chassis_set_ctrl(forward_input, horizontal_input, yaw_input);
-	}
+    chassis_set_ctrl(forward_input, horizontal_input, yaw_input);
 }
 
 void remote_gimbal_input() {
