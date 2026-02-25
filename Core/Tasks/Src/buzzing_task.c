@@ -157,6 +157,7 @@ void buzzing_task(void *argument) {
 				vTaskDelayUntil(&last_wake_time, note_time*0.05);
 			}
 			break;
+
 		case ok:
 			last_wake_time = xTaskGetTickCount();
 			buzzer(BUZZER_HIGH);
@@ -166,6 +167,7 @@ void buzzing_task(void *argument) {
 			buzzer(BUZZER_LOW);
 			vTaskDelay(BUZZ_TIME);
 			break;
+
 		case not_ok:
 			last_wake_time = xTaskGetTickCount();
 			buzzer(BUZZER_HIGH);
@@ -180,6 +182,7 @@ void buzzing_task(void *argument) {
 			vTaskDelay(BUZZ_TIME);
 			buzzer(0);
 			break;
+
 		case control_control:
 			last_wake_time = xTaskGetTickCount();
 			buzzer(BUZZER_LOW);
@@ -189,6 +192,7 @@ void buzzing_task(void *argument) {
 			buzzer(BUZZER_LOW);
 			vTaskDelay(BUZZ_TIME);
 			break;
+
 		case control_keyboard:
 			last_wake_time = xTaskGetTickCount();
 			buzzer(BUZZER_HIGH);
@@ -224,14 +228,22 @@ void buzzing_task(void *argument) {
 			buzzer(0);
 			vTaskDelay(GAP_TIME);
 			break;
+
+		case bz_debug_half_rest:
+			buzzer(0);
+			vTaskDelay(GAP_TIME/6);
+			break;
+
 		case bz_high:
 			buzzer(BUZZER_HIGH);
 			vTaskDelay(BUZZ_TIME);
 			break;
+
 		case bz_low:
 			buzzer(BUZZER_LOW);
 			vTaskDelay(BUZZ_TIME);
 			break;
+
 		case bz_debug_hi_temp:
 			buzzer(DEBUG_HI_TEMP1);
 			vTaskDelay(GAP_TIME);
@@ -240,14 +252,17 @@ void buzzing_task(void *argument) {
 			buzzer(DEBUG_HI_TEMP3);
 			vTaskDelay(GAP_TIME);
 			break;
+
 		case bz_temp_hi:
 			buzzer(DEBUG_HI_TEMP1);
 			vTaskDelay(BUZZ_TIME);
 			break;
+
 		case bz_temp_low:
 			buzzer(DEBUG_HI_TEMP3);
 			vTaskDelay(BUZZ_TIME);
 			break;
+
 		default:
 			break;
 		}

@@ -239,6 +239,7 @@ typedef enum {
 	bz_high,
 	bz_low,
 	bz_debug_low,
+	bz_debug_half_rest,
 	bz_debug_high,
 	bz_debug_rest,
 	bz_debug_hi_temp,

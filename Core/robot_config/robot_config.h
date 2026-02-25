@@ -8,7 +8,7 @@
 #define SPINSPIN_RANDOM_DELAY 50 // todo: seems good to implement this eh
 
 // 1 for annoying beep sound, 0 for some error beeps every 3s, -1 for absolute peace and tranquility
-#define MOTOR_ONLINE_CHECK 	-1
+#define MOTOR_ONLINE_CHECK 	1
 
 // set to allow flywheels to spin during standby: 1(spin when in comp), 2(always spin),
 #define FRICTION_SB_SPIN_ON	0

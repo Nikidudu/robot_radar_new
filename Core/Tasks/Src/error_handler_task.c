@@ -57,7 +57,7 @@ void error_handler_task(void *argument) {
 
 	if (MOTOR_ONLINE_CHECK == 1) {
 		while (error != 0) {
-			delay = 500;
+			delay = 1000;
 			error = check_motors();
 
 			buzzer_error_report(error, &delay);
@@ -96,7 +96,7 @@ void error_handler_task(void *argument) {
 				error = 0;
 			}
 		}
-		vTaskDelay(1000);
+		vTaskDelay(1500);
 	}
 	//implement mutexes so this task doesn't check while the motor tasks do their thing
 }
@@ -184,6 +184,10 @@ void bz_buzzer(uint8_t high, uint8_t low) {
 	for (uint8_t i = 0; i < high; i++) {
 		xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
 	}
+
+	temp_msg = bz_debug_half_rest;
+	xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);
+
 	temp_msg = bz_debug_low;
 	for (int8_t i = 0; i < low; i++) {
 		xQueueSendToBack(g_buzzing_task_msg, &temp_msg, 0);

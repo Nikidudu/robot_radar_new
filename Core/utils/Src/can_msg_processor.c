@@ -13,6 +13,7 @@
 #include "launcher_control_task.h"
 #include "gimbal_control_task.h"
 #include "motor_config.h"
+#include "control_input_task.h"
 
 /* Private define ------------------------------------------------------------*/
 // low-pass-filters: between 0(no filtering) and 1(frozen value)
@@ -131,6 +132,9 @@ void process_bot_dev_c_can_msg(uint32_t msg_id, const uint8_t* rx_buffer) {
 
 	supercap.last_time[1] = supercap.last_time[0];
 	supercap.last_time[0] = get_microseconds();
+
+	chassis_ctrl_data.last_time[1] = chassis_ctrl_data.last_time[0];
+	chassis_ctrl_data.last_time[0] = get_microseconds();
 }
 
 /*
