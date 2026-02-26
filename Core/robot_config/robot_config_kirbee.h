@@ -326,13 +326,13 @@
 #endif
 #else
 
-#define MAX_SPEED 		    0.34
-#define MAX_ACCEL			1.5
+#define MAX_SPEED 		    0.7
+#define MAX_ACCEL			2
 
-#define CHASSIS_YAW_MAX_RPM   0.34
-#define CHASSIS_YAW_KP        0.20
-#define CHASSIS_YAW_KI        0.00
-#define CHASSIS_YAW_KD        1.25
+#define CHASSIS_YAW_MAX_RPM   0.7
+#define CHASSIS_YAW_KP        1
+#define CHASSIS_YAW_KI        0
+#define CHASSIS_YAW_KD        15
 #endif
 
 #define CHASSIS_YAW_MIN			0.05	// value below which chassis yaw movement is ignored
@@ -389,23 +389,23 @@
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0
 
-#define YAW_SINGLE_PID_LOOP		// define to enable single PID loop instead of cascade PID for yaw
-#define YAW_MOTOR_TYPE 			TYPE_GM6020_720
+//#define YAW_SINGLE_PID_LOOP		// define to enable single PID loop instead of cascade PID for yaw
+#define YAW_MOTOR_TYPE 			TYPE_GM6020
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #ifndef YAW_SINGLE_PID_LOOP
 
-#define YAW_ANGLE_KP			400
-#define YAW_ANGLE_KI			0.00	// 0.0001 Should be very small, just to correct run-off or oscillation errors
-#define YAW_ANGLE_KD			2975	//3000
+#define YAW_ANGLE_KP			5
+#define YAW_ANGLE_KI			0	// 0.0001 Should be very small, just to correct run-off or oscillation errors
+#define YAW_ANGLE_KD			0.15	//3000
 #define YAW_ANGLE_INT_MAX		0.1
 #define YAW_MAX_RPM				132		//85
 
 #endif
 
-#define YAWRPM_KP				19000
+#define YAWRPM_KP				8000
 #define YAWRPM_KI				0
-#define YAWRPM_KD				475000
+#define YAWRPM_KD				0
 #define YAWRPM_INT_MAX			1000
 #define YAW_MAX_CURRENT			20000
 
@@ -427,7 +427,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	5000
-#define YAW_CENTER 				5005
+#define YAW_CENTER 				6473
 #define YAW_MAX_ANG				0 // unused
 #define YAW_MIN_ANG				0 // unused
 
