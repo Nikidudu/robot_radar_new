@@ -1,14 +1,14 @@
 #ifndef TASKS_INC_ROBOT_CONFIG_H_
 #define TASKS_INC_ROBOT_CONFIG_H_
 
-//#include "robot_config_sentry_2026.h"
-#include "robot_config_hero_2026.h"
+#include "robot_config_sentry_2026.h"
+//#include "robot_config_hero_2026.h"
 
 // COMMON CONFIGURATION
 #define SPINSPIN_RANDOM_DELAY 50 // todo: seems good to implement this eh
 
 // 1 for annoying beep sound, 0 for some error beeps every 3s, -1 for absolute peace and tranquility
-#define MOTOR_ONLINE_CHECK 	1
+#define MOTOR_ONLINE_CHECK 	-1
 
 // set to allow flywheels to spin during standby: 1(spin when in comp), 2(always spin),
 #define FRICTION_SB_SPIN_ON	0

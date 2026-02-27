@@ -14,6 +14,7 @@
 #include "gimbal_control_task.h"
 #include "motor_config.h"
 #include "control_input_task.h"
+#include "bsp_lk_motor.h"
 
 /* Private define ------------------------------------------------------------*/
 // low-pass-filters: between 0(no filtering) and 1(frozen value)
@@ -61,10 +62,16 @@ void parse_can_message(uint32_t std_id,
 		break;
 
 	// feeder motor
-	case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
-		if (hcan == FEEDER_MOTOR_CAN) {
-			convert_raw_can_data(&feeder_motor, std_id, RxData);
-		}
+//	case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
+//		if (hcan == FEEDER_MOTOR_CAN) {
+//			convert_raw_can_data(&feeder_motor, std_id, RxData);
+//		}
+//		break;
+	case 0x141:
+	case 0x142:
+	    if(hcan == FEEDER_MOTOR_CAN){
+	      process_lk_motor(RxData,&feeder_motor);
+	    }
 		break;
 
 	// pitch motor

@@ -313,6 +313,24 @@ void lk_process_motor_mangle(uint8_t *data, motor_data_t *motor_data) {
 			| ((int64_t) data[2] << 8) | (int64_t) data[1];
 }
 
+void send_motor_torque(motor_data_t *motor_data,int16_t output) {
+    uint8_t data[8] = {0};
+
+    data[0] = 0xA1; // Torque control command
+    data[1] = 0x00;
+    data[2] = 0x00;
+    data[3] = 0x00;
+
+    // Split the 16-bit PID output into low and high bytes
+    data[4] = (output& 0xFF);
+    data[5] = ((output >> 8) & 0xFF);
+
+    data[6] = 0x00;
+    data[7] = 0x00;
+
+    can_send_msg(motor_data->can, motor_data->id, 8, data);
+}
+
 void lk_update_encoder() {
 
 }

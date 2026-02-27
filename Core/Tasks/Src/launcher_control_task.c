@@ -11,6 +11,7 @@
 #include "control_input_task.h"
 #include "motor_control.h"
 #include "motor_config.h"
+#include "bsp_lk_motor.h"
 
 /* Private define ------------------------------------------------------------*/
 #define BULLET_17_HEAT 10U
@@ -43,6 +44,7 @@ static uint16_t check_overheat();
 static void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel);
 static void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
 static void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
+//static void send_motor_torque(motor_data_t *motor_data,int16_t output) ;
 
 static void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel);
 static void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel,
@@ -54,10 +56,14 @@ void launcher_control_task(void *argument) {
 	launcher_init();
 
 	while (1) {
+
+#if FEEDER_MOTOR_TYPE == TYPE_LK_4005
+		lk_read_status2(&feeder_motor);
+#endif
 		status_led(4, on_led);
 		launcher_ctrl_time = xTaskGetTickCount();
-
-		if (launcher_ctrl_data.enabled) {
+if(1){
+		//if (launcher_ctrl_data.enabled) {
 			// Flywheel control
 #ifdef ACTIVE_GUIDANCE
 			guidance_flywheel(&flywheel_motor[LFRICTION_MOTOR_ID - 1],
@@ -108,6 +114,28 @@ void launcher_control_task(void *argument) {
 void launcher_init() {
 #ifdef ANGLE_FEEDER
 	feeder_motor.motor_type = TYPE_M3508_ANGLE;
+#elif FEEDER_MOTOR_TYPE == TYPE_LK_4005
+  feeder_motor.motor_type = TYPE_LK_4005;
+  feeder_motor.can = FEEDER_MOTOR_CAN;
+  feeder_motor.id = FEEDER_MOTOR_ID;
+
+  feeder_motor.rpm_pid.kp = FEEDER_KP;
+  feeder_motor.rpm_pid.ki = FEEDER_KI;
+  feeder_motor.rpm_pid.kd = FEEDER_KD;
+  feeder_motor.rpm_pid.int_max = FEEDER_MAX_INT;
+  feeder_motor.rpm_pid.max_out = FEEDER_MAX_CURRENT;
+
+  feeder_motor.angle_pid.kp = FEEDER_ANGLE_KP;
+  feeder_motor.angle_pid.ki = FEEDER_ANGLE_KI;
+  feeder_motor.angle_pid.kd = FEEDER_ANGLE_KD;
+  feeder_motor.angle_pid.int_max = FEEDER_ANGLE_INT_MAX;
+  feeder_motor.angle_pid.max_out = FEEDER_MAX_RPM;
+
+  feeder_motor.angle_data.wheel_circ = 0;
+  set_motor_config(&feeder_motor);
+
+  int number_of_flywheels = 2; // LFRICTION + RFRICTION
+
 #elif FEEDER_MOTOR_TYPE == TYPE_M3508
 	feeder_motor.motor_type = TYPE_M3508;
 	feeder_motor.can = LAUNCHER_MOTOR_CAN;
@@ -232,6 +260,10 @@ void send_feeder_current_to_motor() {
 
 	// fill data packet with feeder data
 	CAN_set_motor_output(&CAN_tx_message, CAN_send_data, FEEDER_MOTOR_ID, feeder_motor.motor_type, feeder_motor.output);
+
+#if FEEDER_MOTOR_TYPE == TYPE_LK_4005
+	send_motor_torque(&feeder_motor, feeder_motor.output);
+#endif
 
 	HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 	      send_mail_box);
@@ -394,7 +426,7 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 
 	static uint32_t jam_start_time = 0;
 
-	int16_t feeder_speed = launcher_ctrl_data.firing
+	int16_t feeder_speed = 1
 			* FEEDER_SPEED * FEEDER_INVERT
 			/ FEEDER_SPEED_RATIO;
 	int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
@@ -477,14 +509,15 @@ void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
 	}
 
 	switch (feeder_state) {
-	case FEEDER_STANDBY:
-	case FEEDER_SPINUP:
+//	case FEEDER_STANDBY:
+//	case FEEDER_SPINUP:
 	case FEEDER_OVERHEAT:
 		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
 		feeder->output = feeder->rpm_pid.output;
 //		feeder->output = 0;
 		break;
-
+	case FEEDER_STANDBY:
+	case FEEDER_SPINUP:
 	case FEEDER_FIRING:
 		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
 				feeder->raw_data.rpm, &feeder->rpm_pid);

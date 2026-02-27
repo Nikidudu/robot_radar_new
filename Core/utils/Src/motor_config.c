@@ -104,6 +104,7 @@ void set_motor_config(motor_data_t *motor) {
 
 	case TYPE_LK_MG5010E_SPD:
 	case TYPE_LK_MG5010E_ANG:
+	case TYPE_LK_4005:
 	case TYPE_LK_MG5010E_MULTI_ANG:
 		motor->angle_data.gearbox_ratio = 10;
 		motor->angle_pid.physical_max = 100;

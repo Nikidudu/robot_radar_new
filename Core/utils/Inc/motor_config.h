@@ -46,6 +46,7 @@
 #define TYPE_DM8009_MIT         	13	// DM8009 controlled in MIT mode
 #define TYPE_DM4310_MIT				14	// DM motors controlled in MIT mode
 #define TYPE_DM4310_DJI_MODE		15	// DM motors converted to DJI mode
+#define TYPE_LK_4005        		16
 
 /* CAN DJI 3508 motor */
 #define CAN_3508_ALL_ID		0x201 // receive CAN data from motors
