@@ -76,7 +76,7 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_SPEED			1200
+#define FEEDER_SPEED			200//1200
 #define	PROJECTILE_SPEED		20.5    //19 gives projectiles speed of 28-29m/s
 
 #define PROJECTILE_SPEED_RATIO	310		//rpm per m/s of the friction wheels ish don't think this will work well lmao
@@ -88,12 +88,12 @@
 #define OVERHEAT_EXCESS 	2
 #define OVERHEAT_OFFSET		20
 
-#define FEEDER_MOTOR_TYPE	TYPE_M3508
+#define FEEDER_MOTOR_TYPE	TYPE_LK_4005
 // FEEDER PID VALUES
-#define FEEDER_KP 			5
-#define FEEDER_KI  			0.02
-#define FEEDER_KD  			3
-#define FEEDER_MAX_INT		10000
+#define FEEDER_KP 			1
+#define FEEDER_KI  			0//0.02
+#define FEEDER_KD  			0
+#define FEEDER_MAX_INT		1800//10000
 // FEEDER_ANGLE PID VALUES
 #define FEEDER_ANGLE_KP 		1000
 #define FEEDER_ANGLE_KD  		0
@@ -105,8 +105,8 @@
 #define FEEDER_JAM_RPM			20		// if feeder is below this rpm, it is jammed
 #define FEEDER_UNJAM_SPD  		15		//100	// Reverse unjam
 #define FEEDER_UNJAM_TIME		7000	//30000
-#define FEEDER_MAX_CURRENT		60000   //60000
-#define FEEDER_INVERT			1
+#define FEEDER_MAX_CURRENT		2000//60000   //60000
+#define FEEDER_INVERT			-1
 
 // FRICTION WHEELS PID VALUES
 #define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
@@ -251,7 +251,7 @@
 #endif
 
 #define FEEDER_MOTOR_CAN	&hcan1
-#define FEEDER_MOTOR_ID		3
+#define FEEDER_MOTOR_ID		0x141
 
 #define PITCH_MOTOR_CAN		&hcan1
 #define PITCH_MOTOR_ID 		0x1
