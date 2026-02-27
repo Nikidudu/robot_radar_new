@@ -88,11 +88,9 @@ void chassis_can_message_task(void *argument) {
     	act_yaw = rpm_ramp(limit_yaw, act_yaw, &spin_accel);
 
     	// translation and rotation speed of chassis for chassis yaw angle relative to gimbal
-    	rel_forward = (act_forward * cos(rel_angle))
-    			- (act_horizontal * sin(rel_angle));
-    	rel_horizontal = (act_forward * sin(rel_angle))
-    			+ (act_horizontal * cos(rel_angle));
-    	rel_yaw = act_yaw;
+    	float rel_forward = act_forward * cos(rel_angle) + act_horizontal * sin(rel_angle);
+    	float rel_horizontal = -act_forward * sin(rel_angle) + act_horizontal * cos(rel_angle);
+    	float rel_yaw = act_yaw;
 
     	// convert from float to int16_t
     	int16_t send_forward = pack_value(rel_forward);
