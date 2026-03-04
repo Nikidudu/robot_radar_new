@@ -11,33 +11,6 @@
 #include <string.h>
 #include <stdint.h>
 
-// Include BRoCo Protocol (using C-compatible path if possible, or defining manually)
-// Since Protocol.h might include C++ headers, we will define the needed structures
-// based on what we saw in ProtocolNUS25.h to ensure C compatibility.
-
-// Use relative paths since System/BRoCo/include is not in the global include path for Core
-#include "../../../System/BRoCo/include/Protocol/ProtocolMacros.h"
-#include "../../../System/BRoCo/include/Protocol/ProtocolNUS25.h"
-
-/* ────────────────────────────────────────────────────────────────────────── */
-/* Protocol IDs for NUS25 (Matching NetworkBus.cpp) */
-/* ────────────────────────────────────────────────────────────────────────── */
-#define ID_GIMBAL_JOINTS            3
-#define ID_DUMMY                    4
-#define ID_CHASSIS_SPEED            6
-#define ID_LEFT_TRIGGER             8
-#define ID_CHASSIS_SPIN             10
-#define ID_COMPETITION_STATUS       11
-#define ID_GIMBAL_COMMAND           12
-#define ID_FIRING_COMMAND           13
-#define ID_CV_DETECTED              14
-#define ID_SURVEIL_COMMAND          15
-#define ID_AIM_COMMAND              16
-#define ID_IS_NAVIGATING            17
-#define ID_OCCUPATION_STATUS        19
-#define ID_WIN_STATUS               20
-
-
 /* ────────────────────────────────────────────────────────────────────────── */
 /* External Referee Data */
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -86,11 +59,11 @@ uint32_t g_usb_packet_count = 0;
 uint32_t g_usb_pps = 0;
 static uint32_t last_stats_tick = 0;
 
-/* ────────────────────────────────────────────────────────────────────────── */
+/* ────────────────────3────────────────────────────────────────────────────── */
 /* Helper Functions */
 /* ────────────────────────────────────────────────────────────────────────── */
 
-// Helper to send data with preamble and ID (C Version)
+// Helper to send data with preamble and ID
 void USB_Send_Raw(uint8_t packet_id, void* data, uint16_t size)
 {
     uint8_t tx_buf[256];
