@@ -410,9 +410,9 @@
 
 #else
 
-#define DM_PITCH_KP				9
+#define DM_PITCH_KP				1
 #define DM_PITCH_KI				0
-#define DM_PITCH_KD				28
+#define DM_PITCH_KD				2.5
 #define DM_PITCH_INT_MAX		0
 #define DM_PITCH_MAX_OUT		3
 #define DM_PITCH_MODE			0	// 0 - MIT, 1 - Position, 2 - Speed

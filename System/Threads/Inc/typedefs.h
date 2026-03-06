@@ -25,8 +25,14 @@ enum left_switch
 enum right_switch
 {
 	ge_RSW_SHUTDOWN = 1,
-	ge_RSW_GIMBAL = 3,
-	ge_RSW_ALL_ON = 2,
+	ge_RSW_GIMBAL = 2,
+	ge_RSW_ALL_ON = 3,
+};
+
+enum button_press
+{
+	BUTTON_NOT_PRESSED = 0,
+	BUTTON_PRESSED = 1,
 };
 
 #define KEYBOARD_CTRL_MODE	1

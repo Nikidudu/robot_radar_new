@@ -24,18 +24,7 @@
 #include "stm32f4xx_hal_uart.h"
 #include "usart.h"
 
-
-void init_xvr_usart(uint8_t *pData);
-HAL_StatusTypeDef xvr_usart_start(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t Size,queue_t *uart_queue);
-void xvr_half_cplt_isr(DMA_HandleTypeDef *hdma);
-void xvr_full_cplt_isr(DMA_HandleTypeDef *hdma);
-
-
-HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart,uint8_t *pData, uint16_t Size,queue_t *uart_queue);
-void ref_half_cplt_isr(DMA_HandleTypeDef *hdma);
-void ref_full_cplt_isr(DMA_HandleTypeDef *hdma);
-
-
-
+HAL_StatusTypeDef remote_uart_start(void);
+HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart, queue_t *uart_queue);
 
 #endif

@@ -15,7 +15,7 @@ extern "C" {
 #include "bsp_queue.h"
 #include "board_settings.h"
 #include "typedefs.h"
-#include "bsp_dbus_input.h"
+#include "bsp_remote.h"
 #include "bsp_usart.h"
 #include "bsp_referee.h"
 #include "bsp_can.h"

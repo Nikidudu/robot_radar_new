@@ -22,8 +22,14 @@ enum left_switch
 enum right_switch
 {
 	ge_RSW_SHUTDOWN = 1,
-	ge_RSW_GIMBAL = 3,
-	ge_RSW_ALL_ON = 2,
+	ge_RSW_GIMBAL = 2,
+	ge_RSW_ALL_ON = 3,
+};
+
+enum button_press
+{
+	BUTTON_NOT_PRESSED = 0,
+	BUTTON_PRESSED = 1,
 };
 
 #define KEYBOARD_CTRL_MODE	1
@@ -103,38 +109,58 @@ typedef struct {
 
 /* Struct containing cleaned data from remote */
 typedef struct {
-	/* Joysticks - Values range from -660 to 660 */
-	int16_t right_x;
-	int16_t right_y;
-	int16_t left_x;
-	int16_t left_y;
-	/* Switches - Values range from 1 - 3 */
-	int8_t left_switch;
-	int8_t right_switch;
-	/* Mouse movement - Values range from -32768 to 32767 */
-	int16_t mouse_x;
-	int16_t mouse_y;
-	int16_t mouse_z;
-	int32_t mouse_hori;
-	int32_t mouse_vert;
-	/* Mouse clicks - Values range from 0 to 1 */
-	int8_t mouse_left;
-	int8_t mouse_right;
+    /* Joysticks - Values range from -660 to 660 */
+    int16_t right_x;
+    int16_t right_y;
+    int16_t left_x;
+    int16_t left_y;
 
-	/* Keyboard keys mapping
-	 * Bit0 -- W 键
-	 * Bit1 -- S 键
-	 *	Bit2 -- A 键
-	 *	Bit3 -- D 键
-	 *	Bit4 -- Q 键
-	 *	Bit5 -- E 键
-	 *	Bit6 -- Shift 键
-	 *	Bit7 -- Ctrl 键
-	 *
-	 */
-	uint16_t keyboard_keys;
-	int16_t side_dial;
-	uint32_t last_time;
+    /* Switches - Values range from 1 - 3 */
+    int8_t left_switch;
+    int8_t right_switch;
+
+    /* New buttons (0-1) */
+    uint8_t control_mode;   // pause button: keyboard <-> RC toggle
+    uint8_t fn_1;           // custom left button: aimbot toggle
+    uint8_t fn_2;           // custom right button: unused
+    uint8_t trigger;        // trigger: firing
+
+    /* Mouse movement - Values range from -32768 to 32767 */
+    int16_t mouse_x;
+    int16_t mouse_y;
+    int16_t mouse_z;
+    int32_t mouse_hori;
+    int32_t mouse_vert;
+
+    /* Mouse clicks - Values range from 0 to 1 */
+    uint8_t mouse_left;     // type: int8_t -> uint8_t
+    uint8_t mouse_right;    // type: int8_t -> uint8_t
+    uint8_t mouse_middle;   // new
+
+    /* Keyboard keys mapping
+     * Bit0  -- W
+     * Bit1  -- S
+     * Bit2  -- A
+     * Bit3  -- D
+     * Bit4  -- Shift  (was Bit6)
+     * Bit5  -- Ctrl   (was Bit7)
+     * Bit6  -- Q      (was Bit4)
+     * Bit7  -- E      (was Bit5)
+     * Bit8  -- R      (new)
+     * Bit9  -- F      (new)
+     * Bit10 -- G      (new)
+     * Bit11 -- X      (new)
+     * Bit12 -- Z      (new)
+     * Bit13 -- C      (new)
+     * Bit14 -- V      (new)
+     * Bit15 -- B      (new)
+     */
+    uint16_t keyboard_keys;
+
+    /* Side dial - Values range from -660 to 660 */
+    int16_t side_dial;
+
+    uint32_t last_time;
 } remote_cmd_t;
 
 
@@ -241,6 +267,7 @@ typedef struct
 	float forward;
 	float horizontal;
 	float yaw;
+	uint8_t g_spinspin_mode;
 	float max_linear_accel;
 	float max_rad_accel;
 	uint8_t enabled;

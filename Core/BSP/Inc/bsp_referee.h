@@ -9,6 +9,11 @@
 #define BSP_INC_BSP_REFEREE_H_
 #include "referee_msgs.h"
 
+#define REF_DMA_BUF_SIZE 64
+#define REF_PROTOCOL_HEADER_SIZE    5
+#define REF_HEADER_CRC_CMDID_LEN    7
+#define REF_PROTOCOL_FRAME_MAX_SIZE 128
+
 /*frame header 	5 bytes
  * cmd_id		2 bytes
  * data			28 bytes		| assuming we're not transmitting data from robot to robot, maximum is 28 bytes for robot hp data

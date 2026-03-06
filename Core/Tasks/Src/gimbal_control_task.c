@@ -225,7 +225,7 @@ void calculate_direct_pitch(motor_data_t *pitch_motor) {
 	yaw_pid(gimbal_ctrl_data.pitch, imu_heading.pit, &dm_pitch_motor.angle_pid);
 	xSemaphoreGive(gimbal_ctrl_data.pitch_semaphore);
 	dm_pitch_motor.ctrl.tor_set = dm_pitch_motor.angle_pid.output +
-			(-0.8841*imu_heading.pit*imu_heading.pit - 0.8798*imu_heading.pit + 1.3045);
+			(-0.8841*imu_heading.pit*imu_heading.pit - 0.8798*imu_heading.pit + 0.5);
 #endif
 
 #else
