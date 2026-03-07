@@ -107,12 +107,14 @@ void master_task(void* argument){
 			(UBaseType_t) 2, &referee_processing_task_handle);
 	xTaskCreate(buzzing_task, "buzzer_task",
 	configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &buzzing_task_handle);
-	if (usb_continue_semaphore == NULL) {
-		//error handler
-	} else {
-		xTaskCreate(usb_task, "usb_task",
-		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &usb_task_handle);
-	}
+
+	USB_Firmware_Init();
+//	if (usb_continue_semaphore == NULL) {
+//		//error handler
+//	} else {
+//		xTaskCreate(usb_task, "usb_task",
+//		configMINIMAL_STACK_SIZE, (void*) 1, (UBaseType_t) 1, &usb_task_handle);
+//	}
 
 //	xTaskCreate(telemetry_task, "telemetry_task", 700, (void*) 1,
 //			(UBaseType_t) 5, &telemetry_task_handle);

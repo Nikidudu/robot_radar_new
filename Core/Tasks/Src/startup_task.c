@@ -37,5 +37,5 @@ void startup_task() {
 	buzzer_init();
 	led_green_off();
 	start_micros_timer();
-	servo_init();
+	gyro_init();
 }
