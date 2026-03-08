@@ -36,7 +36,7 @@
 #define REMOTE_PITCH_SPEED 	 	-0.1//0.005		//Speed of gimbal pitch turning
 
 #define MOUSE_X_SENSITIVITY		(300 * REMOTE_YAW_SPEED)				//Speed of yaw turning with mouse, dependent on above speed
-#define MOUSE_Y_SENSITIVITY 	(150 * REMOTE_PITCH_SPEED)				//Speed of pitch turning with mouse,  dependent on above speed
+#define MOUSE_Y_SENSITIVITY 	(300 * REMOTE_PITCH_SPEED)				//Speed of pitch turning with mouse,  dependent on above speed
 
 /*********************** MANUAL CONTROL CONFIGURATION *******************/
 //Inverts for both keyboard and mouse controls
@@ -44,7 +44,7 @@
 #define PITCH_INVERT  			-1				//1 to invert control -1 to disable
 
 #define MOUSE_X_INVERT			1				//Set to -1 if it needs to be inverted
-#define	MOUSE_Y_INVERT			-1				//Set to -1 if it needs to be inverted
+#define	MOUSE_Y_INVERT			1				//Set to -1 if it needs to be inverted
 
 #define KEYBD_MAX_SPD 			1//0.8//0.5				//% of max speed
 
@@ -410,9 +410,9 @@
 
 #else
 
-#define DM_PITCH_KP				1
+#define DM_PITCH_KP				8
 #define DM_PITCH_KI				0
-#define DM_PITCH_KD				2.5
+#define DM_PITCH_KD				15
 #define DM_PITCH_INT_MAX		0
 #define DM_PITCH_MAX_OUT		3
 #define DM_PITCH_MODE			0	// 0 - MIT, 1 - Position, 2 - Speed
@@ -425,9 +425,9 @@
 
 #endif
 
-#define PITCH_CENTER			0.392513275
-#define PITCH_MAX_ANG			1.0
-#define PITCH_MIN_ANG			-0.52
+#define PITCH_CENTER			-0.1
+#define PITCH_MAX_ANG			0.5
+#define PITCH_MIN_ANG			-0.5
 #define PITCH_CONST 			0
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
