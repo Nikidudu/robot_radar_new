@@ -62,17 +62,19 @@ void parse_can_message(uint32_t std_id,
 		break;
 
 	// feeder motor
-//	case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
-//		if (hcan == FEEDER_MOTOR_CAN) {
-//			convert_raw_can_data(&feeder_motor, std_id, RxData);
-//		}
-//		break;
-	case 0x141:
-	case 0x142:
-	    if(hcan == FEEDER_MOTOR_CAN){
-	      process_lk_motor(RxData,&feeder_motor);
-	    }
+#if FEEDER_MOTOR_ID == TYPE_LK_4005
+	case FEEDER_MOTOR_ID:
+		if(hcan == FEEDER_MOTOR_CAN) {
+		  process_lk_motor(RxData,&feeder_motor);
+		}
 		break;
+#else
+	case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
+		if (hcan == FEEDER_MOTOR_CAN) {
+			convert_raw_can_data(&feeder_motor, std_id, RxData);
+		}
+		break;
+#endif
 
 	// pitch motor
 #if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
@@ -88,7 +90,11 @@ void parse_can_message(uint32_t std_id,
 		}
 		break;
 #else
-	// for some other non-DM pitch motor
+	case CAN_6020_ALL_ID + PITCH_MOTOR_ID - 1:
+		if (hcan == PITCH_MOTOR_ID) {
+			convert_raw_can_data(&pitch_motor, std_id, RxData);
+		}
+		break;
 #endif
 
 	// yaw motor
