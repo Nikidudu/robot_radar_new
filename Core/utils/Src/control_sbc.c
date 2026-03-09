@@ -13,11 +13,6 @@
 
 extern uint8_t g_safety_toggle;
 
-#define AIMBOT_DEADZONE 0.005f
-#define AIMBOT_YAW_KP   -2.5f
-#define AIMBOT_PITCH_KP 0.4f
-#define FILTER_ALPHA 	0.35f  // 0.0 = no filter, 0.5 = moderate smoothing
-
 void sbc_gimbal_input();
 void sbc_chassis_input();
 void sbc_launcher_control_input();
@@ -29,48 +24,73 @@ void sbc_control_input() {
 }
 
 void sbc_gimbal_input() {
+    static float filtered_yaw_error = 0.0f;   // ADD: filter for yaw too
     static float filtered_pitch_error = 0.0f;
-    static float last_yaw_err = 0.0f; // New: for D-term
+    static float last_yaw_err = 0.0f;
+    static float last_pitch_err = 0.0f;
     static uint32_t last_aimbot_update_tick = 0;
 
     // Tuning Constants
     const float filter_alpha = 0.35f;
-    const float YAW_KP = -1.8f;  // Lowered slightly to reduce initial vibration
-    const float YAW_KD = -0.15f; // The "Brake" (Derivative gain)
+    const float YAW_KP    = -1.8f;
+    const float YAW_KD    = -0.10f;    // reduced — less spike amplification
+    const float PITCH_KP  =  0.4f;
+    const float PITCH_KD  =  0.05f;
+
+    // Max change per tick (rad) — prevents jumps between armor plates
+    const float YAW_MAX_DELTA   = 0.02f;   // ~1.1 deg per tick
+    const float PITCH_MAX_DELTA = 0.01f;    // ~0.6 deg per tick
 
     if (g_remote_cmd.sw == SW_SHUTDOWN) {
         gimbal_ctrl_data.enabled = 0;
         last_yaw_err = 0;
+        last_pitch_err = 0;
+        filtered_yaw_error = 0;
+        filtered_pitch_error = 0;
     } else {
         gimbal_ctrl_data.enabled = 1;
 
         float raw_yaw   = g_aimbot_cmd.yaw;
         float raw_pitch = g_aimbot_cmd.pitch;
 
-        if (fabsf(raw_yaw) < 0.005f) raw_yaw = 0.0f;
-        if (fabsf(raw_pitch) < 0.005f) raw_pitch = 0.0f;
+        if (fabsf(raw_yaw)   < 0.005f) raw_yaw   = 0.0f;
+        if (fabsf(raw_pitch) < 0.005f) raw_pitch  = 0.0f;
 
         if (raw_yaw != 0.0f || raw_pitch != 0.0f) {
             last_aimbot_update_tick = HAL_GetTick();
         }
 
-        float p_out = raw_yaw * YAW_KP;
+        // === YAW: Rate-limited filter + PD ===
+        float yaw_delta = raw_yaw - filtered_yaw_error;
+        if (yaw_delta >  YAW_MAX_DELTA) yaw_delta =  YAW_MAX_DELTA;
+        if (yaw_delta < -YAW_MAX_DELTA) yaw_delta = -YAW_MAX_DELTA;
+        filtered_yaw_error += yaw_delta * filter_alpha;
 
-        float d_out = (raw_yaw - last_yaw_err) * YAW_KD;
-        last_yaw_err = raw_yaw;
+        float yaw_p = filtered_yaw_error * YAW_KP;
+        float yaw_d = (filtered_yaw_error - last_yaw_err) * YAW_KD;
+        last_yaw_err = filtered_yaw_error;
+        float yaw_command = yaw_p + yaw_d;
 
-        float yaw_command = p_out + d_out;
+        // === PITCH: Rate-limited filter + PD ===
+        float pitch_delta = raw_pitch - filtered_pitch_error;
+        if (pitch_delta >  PITCH_MAX_DELTA) pitch_delta =  PITCH_MAX_DELTA;
+        if (pitch_delta < -PITCH_MAX_DELTA) pitch_delta = -PITCH_MAX_DELTA;
+        filtered_pitch_error += pitch_delta * filter_alpha;
 
-        filtered_pitch_error = filtered_pitch_error * (1.0f - filter_alpha) + raw_pitch * filter_alpha;
-        float pitch_command = filtered_pitch_error;
+        float pitch_p = filtered_pitch_error * PITCH_KP;
+        float pitch_d = (filtered_pitch_error - last_pitch_err) * PITCH_KD;
+        last_pitch_err = filtered_pitch_error;
+        float pitch_command = pitch_p + pitch_d;
 
         // Timeout Logic
         if ((HAL_GetTick() - last_aimbot_update_tick) > 300) {
+            filtered_yaw_error *= 0.95f;
             filtered_pitch_error *= 0.95f;
+            last_yaw_err *= 0.95f;
+            last_pitch_err *= 0.95f;
             yaw_command = 0.0f;
+            pitch_command = 0.0f;
         }
-//        yaw_command -= 0.040f;
-//        pitch_command -= 0.10f;
 
         gimbal_set_ang(pitch_command, yaw_command);
     }
