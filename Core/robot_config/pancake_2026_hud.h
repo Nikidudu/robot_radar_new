@@ -1,21 +1,22 @@
 /*
- * hud_hero.h
+ * hud_kirbee.h
  *
- *  Created on: Dec 16, 2024
- *      Author: cw
+ *  Created on: Jun 19, 2025
+ *      Author: gskan
  */
 
-#ifndef ROBOT_CONFIG_HUD_HERO_2026_H_
-#define ROBOT_CONFIG_HUD_HERO_2026_H_
+#ifndef ROBOT_CONFIG_PANCAKE_2026_HUD_H_
+#define ROBOT_CONFIG_PANCAKE_2026_HUD_H_
 
 #include "hud_constants.h"
 
 // GRAPHICS SELECTION
 // Comment out any unwanted graphics
+#define HUD
 #define SPINSPIN
 #define GEARING
-#define SUPERCAP
-#define AIMBOT
+#define SUPERCAP // Either supercap or aimbot (they use the same space to draw)
+//#define AIMBOT
 #define CROSSHAIR
 #define CROSSHAIR_TWO_COLOUR
 #define PITCH_ANG
@@ -25,8 +26,8 @@
 //in pixels
 #define CUSTOM_CROSSHAIR
 //assuming 1920x1080 screen
-#define CROSSHAIR_LEFT_OFFSET	10
-#define CROSSHAIR_UP_OFFSET		10
+#define CROSSHAIR_LEFT_OFFSET	-10
+#define CROSSHAIR_UP_OFFSET		-40
 #define CROSSHAIR_THICKNESS	2
 #define CROSSHAIR_COLOUR	GRAPHIC_COLOUR_BLACK
 #define CROSSHAIR_LENGTH_X	30
@@ -83,7 +84,7 @@
 #define PITCH_ANG_WIDTH		6
 #define REF_DELAY			150
 
-#define MOTOR_FAULT_START 	850
-#define MOTOR_FAULT_GAP		10
+#define MOTOR_FAULT_START 	750
+#define MOTOR_FAULT_GAP		50
 
-#endif /* ROBOT_CONFIG_HUD_HERO_2026_H_ */
+#endif /* ROBOT_CONFIG_PANCAKE_2026_HUD_H_ */

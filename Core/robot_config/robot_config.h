@@ -1,7 +1,7 @@
 #ifndef TASKS_INC_ROBOT_CONFIG_H_
 #define TASKS_INC_ROBOT_CONFIG_H_
 
-#include "robot_config_sentry_2026.h"
+#include <pancake_2026_config.h>
 //#include "robot_config_hero_2026.h"
 
 // COMMON CONFIGURATION

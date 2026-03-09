@@ -9,8 +9,8 @@
 #define TASKS_INC_ROBOT_CONFIG_CF_H_
 
 #include "hud_roburt.h"
-
 #include "motor_config.h"
+
 #define BULLET_42
 
 #define OVERHEAT_PROTECTION

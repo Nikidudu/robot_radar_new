@@ -1,12 +1,13 @@
 /*
- * hud_kirbee.h
+ * hud_sentry_2026.h
  *
- *  Created on: Jun 19, 2025
+ *  Created on: Mar 9, 2026
  *      Author: gskan
  */
 
-#ifndef ROBOT_CONFIG_HUD_SENTRY_2026_H_
-#define ROBOT_CONFIG_HUD_SENTRY_2026_H_
+#ifndef ROBOT_CONFIG_SENTRY_2026_HUD_H_
+#define ROBOT_CONFIG_SENTRY_2026_HUD_H_
+
 #include "hud_constants.h"
 
 // GRAPHICS SELECTION
@@ -86,4 +87,4 @@
 #define MOTOR_FAULT_START 	750
 #define MOTOR_FAULT_GAP		50
 
-#endif /* ROBOT_CONFIG_HUD_SENTRY_2026_H_ */
+#endif /* ROBOT_CONFIG_SENTRY_2026_HUD_H_ */

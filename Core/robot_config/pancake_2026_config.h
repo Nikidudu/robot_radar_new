@@ -5,10 +5,10 @@
  *      Author: cw
  */
 
-#ifndef ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_2026_H_
-#define ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_2026_H_
+#ifndef ROBOT_CONFIG_PANCAKE_2026_CONFIG_H_
+#define ROBOT_CONFIG_PANCAKE_2026_CONFIG_H_
 
-#include "hud_sentry_2026.h"
+#include "pancake_2026_hud.h"
 #include "motor_config.h"
 
 #define BULLET_17
@@ -273,4 +273,4 @@
 //microsecond timer used for PIDs
 #define TIMER_FREQ			1000000 //Cannot be too high if not the ISRs overload the CPU
 
-#endif /* ROBOT_CONFIG_ROBOT_CONFIG_SENTRY_2026_H_ */
+#endif /* ROBOT_CONFIG_PANCAKE_2026_CONFIG_H_ */
