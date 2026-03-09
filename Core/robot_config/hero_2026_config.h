@@ -124,7 +124,7 @@
 
 /*********************** CHASSIS CONFIGURATION ***********************/
 // CHASSIS WHEELS PID VALUES
-#define CHASSIS_KP  		4
+#define CHASSIS_KP  		2
 #define CHASSIS_KI  		0.1
 #define CHASSIS_KD  		0.8
 #define CHASSIS_INT_MAX  	5000
@@ -428,7 +428,7 @@
 #endif
 
 #define YAW_SPINSPIN_CONSTANT	5000
-#define YAW_CENTER 				777
+#define YAW_CENTER 				72
 #define YAW_MAX_ANG				0 // unused
 #define YAW_MIN_ANG				0 // unused
 
