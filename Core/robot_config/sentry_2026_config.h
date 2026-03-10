@@ -76,11 +76,11 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_SPEED			1200
+#define FEEDER_SPEED			1200	// projectiles per minute
 #define	PROJECTILE_SPEED		20.5    //19 gives projectiles speed of 28-29m/s
 
 #define PROJECTILE_SPEED_RATIO	310		//rpm per m/s of the friction wheels ish don't think this will work well lmao
-#define FEEDER_SPEED_RATIO		-8								//projectiles per round of the feeder
+#define FEEDER_SPEED_RATIO		-8		//projectiles per round of the feeder
 
 // prevents pilots from overheating when firing
 #define OVERHEAT_PROTECTION
@@ -103,7 +103,7 @@
 
 #define FEEDER_JAM_TORQUE  		12000	//35000	//20000		// Before feeder deemed to be jammed
 #define FEEDER_JAM_RPM			20		// if feeder is below this rpm, it is jammed
-#define FEEDER_UNJAM_SPD  		15		//100	// Reverse unjam
+#define FEEDER_UNJAM_SPD  		10		//100	// Reverse unjam
 #define FEEDER_UNJAM_TIME		7000	//30000
 #define FEEDER_MAX_CURRENT		60000   //60000
 #define FEEDER_INVERT			1
@@ -385,8 +385,8 @@
 #endif
 
 #define PITCH_CENTER			990 	// irrelevant for imu control
-#define PITCH_MAX_ANG			0.75
-#define PITCH_MIN_ANG			-0.52
+#define PITCH_MAX_ANG			0.45
+#define PITCH_MIN_ANG			-0.15
 #define PITCH_CONST 			0
 
 //#define YAW_SINGLE_PID_LOOP		// define to enable single PID loop instead of cascade PID for yaw
