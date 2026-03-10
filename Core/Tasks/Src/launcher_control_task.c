@@ -158,25 +158,8 @@ void launcher_init() {
 			flywheel_motor[i].angle_pid.kd = 0;
 			flywheel_motor[i].angle_pid.int_max = 0;
 			flywheel_motor[i].angle_pid.max_out = 0;
-			flywheel_motor[i].angle_pid.physical_max = M3508_MAX_RPM;
 
-			flywheel_motor[i].angle_data.gearbox_ratio = 1;
-			flywheel_motor[i].angle_pid.physical_max = M3508_MAX_RPM;
-			flywheel_motor[i].angle_data.min_ticks = -4096;
-			flywheel_motor[i].angle_data.max_ticks = 4096;
-			flywheel_motor[i].angle_data.tick_range =
-					flywheel_motor[i].angle_data.max_ticks
-							- flywheel_motor[i].angle_data.min_ticks;
-			flywheel_motor[i].angle_data.min_ang = -PI;
-			flywheel_motor[i].angle_data.max_ang = PI;
-			flywheel_motor[i].angle_data.ang_range =
-					flywheel_motor[i].angle_data.max_ang
-							- flywheel_motor[i].angle_data.min_ang;
-			flywheel_motor[i].angle_data.max_raw_ticks = 4096;
-			flywheel_motor[i].angle_data.min_raw_ticks = -4096;
-			flywheel_motor[i].angle_data.raw_ticks_range =
-					flywheel_motor[i].angle_data.max_raw_ticks
-							- flywheel_motor[i].angle_data.min_raw_ticks;
+			set_motor_config(&flywheel_motor[i]);
 	}
 }
 
@@ -185,29 +168,22 @@ static void send_flywheel_current_to_motor() {
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
-	CAN_tx_message.IDE = CAN_ID_STD;
-	CAN_tx_message.RTR = CAN_RTR_DATA;
-	CAN_tx_message.DLC = 0x08;
+
+	int number_of_flywheels = 2; // LFRICTION + RFRICTION
+	#ifdef ACTIVE_GUIDANCE
+		microswitch_int();
+		number_of_flywheels = 4; // + BFRICTION + GFRICTION
+	#endif
 
 	// Clear entire packet first
 	memset(CAN_send_data, 0, 8);
 
-	// send to friction wheels
-	CAN_tx_message.StdId = CAN_3508_1_TO_4_ID;
+	// fill data packets with flywheel data
+	for (size_t i = 0; i < number_of_flywheels; i++) {
+		CAN_set_motor_output(&CAN_tx_message, CAN_send_data, i + 1, flywheel_motor[i].motor_type, flywheel_motor[i].output);
+	}
 
-	CAN_send_data[0] = (flywheel_motor[0].output >> 8) & 0xFF;
-	CAN_send_data[1] = (flywheel_motor[0].output) & 0xFF;
-	CAN_send_data[2] = (flywheel_motor[1].output >> 8) & 0xFF;
-	CAN_send_data[3] = (flywheel_motor[1].output) & 0xFF;
-#ifdef ACTIVE_GUIDANCE
-	CAN_send_data[4] = (flywheel_motor[2].output >> 8) & 0xFF;
-	CAN_send_data[5] = (flywheel_motor[2].output) & 0xFF;
-	CAN_send_data[6] = (flywheel_motor[3].output >> 8) & 0xFF;
-	CAN_send_data[7] = (flywheel_motor[3].output) & 0xFF;
-#endif
-
-	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
-			send_mail_box);
+	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data, send_mail_box);
 }
 
 void send_feeder_current_to_motor() {
