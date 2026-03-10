@@ -11,6 +11,7 @@
 #include "control_input_task.h"
 #include "motor_control.h"
 #include "motor_config.h"
+#include "bsp_lk_motor.h"
 
 /* Private define ------------------------------------------------------------*/
 #define BULLET_17_HEAT 10U
@@ -28,7 +29,7 @@ enum feeder_state_e feeder_state;
 extern uint8_t projectile_loaded;
 // referee system data
 extern ref_game_state_t ref_game_state;
-extern ref_game_robot_data_t ref_robot_data;
+extern ref_game_robot_data2_t ref_robot_data;
 extern ref_robot_power_data_t ref_power_data;
 
 extern uint32_t ref_power_data_txno;
@@ -43,6 +44,7 @@ static uint16_t check_overheat();
 static void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel);
 static void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
 static void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,motor_data_t *feeder);
+//static void send_motor_torque(motor_data_t *motor_data,int16_t output) ;
 
 static void guidance_flywheel(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel);
 static void guidance_feeder(motor_data_t *l_flywheel, motor_data_t *r_flywheel, motor_data_t *b_flywheel,
@@ -54,6 +56,10 @@ void launcher_control_task(void *argument) {
 	launcher_init();
 
 	while (1) {
+
+#if FEEDER_MOTOR_TYPE == TYPE_LK_4005
+		lk_read_status2(&feeder_motor);
+#endif
 		status_led(4, on_led);
 		launcher_ctrl_time = xTaskGetTickCount();
 
@@ -108,29 +114,11 @@ void launcher_control_task(void *argument) {
 void launcher_init() {
 #ifdef ANGLE_FEEDER
 	feeder_motor.motor_type = TYPE_M3508_ANGLE;
-#elif FEEDER_MOTOR_TYPE == TYPE_M3508
-	feeder_motor.motor_type = TYPE_M3508;
-	feeder_motor.can = LAUNCHER_MOTOR_CAN;
-
-	feeder_motor.rpm_pid.kp = FEEDER_KP;
-	feeder_motor.rpm_pid.ki = FEEDER_KI;
-	feeder_motor.rpm_pid.kd = FEEDER_KD;
-	feeder_motor.rpm_pid.int_max = FEEDER_MAX_INT;
-	feeder_motor.rpm_pid.max_out = FEEDER_MAX_CURRENT;
-
-	feeder_motor.angle_pid.kp = FEEDER_ANGLE_KP;
-	feeder_motor.angle_pid.ki = FEEDER_ANGLE_KI;
-	feeder_motor.angle_pid.kd = FEEDER_ANGLE_KD;
-	feeder_motor.angle_pid.int_max = FEEDER_ANGLE_INT_MAX;
-	feeder_motor.angle_pid.max_out = FEEDER_MAX_RPM;
-
-	feeder_motor.angle_data.wheel_circ = 0;
-	set_motor_config(&feeder_motor);
-
-	int number_of_flywheels = 2; // LFRICTION + RFRICTION
 #else
-	feeder_motor.motor_type = TYPE_M2006;
+	feeder_motor.motor_type = FEEDER_MOTOR_TYPE;
+#endif
 	feeder_motor.can = LAUNCHER_MOTOR_CAN;
+	feeder_motor.id = FEEDER_MOTOR_ID;
 
 	feeder_motor.rpm_pid.kp = FEEDER_KP;
 	feeder_motor.rpm_pid.ki = FEEDER_KI;
@@ -148,7 +136,6 @@ void launcher_init() {
 	set_motor_config(&feeder_motor);
 
 	int number_of_flywheels = 2; // LFRICTION + RFRICTION
-#endif
 
 #ifdef ACTIVE_GUIDANCE
 	microswitch_int();
@@ -171,25 +158,8 @@ void launcher_init() {
 			flywheel_motor[i].angle_pid.kd = 0;
 			flywheel_motor[i].angle_pid.int_max = 0;
 			flywheel_motor[i].angle_pid.max_out = 0;
-			flywheel_motor[i].angle_pid.physical_max = M3508_MAX_RPM;
 
-			flywheel_motor[i].angle_data.gearbox_ratio = 1;
-			flywheel_motor[i].angle_pid.physical_max = M3508_MAX_RPM;
-			flywheel_motor[i].angle_data.min_ticks = -4096;
-			flywheel_motor[i].angle_data.max_ticks = 4096;
-			flywheel_motor[i].angle_data.tick_range =
-					flywheel_motor[i].angle_data.max_ticks
-							- flywheel_motor[i].angle_data.min_ticks;
-			flywheel_motor[i].angle_data.min_ang = -PI;
-			flywheel_motor[i].angle_data.max_ang = PI;
-			flywheel_motor[i].angle_data.ang_range =
-					flywheel_motor[i].angle_data.max_ang
-							- flywheel_motor[i].angle_data.min_ang;
-			flywheel_motor[i].angle_data.max_raw_ticks = 4096;
-			flywheel_motor[i].angle_data.min_raw_ticks = -4096;
-			flywheel_motor[i].angle_data.raw_ticks_range =
-					flywheel_motor[i].angle_data.max_raw_ticks
-							- flywheel_motor[i].angle_data.min_raw_ticks;
+			set_motor_config(&flywheel_motor[i]);
 	}
 }
 
@@ -198,30 +168,24 @@ static void send_flywheel_current_to_motor() {
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
 	uint32_t send_mail_box[3];
-	CAN_tx_message.IDE = CAN_ID_STD;
-	CAN_tx_message.RTR = CAN_RTR_DATA;
-	CAN_tx_message.DLC = 0x08;
+
+	int number_of_flywheels = 2; // LFRICTION + RFRICTION
+	#ifdef ACTIVE_GUIDANCE
+		microswitch_int();
+		number_of_flywheels = 4; // + BFRICTION + GFRICTION
+	#endif
 
 	// Clear entire packet first
 	memset(CAN_send_data, 0, 8);
 
-	// send to friction wheels
-	CAN_tx_message.StdId = CAN_3508_1_TO_4_ID;
+	// fill data packets with flywheel data
+	for (size_t i = 0; i < number_of_flywheels; i++) {
+		CAN_set_motor_output(&CAN_tx_message, CAN_send_data, i + 1, flywheel_motor[i].motor_type, flywheel_motor[i].output);
+	}
 
-	CAN_send_data[0] = (flywheel_motor[0].output >> 8) & 0xFF;
-	CAN_send_data[1] = (flywheel_motor[0].output) & 0xFF;
-	CAN_send_data[2] = (flywheel_motor[1].output >> 8) & 0xFF;
-	CAN_send_data[3] = (flywheel_motor[1].output) & 0xFF;
-#ifdef ACTIVE_GUIDANCE
-	CAN_send_data[4] = (flywheel_motor[2].output >> 8) & 0xFF;
-	CAN_send_data[5] = (flywheel_motor[2].output) & 0xFF;
-	CAN_send_data[6] = (flywheel_motor[3].output >> 8) & 0xFF;
-	CAN_send_data[7] = (flywheel_motor[3].output) & 0xFF;
-#endif
-
-	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
-			send_mail_box);
+	HAL_CAN_AddTxMessage(LAUNCHER_MOTOR_CAN, &CAN_tx_message, CAN_send_data, send_mail_box);
 }
+
 void send_feeder_current_to_motor() {
 	CAN_TxHeaderTypeDef CAN_tx_message;
 	uint8_t CAN_send_data[8];
@@ -233,8 +197,12 @@ void send_feeder_current_to_motor() {
 	// fill data packet with feeder data
 	CAN_set_motor_output(&CAN_tx_message, CAN_send_data, FEEDER_MOTOR_ID, feeder_motor.motor_type, feeder_motor.output);
 
+#if FEEDER_MOTOR_TYPE == TYPE_LK_4005
+	send_motor_torque(&feeder_motor, feeder_motor.output);
+#else
 	HAL_CAN_AddTxMessage(FEEDER_MOTOR_CAN, &CAN_tx_message, CAN_send_data,
 	      send_mail_box);
+#endif
 }
 
 uint16_t check_overheat() {
@@ -356,6 +324,7 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 	}
 
 	switch (flywheel_state) {
+	case WHEEL_CLEARING:
 	case WHEEL_STANDBY:
 		if (FRICTION_SB_SPIN_ON == 2 || (FRICTION_SB_SPIN_ON == 1 && ref_game_state.game_progress == 4)){
 			speed_pid(friction_wheel_speed * FRICTION_SB_SPIN * FRICTION_INVERT,
@@ -370,7 +339,6 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 		}
 		break;
 
-	case WHEEL_CLEARING:
 	case WHEEL_FIRING:
 		speed_pid(friction_wheel_speed * FRICTION_INVERT,
 				l_flywheel->raw_data.rpm, &l_flywheel->rpm_pid);
@@ -390,122 +358,114 @@ void flywheel_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel) {
 #ifndef ANGLE_FEEDER
 
 void launcher_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
-        motor_data_t *feeder) {
+		motor_data_t *feeder) {
 
-    static uint32_t jam_start_time = 0;
+	static uint32_t jam_start_time = 0;
 
-    uint8_t fire_active = (launcher_ctrl_data.firing != 0);
-    int16_t feeder_speed = fire_active
-            * FEEDER_SPEED * FEEDER_INVERT
-            / FEEDER_SPEED_RATIO;
-    int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
+	int16_t feeder_speed = launcher_ctrl_data.firing
+			* FEEDER_SPEED * FEEDER_INVERT
+			/ FEEDER_SPEED_RATIO;
+	int16_t friction_wheel_speed = PROJECTILE_SPEED * PROJECTILE_SPEED_RATIO;
 
-    int16_t rpm_diff = abs(l_flywheel->raw_data.rpm + r_flywheel->raw_data.rpm);
-    int16_t avg_rpm = abs(l_flywheel->raw_data.rpm - r_flywheel->raw_data.rpm)
-            / 2;
+	int16_t rpm_diff = abs(l_flywheel->raw_data.rpm + r_flywheel->raw_data.rpm);
+	int16_t avg_rpm = abs(l_flywheel->raw_data.rpm - r_flywheel->raw_data.rpm)
+			/ 2;
 
-    /**
-     * Finite state machine for feeder
-     */
-    switch (feeder_state) {
-    case FEEDER_STANDBY:
-        if (launcher_ctrl_data.firing != 0) {
-            feeder_state = FEEDER_SPINUP;
-        }
-        break;
+	/**
+	 * Finite state machine for feeder
+	 */
+	switch (feeder_state) {
+	case FEEDER_STANDBY:
+		if (launcher_ctrl_data.firing != 0) {
+			feeder_state = FEEDER_SPINUP;
+		}
+		break;
+	case FEEDER_SPINUP:
+		if (abs(avg_rpm - friction_wheel_speed) < LAUNCHER_MARGIN) {
+			if (rpm_diff < LAUNCHER_DIFF_MARGIN) {
+				feeder_state = FEEDER_FIRING;
+			}
+		}
+		break;
 
-    case FEEDER_SPINUP:
-        if (abs(avg_rpm - friction_wheel_speed) < LAUNCHER_MARGIN) {
-            if (rpm_diff < LAUNCHER_DIFF_MARGIN) {
-                feeder_state = FEEDER_FIRING;
-            }
-        }
-        break;
+	case FEEDER_FIRING:
+		//check for feeder jam first, prioritise unjamming
+		if (abs(feeder->raw_data.torque)
+				> (FEEDER_JAM_TORQUE) && (abs(feeder->raw_data.rpm) < FEEDER_JAM_RPM)) {
+			jam_start_time = get_microseconds();
+			feeder->rpm_pid.integral = 0;
+			feeder_state = FEEDER_JAM;
+			break;
+		}
 
-    case FEEDER_FIRING:
-        // check for feeder jam first, prioritise unjamming
-        if (abs(feeder->raw_data.torque) > FEEDER_JAM_TORQUE
-                && abs(feeder->raw_data.rpm) < FEEDER_JAM_RPM) {
-            jam_start_time = get_microseconds();
-            feeder->rpm_pid.integral = 0;
-            feeder_state = FEEDER_JAM;
-            break;
-        }
+		if (launcher_ctrl_data.firing == 0) {
+			feeder_state = FEEDER_STANDBY;
+			break;
+		}
 
-        if (launcher_ctrl_data.firing == 0) {
-            feeder_state = FEEDER_STANDBY;
-            break;
-        }
+		if (check_overheat() == 0) {
+			feeder_state = FEEDER_OVERHEAT;
+			break;
+		}
+		//one side will always be negative
 
-        if (check_overheat() == 0) {
-            feeder_state = FEEDER_OVERHEAT;
-            break;
-        }
+		if (abs(avg_rpm - friction_wheel_speed) > LAUNCHER_MARGIN) {
+			if (rpm_diff > LAUNCHER_DIFF_MARGIN) {
+				feeder_state = FEEDER_SPINUP;
+				break;
+			}
+		}
+		//else stay firing
+		break;
 
-        if (abs(avg_rpm - friction_wheel_speed) > LAUNCHER_MARGIN) {
-            if (rpm_diff > LAUNCHER_DIFF_MARGIN) {
-                feeder_state = FEEDER_SPINUP;
-                break;
-            }
-        }
-        // else stay firing
-        break;
+	case FEEDER_JAM:
+		//check if either after unjam time
+		if ((get_microseconds() - jam_start_time) > FEEDER_UNJAM_TIME) {
+			feeder_state = FEEDER_SPINUP;
+		}
+		break;
 
-    case FEEDER_JAM:
-        // check if either after unjam time
-        if ((get_microseconds() - jam_start_time) > FEEDER_UNJAM_TIME) {
-            feeder_state = FEEDER_SPINUP;
-        }
+	case FEEDER_OVERHEAT:
+		if (check_overheat() > OVERHEAT_EXCESS) {
+			if (launcher_ctrl_data.firing != 0) {
+				feeder_state = FEEDER_SPINUP;
+			} else {
+				feeder_state = FEEDER_STANDBY;
+			}
+		}
+		break;
 
-//      if ((feeder->raw_data.torque * FEEDER_INVERT)
-//              < -(FEEDER_JAM_TORQUE * FEEDER_INVERT)) {
-//          feeder_state = FEEDER_SPINUP;
-//      }
-        break;
+	default:
+		feeder_state = FEEDER_STANDBY;
+	}
 
-    case FEEDER_OVERHEAT:
-        if (check_overheat() > OVERHEAT_EXCESS) {
-            if (launcher_ctrl_data.firing != 0) {
-                feeder_state = FEEDER_SPINUP;
-            } else {
-                feeder_state = FEEDER_STANDBY;
-            }
-        }
-        break;
+	switch (feeder_state) {
+	case FEEDER_STANDBY:
+	case FEEDER_SPINUP:
+	case FEEDER_OVERHEAT:
+		speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
+		feeder->output = feeder->rpm_pid.output;
+//		feeder->output = 0;
+		break;
+	case FEEDER_FIRING:
+		speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
+				feeder->raw_data.rpm, &feeder->rpm_pid);
+		feeder->output = feeder->rpm_pid.output;
+		break;
 
-    default:
-        feeder_state = FEEDER_STANDBY;
-        break;
-    }
+	case FEEDER_JAM:
+		speed_pid(
+				FEEDER_UNJAM_SPD * feeder->angle_data.gearbox_ratio
+						* FEEDER_INVERT, feeder->raw_data.rpm,
+				&feeder->rpm_pid);
+		feeder->output = feeder->rpm_pid.output;
+		break;
 
-    switch (feeder_state) {
-    case FEEDER_STANDBY:
-    case FEEDER_SPINUP:
-    case FEEDER_OVERHEAT:
-        speed_pid(0, feeder->raw_data.rpm, &feeder->rpm_pid);
-        feeder->output = feeder->rpm_pid.output;
-//      feeder->output = 0;
-        break;
+	default:
+		feeder->output = 0;
+	}
 
-    case FEEDER_FIRING:
-        speed_pid(feeder_speed * feeder->angle_data.gearbox_ratio,
-                feeder->raw_data.rpm, &feeder->rpm_pid);
-        feeder->output = feeder->rpm_pid.output;
-        break;
-
-    case FEEDER_JAM:
-        speed_pid(FEEDER_UNJAM_SPD * feeder->angle_data.gearbox_ratio
-                * FEEDER_INVERT,
-                feeder->raw_data.rpm, &feeder->rpm_pid);
-        feeder->output = feeder->rpm_pid.output;
-        break;
-
-    default:
-        feeder->output = 0;
-        break;
-    }
 }
-
 #else
 
 void launcher_angle_control(motor_data_t *l_flywheel, motor_data_t *r_flywheel,
