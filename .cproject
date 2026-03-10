@@ -173,9 +173,6 @@
 					</folderInfo>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.1607294916" name="hud_task.h" rcbsApplicability="disable" resourcePath="Core/Tasks/Inc/hud_task.h" toolsToInvoke=""/>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.2082039128" name="hud_new.h" rcbsApplicability="disable" resourcePath="Core/Tasks/Inc/hud_new.h" toolsToInvoke=""/>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1524727570.875397145" name="bsp_dbus_input.c" rcbsApplicability="disable" resourcePath="Core/BSP/Src/bsp_dbus_input.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.914110174.229366597">
-						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.914110174.229366597" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.914110174"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry excluding="BSP/Src/bsp_dbus_input.c|Tasks/Src/control_sbc.c|Tasks/Src/telemetry_task.c|Tasks/Src/can_relay_task.c|Tasks/Inc/hud_new.h|Tasks/Inc/hud_task.h|Tasks/Src/hud_task.c|Tasks/Src/launcher_control_tasksnail.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
