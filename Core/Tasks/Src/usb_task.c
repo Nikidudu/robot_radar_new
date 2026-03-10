@@ -77,37 +77,48 @@ void USB_Send_Raw(uint8_t packet_id, void* data, uint16_t size)
 }
 
 /* State machine: 0=not started, 1-2=red (1=>80%, 2=<40%), 3-10=red spare,
- * 11-12=blue (11=>80%, 12=<40%), 13-20=blue spare */
+ * 11-12=blue (11=>80%, 12=<40%), 13-20=blue spare.
+ * Only updates when conditions change; otherwise keeps previous state. */
 static uint8_t usb_compute_state(void)
 {
+    static uint8_t last_state = 0;
+
     uint8_t gp = ref_game_state.game_progress;
     uint16_t robot_id = ref_robot_data.robot_id;
     uint16_t cur_hp = ref_robot_data.current_HP;
     uint16_t max_hp = ref_robot_data.maximum_HP;
 
+    uint8_t new_state;
+
     /* State 0: game not started (only stage 4 = in battle counts as started) */
     if (gp != 4) {
-        return 0;
+        new_state = 0;
+    } else {
+        /* Health percentage (avoid div by zero) */
+        uint8_t hp_pct = (max_hp > 0) ? (uint8_t)((cur_hp * 100U) / max_hp) : 0;
+
+        /* Red team: robot_id 1-9 */
+        if (robot_id >= 1 && robot_id <= 9) {
+            if (hp_pct > 80) new_state = 1;
+            else if (hp_pct < 40) new_state = 2;
+            else new_state = 3;  /* 40-80%: spare */
+        }
+        /* Blue team: robot_id 101-109 */
+        else if (robot_id >= 101 && robot_id <= 109) {
+            if (hp_pct > 80) new_state = 11;
+            else if (hp_pct < 40) new_state = 12;
+            else new_state = 13;  /* 40-80%: spare */
+        }
+        else {
+            new_state = 0;  /* Unknown robot_id */
+        }
     }
 
-    /* Health percentage (avoid div by zero) */
-    uint8_t hp_pct = (max_hp > 0) ? (uint8_t)((cur_hp * 100U) / max_hp) : 0;
-
-    /* Red team: robot_id 1-9 */
-    if (robot_id >= 1 && robot_id <= 9) {
-        if (hp_pct > 80) return 1;
-        if (hp_pct < 40) return 2;
-        return 3;  /* 40-80%: spare (3-10 reserved) */
+    /* Only update when condition changes */
+    if (new_state != last_state) {
+        last_state = new_state;
     }
-
-    /* Blue team: robot_id 101-109 */
-    if (robot_id >= 101 && robot_id <= 109) {
-        if (hp_pct > 80) return 11;
-        if (hp_pct < 40) return 12;
-        return 13;  /* 40-80%: spare (13-20 reserved) */
-    }
-
-    return 0;  /* Unknown robot_id or not connected */
+    return last_state;
 }
 
 void USB_Send_GameStatus()
@@ -129,10 +140,16 @@ void USB_Send_GameStatus()
     packet.blue_standard_hp = ref_robot_hp.blu_3_HP;
     packet.blue_sentry_hp = ref_robot_hp.blu_7_HP;
 
-    packet.state = usb_compute_state();
-
     MAKE_RELIABLE(packet);
     USB_Send_Raw(ID_COMPETITION_STATUS, &packet, sizeof(packet));
+}
+
+void USB_Send_State(void)
+{
+    statePacket packet = {0};
+    packet.state = usb_compute_state();
+    MAKE_RELIABLE(packet);
+    USB_Send_Raw(ID_STATE, &packet, sizeof(packet));
 }
 
 void USB_Send_GimbalStatus()
@@ -161,7 +178,7 @@ static void usb_handle_packet(uint8_t id, const uint8_t *payload, uint16_t len)
                 if (IS_RELIABLE(*pkt))
                 {
                     g_nav_cmd.vx = pkt->V_horz;
-                    g_nav_cmd.vy = pkt->V_lat;
+                    g_nav_cmd.vy = -(pkt->V_lat);
                     g_nav_cmd.vz = pkt->V_yaw;
                     g_nav_cmd.last_update = HAL_GetTick();
                 }
@@ -215,7 +232,8 @@ void UsbParserTask(void *argument)
     uint8_t payload_buf[USB_MAX_PAYLOAD_SIZE];
 
     uint32_t timeout_cnt = 0;
-    uint32_t last_send_tick = 0;
+    uint32_t last_game_send_tick = 0;
+    uint32_t last_state_send_tick = pdMS_TO_TICKS(50);  /* Stagger 50ms to avoid USBD_BUSY */
     uint32_t last_gimbal_send_tick = 0;
 
     for (;;)
@@ -231,10 +249,17 @@ void UsbParserTask(void *argument)
         }
 
         // Send Game Status @ 10Hz
-        if (tick - last_send_tick >= pdMS_TO_TICKS(100))
+        if (tick - last_game_send_tick >= pdMS_TO_TICKS(100))
         {
             USB_Send_GameStatus();
-            last_send_tick = tick;
+            last_game_send_tick = tick;
+        }
+
+        // Send State @ 50Hz, staggered from GameStatus (CDC single-buffered)
+        if (tick - last_state_send_tick >= pdMS_TO_TICKS(20))
+        {
+            USB_Send_State();
+            last_state_send_tick = tick;
         }
 
         // Send Gimbal Status @ 50Hz for smooth tracking

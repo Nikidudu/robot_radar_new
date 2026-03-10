@@ -38,6 +38,7 @@ extern "C" {
 #define ID_IS_NAVIGATING            17
 #define ID_OCCUPATION_STATUS        19
 #define ID_WIN_STATUS               20
+#define ID_STATE                   21   /* State machine number only (0-20) */
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Protocol Macros & CRC (integrated from BRoCo) */
@@ -93,7 +94,11 @@ RELIABLE_PACKET(competitionStatusPacket,
     uint16_t blue_hero_hp;
     uint16_t blue_standard_hp;
     uint16_t blue_sentry_hp;
-    uint8_t state;  /* State machine: 0=not started, 1-2=red, 11-12=blue, 3-10/13-20=spare */
+)
+
+/* Simple packet: just the state number (0-20) */
+RELIABLE_PACKET(statePacket,
+    uint8_t state;
 )
 
 RELIABLE_PACKET(cvGimbalCommandPacket,
