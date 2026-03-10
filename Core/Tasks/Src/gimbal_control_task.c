@@ -461,7 +461,7 @@ void yaw_control(motor_data_t *yaw_motor) {
 	xSemaphoreTake(gimbal_ctrl_data.yaw_semaphore,portMAX_DELAY);
 	gimbal_ctrl_data.delta_yaw -= turn_ang;
 
-	 yaw_pid(0, -gimbal_ctrl_data.delta_yaw, &dm_yaw_motor.angle_pid);
+	 yaw_pid(gimbal_ctrl_data.delta_yaw, 0, &dm_yaw_motor.angle_pid);
 	 xSemaphoreGive(gimbal_ctrl_data.yaw_semaphore);
 
 	 dm_yaw_motor.ctrl.vel_set = dm_yaw_motor.angle_pid.output +

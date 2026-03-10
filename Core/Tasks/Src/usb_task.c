@@ -1,13 +1,23 @@
 /*
- * usb_config_task.c
+ * usb_task.c
  *
- *  Created on: Dec 20, 2021
- *      Author: wx
+ *  Created on: Feb 9, 2026
+ *      Author: AI Assistant
  */
 #include "board_lib.h"
 #include "usb_task.h"
 #include "task.h"
+#include "usbd_cdc_if.h"
 #include <string.h>
+#include <stdint.h>
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* External Referee Data */
+/* ────────────────────────────────────────────────────────────────────────── */
+extern ref_game_state_t ref_game_state;
+extern ref_game_robot_data2_t ref_robot_data;
+extern ref_game_robot_HP_t ref_robot_hp;
+extern orientation_data_t imu_heading;
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Ring Buffer */
@@ -18,8 +28,8 @@ aimbot_command_t g_aimbot_cmd = {0};
 nav_command_t g_nav_cmd = {0};
 
 static uint8_t usb_ring_buffer[USB_RING_BUFFER_SIZE];
-static volatile uint32_t usb_rb_head = 0;  // Written by ISR/callback
-static volatile uint32_t usb_rb_tail = 0;  // Read by parser task
+static volatile uint32_t usb_rb_head = 0;
+static volatile uint32_t usb_rb_tail = 0;
 
 static inline uint32_t usb_rb_bytes_available(void)
 {
@@ -31,7 +41,7 @@ void usb_ring_buffer_write(const uint8_t *data, uint32_t len)
     for (uint32_t i = 0; i < len; i++)
     {
         uint32_t next_head = (usb_rb_head + 1) & (USB_RING_BUFFER_SIZE - 1);
-        if (next_head == usb_rb_tail)  // Buffer full → overwrite oldest
+        if (next_head == usb_rb_tail)
         {
             usb_rb_tail = (usb_rb_tail + 1) & (USB_RING_BUFFER_SIZE - 1);
         }
@@ -49,49 +59,99 @@ uint32_t g_usb_packet_count = 0;
 uint32_t g_usb_pps = 0;
 static uint32_t last_stats_tick = 0;
 
+/* ────────────────────3────────────────────────────────────────────────────── */
+/* Helper Functions */
 /* ────────────────────────────────────────────────────────────────────────── */
-/* CRC16-CCITT (0xFFFF init, 0x1021 poly) */
-/* ────────────────────────────────────────────────────────────────────────── */
-static uint16_t crc16(const uint8_t *data, uint16_t len)
+
+// Helper to send data with preamble and ID
+void USB_Send_Raw(uint8_t packet_id, void* data, uint16_t size)
 {
-    uint16_t crc = 0xFFFF;
-    for (uint16_t i = 0; i < len; i++)
-    {
-        crc ^= (uint16_t)data[i] << 8;
-        for (uint8_t j = 0; j < 8; j++)
-        {
-            if (crc & 0x8000)
-                crc = (crc << 1) ^ 0x1021;
-            else
-                crc <<= 1;
-        }
-    }
-    return crc;
+    uint8_t tx_buf[256];
+    if (size > 250) return;
+
+    tx_buf[0] = USB_MAGIC_BYTE; // 0x7F
+    tx_buf[1] = packet_id;
+    memcpy(&tx_buf[2], data, size);
+
+    CDC_Transmit_FS(tx_buf, 2 + size);
+}
+
+void USB_Send_GameStatus()
+{
+    competitionStatusPacket packet;
+    memset(&packet, 0, sizeof(packet));
+
+    packet.game_progress = ref_game_state.game_progress;
+    packet.time_left = ref_game_state.stage_remain_time;
+    packet.robot_id = ref_robot_data.robot_id;
+    packet.current_hp = ref_robot_data.current_HP;
+
+    // Robot HPs
+    packet.red_hero_hp = ref_robot_hp.red_1_HP;
+    packet.red_standard_hp = ref_robot_hp.red_3_HP;
+    packet.red_sentry_hp = ref_robot_hp.red_7_HP;
+
+    packet.blue_hero_hp = ref_robot_hp.blu_1_HP;
+    packet.blue_standard_hp = ref_robot_hp.blu_3_HP;
+    packet.blue_sentry_hp = ref_robot_hp.blu_7_HP;
+
+    MAKE_RELIABLE(packet);
+    USB_Send_Raw(ID_COMPETITION_STATUS, &packet, sizeof(packet));
+}
+
+void USB_Send_GimbalStatus()
+{
+    gimbalJointsPacket packet;
+    memset(&packet, 0, sizeof(packet));
+
+    packet.yaw_angle = imu_heading.yaw;
+    packet.pitch_angle = imu_heading.pit;
+
+    MAKE_RELIABLE(packet);
+    USB_Send_Raw(ID_GIMBAL_JOINTS, &packet, sizeof(packet));
 }
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Packet Handler */
 /* ────────────────────────────────────────────────────────────────────────── */
-static void usb_handle_packet(uint8_t type, const uint8_t *payload, uint16_t len)
+static void usb_handle_packet(uint8_t id, const uint8_t *payload, uint16_t len)
 {
-    switch (type)
+    switch (id)
     {
-        case USB_PKT_AIMBOT:
-            if (len == 12)  // 3 x float
+        case ID_CHASSIS_SPEED:
+            if (len == sizeof(chassisSpeedCommandPacket))
             {
-                memcpy(&g_aimbot_cmd.yaw,   payload + 0,  4);
-                memcpy(&g_aimbot_cmd.pitch, payload + 4,  4);
-                memcpy(&g_aimbot_cmd.fire,  payload + 8,  4);
-                if (g_aimbot_cmd.fire != 0) g_aimbot_cmd.fire = 1;
+                chassisSpeedCommandPacket* pkt = (chassisSpeedCommandPacket*)payload;
+                if (IS_RELIABLE(*pkt))
+                {
+                    g_nav_cmd.vx = pkt->V_horz;
+                    g_nav_cmd.vy = pkt->V_lat;
+                    g_nav_cmd.vz = pkt->V_yaw;
+                    g_nav_cmd.last_update = HAL_GetTick();
+                }
             }
             break;
 
-        case USB_PKT_NAV:
-            if (len == 12) {
-                memcpy(&g_nav_cmd.vx, payload + 0, 4);
-                memcpy(&g_nav_cmd.vy, payload + 4, 4);
-                memcpy(&g_nav_cmd.vz, payload + 8, 4);
-                g_nav_cmd.last_update = HAL_GetTick();  // ADD THIS LINE
+        case ID_GIMBAL_COMMAND:
+            if (len == sizeof(cvGimbalCommandPacket))
+            {
+                cvGimbalCommandPacket* pkt = (cvGimbalCommandPacket*)payload;
+                if (IS_RELIABLE(*pkt))
+                {
+                    g_aimbot_cmd.yaw = pkt->yaw;
+                    g_aimbot_cmd.pitch = pkt->pitch;
+                }
+            }
+            break;
+
+        case ID_FIRING_COMMAND:
+            if (len == sizeof(firingCommandPacket))
+            {
+                firingCommandPacket* pkt = (firingCommandPacket*)payload;
+                if (IS_RELIABLE(*pkt))
+                {
+                    g_aimbot_cmd.fire = pkt->fire_state ? 1 : 0;
+                }
             }
             break;
 
@@ -105,33 +165,28 @@ static void usb_handle_packet(uint8_t type, const uint8_t *payload, uint16_t len
 /* Parser Task */
 /* ────────────────────────────────────────────────────────────────────────── */
 typedef enum {
-    STATE_WAIT_MAGIC,
-    STATE_LEN_LO,
-    STATE_LEN_HI,
-    STATE_TYPE,
-    STATE_PAYLOAD,
-    STATE_CRC_LO,
-    STATE_CRC_HI
+    STATE_WAIT_PREAMBLE,
+    STATE_WAIT_ID,
+    STATE_WAIT_DATA
 } usb_parse_state_t;
 
 void UsbParserTask(void *argument)
 {
-    usb_parse_state_t state = STATE_WAIT_MAGIC;
+    usb_parse_state_t state = STATE_WAIT_PREAMBLE;
+    uint8_t pkt_id = 0;
     uint16_t payload_len = 0;
-    uint8_t pkt_type = 0;
-    uint16_t crc_recv = 0;
     uint16_t payload_pos = 0;
-    uint16_t header_pos = 0;
-
-    uint8_t header_buf[4 + USB_MAX_PAYLOAD_SIZE];  // magic + len(2) + type + payload
     uint8_t payload_buf[USB_MAX_PAYLOAD_SIZE];
 
     uint32_t timeout_cnt = 0;
+    uint32_t last_send_tick = 0;
+    uint32_t last_gimbal_send_tick = 0;
 
     for (;;)
     {
-        // Update PPS every second
         uint32_t tick = xTaskGetTickCount();
+
+        // PPS Stats
         if (tick - last_stats_tick >= pdMS_TO_TICKS(1000))
         {
             g_usb_pps = g_usb_packet_count;
@@ -139,7 +194,21 @@ void UsbParserTask(void *argument)
             last_stats_tick = tick;
         }
 
-        // Wait for data
+        // Send Game Status @ 10Hz
+        if (tick - last_send_tick >= pdMS_TO_TICKS(100))
+        {
+            USB_Send_GameStatus();
+            last_send_tick = tick;
+        }
+
+        // Send Gimbal Status @ 50Hz for smooth tracking
+        if (tick - last_gimbal_send_tick >= pdMS_TO_TICKS(20))
+        {
+            USB_Send_GimbalStatus();
+            last_gimbal_send_tick = tick;
+        }
+
+        // Process Incoming Data
         if (usb_rb_bytes_available() == 0)
         {
             vTaskDelay(pdMS_TO_TICKS(1));
@@ -154,105 +223,58 @@ void UsbParserTask(void *argument)
 
         switch (state)
         {
-            case STATE_WAIT_MAGIC:
-                if (byte == USB_MAGIC_BYTE)
+            case STATE_WAIT_PREAMBLE:
+                if (byte == USB_MAGIC_BYTE) // 0x7F
                 {
-                    state = STATE_LEN_LO;
-                    header_pos = 0;
+                    state = STATE_WAIT_ID;
+                }
+                break;
+
+            case STATE_WAIT_ID:
+                pkt_id = byte;
+                // Determine length based on ID
+                switch (pkt_id)
+                {
+                    case ID_CHASSIS_SPEED: payload_len = sizeof(chassisSpeedCommandPacket); break;
+                    case ID_GIMBAL_COMMAND: payload_len = sizeof(cvGimbalCommandPacket); break;
+                    case ID_FIRING_COMMAND: payload_len = sizeof(firingCommandPacket); break;
+                    case ID_DUMMY: payload_len = sizeof(dummyPacket); break;
+                    case ID_SURVEIL_COMMAND: payload_len = sizeof(surveilCommandPacket); break;
+                    case ID_AIM_COMMAND: payload_len = sizeof(aimCommandPacket); break;
+                    case ID_IS_NAVIGATING: payload_len = sizeof(isNavigatingPacket); break;
+                    default:
+                        state = STATE_WAIT_PREAMBLE;
+                        payload_len = 0;
+                        break;
+                }
+
+                if (payload_len > 0)
+                {
                     payload_pos = 0;
-                    header_buf[header_pos++] = byte;
+                    state = STATE_WAIT_DATA;
                 }
                 break;
 
-            case STATE_LEN_LO:
-                payload_len = byte;
-                header_buf[header_pos++] = byte;
-                state = STATE_LEN_HI;
-                break;
-
-            case STATE_LEN_HI:
-                payload_len |= (uint16_t)byte << 8;
-                if (payload_len > USB_MAX_PAYLOAD_SIZE)
-                {
-                    state = STATE_WAIT_MAGIC;
-                    break;
-                }
-                header_buf[header_pos++] = byte;
-                state = STATE_TYPE;
-                break;
-
-            case STATE_TYPE:
-                pkt_type = byte;
-                header_buf[header_pos++] = byte;
-                state = (payload_len == 0) ? STATE_CRC_LO : STATE_PAYLOAD;
-                break;
-
-            case STATE_PAYLOAD:
+            case STATE_WAIT_DATA:
                 payload_buf[payload_pos++] = byte;
-                header_buf[header_pos++] = byte;
                 if (payload_pos >= payload_len)
-                    state = STATE_CRC_LO;
-                break;
-
-            case STATE_CRC_LO:
-                crc_recv = byte;
-                state = STATE_CRC_HI;
-                break;
-
-            case STATE_CRC_HI:
-                crc_recv |= (uint16_t)byte << 8;
-                if (crc16(header_buf, header_pos) == crc_recv)
                 {
-                    usb_handle_packet(pkt_type, payload_buf, payload_len);
+                    usb_handle_packet(pkt_id, payload_buf, payload_len);
+                    state = STATE_WAIT_PREAMBLE;
                 }
-                state = STATE_WAIT_MAGIC;
-                break;
-
-            default:
-                state = STATE_WAIT_MAGIC;
                 break;
         }
 
-        // Timeout detection (~200ms no data)
+        // Timeout (~200ms)
         if (++timeout_cnt > 200)
         {
             gv_usb_connected = 0;
             timeout_cnt = 0;
-            state = STATE_WAIT_MAGIC;
+            state = STATE_WAIT_PREAMBLE;
         }
     }
-
-    //should not run here
-	osThreadTerminate(NULL);
 }
 
-void USB_Send_HP(uint16_t hp)
-{
-    // Protocol: [Magic(1)] [Len_LSB(1)] [Len_MSB(1)] [Type(1)] [Payload(N)] [CRC_LSB(1)] [CRC_MSB(1)]
-    uint16_t payload_len = 2;
-    uint8_t tx_buf[4 + 2 + 2]; // Header(4) + Payload(2) + CRC(2) = 8 bytes
-
-    tx_buf[0] = USB_MAGIC_BYTE;
-    tx_buf[1] = payload_len & 0xFF;
-    tx_buf[2] = (payload_len >> 8) & 0xFF;
-    tx_buf[3] = USB_PKT_HP_DATA;
-
-    tx_buf[4] = hp & 0xFF;
-    tx_buf[5] = (hp >> 8) & 0xFF;
-
-    uint16_t crc = crc16(tx_buf, 4 + payload_len);
-
-    tx_buf[6] = crc & 0xFF;
-    tx_buf[7] = (crc >> 8) & 0xFF;
-
-    CDC_Transmit_FS(tx_buf, sizeof(tx_buf));
-}
-
-
-
-/* ────────────────────────────────────────────────────────────────────────── */
-/* Initialization */
-/* ────────────────────────────────────────────────────────────────────────── */
 void USB_Firmware_Init(void)
 {
     xTaskCreate(UsbParserTask, "UsbParser", 512, NULL, 12, NULL);
