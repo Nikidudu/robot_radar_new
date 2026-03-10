@@ -52,6 +52,10 @@ ref_magazine_data_t ref_mag_data;
 uint32_t ref_mag_data_txno = 0;
 uint8_t g_ref_tx_seq = 0;
 
+/* Full UART reset when stuck (2 consecutive INSUFFICIENT_DATA = aggressive recovery) */
+#define REF_CONSECUTIVE_INSUFFICIENT_THRESHOLD 2
+static uint8_t s_ref_consecutive_insufficient = 0;
+
 /* Private user code ---------------------------------------------------------*/
 
 /**
@@ -87,6 +91,7 @@ void referee_processing_task(void *argument) {
 
 			if (proc_status == PROCESS_SUCCESS) {
                 /* Complete frame received and decoded successfully */
+				s_ref_consecutive_insufficient = 0;
 				switch (g_ref_msg_buffer.cmd_id) {
 				case REF_ROBOT_SHOOT_DATA_CMD_ID:
 					memcpy(&ref_shoot_data, &g_ref_msg_buffer.data,
@@ -119,8 +124,35 @@ void referee_processing_task(void *argument) {
 					ref_dmg_data_txno++;
 					break;
 				case REF_ROBOT_HP_CMD_ID:
-					memcpy(&ref_robot_hp, &g_ref_msg_buffer.data,
-							sizeof(ref_game_robot_HP_t));
+					if (g_ref_msg_buffer.data_length >= sizeof(ref_game_robot_HP_t)) {
+						/* Legacy: 28 bytes, both teams */
+						memcpy(&ref_robot_hp, &g_ref_msg_buffer.data.robot_hp,
+								sizeof(ref_game_robot_HP_t));
+					} else if (g_ref_msg_buffer.data_length >= REF_ROBOT_HP_2026_DATA_LEN) {
+						/* 2026 protocol: 16 bytes, ally only - map to ref_robot_hp by team */
+						ref_game_robot_HP_ally_t *ally = &g_ref_msg_buffer.data.robot_hp_ally;
+						uint16_t robot_id = ref_robot_data.robot_id;
+						if (robot_id >= 1 && robot_id <= 9) {
+							/* Red team: ally = red */
+							ref_robot_hp.red_1_HP = ally->ally_1_robot_HP;
+							ref_robot_hp.red_2_HP = ally->ally_2_robot_HP;
+							ref_robot_hp.red_3_HP = ally->ally_3_robot_HP;
+							ref_robot_hp.red_4_HP = ally->ally_4_robot_HP;
+							ref_robot_hp.red_5_HP = 0;
+							ref_robot_hp.red_7_HP = ally->ally_7_robot_HP;
+							ref_robot_hp.red_base_HP = ally->ally_base_HP;
+						} else if (robot_id >= 101 && robot_id <= 109) {
+							/* Blue team: ally = blue */
+							ref_robot_hp.blu_1_HP = ally->ally_1_robot_HP;
+							ref_robot_hp.blu_2_HP = ally->ally_2_robot_HP;
+							ref_robot_hp.blu_3_HP = ally->ally_3_robot_HP;
+							ref_robot_hp.blu_4_HP = ally->ally_4_robot_HP;
+							ref_robot_hp.blu_5_HP = 0;
+							ref_robot_hp.blu_7_HP = ally->ally_7_robot_HP;
+							ref_robot_hp.blu_base_HP = ally->ally_base_HP;
+						}
+						/* Opponent HP not in 0x0003; would need radar 0x0A02 */
+					}
 					ref_robot_hp_txno++;
 					break;
 				case REF_ROBOT_MAGAZINE_DATA_CMD_ID:
@@ -137,6 +169,13 @@ void referee_processing_task(void *argument) {
 				  * Exit processing loop and wait for more data */
 
 			} else if (proc_status == INSUFFICIENT_DATA) {
+				s_ref_consecutive_insufficient++;
+				if (s_ref_consecutive_insufficient >= REF_CONSECUTIVE_INSUFFICIENT_THRESHOLD) {
+					/* Stuck: full UART + parser reset to recover from sync loss */
+					ref_parser_reset();
+					ref_usart_full_reset(&referee_uart_q);
+					s_ref_consecutive_insufficient = 0;
+				}
 				break; // Not enough data for a complete frame
 			}
 		}

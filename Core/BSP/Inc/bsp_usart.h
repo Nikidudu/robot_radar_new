@@ -27,4 +27,7 @@
 HAL_StatusTypeDef remote_uart_start(void);
 HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart, queue_t *uart_queue);
 
+/** Full reset of referee UART: abort DMA, clear buffers, re-arm. Use for recovery from sync loss. */
+HAL_StatusTypeDef ref_usart_full_reset(queue_t *uart_queue);
+
 #endif

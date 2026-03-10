@@ -40,4 +40,7 @@ ref_processing_status_t ref_process_data(queue_t *uart_queue, ref_msg_t *proc_ms
 ref_frame_header_t ref_get_header(queue_t *data_buffer);
 ref_msg_t ref_get_msg(ref_frame_header_t header,queue_t *uart_queue);
 
+/** Reset parser state machine - call after INSUFFICIENT_DATA to recover from sync loss */
+void ref_parser_reset(void);
+
 #endif /* BSP_INC_BSP_REFEREE_H_ */

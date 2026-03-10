@@ -93,6 +93,7 @@ RELIABLE_PACKET(competitionStatusPacket,
     uint16_t blue_hero_hp;
     uint16_t blue_standard_hp;
     uint16_t blue_sentry_hp;
+    uint8_t state;  /* State machine: 0=not started, 1-2=red, 11-12=blue, 3-10/13-20=spare */
 )
 
 RELIABLE_PACKET(cvGimbalCommandPacket,

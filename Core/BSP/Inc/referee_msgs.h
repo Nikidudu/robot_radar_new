@@ -66,7 +66,7 @@ typedef struct __packed //0002
 
 
 #define REF_ROBOT_HP_CMD_ID 0x0003
-typedef struct __packed //0x0003
+typedef struct __packed //0x0003 legacy (28 bytes, both teams)
 {
     uint16_t red_1_HP;
     uint16_t red_2_HP;
@@ -83,6 +83,20 @@ typedef struct __packed //0x0003
     uint16_t blu_7_HP;
     uint16_t blu_base_HP;
 } ref_game_robot_HP_t;
+
+/* 2026 protocol: 0x0003 sends 16 bytes, ally (己方) only - Table 1-7 */
+#define REF_ROBOT_HP_2026_DATA_LEN 16
+typedef struct __packed
+{
+    uint16_t ally_1_robot_HP;   /* hero */
+    uint16_t ally_2_robot_HP;   /* engineer */
+    uint16_t ally_3_robot_HP;   /* standard 3 */
+    uint16_t ally_4_robot_HP;   /* standard 4 */
+    uint16_t reserved;
+    uint16_t ally_7_robot_HP;   /* sentry */
+    uint16_t ally_outpost_HP;
+    uint16_t ally_base_HP;
+} ref_game_robot_HP_ally_t;
 
 
 #define REF_DART_LAUNCH_STATUS_CMD_ID 0x0004
@@ -342,6 +356,7 @@ typedef union
 	ref_game_state_t game_state;
 	ref_game_result_t game_result;
 	ref_game_robot_HP_t robot_hp;
+	ref_game_robot_HP_ally_t robot_hp_ally;  /* 2026 protocol: 16-byte ally-only */
 	ref_dart_status_t dart_status;
 	ref_game_event_data_t game_event;
 	ref_supply_projectile_data_t projectile_supply_state;
@@ -391,6 +406,7 @@ typedef struct __packed
 typedef struct __packed
 {
 	uint16_t cmd_id;
+	uint16_t data_length;  /* actual payload length, for 2026 vs legacy HP format */
 	ref_data_u data;
 } ref_msg_t;
 

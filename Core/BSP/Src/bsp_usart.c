@@ -119,7 +119,28 @@ HAL_StatusTypeDef ref_usart_start(UART_HandleTypeDef *huart, queue_t *uart_queue
     return HAL_OK;
 }
 
-
+/**
+ * @brief  Full reset of referee UART for recovery from sync loss
+ * @note   Aborts DMA, clears buffers, re-inits queue, re-arms DMA
+ * @param  uart_queue: Queue to clear and re-init
+ * @retval HAL status
+ */
+HAL_StatusTypeDef ref_usart_full_reset(queue_t *uart_queue) {
+    /* Abort any ongoing receive - blocks until complete */
+    HAL_UART_AbortReceive(&REFEREE_UART);
+    /* Clear DMA buffer */
+    memset(ref_dma_buf, 0, REF_DMA_BUF_SIZE);
+    /* Re-init queue */
+    if (uart_queue != NULL) {
+        queue_init(uart_queue);
+    }
+    /* Re-arm DMA */
+    if (HAL_UARTEx_ReceiveToIdle_DMA(&REFEREE_UART, ref_dma_buf, REF_DMA_BUF_SIZE) != HAL_OK) {
+        return HAL_ERROR;
+    }
+    __HAL_DMA_DISABLE_IT(&HDMA_REFEREE_RX, DMA_IT_HT);
+    return HAL_OK;
+}
 
 /**
  * @brief  UART Abort Complete Callback

@@ -20,6 +20,9 @@ static uint8_t protocol_packet[REF_PROTOCOL_FRAME_MAX_SIZE]; // buffer for stori
 /* External variables --------------------------------------------------------*/
 queue_t *ref_UART_queue; // Global queue for referee UART data
 
+/* Parser reset - ref_process_data checks this at start */
+static volatile uint8_t s_ref_parser_reset_requested = 0;
+
 /* Private function prototypes -----------------------------------------------*/
 ref_msg_t ref_get_msg_from_buffer(ref_frame_header_t header, uint8_t *frame_buffer, uint16_t len);
 
@@ -34,12 +37,24 @@ ref_msg_t ref_get_msg_from_buffer(ref_frame_header_t header, uint8_t *frame_buff
  * State machine implementation for DJI Referee System protocol decoding
  * Protocol frame format: SOF(1) + DATA_LEN(2) + SEQ(1) + CRC8(1) + CMD_ID(2) + DATA(n) + CRC16(2)
  */
+void ref_parser_reset(void) {
+    s_ref_parser_reset_requested = 1;
+}
+
 ref_processing_status_t ref_process_data(queue_t *uart_queue, ref_msg_t *proc_msg) {
     static uint8_t unpack_step = STEP_HEADER_SOF;	/* Current state in protocol parsing */
     static uint16_t index = 0;						/* Current position in frame buffer */
     static uint16_t data_len = 0;					/* Expected data payload length */
     static ref_frame_header_t header;				/* Extracted frame header */
     static uint8_t sof = 0xA5;  // Define SOF
+
+    /* Recovery: reset state machine if requested (e.g. after INSUFFICIENT_DATA) */
+    if (s_ref_parser_reset_requested) {
+        s_ref_parser_reset_requested = 0;
+        unpack_step = STEP_HEADER_SOF;
+        index = 0;
+        data_len = 0;
+    }
 
     /* Process all available bytes in queue */
     while (queue_get_size(uart_queue) > 0) {
@@ -171,9 +186,10 @@ ref_msg_t ref_get_msg_from_buffer(ref_frame_header_t header, uint8_t *frame_buff
     ref_msg_t buffer_msg;
     memset(&buffer_msg, 0, sizeof(ref_msg_t));  // Initialize to zero
 
-    /* Data payload starts after header (5 bytes) */
+    /* Data payload starts after header (5 bytes) + cmd_id (2 bytes) */
     uint8_t* data_buffer = frame_buffer + REF_HEADER_CRC_CMDID_LEN;
     buffer_msg.cmd_id = header.cmd_id;
+    buffer_msg.data_length = header.data_length;
 
     /* Parse data based on command ID */
     switch (header.cmd_id) {
@@ -188,8 +204,14 @@ ref_msg_t ref_get_msg_from_buffer(ref_frame_header_t header, uint8_t *frame_buff
         }
         break;
     case REF_ROBOT_HP_CMD_ID:
-        if (header.data_length >= sizeof(ref_game_robot_HP_t)) {
-            memcpy(&buffer_msg.data.robot_hp, data_buffer, sizeof(ref_game_robot_HP_t));
+        if (header.data_length >= REF_ROBOT_HP_2026_DATA_LEN) {
+            if (header.data_length >= sizeof(ref_game_robot_HP_t)) {
+                /* Legacy: 28 bytes, both red and blue */
+                memcpy(&buffer_msg.data.robot_hp, data_buffer, sizeof(ref_game_robot_HP_t));
+            } else {
+                /* 2026 protocol: 16 bytes, ally (己方) only */
+                memcpy(&buffer_msg.data.robot_hp_ally, data_buffer, sizeof(ref_game_robot_HP_ally_t));
+            }
         }
         break;
     case REF_GAME_EVENT_CMD_ID:

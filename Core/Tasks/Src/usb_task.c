@@ -76,6 +76,40 @@ void USB_Send_Raw(uint8_t packet_id, void* data, uint16_t size)
     CDC_Transmit_FS(tx_buf, 2 + size);
 }
 
+/* State machine: 0=not started, 1-2=red (1=>80%, 2=<40%), 3-10=red spare,
+ * 11-12=blue (11=>80%, 12=<40%), 13-20=blue spare */
+static uint8_t usb_compute_state(void)
+{
+    uint8_t gp = ref_game_state.game_progress;
+    uint16_t robot_id = ref_robot_data.robot_id;
+    uint16_t cur_hp = ref_robot_data.current_HP;
+    uint16_t max_hp = ref_robot_data.maximum_HP;
+
+    /* State 0: game not started (only stage 4 = in battle counts as started) */
+    if (gp != 4) {
+        return 0;
+    }
+
+    /* Health percentage (avoid div by zero) */
+    uint8_t hp_pct = (max_hp > 0) ? (uint8_t)((cur_hp * 100U) / max_hp) : 0;
+
+    /* Red team: robot_id 1-9 */
+    if (robot_id >= 1 && robot_id <= 9) {
+        if (hp_pct > 80) return 1;
+        if (hp_pct < 40) return 2;
+        return 3;  /* 40-80%: spare (3-10 reserved) */
+    }
+
+    /* Blue team: robot_id 101-109 */
+    if (robot_id >= 101 && robot_id <= 109) {
+        if (hp_pct > 80) return 11;
+        if (hp_pct < 40) return 12;
+        return 13;  /* 40-80%: spare (13-20 reserved) */
+    }
+
+    return 0;  /* Unknown robot_id or not connected */
+}
+
 void USB_Send_GameStatus()
 {
     competitionStatusPacket packet;
@@ -86,7 +120,7 @@ void USB_Send_GameStatus()
     packet.robot_id = ref_robot_data.robot_id;
     packet.current_hp = ref_robot_data.current_HP;
 
-    // Robot HPs
+    /* Robot HPs */
     packet.red_hero_hp = ref_robot_hp.red_1_HP;
     packet.red_standard_hp = ref_robot_hp.red_3_HP;
     packet.red_sentry_hp = ref_robot_hp.red_7_HP;
@@ -94,6 +128,8 @@ void USB_Send_GameStatus()
     packet.blue_hero_hp = ref_robot_hp.blu_1_HP;
     packet.blue_standard_hp = ref_robot_hp.blu_3_HP;
     packet.blue_sentry_hp = ref_robot_hp.blu_7_HP;
+
+    packet.state = usb_compute_state();
 
     MAKE_RELIABLE(packet);
     USB_Send_Raw(ID_COMPETITION_STATUS, &packet, sizeof(packet));
