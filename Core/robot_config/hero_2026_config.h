@@ -15,11 +15,11 @@
 /********************* DEV C IMU CONFIGURATION ***********/
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
-#define IMU_ORIENTATION 	1
+#define IMU_ORIENTATION 	7
 
 //flip until motor angle and yaw angle matches
 #define IMU_YAW_INVERT		-1
-#define IMU_PITCH_INVERT	1
+#define IMU_PITCH_INVERT	-1
 //nothing uses roll.....yet
 #define IMU_ROLL_INVERT		1
 //#define IST8310
@@ -371,7 +371,7 @@
 #define PITCH_CENTER			990 	// irrelevant for imu control
 #define PITCH_MAX_ANG			0.75
 #define PITCH_MIN_ANG			-0.52
-#define PITCH_CONST 			0
+#define PITCH_CONST 			-6
 
 #define YAW_SINGLE_PID_LOOP		// define to enable yaw single PID loop instead of cascade PID for yaw
 #define YAW_MOTOR_TYPE 			TYPE_DM4310_DJI_MODE
@@ -410,7 +410,7 @@
 
 #endif
 
-#define YAW_CENTER 				72
+#define YAW_CENTER 				-2020
 #define YAW_MAX_ANG				0 // unused
 #define YAW_MIN_ANG				0 // unused
 
@@ -418,8 +418,8 @@
 // NOTE: two motors on the same CAN CANNOT have the same flashing number
 //#define ACTIVE_GUIDANCE	// define to enable 4 flwheel firing system (for sniping hero)
 #define LAUNCHER_MOTOR_CAN	&hcan2
-#define LFRICTION_MOTOR_ID	1
-#define RFRICTION_MOTOR_ID	2
+#define LFRICTION_MOTOR_ID	2
+#define RFRICTION_MOTOR_ID	1
 #ifdef ACTIVE_GUIDANCE
 //#define BFRICTION_MOTOR_ID	3
 //#define GFRICTION_MOTOR_ID	4

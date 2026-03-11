@@ -2,8 +2,8 @@
 #define TASKS_INC_ROBOT_CONFIG_H_
 
 //#include "pancake_2026_config.h"
-#include "sentry_2026_config.h"
-//#include "hero_2026_config.h"
+//#include "sentry_2026_config.h"
+#include "hero_2026_config.h"
 
 // COMMON CONFIGURATION
 #define SPINSPIN_RANDOM_DELAY 50 // todo: seems good to implement this eh
