@@ -139,6 +139,15 @@
 #define SPIN_ACCELERATION		0.50	// increase in
 #define CHASSIS_SPEED_BOOST		0.15	// Increase in MAX_SPEED when spinspin mode is deactivated
 
+/* Spin-compensation: when chassis spins, movement relative to gimbal may slant.
+ * Tune these if movement is not straight when spinning:
+ * - ANGLE_OFFSET: if movement is rotated, add small rad (e.g. 0.05 to 0.15)
+ * - ANGLE_LEAD: if movement lags behind gimbal, try 0.02 to 0.08
+ * - DRIFT_COMPENSATION: if slant left when spinning CW, try +0.1 to +0.3; if right, try -0.1 to -0.3 */
+#define CHASSIS_GIMBAL_ANGLE_OFFSET  0.0f   // Constant offset (rad) if adj_ang has bias
+#define SPIN_ANGLE_LEAD              0.0f   // Predictive lead: rel_angle += this * act_yaw (rad)
+#define SPIN_DRIFT_COMPENSATION     -1.2f   // Slant fix: drift left when CW+forward -> use negative
+
 /*********************** GIMBAL CONFIGURATION ***********************/
 /* To configure centers, start the boards in debug mode with all motors
  * powered *but in safe mode* (i.e. remotes off)

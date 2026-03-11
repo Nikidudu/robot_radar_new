@@ -83,11 +83,23 @@ void chassis_can_message_task(void *argument) {
     	act_horizontal = rpm_ramp(limit_horizontal, act_horizontal, &lvl_max_accel);
     	act_yaw = rpm_ramp(limit_yaw, act_yaw, &spin_accel);
 
+    	/* Apply spin-compensation: angle offset, predictive lead, drift correction */
+    	rel_angle += CHASSIS_GIMBAL_ANGLE_OFFSET;
+    	if (SPIN_ANGLE_LEAD != 0.0f && act_yaw != 0.0f) {
+    		rel_angle += SPIN_ANGLE_LEAD * act_yaw;  /* Compensate CAN latency when spinning */
+    	}
+
     	// translation and rotation speed of chassis for chassis yaw angle relative to gimbal
-    	float rel_forward = act_forward * cos(rel_angle)
-    			+ act_horizontal * sin(rel_angle);
-    	float rel_horizontal = -act_forward * sin(rel_angle)
-    			+ act_horizontal * cos(rel_angle);
+    	float rel_forward = act_forward * cosf(rel_angle)
+    			+ act_horizontal * sinf(rel_angle);
+    	float rel_horizontal = -act_forward * sinf(rel_angle)
+    			+ act_horizontal * cosf(rel_angle);
+
+    	/* Empirical slant compensation when spinning + translating */
+    	if (SPIN_DRIFT_COMPENSATION != 0.0f && act_yaw != 0.0f) {
+    		rel_horizontal += SPIN_DRIFT_COMPENSATION * rel_forward * act_yaw;
+    	}
+
     	float rel_yaw = act_yaw;
 
     	// convert from float to int16_t

@@ -8,6 +8,17 @@
 // COMMON CONFIGURATION
 #define SPINSPIN_RANDOM_DELAY 50 // todo: seems good to implement this eh
 
+/* Spin-compensation (override in robot config if needed) */
+#ifndef CHASSIS_GIMBAL_ANGLE_OFFSET
+#define CHASSIS_GIMBAL_ANGLE_OFFSET  0.0f
+#endif
+#ifndef SPIN_ANGLE_LEAD
+#define SPIN_ANGLE_LEAD              0.0f
+#endif
+#ifndef SPIN_DRIFT_COMPENSATION
+#define SPIN_DRIFT_COMPENSATION      0.0f
+#endif
+
 // 1 for annoying beep sound, 0 for some error beeps every 3s, -1 for absolute peace and tranquility
 #define MOTOR_ONLINE_CHECK 	-1
 
