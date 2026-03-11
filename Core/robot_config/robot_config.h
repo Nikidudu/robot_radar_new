@@ -11,7 +11,7 @@
 // 1 for annoying beep sound, 0 for some error beeps every 3s, -1 for absolute peace and tranquility
 #define MOTOR_ONLINE_CHECK 	-1
 
-// set to allow flywheels to spin during standby: 1(spin when in comp), 2(always spin),
+// set to allow flywheels to spin during standby: 0 (disable feature), 1(spin when in comp), 2(always spin)
 #define FRICTION_SB_SPIN_ON	0
 
 // if no overrides in the respective configs
@@ -25,6 +25,7 @@
 #define MOTOR_TIMEOUT_MAX	1000000	// time above which a motor is considered to be disconnected
 #define RC_LIMITS			660 	// limits for remote controller
 #define HITEMP_WARNING  	70		// temp above which the motor starts to beep
+#define TIMER_FREQ			1000000 // microsecond timer used for PIDs; Cannot be too high if not the ISRs overload the CPU
 
 #define KEY_OFFSET_W        ((uint16_t)0x01<<0)
 #define KEY_OFFSET_S        ((uint16_t)0x01<<1)

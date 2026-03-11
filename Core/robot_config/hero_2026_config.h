@@ -12,7 +12,6 @@
 #include "motor_config.h"
 
 #define BULLET_42
-#define HAS_SBC
 /********************* DEV C IMU CONFIGURATION ***********/
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
@@ -49,16 +48,6 @@
 
 #define GIMBAL_MODE 			1				// 1 for IMU control, 0 for absolute angle based control
 
-/*********************** SUPERCAP CONFIGURATION *******************/
-#define SUPERCAP_PRESENT
-#define SUPER_CAP_OFFSET		-3
-
-/*********************** REFEREE SYSTEM CONFIGURATION *******************/
-
-
-/*********************** AIMBOT CONFIGURATION *******************/
-
-
 /* PID TUNING GUIDE
  * For all motors, there are 2 different PID values, angle PID and speed PID
  * For motors that require position control, both values have to be set
@@ -76,11 +65,11 @@
  */
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
-#define FEEDER_SPEED			200
-#define	PROJECTILE_SPEED		20.5    //19 gives projectiles speed of 28-29m/s
+#define FEEDER_SPEED			200		// projectiles per minute
+#define	PROJECTILE_SPEED		20.5    // 19 gives projectiles speed of 28-29m/s
 
-#define PROJECTILE_SPEED_RATIO	310		//rpm per m/s of the friction wheels ish don't think this will work well lmao
-#define FEEDER_SPEED_RATIO		-6								//projectiles per round of the feeder
+#define PROJECTILE_SPEED_RATIO	310		// rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define FEEDER_SPEED_RATIO		-6		// projectiles per round of the feeder
 
 // prevents pilots from overheating when firing
 #define OVERHEAT_PROTECTION
@@ -89,6 +78,8 @@
 #define OVERHEAT_OFFSET		20
 
 #define FEEDER_MOTOR_TYPE	TYPE_M3508
+#define FEEDER_INVERT		-1
+
 // FEEDER PID VALUES
 #define FEEDER_KP 			10
 #define FEEDER_KI  			0.02
@@ -100,40 +91,29 @@
 #define FEEDER_ANGLE_KI  		0
 #define FEEDER_ANGLE_INT_MAX  	0
 #define FEEDER_MAX_RPM			15
-
+#define FEEDER_MAX_CURRENT		60000
+// FEEDER UNJAMMING VALUES
 #define FEEDER_JAM_TORQUE  		10000	//35000	//20000		// Before feeder deemed to be jammed
 #define FEEDER_JAM_RPM			20		// if feeder is below this rpm, it is jammed
-#define FEEDER_UNJAM_SPD  		100	// Reverse unjam
+#define FEEDER_UNJAM_SPD  		100		// Reverse unjamming speed
 #define FEEDER_UNJAM_TIME		300000
-#define FEEDER_MAX_CURRENT		60000   //60000 // why??
-#define FEEDER_INVERT			-1
 
 // FRICTION WHEELS PID VALUES
-#define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
 #define FRICTION_KP  			5
 #define FRICTION_KI  			0
-#define FRICTION_KD  			0//10
+#define FRICTION_KD  			0
 #define FRICTION_MAX_CURRENT 	16384
 #define FRICTION_MAX_INT		10000
-#define FRICTION_INVERT			-1
-#define LAUNCHER_MARGIN			300
-#define LAUNCHER_DIFF_MARGIN	300
-#define FRICTION_OFFSET			0
 
-#define CLEAR_DELAY				1000
+#define FRICTION_INVERT			-1
+#define LAUNCHER_MARGIN			300	// max rpm diff betwn flywheel and target rpm to allow firing
+#define LAUNCHER_DIFF_MARGIN	300	// max rpm diff btwn flywheels to allow firing
+#define FRICTION_OFFSET			0
+#define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
+
+#define CLEAR_DELAY				1000 // time flywheels continue to spin after firing stops to clear flywheels
 
 /*********************** CHASSIS CONFIGURATION ***********************/
-// CHASSIS WHEELS PID VALUES
-#define CHASSIS_KP  		2
-#define CHASSIS_KI  		0.1
-#define CHASSIS_KD  		0.8
-#define CHASSIS_INT_MAX  	5000
-#define CHASSIS_MAX_CURRENT 1000//6000//9000
-#define CHASSIS_MIN_CURRENT 0
-#define BUFFER_MIN			0.22	// power buffer minimum, at zero buffer left, motors will draw CHASSIS_MAX_CURRENT * BUFFER_MIN
-									// tune this by seeing if pilot likes the speed
-#define CHASSIS_CAN_SPINSPIN
-#define CHASSIS_SPINSPIN_MAX 1
 
 //#define LVL_TUNING		// scales chassis speed as level increases
 //#define ONE_VS_ONE		// 1v1 standard configuration (vs 3v3)
@@ -189,6 +169,8 @@
 #define LV19_MAX_SPEED			0.36
 #define LV20_MAX_SPEED			0.36
 #endif
+
+//Chassis Acceleration
 /*	Acceleration Value Guide:
  * 	0.05 - Very Slow Acceleration
  * 	0.10 - Slow Acceleration
@@ -197,7 +179,6 @@
  *  1.00 - Very Fast Acceleration
  *  2.00 - Extremely Fast Acceleration
  */
-//Chassis Acceleration
 #ifdef ONE_VS_ONE
 #define LV1_MAX_ACCEL			1.5//2.5//1.5 // for 1v1
 #define LV2_MAX_ACCEL			2.0
@@ -326,20 +307,23 @@
 #endif
 #else
 
-#define MAX_SPEED 		    0.34
-#define MAX_ACCEL			1.5
-
+#define MAX_SPEED 		    	0.34
+#define MAX_ACCEL				1.5
 #define CHASSIS_YAW_MAX_RPM		0.75
+
+// CHASSIS WHEELS ROTATIONAL PID VALUES
 #define CHASSIS_YAW_KP 			0.45
 #define CHASSIS_YAW_KI			0.05
 #define CHASSIS_YAW_KD 			2
 #endif
 
+#define CHASSIS_CAN_SPINSPIN
+#define CHASSIS_SPINSPIN_MAX 	1
 #define CHASSIS_YAW_MIN			0.05	// value below which chassis yaw movement is ignored
 #define SPIN_ACCELERATION		1.0		// Same guideline as chassis acceleration
-
 #define CHASSIS_SPEED_BOOST		0.15	// Increase MAX_SPEED when spinspin mode is deactivated
 
+/*********************** GIMBAL CONFIGURATION ***********************/
 /* To configure centers, start the boards in debug mode with all motors
  * powered *but in safe mode* (i.e. remotes off)
  * Physically push the motors to the desired centers
@@ -349,7 +333,7 @@
  * the motors
  * Centers for DM motors should be -PI to PI.
  */
-/*********************** GIMBAL CONFIGURATION ***********************/
+
 #define PITCH_SINGLE_PID_LOOP	// define to enable single PID loop instead of cascade PID for pitch
 #define PITCH_MOTOR_TYPE		TYPE_DM4310_DJI_MODE
 
@@ -361,12 +345,11 @@
 #define PITCH_ANGLE_INT_MAX		0
 #endif
 #define PITCH_MAX_RPM			60
-//single loop pid below!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#define PITCHRPM_KP				30		 //30 initial values
-#define PITCHRPM_KI				0   	 //0.5
-#define PITCHRPM_KD				5		 //50
-#define PITCHRPM_INT_MAX		4000	 //4000
-#define PITCH_MAX_CURRENT		20000	 //205000
+#define PITCHRPM_KP				30
+#define PITCHRPM_KI				0
+#define PITCHRPM_KD				5
+#define PITCHRPM_INT_MAX		4000
+#define PITCH_MAX_CURRENT		20000
 
 #else
 
@@ -390,7 +373,7 @@
 #define PITCH_MIN_ANG			-0.52
 #define PITCH_CONST 			0
 
-#define YAW_SINGLE_PID_LOOP		// define to enable single PID loop instead of cascade PID for yaw
+#define YAW_SINGLE_PID_LOOP		// define to enable yaw single PID loop instead of cascade PID for yaw
 #define YAW_MOTOR_TYPE 			TYPE_DM4310_DJI_MODE
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
@@ -427,7 +410,6 @@
 
 #endif
 
-#define YAW_SPINSPIN_CONSTANT	5000
 #define YAW_CENTER 				72
 #define YAW_MAX_ANG				0 // unused
 #define YAW_MIN_ANG				0 // unused
@@ -456,14 +438,9 @@
 #define YAW_MOTOR_ID 		0x2
 
 /*********************** OTHERS ***********************/
-#define WHEEL_CIRC			47.1	//in CM
-
 #define CONTROL_DELAY 		5
 #define GIMBAL_DELAY		2
 #define CHASSIS_DELAY 		5
 #define LAUNCHER_DELAY		5
-
-//microsecond timer used for PIDs
-#define TIMER_FREQ			1000000 //Cannot be too high if not the ISRs overload the CPU
 
 #endif /* ROBOT_CONFIG_HERO_2026_CONFIG_H_ */

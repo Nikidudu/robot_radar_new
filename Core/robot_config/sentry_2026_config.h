@@ -49,16 +49,6 @@
 
 #define GIMBAL_MODE 			1				// 1 for IMU control, 0 for absolute angle based control
 
-/*********************** SUPERCAP CONFIGURATION *******************/
-#define SUPERCAP_PRESENT
-#define SUPER_CAP_OFFSET		-3
-
-/*********************** REFEREE SYSTEM CONFIGURATION *******************/
-
-
-/*********************** AIMBOT CONFIGURATION *******************/
-
-
 /* PID TUNING GUIDE
  * For all motors, there are 2 different PID values, angle PID and speed PID
  * For motors that require position control, both values have to be set
@@ -77,10 +67,10 @@
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
 #define FEEDER_SPEED			1200	// projectiles per minute
-#define	PROJECTILE_SPEED		20.5    //19 gives projectiles speed of 28-29m/s
+#define	PROJECTILE_SPEED		20.5    // 19 gives projectiles speed of 28-29m/s
 
-#define PROJECTILE_SPEED_RATIO	310		//rpm per m/s of the friction wheels ish don't think this will work well lmao
-#define FEEDER_SPEED_RATIO		-8		//projectiles per round of the feeder
+#define PROJECTILE_SPEED_RATIO	310		// rpm per m/s of the friction wheels ish don't think this will work well lmao
+#define FEEDER_SPEED_RATIO		-8		// projectiles per round of the feeder
 
 // prevents pilots from overheating when firing
 #define OVERHEAT_PROTECTION
@@ -89,6 +79,8 @@
 #define OVERHEAT_OFFSET		20
 
 #define FEEDER_MOTOR_TYPE	TYPE_M3508
+#define FEEDER_INVERT		1
+
 // FEEDER PID VALUES
 #define FEEDER_KP 			5
 #define FEEDER_KI  			0.02
@@ -100,46 +92,54 @@
 #define FEEDER_ANGLE_KI  		0
 #define FEEDER_ANGLE_INT_MAX  	0
 #define FEEDER_MAX_RPM			15
-
+#define FEEDER_MAX_CURRENT		60000   //60000
+// FEEDER UNJAMMING VALUES
 #define FEEDER_JAM_TORQUE  		12000	//35000	//20000		// Before feeder deemed to be jammed
 #define FEEDER_JAM_RPM			20		// if feeder is below this rpm, it is jammed
-#define FEEDER_UNJAM_SPD  		10		//100	// Reverse unjam
+#define FEEDER_UNJAM_SPD  		10		//100	// Reverse unjam speed
 #define FEEDER_UNJAM_TIME		7000	//30000
-#define FEEDER_MAX_CURRENT		60000   //60000
-#define FEEDER_INVERT			1
 
 // FRICTION WHEELS PID VALUES
-#define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
 #define FRICTION_KP  			5
 #define FRICTION_KI  			0
-#define FRICTION_KD  			0//10
+#define FRICTION_KD  			0
 #define FRICTION_MAX_CURRENT 	16384
 #define FRICTION_MAX_INT		10000
-#define FRICTION_INVERT			-1
-#define LAUNCHER_MARGIN			300
-#define LAUNCHER_DIFF_MARGIN	300
-#define FRICTION_OFFSET			0
 
-#define CLEAR_DELAY				1000
+#define FRICTION_INVERT			-1
+#define LAUNCHER_MARGIN			300	// max rpm diff betwn flywheel and target rpm to allow firing
+#define LAUNCHER_DIFF_MARGIN	300	// max rpm diff btwn flywheels to allow firing
+#define FRICTION_OFFSET			0
+#define FRICTION_SB_SPIN		0.5 // ratio of max flywheel speed
+
+#define CLEAR_DELAY				1000 // time flywheels continue to spin after firing stops to clear flywheels
 
 /*********************** CHASSIS CONFIGURATION ***********************/
-
-#define CHASSIS_CAN_SPINSPIN
-#define CHASSIS_SPINSPIN_MAX 0.9
+/*	Acceleration Value Guide:
+ * 	0.05 - Very Slow Acceleration
+ * 	0.10 - Slow Acceleration
+ * 	0.20 - Moderate Acceleration
+ *  0.50 - Fast Acceleration
+ *  1.00 - Very Fast Acceleration
+ *  2.00 - Extremely Fast Acceleration
+ */
 
 #define MAX_SPEED 		    0.7
 #define MAX_ACCEL			2
-
 #define CHASSIS_YAW_MAX_RPM   0.7
+
+// CHASSIS WHEELS ROTATIONAL PID VALUES
 #define CHASSIS_YAW_KP        1
 #define CHASSIS_YAW_KI        0
 #define CHASSIS_YAW_KD        15
 
+#define CHASSIS_CAN_SPINSPIN
+#define CHASSIS_SPINSPIN_MAX 	0.9
 #define CHASSIS_YAW_MIN			0.05	// value below which chassis yaw movement is ignored
-#define SPIN_ACCELERATION		0.50	// Same guideline as chassis acceleration
+#define SPIN_ACCELERATION		0.50	// increase in
+#define CHASSIS_SPEED_BOOST		0.15	// Increase in MAX_SPEED when spinspin mode is deactivated
 
-#define CHASSIS_SPEED_BOOST		0.15	// Increase MAX_SPEED when spinspin mode is deactivated
-
+/*********************** GIMBAL CONFIGURATION ***********************/
 /* To configure centers, start the boards in debug mode with all motors
  * powered *but in safe mode* (i.e. remotes off)
  * Physically push the motors to the desired centers
@@ -149,7 +149,7 @@
  * the motors
  * Centers for DM motors should be -PI to PI.
  */
-/*********************** GIMBAL CONFIGURATION ***********************/
+
 #define PITCH_SINGLE_PID_LOOP	// define to enable single PID loop instead of cascade PID for pitch
 #define PITCH_MOTOR_TYPE		TYPE_DM4310_DJI_MODE
 
@@ -189,7 +189,7 @@
 #define PITCH_MIN_ANG			-0.15
 #define PITCH_CONST 			0
 
-//#define YAW_SINGLE_PID_LOOP		// define to enable single PID loop instead of cascade PID for yaw
+//#define YAW_SINGLE_PID_LOOP		// define to enable yaw single PID loop instead of cascade PID for yaw
 #define YAW_MOTOR_TYPE 			TYPE_GM6020
 
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
@@ -226,7 +226,6 @@
 
 #endif
 
-#define YAW_SPINSPIN_CONSTANT	5000
 #define YAW_CENTER 				6473
 #define YAW_MAX_ANG				0 // unused
 #define YAW_MIN_ANG				0 // unused
@@ -238,8 +237,8 @@
 #define LFRICTION_MOTOR_ID	1
 #define RFRICTION_MOTOR_ID	2
 #ifdef ACTIVE_GUIDANCE
-//#define BFRICTION_MOTOR_ID	3
-//#define GFRICTION_MOTOR_ID	4
+#define BFRICTION_MOTOR_ID	3
+#define GFRICTION_MOTOR_ID	4
 #endif
 
 #define FEEDER_MOTOR_CAN	&hcan1
@@ -255,14 +254,9 @@
 #define YAW_MOTOR_ID 		5
 
 /*********************** OTHERS ***********************/
-#define WHEEL_CIRC			47.1	//in CM
-
 #define CONTROL_DELAY 		5
 #define GIMBAL_DELAY		2
 #define CHASSIS_DELAY 		5
 #define LAUNCHER_DELAY		5
-
-//microsecond timer used for PIDs
-#define TIMER_FREQ			1000000 //Cannot be too high if not the ISRs overload the CPU
 
 #endif /* ROBOT_CONFIG_SENTRY_2026_CONFIG_H_ */
