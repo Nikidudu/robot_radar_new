@@ -66,7 +66,7 @@
 
 /*********************** LAUNCHER CONFIGURATION ***********************/
 #define FEEDER_SPEED			200		// projectiles per minute
-#define	PROJECTILE_SPEED		20.5    // 19 gives projectiles speed of 28-29m/s
+#define	PROJECTILE_SPEED		15    // 19 gives projectiles speed of 28-29m/s
 
 #define PROJECTILE_SPEED_RATIO	310		// rpm per m/s of the friction wheels ish don't think this will work well lmao
 #define FEEDER_SPEED_RATIO		-6		// projectiles per round of the feeder
@@ -307,9 +307,9 @@
 #endif
 #else
 
-#define MAX_SPEED 		    	0.34
-#define MAX_ACCEL				1.5
-#define CHASSIS_YAW_MAX_RPM		0.75
+#define MAX_SPEED 		    	0.5//0.2//0.34
+#define MAX_ACCEL				1//1.5
+#define CHASSIS_YAW_MAX_RPM		0.80//0.60//0.75
 
 // CHASSIS WHEELS ROTATIONAL PID VALUES
 #define CHASSIS_YAW_KP 			0.45
