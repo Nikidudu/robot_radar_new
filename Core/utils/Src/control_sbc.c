@@ -128,8 +128,8 @@ void sbc_chassis_input() {
 
     chassis_ctrl_data.enabled = 1;
 
-    float horizontal_input = g_nav_cmd.vy/5;
-    float forward_input = g_nav_cmd.vx/5;
+    float horizontal_input = g_nav_cmd.vy/4.0f;
+    float forward_input = g_nav_cmd.vx/4.0f;
     // float yaw_input;
     float yaw_input = g_nav_cmd.vz; //chassis_center_yaw();//g_nav_cmd.vz;
 
