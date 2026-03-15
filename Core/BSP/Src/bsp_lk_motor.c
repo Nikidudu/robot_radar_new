@@ -301,7 +301,7 @@ void lk_process_angle_control(uint8_t *data, motor_data_t *motor_data) {
 	lk_calc_ang(motor_data);
 //	motor_calc_odometry(&motor_data->raw_data, &motor_data->angle_data,
 //			motor_data->last_time);
-	angle_offset(&motor_data->raw_data, &motor_data->angle_data);
+	//angle_offset(&motor_data->raw_data, &motor_data->angle_data);
 	//add adj ang calculations
 }
 

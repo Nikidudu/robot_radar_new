@@ -159,22 +159,24 @@
  * Centers for DM motors should be -PI to PI.
  */
 
-#define PITCH_SINGLE_PID_LOOP	// define to enable single PID loop instead of cascade PID for pitch
-#define PITCH_MOTOR_TYPE		TYPE_DM4310_DJI_MODE
+// #define PITCH_SINGLE_PID_LOOP	// define to enable single PID loop instead of cascade PID for pitch
+#define PITCH_MOTOR_TYPE		TYPE_GM6020
 
 #if PITCH_MOTOR_TYPE != TYPE_DM4310_MIT
 #ifndef PITCH_SINGLE_PID_LOOP
 #define PITCH_ANGLE_KP	  		80
 #define PITCH_ANGLE_KI  		0
-#define PITCH_ANGLE_KD  		3
-#define PITCH_ANGLE_INT_MAX		0
+#define PITCH_ANGLE_KD  		0.15
+#define PITCH_ANGLE_INT_MAX		0.1
+#define PITCH_MAX_RPM			75
+
 #endif
-#define PITCH_MAX_RPM			60
-#define PITCHRPM_KP				36
+
+#define PITCHRPM_KP				75
 #define PITCHRPM_KI				0
-#define PITCHRPM_KD				70
-#define PITCHRPM_INT_MAX		4000
-#define PITCH_MAX_CURRENT		205000
+#define PITCHRPM_KD				0
+#define PITCHRPM_INT_MAX		1000
+#define PITCH_MAX_CURRENT		20000
 
 #else
 
@@ -204,15 +206,15 @@
 #if YAW_MOTOR_TYPE != TYPE_DM4310_MIT
 #ifndef YAW_SINGLE_PID_LOOP
 
-#define YAW_ANGLE_KP			5
+#define YAW_ANGLE_KP			80
 #define YAW_ANGLE_KI			0	// 0.0001 Should be very small, just to correct run-off or oscillation errors
 #define YAW_ANGLE_KD			0.15	//3000
 #define YAW_ANGLE_INT_MAX		0.1
-#define YAW_MAX_RPM				132		//85
+#define YAW_MAX_RPM				75		//85
 
 #endif
 
-#define YAWRPM_KP				8000
+#define YAWRPM_KP				75
 #define YAWRPM_KI				0
 #define YAWRPM_KD				0
 #define YAWRPM_INT_MAX			1000
@@ -255,12 +257,12 @@
 
 #define PITCH_MOTOR_CAN		&hcan1
 #define PITCH_MOTOR_ID 		0x1
-#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
-#define DM_PITCH_MOTOR_ID	0x91 // for DM receiving can ID
-#endif
+//#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+//#define DM_PITCH_MOTOR_ID	0x91 // for DM receiving can ID
+//#endif
 
 #define YAW_MOTOR_CAN		&hcan1
-#define YAW_MOTOR_ID 		5
+#define YAW_MOTOR_ID 		0x4
 
 /*********************** OTHERS ***********************/
 #define CONTROL_DELAY 		5
