@@ -175,6 +175,7 @@
 #define PITCHRPM_KP				75
 #define PITCHRPM_KI				0
 #define PITCHRPM_KD				0
+#define PITCHRPM_FF             0
 #define PITCHRPM_INT_MAX		1000
 #define PITCH_MAX_CURRENT		20000
 

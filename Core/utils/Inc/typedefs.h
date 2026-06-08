@@ -39,6 +39,7 @@ typedef struct
 	float kp;
 	float ki;
 	float kd;
+	float kff;            // feedforward gain for inner-loop velocity control
 	float error[2];
 	float integral;
 	float int_max; 			// maximum allowed integral

@@ -253,7 +253,8 @@ void speed_pid(double setpoint, double curr_pt, pid_data_t *pid) {
 	pid->integral += pid->error[0] * pid->ki * time_mult;
 	float_minmax(&pid->integral, pid->int_max, 0);
 	Iout = pid->integral;
-	pid->output = Pout + Iout + Dout;
+	float Fout = pid->kff * setpoint;
+	pid->output = Pout + Iout + Dout + Fout;
 	float_minmax(&pid->output, pid->max_out, 0);
 }
 

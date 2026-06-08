@@ -156,6 +156,7 @@ void pitch_init() {
 	pitch_motor.rpm_pid.kp = PITCHRPM_KP;
 	pitch_motor.rpm_pid.ki = PITCHRPM_KI;
 	pitch_motor.rpm_pid.kd = PITCHRPM_KD;
+	pitch_motor.rpm_pid.kff = PITCHRPM_FF;
 	pitch_motor.rpm_pid.int_max = PITCHRPM_INT_MAX;
 	pitch_motor.rpm_pid.max_out = PITCH_MAX_CURRENT;
 
