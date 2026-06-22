@@ -248,6 +248,7 @@ void speed_pid(double setpoint, double curr_pt, pid_data_t *pid) {
 
 	pid->error[1] = pid->error[0];
 	pid->error[0] = setpoint - curr_pt;
+	
 	Pout = pid->error[0] * pid->kp * time_mult;
 	Dout = (float)(pid->error[0] - pid->error[1]) * pid->kd * time_mult;
 	pid->integral += pid->error[0] * pid->ki * time_mult;
