@@ -1,3 +1,4 @@
+/* USER CODE BEGIN Header */
 /**
   ****************************(C) COPYRIGHT 2019 DJI****************************
   * @file       crc8_crc16.c/h
@@ -15,8 +16,12 @@
   @endverbatim
   ****************************(C) COPYRIGHT 2019 DJI****************************
   */
+/* USER CODE END Header */
+
 #include "board_lib.h"
 #include "crc8_crc16.h"
+
+/* USER CODE BEGIN 0 */
 //crc8 generator polynomial:G(x)=x8+x5+x4+1
 const uint8_t CRC8_INIT = 0xff;
 const uint8_t CRC8_table[256] =
@@ -227,3 +232,5 @@ void append_CRC16_check_sum(uint8_t * pchMessage,uint32_t dwLength)
     pchMessage[dwLength-2] = (uint8_t)(wCRC & 0x00ff);
     pchMessage[dwLength-1] = (uint8_t)((wCRC >> 8)& 0x00ff);
 }
+/* USER CODE END 0 */
+

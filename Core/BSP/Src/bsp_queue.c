@@ -24,9 +24,11 @@ QueueOpStat_t queue_init(queue_t* queue){
 }
 
 uint16_t queue_get_size(queue_t* queue){
-	uint16_t size = queue->last_byte_pos - queue->curr_byte_pos;
-	size = (size > TQUEUE_SIZE) ? size + TQUEUE_SIZE : size;
-	return size;
+    int16_t size = queue->last_byte_pos - queue->curr_byte_pos;
+    if (size < 0) {
+        size += TQUEUE_SIZE;
+    }
+    return (uint16_t)size;
 }
 
 /*
@@ -34,18 +36,30 @@ uint16_t queue_get_size(queue_t* queue){
  * Add one byte at a time!
  */
 QueueOpStat_t queue_append_byte(queue_t* queue, uint8_t data){
-	QueueOpStat_t op_stat;
-	op_stat.op_status = Q_OK;
-	queue->last_time = HAL_GetTick();
-	queue->queue[queue->last_byte_pos] = data;
-	op_stat.bytes_appended = 1;
-	queue->last_byte_pos = (queue->last_byte_pos >= TQUEUE_SIZE-1) ? 0 : queue->last_byte_pos + 1;
-	if (queue_get_size(queue) > TQUEUE_SIZE) {
-		op_stat.op_status = Q_FULL;
-		queue->curr_byte_pos = (queue->curr_byte_pos == TQUEUE_SIZE-1) ? 0 : queue->curr_byte_pos+1;
-		return op_stat;
-	}
-	return op_stat;
+    QueueOpStat_t op_stat = {0};
+    op_stat.op_status = Q_OK;
+    op_stat.bytes_appended = 1;
+
+    queue->last_time = HAL_GetTick();
+    queue->queue[queue->last_byte_pos] = data;
+
+    // Increment last_byte_pos with proper wrap
+    queue->last_byte_pos++;
+    if (queue->last_byte_pos >= TQUEUE_SIZE) {
+        queue->last_byte_pos = 0;
+    }
+
+    // Check if queue is full and overwriting oldest data
+    if (queue_get_size(queue) >= TQUEUE_SIZE) {
+        op_stat.op_status = Q_FULL;
+        // Move read pointer forward to drop oldest byte
+        queue->curr_byte_pos++;
+        if (queue->curr_byte_pos >= TQUEUE_SIZE) {
+            queue->curr_byte_pos = 0;
+        }
+    }
+
+    return op_stat;
 }
 
 QueueOpStat_t queue_append_bytes(queue_t* queue, uint8_t *data, uint16_t len){
@@ -59,39 +73,46 @@ QueueOpStat_t queue_append_bytes(queue_t* queue, uint8_t *data, uint16_t len){
 }
 
 uint8_t queue_pop_element(queue_t* queue){
-	if (queue_get_size(queue) == 0){
-		return 0;
-	} else {
-		queue->curr_byte_pos +=1;
-		queue->curr_byte_pos = (queue->curr_byte_pos >= TQUEUE_SIZE) ?
-				0:queue->curr_byte_pos;
-		uint8_t temp =queue->queue[queue->curr_byte_pos];
-		return temp;
-	}
+    if (queue_get_size(queue) == 0){
+        return 0;
+    } else {
+        uint8_t temp = queue->queue[queue->curr_byte_pos];  // Read current byte
+        queue->curr_byte_pos++;  // Then increment
+        if (queue->curr_byte_pos >= TQUEUE_SIZE) {
+            queue->curr_byte_pos = 0;
+        }
+        return temp;
+    }
 }
 
-
 QueueOpStat_t queue_pop_elements(queue_t* queue, uint8_t* data, uint16_t len){
-		QueueOpStat_t op_stat;
-		uint16_t q_size = queue_get_size(queue);
-		if (q_size < len){
-			op_stat.op_status = Q_NOT_ENOUGH_BYTES;
-			len = q_size;
-		}
+    QueueOpStat_t op_stat = {0};  // Initialize to zero!
+    op_stat.op_status = Q_OK;     // Set default status
+    op_stat.bytes_appended = 0;   // Initialize bytes_appended
 
-		uint16_t bytes_to_end = TQUEUE_SIZE-queue->curr_byte_pos;
-		if (bytes_to_end >= len){
-			memcpy(data, &queue->queue[queue->curr_byte_pos], len);
-		} else {
-			memcpy(data, &queue->queue[queue->curr_byte_pos], bytes_to_end);
-			memcpy((data+bytes_to_end), &queue->queue[0],(len-bytes_to_end));
-		}
+    uint16_t q_size = queue_get_size(queue);
+    if (q_size < len){
+        op_stat.op_status = Q_NOT_ENOUGH_BYTES;
+        len = q_size;
+    }
 
-		queue->curr_byte_pos += len;
-		queue->curr_byte_pos = (queue->curr_byte_pos >= TQUEUE_SIZE) ?
-				queue->curr_byte_pos-TQUEUE_SIZE : queue->curr_byte_pos;
+    if (len > 0) {
+        uint16_t bytes_to_end = TQUEUE_SIZE - queue->curr_byte_pos;
+        if (bytes_to_end >= len){
+            memcpy(data, &queue->queue[queue->curr_byte_pos], len);
+        } else {
+            memcpy(data, &queue->queue[queue->curr_byte_pos], bytes_to_end);
+            memcpy((data+bytes_to_end), &queue->queue[0], (len-bytes_to_end));
+        }
 
-	return op_stat;
+        queue->curr_byte_pos += len;
+        if (queue->curr_byte_pos >= TQUEUE_SIZE) {
+            queue->curr_byte_pos -= TQUEUE_SIZE;
+        }
+        op_stat.bytes_appended = len;
+    }
+
+    return op_stat;
 }
 
 uint8_t queue_peek(queue_t* queue){

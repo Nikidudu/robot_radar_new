@@ -1,32 +1,36 @@
 /*
  * referee_processing_task.c
  *
+ * RTOS task responsible for:
+ * - Receiving raw referee system data via UART/DMA
+ * - Decoding protocol frames using state machine
+ * - Storing decoded data in global structures
+ * - Managing UART error recovery
+ *
  *  Created on: Jun 18, 2021
  *      Author: wx
  */
 
+/* Private includes ----------------------------------------------------------*/
 #include "board_lib.h"
-#include "bsp_queue.h"
-#include "bsp_referee.h"
-#include "bsp_usart.h"
 #include "referee_processing_task.h"
 #include "referee_msgs.h"
 #include "robot_config.h"
-#include "rtos_g_vars.h"
+#include "usb_task.h"
 
-extern int g_spinspin_mode;
-extern uint8_t remote_raw_data[18];
-extern TaskHandle_t referee_processing_task_handle;
-extern DMA_HandleTypeDef hdma_usart6_rx;
-static ref_msg_t g_ref_msg_buffer;
+/* Private variables ---------------------------------------------------------*/
+static ref_msg_t g_ref_msg_buffer; /* Static message buffer for protocol decoding */
+
+/* External variables --------------------------------------------------------*/
+queue_t referee_uart_q; /* Queue for raw UART data from referee system */
 
 ref_game_state_t ref_game_state;
 uint32_t ref_game_state_txno = 0;
 
-ref_game_robot_HP_t ref_robot_hp;
+ref_game_robot_HP_ally_t ref_robot_hp;
 uint32_t ref_robot_hp_txno = 0;
 
-ref_game_robot_data2_t ref_robot_data;
+ref_game_robot_data_t ref_robot_data;
 uint32_t ref_robot_data_txno = 0;
 
 ref_robot_power_data_t ref_power_data;
@@ -48,134 +52,106 @@ ref_magazine_data_t ref_mag_data;
 uint32_t ref_mag_data_txno = 0;
 uint8_t g_ref_tx_seq = 0;
 
-uint8_t ref_buffer[2];
-queue_t referee_uart_q;
+/* Full UART reset when stuck (2 consecutive INSUFFICIENT_DATA = aggressive recovery) */
+#define REF_CONSECUTIVE_INSUFFICIENT_THRESHOLD 2
+static uint8_t s_ref_consecutive_insufficient = 0;
 
-void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart){
-	if (huart== &DBUS_UART){
-		HAL_UART_DMAStop(&DBUS_UART);
-		dbus_remote_start();
-	} else if (huart == &REFEREE_UART){
-	    __HAL_DMA_DISABLE(&hdma_usart6_rx);
-		ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
-	}
-}
+/* Private user code ---------------------------------------------------------*/
 
+/**
+ * @brief  Referee System Processing Task
+ * @note   Initializes referee UART and enters infinite
+ * 		   processing loop. Triggered by task
+ * 		   notifications from UART idle line interrupt.
+ * @param  argument: Task argument (unused)
+ */
 void referee_processing_task(void *argument) {
 	ref_processing_status_t proc_status;
-//	g_referee_limiters.feeding_speed = LV1_FEEDER;
-//	g_referee_limiters.projectile_speed = LV1_PROJECTILE;
-//	g_referee_limiters.wheel_power_limit = LV1_POWER;
-//	g_referee_limiters.robot_level = 1;
+
 	status_led(7, on_led);
 	status_led(8, off_led);
 	ref_robot_data.robot_id = 0;
-	ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
+
+	memset(&ref_robot_data, 0, sizeof(ref_robot_data));
+
+    /* Initialize referee UART with DMA and IDLE detection */
+	ref_usart_start(&REFEREE_UART, &referee_uart_q);
+
 	while (1) {
 
-		uint8_t has_data = ulTaskNotifyTake(pdTRUE, 1000);
+		ulTaskNotifyTake(pdTRUE, 1000);	/* Wait for task notification from UART RxEventCallback */
+
 		status_led(5, on_led);
-		if (queue_get_size(&referee_uart_q) > 7) {
-			while (queue_get_size(&referee_uart_q) > 7) {
-				proc_status = ref_process_data(&referee_uart_q, &g_ref_msg_buffer);
-				if (proc_status == PROCESS_SUCCESS) {
-					switch (g_ref_msg_buffer.cmd_id) {
-					case REF_ROBOT_SHOOT_DATA_CMD_ID:
-						memcpy(&ref_shoot_data, &g_ref_msg_buffer.data,
-								sizeof(ref_shoot_data_t));
-						ref_shoot_data_txno++;
-						break;
-					case REF_GAME_STATE_CMD_ID:
-						memcpy(&ref_game_state, &g_ref_msg_buffer.data,
-								sizeof(ref_game_state_t));
-						ref_game_state_txno++;
-						break;
-					case REF_ROBOT_DATA_CMD_ID:
-						memcpy(&ref_robot_data, &g_ref_msg_buffer.data,
-								sizeof(ref_game_robot_data2_t));
-						ref_robot_data_txno++;
-						break;
-					case REF_ROBOT_POS_DATA_CMD_ID:
-						memcpy(&ref_robot_pos, &g_ref_msg_buffer.data,
-								sizeof(ref_game_robot_pos_t));
-						ref_robot_pos_txno++;
-						break;
-					case REF_ROBOT_POWER_DATA_CMD_ID:
-						memcpy(&ref_power_data, &g_ref_msg_buffer.data,
-								sizeof(ref_robot_power_data_t));
-						ref_power_data_txno++;
-						break;
 
-					case REF_ROBOT_DMG_DATA_CMD_ID:
-						memcpy(&ref_dmg_data, &g_ref_msg_buffer.data,
-								sizeof(ref_robot_dmg_t));
-						ref_dmg_data_txno++;
-#ifdef SPIN_WHEN_DAMAGED
-						if (ref_dmg_data.dmg_type == 0){
-							g_spinspin_mode = 1;
-						}
-#endif
-						break;
+        /* Process all available frames in the queue
+         * Keep processing until insufficient data remains */
+		while (1) {
+            /* Decode next frame from raw UART data */
+			proc_status = ref_process_data(&referee_uart_q, &g_ref_msg_buffer);
 
-					case REF_ROBOT_HP_CMD_ID:
-						memcpy(&ref_robot_hp, &g_ref_msg_buffer.data,
-								sizeof(ref_game_robot_HP_t));
-						ref_robot_hp_txno++;
-						break;
-					case REF_ROBOT_MAGAZINE_DATA_CMD_ID:
-						memcpy(&ref_mag_data, &g_ref_msg_buffer.data,
-								sizeof(ref_magazine_data_t));
-						ref_mag_data_txno++;
-						//add in the memcpys here
-						break;
-					default:
-						break;
-					}
-//						if (msg_buffer.cmd_id == REF_ROBOT_SHOOT_DATA_CMD_ID){
-//							xQueueSend(uart_data_queue, &msg_buffer, 0);
-//						}
-				} else if (proc_status == INSUFFICIENT_DATA) {
+			if (proc_status == PROCESS_SUCCESS) {
+                /* Complete frame received and decoded successfully */
+				s_ref_consecutive_insufficient = 0;
+				switch (g_ref_msg_buffer.cmd_id) {
+				case REF_ROBOT_SHOOT_DATA_CMD_ID:
+					memcpy(&ref_shoot_data, &g_ref_msg_buffer.data,
+							sizeof(ref_shoot_data_t));
+					ref_shoot_data_txno++;
+					break;
+				case REF_GAME_STATE_CMD_ID:
+					memcpy(&ref_game_state, &g_ref_msg_buffer.data,
+							sizeof(ref_game_state_t));
+					ref_game_state_txno++;
+					break;
+				case REF_ROBOT_DATA_CMD_ID:
+					memcpy(&ref_robot_data, &g_ref_msg_buffer.data,
+							sizeof(ref_game_robot_data_t));
+					ref_robot_data_txno++;
+					break;
+				case REF_ROBOT_POS_DATA_CMD_ID:
+					memcpy(&ref_robot_pos, &g_ref_msg_buffer.data,
+							sizeof(ref_game_robot_pos_t));
+					ref_robot_pos_txno++;
+					break;
+				case REF_ROBOT_POWER_DATA_CMD_ID:
+					memcpy(&ref_power_data, &g_ref_msg_buffer.data,
+							sizeof(ref_robot_power_data_t));
+					ref_power_data_txno++;
+					break;
+				case REF_ROBOT_DMG_DATA_CMD_ID:
+					memcpy(&ref_dmg_data, &g_ref_msg_buffer.data,
+							sizeof(ref_robot_dmg_t));
+					ref_dmg_data_txno++;
+					break;
+				case REF_ROBOT_HP_CMD_ID:
+					memcpy(&ref_robot_hp, &g_ref_msg_buffer.data,
+							sizeof(ref_game_robot_HP_ally_t));
+					ref_robot_hp_txno++;
+					break;
+				case REF_ROBOT_MAGAZINE_DATA_CMD_ID:
+					memcpy(&ref_mag_data, &g_ref_msg_buffer.data,
+							sizeof(ref_magazine_data_t));
+					ref_mag_data_txno++;
+					// add in the memcpys here
+					break;
+				default:
 					break;
 				}
+
+				 /* No complete frame available in queue
+				  * Exit processing loop and wait for more data */
+
+			} else if (proc_status == INSUFFICIENT_DATA) {
+				s_ref_consecutive_insufficient++;
+				if (s_ref_consecutive_insufficient >= REF_CONSECUTIVE_INSUFFICIENT_THRESHOLD) {
+					/* Stuck: full UART + parser reset to recover from sync loss */
+					ref_parser_reset();
+					ref_usart_full_reset(&referee_uart_q);
+					s_ref_consecutive_insufficient = 0;
+				}
+				break; // Not enough data for a complete frame
 			}
 		}
-		if (!has_data){
-		    __HAL_DMA_DISABLE(&hdma_usart6_rx);
-			ref_usart_start(&REFEREE_UART, ref_buffer, 2, &referee_uart_q);
-
-		}
-
-		status_led(5, off_led);
-
-
-		status_led(5, on_led);
-// for having varying firing speed, which we don't need now
-//#ifdef LVL_TUNING
-//		if (ref_robot_data.robot_level == 1) {
-//			g_referee_limiters.feeding_speed = LV1_FEEDER;
-//			g_referee_limiters.projectile_speed = LV1_PROJECTILE;
-//			g_referee_limiters.robot_level = 1;
-//			status_led(7, on_led);
-//			status_led(8, off_led);
-//		} else if (ref_robot_data.robot_level == 2) {
-//			g_referee_limiters.feeding_speed = LV2_FEEDER;
-//			g_referee_limiters.projectile_speed = LV2_PROJECTILE;
-//			g_referee_limiters.robot_level = 2;
-//			status_led(7, off_led);
-//			status_led(8, on_led);
-//		} else if (ref_robot_data.robot_level == 3) {
-//			g_referee_limiters.feeding_speed = LV3_FEEDER;
-//			g_referee_limiters.projectile_speed = LV3_PROJECTILE;
-//			g_referee_limiters.robot_level = 3;
-//			status_led(7, on_led);
-//			status_led(8, on_led);
-//		} else {
-//			g_referee_limiters.feeding_speed = LV1_FEEDER;
-//			g_referee_limiters.projectile_speed = LV1_PROJECTILE;
-//		}
-//#endif
 	}
 }
-
-
 

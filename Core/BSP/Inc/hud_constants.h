@@ -35,4 +35,13 @@
 #define HUD_MAX_X 1920
 #define HUD_MAX_Y 1080
 
+#define RED7_X   120
+#define RED3_X   220
+#define RED1_X   320
+
+#define BLUE1_X   (HUD_MAX_X - 320)
+#define BLUE3_X   (HUD_MAX_X - 220)
+#define BLUE7_X   (HUD_MAX_X - 120)
+
+#define HP_Y     (TOP_Y_POS + 60)
 #endif /* ROBOT_CONFIG_HUD_CONSTANTS_H_ */

@@ -5,49 +5,40 @@
  *      Author: cw
  */
 
-
 #include "board_lib.h"
-#include "bsp_queue.h"
-#include "bsp_referee.h"
-#include "bsp_usart.h"
 #include "hud_new.h"
 #include "referee_msgs.h"
-#include "robot_config.h"
-#include "rtos_g_vars.h"
 #include "hud_constants.h"
-#include "typedefs.h"
-#include "arm_math.h"
-#include "supercap_def.h"
+#include "chassis_can_message_task.h"
+#include "supercap_comm_task.h"
+#include "control_input_task.h"
+#include "gimbal_control_task.h"
+#include "launcher_control_task.h"
+#include "usb_task.h"
 
 static uint16_t g_client_id = 0;
+static uint16_t g_client_team = 0; // red 0, blue 1
 extern ref_game_robot_data_t ref_robot_data;
 extern uint8_t g_ref_tx_seq;
+extern ref_game_robot_HP_ally_t ref_robot_hp;
 
-extern motor_data_t g_can_motors[24];
-extern speed_shift_t gear_speed;
-int prev_gear = 0;
+static uint16_t prev_hp_7 = 0;
+static uint16_t prev_hp_3 = 0;
+static uint16_t prev_hp_1 = 0;
 
-extern int g_spinspin_mode;
 int prev_spinspin = 0;
-
-extern int supercap_dash;
-int prev_supercap_dash = 0;
-
-extern int aimbot_mode;
+int prev_supercap_enabled = 0;
 int prev_aimbot = 0;
 
 static uint32_t spin_coords = 0;
-static uint32_t gear_coords = 0;
 static uint32_t aimbot_coords = 0;
+static uint32_t supercap_coords = 0;
 
-extern enum feeder_state_e feeder_state;
 int prev_feeder_state;
 extern float rel_pitch_angle;
 int feeder_state_enabled = 0;
 
-extern gimbal_control_t gimbal_ctrl_data;
 extern float rel_pitch_angle;
-extern motor_data_t g_pitch_motor;
 
 int top_graphics = 0;
 int dynamic_graphics = 0;
@@ -58,50 +49,60 @@ int motor_fault_enabled = 0;
 extern uint16_t g_motor_fault;
 int prev_motor_error = 0;
 
-extern remote_cmd_t g_remote_cmd;
-extern uint8_t charging_state;
-
 void map_robot_id(uint16_t robot_id){
 	switch (robot_id) {
 		case 1: // Red Hero
 			g_client_id = 0x101;
+			g_client_team = 0;
 			break;
 		case 2: // Red Engineer
 			g_client_id = 0x102;
+			g_client_team = 0;
 			break;
 		case 3: // Red Standard 3
 			g_client_id = 0x103;
+			g_client_team = 0;
 			break;
 		case 4: // Red Standard 4
 			g_client_id = 0x104;
+			g_client_team = 0;
 			break;
 		case 5: // Red Standard 5
 			g_client_id = 0x105;
+			g_client_team = 0;
 			break;
 		case 6: // Red Aerial
 			g_client_id = 0x106;
+			g_client_team = 0;
 			break;
 
 		case 101: // Blue Hero
 			g_client_id = 0x165;
+			g_client_team = 1;
 			break;
 		case 102: // Blue Engineer
 			g_client_id = 0x166;
+			g_client_team = 1;
 			break;
 		case 103: // Blue Standard 3
 			g_client_id = 0x167;
+			g_client_team = 1;
 			break;
 		case 104: // Blue Standard 4
 			g_client_id = 0x168;
+			g_client_team = 1;
 			break;
 		case 105: // Blue Standard 5
 			g_client_id = 0x169;
+			g_client_team = 1;
 			break;
 		case 106: // Blue Aerial
 			g_client_id = 0x16A;
+			g_client_team = 1;
 			break;
 		default:
 			g_client_id = 0;
+			g_client_team = 1;
 			break;
 		}
 }
@@ -123,11 +124,15 @@ void new_hud_task(void *argument) {
 	draw_dynamic(0);
 	draw_char(0);
 	draw_static();
+	draw_team_hp(0);
+
+
 
 	//	uint32_t refresh_timer = HAL_GetTick();
 	while (1) {
 		draw_dynamic(1);
 		draw_char(1);
+		draw_team_hp(1);
 
 		// Only drawn outside of competition
 		// To make sure that impt info gets drawn asap
@@ -142,11 +147,10 @@ void new_hud_task(void *argument) {
 
 void set_top_coordinates() {
 	uint32_t x_coordinates[3];
+	top_graphics = 0;
+	dynamic_graphics = 0; // Initialize dynamic graphics count
 
 #ifdef SPINSPIN
-	top_graphics++;
-#endif
-#ifdef GEARING
 	top_graphics++;
 #endif
 #ifdef AIMBOT
@@ -176,14 +180,11 @@ void set_top_coordinates() {
 #ifdef SPINSPIN
 	spin_coords = x_coordinates[index++];
 #endif
-#ifdef GEARING
-	gear_coords = x_coordinates[index++];
-#endif
 #ifdef AIMBOT
 	aimbot_coords = x_coordinates[index++];
 #endif
 #ifdef SUPERCAP
-	aimbot_coords = x_coordinates[index++];
+	supercap_coords = x_coordinates[index++];
 #endif
 
 #ifdef SPINSPIN
@@ -254,14 +255,14 @@ void draw_dynamic(uint8_t modify) {
 	}
 }
 
-// Characters to draw: spinspin, gear, aimbot
+// Characters to draw: spinspin, aimbot, supercap
 // Each character has to be sent in their own packet
 void draw_char(uint8_t modify) {
 	// Draw if adding (initializing), check for change if modifying
 	if (modify) {
 #ifdef SPINSPIN
-		if (prev_spinspin != g_spinspin_mode) {
-			prev_spinspin = g_spinspin_mode;
+		if (prev_spinspin != chassis_ctrl_data.g_spinspin_mode) {
+			prev_spinspin = chassis_ctrl_data.g_spinspin_mode;
 			draw_spin_char(modify, spin_coords);
 		}
 #endif
@@ -269,36 +270,28 @@ void draw_char(uint8_t modify) {
 		if (prev_aimbot != aimbot_mode) {
 			prev_aimbot = aimbot_mode;
 			draw_aimbot(modify, aimbot_coords);
+			draw_aimbot_firing_status(modify);
 		}
 #endif
 #ifdef SUPERCAP
-		if (prev_supercap_dash != supercap_dash) {
-			prev_supercap_dash = supercap_dash;
-			draw_aimbot(modify, aimbot_coords);
-		}
-#endif
-#ifdef GEARING
-		if (prev_gear != gear_speed.curr_gear) {
-			prev_gear = gear_speed.curr_gear;
-			draw_gearing(modify, gear_coords);
+		if (prev_supercap_enabled != supercap.supercap_enabled) {
+			prev_supercap_enabled = supercap.supercap_enabled;
+			draw_supercap_status(modify, supercap_coords);
 		}
 #endif
 	} else {
 #ifdef SPINSPIN
-		prev_spinspin = g_spinspin_mode;
+		prev_spinspin = chassis_ctrl_data.g_spinspin_mode;
 		draw_spin_char(modify, spin_coords);
 #endif
 #ifdef AIMBOT
 		prev_aimbot = aimbot_mode;
 		draw_aimbot(modify, aimbot_coords);
+		draw_aimbot_firing_status(modify);
 #endif
 #ifdef SUPERCAP
-		prev_supercap_dash = supercap_dash;
-		draw_aimbot(modify, aimbot_coords);
-#endif
-#ifdef GEARING
-		prev_gear = gear_speed.curr_gear;
-		draw_gearing(modify, gear_coords);
+		prev_supercap_enabled = supercap.supercap_enabled;
+		draw_supercap_status(modify, supercap_coords);
 #endif
 	}
 }
@@ -400,7 +393,7 @@ void draw_spin_char(uint8_t modify, uint32_t x_coords) {
 	uint32_t curr_pos = 0;
 	uint8_t char_len = 0;
 	char char_buffer[30];
-	char_len = g_spinspin_mode ?
+	char_len = chassis_ctrl_data.g_spinspin_mode ?
 			snprintf((char*) char_buffer, 30, "ON") :
 			snprintf((char*) char_buffer, 30, "OFF");
 
@@ -408,7 +401,7 @@ void draw_spin_char(uint8_t modify, uint32_t x_coords) {
 
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
 
-	graphic_data->color = g_spinspin_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = chassis_ctrl_data.g_spinspin_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 	graphic_data->graphic_name[0] = 'C';
 	graphic_data->graphic_name[1] = 'H';
 	graphic_data->graphic_name[2] = 'A';
@@ -434,7 +427,7 @@ void draw_spin_char(uint8_t modify, uint32_t x_coords) {
 
 uint16_t draw_spin_border(uint8_t* tx_buffer, uint8_t modify, uint32_t x_coords) {
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
-	graphic_data->color = g_spinspin_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	graphic_data->color = chassis_ctrl_data.g_spinspin_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'B';
 	graphic_data->graphic_name[1] = 'O';
@@ -444,7 +437,7 @@ uint16_t draw_spin_border(uint8_t* tx_buffer, uint8_t modify, uint32_t x_coords)
 	graphic_data->operation_type = modify ? GRAPHIC_MODIFY : GRAPHIC_ADD;
 	// Checks where the gimbal is facing relative to the chassis
 	// Convert from radian to degree, map to 0 to 360
-	float chassis_dir = g_can_motors[YAW_MOTOR_ID - 1].angle_data.adj_ang * 57.2958;
+	float chassis_dir = yaw_motor.angle_data.adj_ang * 57.2958;
 	graphic_data->graphic_type = GRAPHIC_TYPE_ARC;
 	if (chassis_dir < 0) {
 		graphic_data->details_a = 360 + chassis_dir + BORDER_GAP_SIZE; // Start angle
@@ -463,22 +456,60 @@ uint16_t draw_spin_border(uint8_t* tx_buffer, uint8_t modify, uint32_t x_coords)
 	return sizeof(graphic_data_struct_t);
 }
 
-void draw_gearing(uint8_t modify, uint32_t x_coords) {
+uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
+	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
+	graphic_data->color = (supercap.charging_state > SUPERCAP_ENABLE_THRESHOLD) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
+	//self set number for identification purposes only
+	graphic_data->graphic_name[0] = 'S';
+	graphic_data->graphic_name[1] = 'U';
+	graphic_data->graphic_name[2] = 'P';
+	graphic_data->layer = 3;
+
+	graphic_data->operation_type = modify ? GRAPHIC_MODIFY : GRAPHIC_ADD;
+
+	graphic_data->graphic_type = GRAPHIC_TYPE_ARC;
+	graphic_data->details_a = 270; // Start angle
+
+	// Show supercap charge, where 0% = min charge and 100% = max charge
+	int supercap_range = 100;// - SUPERCAP_DISABLE_THRESHOLD;
+	float mapped_charging_state = fmaxf(0.0f, fminf(1.0f,
+	    (float)(supercap.charging_state - SUPERCAP_DISABLE_THRESHOLD) / (float)supercap_range));
+
+	int curr_lvl = fmaxf(1, (int)(mapped_charging_state * ANGLE_LIMIT));
+
+	graphic_data->details_b = 270 + curr_lvl; // End angle
+
+	graphic_data->width = 30; //line width
+	graphic_data->start_x = HUD_MAX_X / 2; // center x
+	graphic_data->start_y = HUD_MAX_Y / 2; // center y
+	graphic_data->details_d = RADIAL_DIAMETER; // Length of x axis
+	graphic_data->details_e = RADIAL_DIAMETER; // Length of y axis
+
+	return sizeof(graphic_data_struct_t);
+}
+
+void draw_supercap_status(uint8_t modify, uint32_t x_coords) {
+	// draws whether supercap ON/OFF
 	uint8_t tx_buffer[256];
 	uint8_t curr_pos = 0;
 	uint8_t char_len = 0;
 	char char_buffer[30];
-
-	char_len = snprintf((char*) char_buffer, 30, "GEAR %d", gear_speed.curr_gear);
+	graphic_data_struct_t* graphic_data;
+#ifdef SUPERCAP
+	char_len = supercap.supercap_enabled ?
+			snprintf((char*) char_buffer, 30, "CAP ON") :
+			snprintf((char*) char_buffer, 30, "CAP OFF");
 	curr_pos = draw_char_header(tx_buffer, char_len);
+	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
+	graphic_data->color = supercap.supercap_enabled ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 
-	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
-	graphic_data->color = GRAPHIC_COLOUR_CYAN;
+#endif
+
 	//self set number for identification purposes only
-	graphic_data->graphic_name[0] = 'G';
-	graphic_data->graphic_name[1] = 'E';
-	graphic_data->graphic_name[2] = 'A';
-	graphic_data->layer = 5;
+	graphic_data->graphic_name[0] = 'I';
+	graphic_data->graphic_name[1] = 'D';
+	graphic_data->graphic_name[2] = 'K';
+	graphic_data->layer = 4;
 
 	graphic_data->operation_type = modify ? GRAPHIC_MODIFY : GRAPHIC_ADD;
 
@@ -498,62 +529,19 @@ void draw_gearing(uint8_t modify, uint32_t x_coords) {
 	vTaskDelay(REF_DELAY);
 }
 
-uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify) {
-	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
-	graphic_data->color = (charging_state > SUPERCAP_ENABLE_THRESHOLD) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
-	//self set number for identification purposes only
-	graphic_data->graphic_name[0] = 'S';
-	graphic_data->graphic_name[1] = 'U';
-	graphic_data->graphic_name[2] = 'P';
-	graphic_data->layer = 3;
-
-	graphic_data->operation_type = modify ? GRAPHIC_MODIFY : GRAPHIC_ADD;
-
-	graphic_data->graphic_type = GRAPHIC_TYPE_ARC;
-	graphic_data->details_a = 270; // Start angle
-
-	// Show supercap charge, where 0% = min charge and 100% = max charge
-	int supercap_range = 100 - SUPERCAP_DISABLE_THRESHOLD;
-	float mapped_charging_state = fmaxf(0.0f, fminf(1.0f,
-	    (float)(charging_state - SUPERCAP_DISABLE_THRESHOLD) / (float)supercap_range));
-
-	int curr_lvl = fmaxf(1, (int)(mapped_charging_state * ANGLE_LIMIT));
-
-	graphic_data->details_b = 270 + curr_lvl; // End angle
-
-	graphic_data->width = 30; //line width
-	graphic_data->start_x = HUD_MAX_X / 2; // center x
-	graphic_data->start_y = HUD_MAX_Y / 2; // center y
-	graphic_data->details_d = RADIAL_DIAMETER; // Length of x axis
-	graphic_data->details_e = RADIAL_DIAMETER; // Length of y axis
-
-	return sizeof(graphic_data_struct_t);
-}
-
 void draw_aimbot(uint8_t modify, uint32_t x_coords) {
-	// now also used to draw supercap ON/OFF
 	uint8_t tx_buffer[256];
 	uint8_t curr_pos = 0;
 	uint8_t char_len = 0;
 	char char_buffer[30];
 	graphic_data_struct_t* graphic_data;
-#ifdef SUPERCAP
-	char_len = supercap_dash ?
-			snprintf((char*) char_buffer, 30, "CAP ON") :
-			snprintf((char*) char_buffer, 30, "CAP OFF");
-	curr_pos = draw_char_header(tx_buffer, char_len);
-	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
-	graphic_data->color = supercap_dash ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
 
-#endif
-#ifdef AIMBOT
 	char_len = aimbot_mode ?
 			snprintf((char*) char_buffer, 30, "AIM ON") :
 			snprintf((char*) char_buffer, 30, "AIM OFF");
 	curr_pos = draw_char_header(tx_buffer, char_len);
 	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
 	graphic_data->color = aimbot_mode ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_ORANGE;
-#endif
 
 	//self set number for identification purposes only
 	graphic_data->graphic_name[0] = 'A';
@@ -577,6 +565,95 @@ void draw_aimbot(uint8_t modify, uint32_t x_coords) {
 
 	ref_send(tx_buffer, curr_pos);
 	vTaskDelay(REF_DELAY);
+}
+
+void draw_hp_number(uint8_t modify, uint16_t hp, uint32_t x, uint32_t y, char id)
+{
+	uint8_t tx_buffer[256];
+	uint8_t curr_pos = 0;
+	char char_buffer[10];
+
+	uint8_t char_len = snprintf(char_buffer, 10, "%d", hp);
+
+	curr_pos = draw_char_header(tx_buffer, char_len);
+
+	graphic_data_struct_t *graphic_data =
+			(graphic_data_struct_t *)(tx_buffer + curr_pos);
+
+	graphic_data->graphic_name[0] = 'H';
+	graphic_data->graphic_name[1] = 'P';
+	graphic_data->graphic_name[2] = id;
+
+	graphic_data->layer = 5;
+	graphic_data->operation_type = modify ? GRAPHIC_MODIFY : GRAPHIC_ADD;
+	graphic_data->graphic_type = GRAPHIC_TYPE_CHAR;
+	graphic_data->color = (hp > 100) ? GRAPHIC_COLOUR_GREEN : GRAPHIC_COLOUR_PURPLISH_RED;
+
+	graphic_data->details_a = FONT_SIZE_SMALL * 2;
+	graphic_data->details_b = char_len;
+	graphic_data->width = CHAR_WIDTH_SMALL * 2;
+
+	graphic_data->start_x = x-CHAR_X_OFFSET * char_len;//x coordinate is the rightmost point of the number, so subtract offset for the length of the number
+	graphic_data->start_y = y;
+
+	curr_pos += sizeof(graphic_data_struct_t);
+	memcpy(tx_buffer + curr_pos, char_buffer, char_len);
+	curr_pos += char_len;
+
+	ref_send(tx_buffer, curr_pos);
+	vTaskDelay(REF_DELAY);
+}
+
+void draw_team_hp(uint8_t modify)
+{
+	if (!modify) {
+		if (g_client_team == 0) {
+			// red team
+			draw_hp_number(0, ref_robot_hp.ally_7_robot_HP, RED7_X, HP_Y, '1');
+			draw_hp_number(0, ref_robot_hp.ally_3_robot_HP, RED3_X, HP_Y, '2');
+			draw_hp_number(0, ref_robot_hp.ally_1_robot_HP, RED1_X, HP_Y, '3');
+		} else {
+			// blue team
+			draw_hp_number(0, ref_robot_hp.ally_1_robot_HP, BLUE1_X, HP_Y, '4');
+			draw_hp_number(0, ref_robot_hp.ally_3_robot_HP, BLUE3_X, HP_Y, '5');
+			draw_hp_number(0, ref_robot_hp.ally_7_robot_HP, BLUE7_X, HP_Y, '6');
+		}
+
+		prev_hp_1 = ref_robot_hp.ally_1_robot_HP;
+		prev_hp_3 = ref_robot_hp.ally_3_robot_HP;
+		prev_hp_7 = ref_robot_hp.ally_7_robot_HP;
+		return;
+	} else {
+		if (g_client_team == 0) {
+			// red team
+			if (prev_hp_7 != ref_robot_hp.ally_7_robot_HP) {
+				prev_hp_7 = ref_robot_hp.ally_7_robot_HP;
+				draw_hp_number(1, prev_hp_7, RED7_X, HP_Y, '1');
+			}
+			if (prev_hp_3 != ref_robot_hp.ally_3_robot_HP) {
+				prev_hp_3 = ref_robot_hp.ally_3_robot_HP;
+				draw_hp_number(1, prev_hp_3, RED3_X, HP_Y, '2');
+			}
+			if (prev_hp_1 != ref_robot_hp.ally_1_robot_HP) {
+				prev_hp_1 = ref_robot_hp.ally_1_robot_HP;
+				draw_hp_number(1, prev_hp_1, RED1_X, HP_Y, '3');
+			}
+		} else {
+			// blue team
+			if (prev_hp_7 != ref_robot_hp.ally_7_robot_HP) {
+				prev_hp_7 = ref_robot_hp.ally_7_robot_HP;
+				draw_hp_number(1, prev_hp_7, BLUE7_X, HP_Y, '6');
+			}
+			if (prev_hp_3 != ref_robot_hp.ally_3_robot_HP) {
+				prev_hp_3 = ref_robot_hp.ally_3_robot_HP;
+				draw_hp_number(1, prev_hp_3, BLUE3_X, HP_Y, '5');
+			}
+			if (prev_hp_1 != ref_robot_hp.ally_1_robot_HP) {
+				prev_hp_1 = ref_robot_hp.ally_1_robot_HP;
+				draw_hp_number(1, prev_hp_1, BLUE1_X, HP_Y, '4');
+			}
+		}
+	}
 }
 
 void draw_crosshair(uint8_t modify) {
@@ -685,6 +762,48 @@ void draw_crosshair(uint8_t modify) {
 	ref_send(tx_buffer, curr_pos);
 	vTaskDelay(REF_DELAY);
 }
+
+
+void draw_aimbot_firing_status(uint8_t modify) {
+	uint8_t tx_buffer[256];
+	uint8_t curr_pos = 0;
+	uint8_t char_len = 0;
+	char char_buffer[30];
+	graphic_data_struct_t* graphic_data;
+	char_len = g_aimbot_cmd.fire ?
+				snprintf((char*) char_buffer, 30, "Firing")
+				:g_aimbot_cmd.tracking ?
+				snprintf((char*) char_buffer, 30, "Enemy Detected")
+				: snprintf((char*) char_buffer, 30, "Enemy Detected");
+	curr_pos = draw_char_header(tx_buffer, char_len);
+	graphic_data = (graphic_data_struct_t *)(tx_buffer + curr_pos);
+	graphic_data->color = GRAPHIC_COLOUR_ORANGE;
+
+	//self set number for identification purposes only
+	graphic_data->graphic_name[0] = 'F';
+	graphic_data->graphic_name[1] = 'I';
+	graphic_data->graphic_name[2] = 'R';
+	graphic_data->layer = 4;
+
+	graphic_data->operation_type = modify ? GRAPHIC_MODIFY : GRAPHIC_ADD;
+
+	graphic_data->graphic_type = GRAPHIC_TYPE_CHAR; // char
+	graphic_data->details_a = FONT_SIZE_BIG; // font size
+	graphic_data->details_b = char_len; // character length
+	graphic_data->width = CHAR_WIDTH_BIG; //line width
+
+	graphic_data->start_x = CROSSHAIR_TEXT_X_POS - CHAR_X_OFFSET_BIG * char_len;
+	graphic_data->start_y = CROSSHAIR_TEXT_Y_POS + CHAR_Y_OFFSET_BIG;
+
+	curr_pos += sizeof(graphic_data_struct_t);
+	memcpy(tx_buffer + curr_pos, char_buffer, char_len);
+	curr_pos += char_len;
+
+	ref_send(tx_buffer, curr_pos);
+	vTaskDelay(REF_DELAY);
+
+}
+
 
 void draw_pitch_graphics(uint8_t modify) {
 	draw_major_ticks(modify);
@@ -843,8 +962,8 @@ void draw_pitch_limits(uint8_t modify) {
 	graphic_data_struct_t* graphic_data;
 
 	// Map the max and min angle depending on the HUD boundaries
-	float max_ang_pos = -PITCH_INVERT * g_pitch_motor.angle_data.phy_max_ang * ANGLE_LIMIT / graphic_edge;
-	float min_ang_pos = -PITCH_INVERT * g_pitch_motor.angle_data.phy_min_ang * ANGLE_LIMIT / graphic_edge;
+	float max_ang_pos = -PITCH_INVERT * pitch_motor.angle_data.phy_max_ang * ANGLE_LIMIT / graphic_edge;
+	float min_ang_pos = -PITCH_INVERT * pitch_motor.angle_data.phy_min_ang * ANGLE_LIMIT / graphic_edge;
 
 	uint32_t xpos[2] = {
 			HUD_MAX_X/2 + (int)(RADIAL_DIAMETER*cos(max_ang_pos * 0.0174533)),
@@ -882,7 +1001,7 @@ void draw_pitch_limits(uint8_t modify) {
 uint16_t draw_curr_pitch(uint8_t* tx_buffer, uint8_t modify) {
 	graphic_data_struct_t* graphic_data = (graphic_data_struct_t *)(tx_buffer);
 
-	float curr_ang_pos = -PITCH_INVERT * g_pitch_motor.angle_data.adj_ang * ANGLE_LIMIT / graphic_edge;
+	float curr_ang_pos = -PITCH_INVERT * pitch_motor.angle_data.adj_ang * ANGLE_LIMIT / graphic_edge;
 	uint32_t xpos = HUD_MAX_X/2 + (int)(RADIAL_DIAMETER*cos(curr_ang_pos * 0.0174533));
 	uint32_t ypos = HUD_MAX_Y/2 + (int)(RADIAL_DIAMETER*sin(curr_ang_pos * 0.0174533));
 

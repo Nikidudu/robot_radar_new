@@ -1,0 +1,74 @@
+/*
+ * motor_config.h
+ *
+ *  Created on: 21 Dec 2021
+ *      Author: wx
+ */
+
+
+#ifndef UTILS_INC_MOTOR_CONFIG_H_
+#define UTILS_INC_MOTOR_CONFIG_H_
+
+#define GM6020_MAX_OUTPUT 	20000
+#define GM6020_MAX_RPM		400
+
+#define M2006_MAX_RPM		15000
+#define M2006_MAX_OUTPUT 	16384
+#define M2006_GEARBOX_RATIO	36
+
+#define M3508_MAX_OUTPUT 	16384
+#define M3508_MAX_RPM		9000
+#define M3508_GEARBOX_RATIO	(3591.0f / 187.0f)
+
+#define LK_MG5010E_MAX_RPM 		3200
+#define DM_4340_MAX_SPEED_RADS 	5.44f
+
+#define DM8009_MAX_RPM		168
+#define DM8009_MAX_TORQUE	40
+#define DM4310_MAX_RPM		200
+#define DM4310_MAX_TORQUE	7
+
+#define DM_TO_DJI_MAX_OUTPUT	16384
+#define DM_TO_DJI_MAX_RPM		120
+
+#define	TYPE_GM6020 				1
+#define	TYPE_M2006 					2
+#define	TYPE_M3508 					3
+#define	TYPE_M3508_NGEARBOX 		4	// M3508 without gearbox
+#define	TYPE_M3508_STEPS 			5
+#define	TYPE_M2006_STEPS 			6
+#define	TYPE_M2006_ANGLE 			7	// M2006 but the motor angle data is recentered and converted to radians
+#define	TYPE_M3508_ANGLE 			8	// M3508 but the motor angle data is recentered and converted to radians
+#define	TYPE_GM6020_720				9	// GM6020 that keep tracks of 2 rounds of rotation (need change firmware to do so)
+#define	TYPE_LK_MG5010E_SPD			10
+#define	TYPE_LK_MG5010E_ANG			11
+#define	TYPE_LK_MG5010E_MULTI_ANG	12
+#define TYPE_DM8009_MIT         	13	// DM8009 controlled in MIT mode
+#define TYPE_DM4310_MIT				14	// DM motors controlled in MIT mode
+#define TYPE_DM4310_DJI_MODE		15	// DM motors converted to DJI mode
+#define TYPE_LK_4005        		16
+
+/* CAN DJI 3508 motor */
+#define CAN_3508_ALL_ID		0x201 // receive CAN data from motors
+#define CAN_3508_1_TO_4_ID	0x200 // send CAN data to motors
+#define CAN_3508_5_TO_8_ID	0x1FF
+
+/* CAN DJI 6020 motor */
+#define CAN_6020_ALL_ID		0x205
+#define CAN_6020_1_TO_4_ID	0x1FF
+#define CAN_6020_5_TO_8_ID	0x2FF
+
+/* CAN DJI 2006 motor */
+#define CAN_2006_ALL_ID 	0x201
+#define CAN_2006_1_TO_4_ID 	0x200
+#define CAN_2006_5_TO_8_ID	0x1FF
+
+/* CAN Damiao motor in DJI 1-to-4 formate */
+#define CAN_DM_ALL_ID 		0x301
+#define CAN_DM_1_TO_4_ID 	0x3FE
+#define CAN_DM_5_TO_8_ID	0x4FE
+
+void set_motor_config(motor_data_t *motor);
+void CAN_set_motor_output(CAN_TxHeaderTypeDef *CAN_tx_message, uint8_t *data, uint8_t motor_id, uint8_t motor_type, int16_t output);
+
+#endif /* UTILS_INC_MOTOR_CONFIG_H_ */

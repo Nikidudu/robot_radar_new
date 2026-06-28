@@ -25,6 +25,7 @@
 #include "usart.h"
 
 /* Size in bytes of data sent from remote */
+//#define REMOTE_DATA_SIZE 18
 
 /* Pointer to the received raw data from the remote */
 extern uint8_t remote_raw_data[REMOTE_DATA_SIZE];

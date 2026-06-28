@@ -23,11 +23,9 @@
 #include "stm32f4xx_hal_can.h"
 #include "can.h"
 
+#include "can_msg_processor.h"
+
 #define CAN_BUFFER_SIZE 8
-
-void can_ISR(CAN_HandleTypeDef *hcan);
-
-
 
 /**
  * Reads the latest message that has arrived on the specified CAN bus and stores
@@ -40,8 +38,8 @@ void can_ISR(CAN_HandleTypeDef *hcan);
  * @param rx_buffer     Buffer to store received data in. Minimum size of this buffer
  *                      must be 8 bytes.
  */
-HAL_StatusTypeDef can1_get_msg(CAN_HandleTypeDef *hcan, CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer);
-HAL_StatusTypeDef can2_get_msg(CAN_HandleTypeDef *hcan, CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer);
+HAL_StatusTypeDef can1_get_msg(CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer);
+HAL_StatusTypeDef can2_get_msg(CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer);
 /**
  * Sends a message on the selected CAN bus.
  *

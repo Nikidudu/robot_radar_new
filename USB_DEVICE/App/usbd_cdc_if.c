@@ -1,20 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file           : usbd_cdc_if.c
-  * @version        : v1.0_Cube
-  * @brief          : Usb device for Virtual Com Port.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
-  *
+  * @file    usbd_cdc_if.c
+  * @brief   USB Device Virtual COM Port interface file
+  * @updated December 2025 - Modern ring buffer version
   ******************************************************************************
   */
 /* USER CODE END Header */
@@ -23,7 +12,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-#include "usb_task.h"
+#include "usb_task.h"   // For usb_ring_buffer_write()
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,8 +21,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-static	uint8_t tempbuf[7];
-
+/* No private variables needed for ring buffer version */
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -96,7 +84,7 @@ uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
 uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
-
+/* None needed - all processing is in usb_task.c */
 /* USER CODE END PRIVATE_VARIABLES */
 
 /**
@@ -154,9 +142,13 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
 static int8_t CDC_Init_FS(void)
 {
   /* USER CODE BEGIN 3 */
-  /* Set Application Buffers */
+  /* Set buffers for TX and RX */
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
+
+  /* Start receiving data immediately */
+  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+
   return (USBD_OK);
   /* USER CODE END 3 */
 }
@@ -179,79 +171,47 @@ static int8_t CDC_DeInit_FS(void)
   * @param  length: Number of data to be sent (in bytes)
   * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
   */
+/* Default line coding: 921600 8N1 (used when host queries before setting) */
+#define CDC_DEFAULT_BAUDRATE  921600U
+
 static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 {
   /* USER CODE BEGIN 5 */
-  switch(cmd)
+  switch (cmd)
   {
     case CDC_SEND_ENCAPSULATED_COMMAND:
-
-    break;
-
-    case CDC_GET_ENCAPSULATED_RESPONSE:
-
-    break;
-
-    case CDC_SET_COMM_FEATURE:
-
-    break;
-
-    case CDC_GET_COMM_FEATURE:
-
-    break;
-
-    case CDC_CLEAR_COMM_FEATURE:
-
-    break;
-
-  /*******************************************************************************/
-  /* Line Coding Structure                                                       */
-  /*-----------------------------------------------------------------------------*/
-  /* Offset | Field       | Size | Value  | Description                          */
-  /* 0      | dwDTERate   |   4  | Number |Data terminal rate, in bits per second*/
-  /* 4      | bCharFormat |   1  | Number | Stop bits                            */
-  /*                                        0 - 1 Stop bit                       */
-  /*                                        1 - 1.5 Stop bits                    */
-  /*                                        2 - 2 Stop bits                      */
-  /* 5      | bParityType |  1   | Number | Parity                               */
-  /*                                        0 - None                             */
-  /*                                        1 - Odd                              */
-  /*                                        2 - Even                             */
-  /*                                        3 - Mark                             */
-  /*                                        4 - Space                            */
-  /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
-  /*******************************************************************************/
-    case CDC_SET_LINE_CODING:
-      tempbuf[0]=pbuf[0];
-      tempbuf[1]=pbuf[1];
-      tempbuf[2]=pbuf[2];
-      tempbuf[3]=pbuf[3];
-      tempbuf[4]=pbuf[4];
-      tempbuf[5]=pbuf[5];
-      tempbuf[6]=pbuf[6];
       break;
-
+    case CDC_GET_ENCAPSULATED_RESPONSE:
+      break;
+    case CDC_SET_COMM_FEATURE:
+      break;
+    case CDC_GET_COMM_FEATURE:
+      break;
+    case CDC_CLEAR_COMM_FEATURE:
+      break;
+    case CDC_SET_LINE_CODING:
+      /* Host sends desired baud rate; CDC middleware stores it in pbuf. No action needed. */
+      break;
     case CDC_GET_LINE_CODING:
-      pbuf[0]=tempbuf[0];
-      pbuf[1]=tempbuf[1];
-      pbuf[2]=tempbuf[2];
-      pbuf[3]=tempbuf[3];
-      pbuf[4]=tempbuf[4];
-      pbuf[5]=tempbuf[5];
-      pbuf[6]=tempbuf[6];
+      /* If uninitialized (all zeros), report default 921600 8N1 */
+      if (length >= 7U && pbuf[0] == 0U && pbuf[1] == 0U && pbuf[2] == 0U && pbuf[3] == 0U)
+      {
+        pbuf[0] = (uint8_t)(CDC_DEFAULT_BAUDRATE >> 0U);
+        pbuf[1] = (uint8_t)(CDC_DEFAULT_BAUDRATE >> 8U);
+        pbuf[2] = (uint8_t)(CDC_DEFAULT_BAUDRATE >> 16U);
+        pbuf[3] = (uint8_t)(CDC_DEFAULT_BAUDRATE >> 24U);
+        pbuf[4] = 0U;  /* 1 stop bit */
+        pbuf[5] = 0U;  /* no parity */
+        pbuf[6] = 8U;  /* 8 data bits */
+      }
       break;
     case CDC_SET_CONTROL_LINE_STATE:
-
-    break;
-
+      break;
     case CDC_SEND_BREAK:
-
-    break;
-
-  default:
-    break;
+      break;
+    default:
+      break;
   }
-
   return (USBD_OK);
   /* USER CODE END 5 */
 }
@@ -274,10 +234,19 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+
+  /* Forward all received data directly to the ring buffer in usb_task.c */
+  if (*Len > 0)
+  {
+    usb_ring_buffer_write(Buf, *Len);
+  }
+
+  /* Re-arm the USB endpoint to receive the next packet */
+  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, Buf);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-  usb_vcp_processing(Buf, Len);
+
   return (USBD_OK);
+
   /* USER CODE END 6 */
 }
 
@@ -297,9 +266,11 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 7 */
   USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
-  if (hcdc->TxState != 0){
+  if (hcdc->TxState != 0)
+  {
     return USBD_BUSY;
   }
+
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, Buf, Len);
   result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
   /* USER CODE END 7 */

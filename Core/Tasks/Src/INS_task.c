@@ -14,11 +14,10 @@
   */
 	
 #include "INS_task.h"
-//#include "QuaternionEKF.h"
-#include "mahony_filter.h"
 #include <math.h>
 #include "board_lib.h"
 #include "imu_processing_task.h"
+#include "mahony_filter.h"
 
 INS_t INS;
 

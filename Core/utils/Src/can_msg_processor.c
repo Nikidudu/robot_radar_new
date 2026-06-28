@@ -1,0 +1,281 @@
+/*
+ * can_msg_processor.c
+ *
+ *  Created on: Jan 19, 2021
+ *      Author: Hans Kurnia
+ */
+
+/* Private includes ----------------------------------------------------------*/
+#include "board_lib.h"
+#include "can_msg_processor.h"
+#include "supercap_comm_task.h"
+#include "chassis_can_message_task.h"
+#include "launcher_control_task.h"
+#include "gimbal_control_task.h"
+#include "motor_config.h"
+#include "control_input_task.h"
+#include "bsp_lk_motor.h"
+
+/* Private define ------------------------------------------------------------*/
+// low-pass-filters: between 0(no filtering) and 1(frozen value)
+#define SPEED_LPF 0
+
+/* Private function prototypes -----------------------------------------------*/
+void parse_can_message(uint32_t std_id, const uint8_t  *RxData, CAN_HandleTypeDef *hcan);
+void process_bot_dev_c_can_msg(uint32_t msg_id, const uint8_t* rx_buffer);
+void convert_raw_can_data(motor_data_t * can_motor_data, uint16_t motor_id, const uint8_t* rx_buffer);
+void angle_offset(raw_data_t *motor_data, angle_data_t *angle_data);
+void motor_calc_odometry(raw_data_t *motor_data, angle_data_t *angle_data, uint32_t feedback_times[]);
+
+/**
+ * CAN ISR function, triggered upon RX_FIFO0_MSG_PENDING or RxFifo1MsgPendingCallback
+ * converts the raw can data to the motor_data struct form as well
+ */
+void can_ISR(CAN_HandleTypeDef *hcan) {
+	CAN_RxHeaderTypeDef RxHeader;
+	uint8_t RxData[CAN_BUFFER_SIZE];
+	// check which CAN bus received it
+	// required because the 2 can buses use seperate FIFOs for receive
+	// CAN1: FIFO0; CAN2: FIFO1
+
+	if (hcan->Instance == CAN1) {
+		if (can1_get_msg(&RxHeader, RxData) != HAL_OK) {
+			return;
+		}
+		parse_can_message(RxHeader.StdId, RxData, hcan);
+	} else if (hcan->Instance == CAN2) {
+		if (can2_get_msg(&RxHeader, RxData) != HAL_OK) {
+			return;
+		}
+		parse_can_message(RxHeader.StdId, RxData, hcan);
+	}
+}
+
+void parse_can_message(uint32_t std_id,
+                       const uint8_t  *RxData,
+                       CAN_HandleTypeDef *hcan) {
+
+	switch (std_id) {
+	// information from bottom dev C
+	case DEV_C_BOT_TO_TOP_ID:
+		process_bot_dev_c_can_msg(std_id, RxData);
+		break;
+
+	// feeder motor
+#if FEEDER_MOTOR_ID == TYPE_LK_4005
+	case FEEDER_MOTOR_ID:
+		if(hcan == FEEDER_MOTOR_CAN) {
+		  process_lk_motor(RxData,&feeder_motor);
+		}
+		break;
+#else
+	case CAN_3508_ALL_ID + FEEDER_MOTOR_ID - 1:
+		if (hcan == FEEDER_MOTOR_CAN) {
+			convert_raw_can_data(&feeder_motor, std_id, RxData);
+		}
+		break;
+#endif
+
+	// pitch motor
+#if PITCH_MOTOR_TYPE == TYPE_DM4310_MIT
+	case DM_PITCH_MOTOR_ID:
+		if (hcan == PITCH_MOTOR_CAN) {
+			dm4310_fbdata(&dm_pitch_motor, &RxData[0]);
+		}
+		break;
+#elif PITCH_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
+	case CAN_DM_ALL_ID + PITCH_MOTOR_ID - 1:
+		if (hcan == PITCH_MOTOR_CAN) {
+			convert_raw_can_data(&pitch_motor, std_id, RxData);
+		}
+		break;
+#else
+	case CAN_6020_ALL_ID + PITCH_MOTOR_ID - 1:
+		if (hcan == PITCH_MOTOR_ID) {
+			convert_raw_can_data(&pitch_motor, std_id, RxData);
+		}
+		break;
+#endif
+
+	// yaw motor
+#if YAW_MOTOR_TYPE == TYPE_DM4310_MIT
+	case DM_YAW_MOTOR_ID:
+		if (hcan == YAW_MOTOR_CAN) {
+			dm4310_fbdata(&dm_yaw_motor, &RxData[0]);
+		}
+		break;
+#elif YAW_MOTOR_TYPE == TYPE_DM4310_DJI_MODE
+	case CAN_DM_ALL_ID + YAW_MOTOR_ID - 1:
+		if (hcan == YAW_MOTOR_CAN) {
+			convert_raw_can_data(&yaw_motor, std_id, RxData);
+		}
+		break;
+#else
+	case CAN_6020_ALL_ID + YAW_MOTOR_ID - 1:
+		if (hcan == YAW_MOTOR_CAN) {
+			convert_raw_can_data(&yaw_motor, std_id, RxData);
+		}
+		break;
+#endif
+
+	// launcher motors (flywheels)
+	case CAN_3508_ALL_ID + LFRICTION_MOTOR_ID - 1:
+	case CAN_3508_ALL_ID + RFRICTION_MOTOR_ID - 1:
+#ifdef ACTIVE_GUIDANCE
+	//case CAN_3508_ALL_ID + BFRICTION_MOTOR_ID - 1:
+	//case CAN_3508_ALL_ID + GFRICTION_MOTOR_ID - 1:
+#endif
+		if (hcan == LAUNCHER_MOTOR_CAN) {
+			convert_raw_can_data(
+					&flywheel_motor[std_id - CAN_3508_ALL_ID], std_id, RxData);
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void process_bot_dev_c_can_msg(uint32_t msg_id, const uint8_t* rx_buffer) {
+    supercap.charging_state = rx_buffer[0];
+
+    if (supercap.charging_state < SUPERCAP_DISABLE_THRESHOLD) {
+    	supercap.supercap_enabled = 0;
+    }
+
+	supercap.last_time[1] = supercap.last_time[0];
+	supercap.last_time[0] = get_microseconds();
+
+	chassis_ctrl_data.last_time[1] = chassis_ctrl_data.last_time[0];
+	chassis_ctrl_data.last_time[0] = get_microseconds();
+}
+
+/*
+ * For DJI motors
+ * Converts raw CAN data over to the motor_data_t struct
+ * 7 bytes of CAN data is sent from the motors:
+ * 	High byte for motor angle data
+ * 	Low byte for motor angle data
+ * 	High byte for RPM
+ * 	Low byte for RPM
+ * 	High byte for Torque
+ * 	Low byte for Torque
+ * 	1 byte for temperature
+ *
+ * This function combines the respective high and low bytes into 1 single 16bit integer, then stores them
+ * in the struct for the motor.
+ *
+ * For GM6020 motors, it recenters the motor angle data and converts it to radians.
+ */
+void convert_raw_can_data(motor_data_t *can_motor_data, uint16_t motor_id,
+		const uint8_t *rx_buffer) {
+
+	motor_data_t *curr_motor = can_motor_data;
+	//convert the raw data back into the respective values
+	curr_motor->id = motor_id;
+	curr_motor->raw_data.angle[1] = curr_motor->raw_data.angle[0];
+	curr_motor->raw_data.angle[0] = (rx_buffer[0] << 8) | rx_buffer[1];
+	int16_t temp_rpm = (rx_buffer[2] << 8) | rx_buffer[3];
+	curr_motor->raw_data.rpm = curr_motor->raw_data.rpm * SPEED_LPF
+			+ temp_rpm * (1 - SPEED_LPF);
+	curr_motor->raw_data.torque = (rx_buffer[4] << 8) | rx_buffer[5];
+	curr_motor->raw_data.temp = (rx_buffer[6]);
+	curr_motor->last_time[1] = curr_motor->last_time[0];
+	curr_motor->last_time[0] = get_microseconds();
+
+	float rds_passed = (float) (curr_motor->raw_data.angle[0]
+			- curr_motor->raw_data.angle[1]) / 8192;
+	float time_diff = (float) (curr_motor->last_time[0]
+			- curr_motor->last_time[1]) / (float) (TIMER_FREQ * 60);
+	curr_motor->angle_data.hires_rpm = curr_motor->angle_data.hires_rpm * 0.95
+			+ (rds_passed * time_diff * 0.05);
+	//process the angle data differently depending on the motor type to get radians in the
+	//adj_angle value
+
+	if (curr_motor->motor_type > 0) {
+		switch (curr_motor->motor_type) {
+		case TYPE_DM4310_DJI_MODE: // added DM motor case statement
+		case TYPE_GM6020:
+			motor_calc_odometry(&curr_motor->raw_data, &curr_motor->angle_data,
+					curr_motor->last_time);
+			angle_offset(&curr_motor->raw_data, &curr_motor->angle_data);
+			break;
+		case TYPE_M2006:
+		case TYPE_M3508:
+			break;
+		case TYPE_M2006_STEPS:
+		case TYPE_M3508_STEPS:
+//			motor_calc_odometry(&curr_motor->raw_data, &curr_motor->angle_data,
+//					curr_motor->last_time);
+			break;
+		case TYPE_M2006_ANGLE:
+		case TYPE_M3508_ANGLE:
+		case TYPE_GM6020_720:
+			motor_calc_odometry(&curr_motor->raw_data, &curr_motor->angle_data,
+					curr_motor->last_time);
+			angle_offset(&curr_motor->raw_data, &curr_motor->angle_data);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+/**
+ * Centers the raw motor angle to between -Pi to +Pi
+ */
+void angle_offset(raw_data_t *motor_data, angle_data_t *angle_data) {
+	int32_t temp_ang = 0;
+
+	//if there's a gearbox, use the ticks after the gearbox.
+	//make sure center angle is properly set with respect to the zero-ing angle
+	//YOUR ROBOT MUST HAVE A WAY TO ZERO THIS ANGLE AND IMPLEMENT A ZEROING FUNCTION AT STARTUP
+	//IF NOT IT WON'T WORK 							-wx
+	temp_ang = angle_data->ticks - angle_data->center_ang;
+	if (temp_ang > angle_data->max_ticks) {
+		temp_ang -= angle_data->tick_range;
+	} else if (temp_ang < angle_data->min_ticks) {
+		temp_ang += angle_data->tick_range;
+	}
+//	angle_data->ticks = temp_ang;
+	angle_data->adj_ang = (float) temp_ang * angle_data->ang_range
+			/ angle_data->tick_range;
+}
+
+void motor_calc_odometry(raw_data_t *motor_data, angle_data_t *angle_data,
+		uint32_t feedback_times[]) {
+	int16_t abs_angle_diff;
+	if (angle_data->init == 0) {
+		angle_data->ticks = motor_data->angle[0];
+		if (angle_data->ticks > angle_data->max_ticks) {
+			angle_data->ticks -= angle_data->tick_range;
+		}
+		if (angle_data->ticks < angle_data->min_ticks) {
+			angle_data->ticks += angle_data->tick_range;
+		}
+		motor_data->angle[1] = motor_data->angle[0];
+		angle_data->init = 1;
+		return;
+	}
+	abs_angle_diff = motor_data->angle[0] - motor_data->angle[1];
+	//generally the motor won't exceed half a turn between each feedback
+	if (abs_angle_diff > angle_data->max_raw_ticks) {
+		abs_angle_diff -= angle_data->raw_ticks_range;
+	} else if (abs_angle_diff < angle_data->min_raw_ticks) {
+		abs_angle_diff += angle_data->raw_ticks_range;
+	}
+
+	uint16_t gear_ticks = angle_data->raw_ticks_range
+			* angle_data->gearbox_ratio;
+	angle_data->ticks += abs_angle_diff;
+	while (angle_data->ticks > angle_data->max_ticks) {
+		angle_data->ticks -= angle_data->tick_range;
+	}
+	while (angle_data->ticks < angle_data->min_ticks) {
+		angle_data->ticks += angle_data->tick_range;
+	}
+
+	angle_data->dist = angle_data->ticks * angle_data->wheel_circ / gear_ticks;
+	motor_data->angle[1] = motor_data->angle[0];
+}
+

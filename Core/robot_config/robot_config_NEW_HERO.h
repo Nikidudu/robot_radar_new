@@ -8,15 +8,16 @@
 #ifndef TASKS_INC_ROBOT_CONFIG_CF_H_
 #define TASKS_INC_ROBOT_CONFIG_CF_H_
 
-#include "motor_config.h"
 #include "hud_roburt.h"
+#include "motor_config.h"
+
 #define BULLET_42
 
 #define OVERHEAT_PROTECTION
 //#define BOARD_DOWN
 //0 for SWDIO port to be roll, 1 for SWDIO port to be pitch, 2 for vertical mount SWDIO port to the right
 #define IMU_ORIENTATION	0
-//doesn't do anything, todo: implement pid for heater
+//doesn't do anything
 #define IMU_TARGET_TEMP	50
 
 //flip until motor angle and yaw angle matches
@@ -179,10 +180,10 @@
 #define FEEDER_CUTOFF_TEMP  	60
 
 //#define ANGLE_FEEDER
-#define ANGLE_FEEDER_MARGIN		0.87 //0.174 //margin in radians
-#define ANGLE_FEEDER_SPD_MARGIN 20 //rpm after gearbox margin
+#define ANGLE_FEEDER_MARGIN		0.05 //0.174 //margin in radians
+#define ANGLE_FEEDER_SPD_MARGIN 100 //rpm after gearbox margin
 #define ANGLE_FEEDER_TIMEOUT    800 //if stuck in angle feeder for more than 2s, timeout
-#define ANGLE_FEEDER_DELAY		100 //time between each shots, in ms
+#define ANGLE_FEEDER_DELAY		1000 //time between each shots, in ms
 
 
 #define STEPPER_ANGLE			1.8
@@ -362,9 +363,9 @@
 
 #define BL_ANG_X			(3*PI/4)
 #define BL_ANG_Y 			PI/2
-#define BL_ANG_PASSIVE		PI/4
+#define BL_ANG_PASSIVxrE		PI/4
 #define BL_DIST				312
-#define BL_VX_MULT			1		//-cos(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
+#define BL_VX_MULT			x1		//-cos(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
 #define BL_VY_MULT			1		//-sin(BL_ANG_Y - BL_ANG_PASSIVE)/sin(BL_ANG_PASSIVE)
 #define BL_YAW_MULT			1	//((-BL_DIST * sin(BL_ANG_Y - BL_ANG_PASSIVE - BL_ANG_X)) / (sin(BL_ANG_PASSIVE) * WHEEL_CIRC))
 

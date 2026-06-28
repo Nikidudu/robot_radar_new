@@ -28,7 +28,14 @@ void draw_gearing(uint8_t modify, uint32_t x_coords);
 uint16_t draw_supercap(uint8_t* tx_buffer, uint8_t modify);
 void draw_aimbot(uint8_t modify, uint32_t x_coords);
 void draw_crosshair(uint8_t modify);
+void draw_hp_number(uint8_t modify, uint16_t hp, uint32_t x, uint32_t y, char id);
+void draw_team_hp(uint8_t modify);
+void draw_supercap_status(uint8_t modify, uint32_t x_coords);
 
+void draw_aimbot_firing_status(uint8_t modify);
+void draw_hp_number(uint8_t modify, uint16_t hp, uint32_t x, uint32_t y, char id);
+void draw_team_hp(uint8_t modify);
+void draw_supercap_status(uint8_t modify, uint32_t x_coords);
 void draw_pitch_graphics(uint8_t modify); // Function to call all static pitch graphics
 void draw_major_ticks(uint8_t modify);
 void draw_minor_ticks(uint8_t modify);

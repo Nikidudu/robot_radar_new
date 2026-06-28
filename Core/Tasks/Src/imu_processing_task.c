@@ -5,9 +5,14 @@
  *      Author: wx
  */
 #include "board_lib.h"
-#include "bsp_imu.h"
-#include "robot_config.h"
 #include "imu_processing_task.h"
+#include "master_task.h"
+
+void imu_proc_task_notif();
+void imu_processing_task(void *argument);
+void init_quaternion(void);
+void imu_ahrs_update(void);
+void imu_attitude_update(void);
 
 float imu_test[6];
 static volatile float q0 = 1.0f;
@@ -31,13 +36,8 @@ orientation_data_t imu_heading;
 static accel_data_t accel_proc_data;
 static gyro_data_t gyro_proc_data;
 static mag_data_t mag_proc_data;
-extern QueueHandle_t gyro_data_queue;
-extern QueueHandle_t accel_data_queue;
-extern QueueHandle_t mag_data_queue;
-extern TaskHandle_t imu_processing_task_handle;
 static uint32_t last_proc_times[2];
 static uint8_t update_flag = 0;
-
 
 void imu_proc_task_notif() {
 	//resets the flags
@@ -51,36 +51,41 @@ void imu_proc_task_notif() {
 void gyro_data_ready(gyro_data_t gyro_data) {
 #if IMU_ORIENTATION == 2
 	//flip roll with yaw
-		gyro_proc_data.gx = gyro_data.gz;
-		gyro_proc_data.gy = gyro_data.gy;
-		gyro_proc_data.gz = -gyro_data.gx;
+	gyro_proc_data.gx = gyro_data.gz;
+	gyro_proc_data.gy = gyro_data.gy;
+	gyro_proc_data.gz = -gyro_data.gx;
 #elif IMU_ORIENTATION == 3
-		//flip roll with yaw
-		gyro_proc_data.gx = gyro_data.gx;
-		gyro_proc_data.gy = gyro_data.gz;
-		gyro_proc_data.gz = gyro_data.gy;
+	//flip roll with yaw
+	gyro_proc_data.gx = gyro_data.gx;
+	gyro_proc_data.gy = gyro_data.gz;
+	gyro_proc_data.gz = gyro_data.gy;
 #elif IMU_ORIENTATION == 4
-		//
-		gyro_proc_data.gx = gyro_data.gz;
-		gyro_proc_data.gy = gyro_data.gx;
-		gyro_proc_data.gz = gyro_data.gy;
+	//
+	gyro_proc_data.gx = gyro_data.gz;
+	gyro_proc_data.gy = gyro_data.gx;
+	gyro_proc_data.gz = gyro_data.gy;
 #elif IMU_ORIENTATION == 5
-		//
-		gyro_proc_data.gx = gyro_data.gz;
-		gyro_proc_data.gy = gyro_data.gx;
-		gyro_proc_data.gz = gyro_data.gy;
+	//
+	gyro_proc_data.gx = gyro_data.gz;
+	gyro_proc_data.gy = gyro_data.gx;
+	gyro_proc_data.gz = gyro_data.gy;
 
 #elif IMU_ORIENTATION == 7
-
-        gyro_proc_data.gx = -gyro_data.gy; //flip neg as needed
-        gyro_proc_data.gy = gyro_data.gx;
-        gyro_proc_data.gz = gyro_data.gz;
+	gyro_proc_data.gx = -gyro_data.gy; //flip neg as needed
+	gyro_proc_data.gy = gyro_data.gx;
+	gyro_proc_data.gz = gyro_data.gz;
 
 #else
-		gyro_proc_data.gx = gyro_data.gx;
-		gyro_proc_data.gy = gyro_data.gy;
-		gyro_proc_data.gz = gyro_data.gz;
+	gyro_proc_data.gx = gyro_data.gx;
+	gyro_proc_data.gy = gyro_data.gy;
+	gyro_proc_data.gz = gyro_data.gz;
 #endif
+
+	// raw gyro, rad/s
+	imu_heading.gyro_raw_roll = gyro_proc_data.gx * IMU_ROLL_INVERT;
+	imu_heading.gyro_raw_pitch = -gyro_proc_data.gy * IMU_PITCH_INVERT;
+	imu_heading.gyro_raw_yaw = -gyro_proc_data.gz * IMU_YAW_INVERT;
+
 	gyro_proc_data.last_gyro_update = gyro_data.last_gyro_update;
 	imu_test[3] = gyro_data.gx;
 	imu_test[4] = gyro_data.gy;

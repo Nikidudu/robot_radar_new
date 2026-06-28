@@ -18,21 +18,24 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 	can_ISR(hcan);
 }
 
-HAL_StatusTypeDef can1_get_msg(CAN_HandleTypeDef *hcan, CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer)
+HAL_StatusTypeDef can1_get_msg(CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer)
 {
-	if (hcan->Instance == CAN1){
-		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, rx_msg_header, rx_buffer);
-	} else {
-		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, rx_msg_header, rx_buffer);
-	}
-	return HAL_OK;
+    if (HAL_CAN_GetRxFifoFillLevel(&hcan1, CAN_RX_FIFO0) == 0)
+        return HAL_ERROR;
+
+    return HAL_CAN_GetRxMessage(
+        &hcan1, CAN_RX_FIFO0, rx_msg_header, rx_buffer);
 }
 
-HAL_StatusTypeDef can2_get_msg(CAN_HandleTypeDef *hcan, CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer)
+HAL_StatusTypeDef can2_get_msg(CAN_RxHeaderTypeDef *rx_msg_header, uint8_t *rx_buffer)
 {
-	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, rx_msg_header, rx_buffer);
-	return HAL_OK;
+    if (HAL_CAN_GetRxFifoFillLevel(&hcan2, CAN_RX_FIFO1) == 0)
+        return HAL_ERROR;
+
+    return HAL_CAN_GetRxMessage(
+        &hcan2, CAN_RX_FIFO1, rx_msg_header, rx_buffer);
 }
+
 
 uint32_t can_send_msg(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t dlc, uint8_t* data ){
 
@@ -57,13 +60,13 @@ uint32_t can_send_msg(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t dlc, uint8_t
  */
 void can_start(CAN_HandleTypeDef *hcan, uint32_t CAN_filterID, uint32_t CAN_filterMask) {
     CAN_FilterTypeDef can_filter_st = {0};
-    can_filter_st.FilterActivation = ENABLE;
-	can_filter_st.FilterMode = CAN_FILTERMODE_IDMASK;
-	can_filter_st.FilterScale = CAN_FILTERSCALE_32BIT;
-	can_filter_st.FilterIdHigh = (CAN_filterID >> 16);
-	can_filter_st.FilterIdLow = (CAN_filterID & 0xFFFF);
-	can_filter_st.FilterMaskIdHigh = (CAN_filterMask >> 16);
-	can_filter_st.FilterMaskIdLow = (CAN_filterMask & 0xFFFF);
+    can_filter_st.FilterActivation 	= ENABLE;
+	can_filter_st.FilterMode 		= CAN_FILTERMODE_IDMASK;
+	can_filter_st.FilterScale 		= CAN_FILTERSCALE_32BIT;
+	can_filter_st.FilterIdHigh 		= (CAN_filterID >> 16);
+	can_filter_st.FilterIdLow 		= (CAN_filterID & 0xFFFF);
+	can_filter_st.FilterMaskIdHigh 	= (CAN_filterMask >> 16);
+	can_filter_st.FilterMaskIdLow 	= (CAN_filterMask & 0xFFFF);
 
 	if (hcan->Instance == CAN1) {
 	    can_filter_st.FilterBank = 0;
@@ -72,12 +75,12 @@ void can_start(CAN_HandleTypeDef *hcan, uint32_t CAN_filterID, uint32_t CAN_filt
 	    HAL_CAN_Start(hcan);
 	    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 	} else if (hcan->Instance == CAN2) {
-	    can_filter_st.FilterFIFOAssignment = CAN_RX_FIFO1; // Uncomment line if using RX1 queue as well.
+	    can_filter_st.FilterFIFOAssignment = CAN_RX_FIFO1;
 		can_filter_st.SlaveStartFilterBank = 14;
 		can_filter_st.FilterBank = 14;
 	    HAL_CAN_ConfigFilter(hcan, &can_filter_st);
 	    HAL_CAN_Start(hcan);
-	    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO1_MSG_PENDING); // Uncomment line if using RX1 queue as well.
+	    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
 	}
 
 }

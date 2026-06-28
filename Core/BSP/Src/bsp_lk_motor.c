@@ -6,8 +6,25 @@
  */
 #include "board_lib.h"
 #include "bsp_lk_motor.h"
-#include "can_msg_processor.h"
 #include <can.h>
+#include "can_msg_processor.h"
+
+uint8_t lk_set_pid(motor_data_t *motor, uint32_t timeout){
+	uint32_t timeout_time = get_microseconds() + timeout;
+	uint32_t curr_time = get_microseconds();
+	while (curr_time < timeout_time){
+		curr_time = get_microseconds();
+		if (motor->last_time[0] != 0 && (curr_time - motor->last_time[0]) < 10000){
+			lk_write_pid(motor->can, motor);
+			return 1;
+		} else {
+			lk_read_pid(motor->can, motor);
+			vTaskDelay(1);
+		}
+	}
+	//motor timed out, cannot write pid
+	return 0;
+}
 
 void process_lk_motor(uint8_t *rx_buffer, motor_data_t *motor_data) {
 	motor_data->last_time[1] = motor_data->last_time[0];
@@ -284,7 +301,7 @@ void lk_process_angle_control(uint8_t *data, motor_data_t *motor_data) {
 	lk_calc_ang(motor_data);
 //	motor_calc_odometry(&motor_data->raw_data, &motor_data->angle_data,
 //			motor_data->last_time);
-	angle_offset(&motor_data->raw_data, &motor_data->angle_data);
+//	angle_offset(&motor_data->raw_data, &motor_data->angle_data);
 	//add adj ang calculations
 }
 
@@ -294,6 +311,24 @@ void lk_process_motor_mangle(uint8_t *data, motor_data_t *motor_data) {
 			| ((int64_t) data[6] << 40) | ((int64_t) data[5] << 32)
 			| ((int64_t) data[4] << 24) | ((int64_t) data[3] << 16)
 			| ((int64_t) data[2] << 8) | (int64_t) data[1];
+}
+
+void send_motor_torque(motor_data_t *motor_data,int16_t output) {
+    uint8_t data[8] = {0};
+
+    data[0] = 0xA1; // Torque control command
+    data[1] = 0x00;
+    data[2] = 0x00;
+    data[3] = 0x00;
+
+    // Split the 16-bit PID output into low and high bytes
+    data[4] = (output& 0xFF);
+    data[5] = ((output >> 8) & 0xFF);
+
+    data[6] = 0x00;
+    data[7] = 0x00;
+
+    can_send_msg(motor_data->can, motor_data->id, 8, data);
 }
 
 void lk_update_encoder() {

@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+uint8_t lk_set_pid(motor_data_t *motor, uint32_t timeout);
 void process_lk_motor(uint8_t* rx_buffer, motor_data_t *motor_data);
 void lk_write_pid(CAN_HandleTypeDef *can, motor_data_t *motor_data);
 void lk_read_pid(CAN_HandleTypeDef *can, motor_data_t* motor_data);
@@ -37,6 +38,7 @@ void lk_process_encoder(uint8_t* data, motor_data_t* motor_data);
 void lk_process_angle_control(uint8_t* data, motor_data_t* motor_data);
 void lk_process_motor_mangle(uint8_t* data, motor_data_t* motor_data);
 void lk_calc_ang(motor_data_t *motor_data);
+void send_motor_torque(motor_data_t *motor_data,int16_t output);
 void lk_update_encoder();
 
 #ifdef __cplusplus

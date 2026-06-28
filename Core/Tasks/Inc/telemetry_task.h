@@ -116,30 +116,6 @@ typedef enum {
 	ref_power_data	= 11
 }data_enum_t;
 
-typedef union {
-	//init data
-	telem_motor_init_t motor_init_data; //50 bytes
-	telem_ref_init_t ref_init_data;		//12 bytes
-
-	telem_motor_data_t motor_data; 		//30 bytes
-	telem_input_data_t control_data; 	//25 bytes
-	remote_cmd_t raw_rc_data; 			//30 bytes
-	gyro_data_t raw_gyro_data;			//16 bytes
-	accel_data_t raw_accel_data;		//16 bytes
-	mag_data_t raw_mag_data;			//10 bytes
-	orientation_data_t orientation_data;//12 bytes
-	linear_accel_t linear_acc_data;		//12 bytes MODULE NOT DONE YET
-
-	telem_ref_bullet_data_t ref_bullet_data; 	//7 bytes
-	telem_ref_power_data_t ref_power_data; 		//10 bytes
-
-}telem_data_union_t;
-
-typedef struct{
-	uint8_t data_type;
-	telem_data_union_t telem_data;
-}telem_data_struct_t;
-
 #define TELEM_MAX_DATA_SIZE 50
 
 typedef struct {
