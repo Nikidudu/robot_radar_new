@@ -14,6 +14,7 @@
 #include "motor_control.h"
 #include "typedefs.h"
 #include "motor_config.h"
+#include "pid_tuner_task.h"
 
 /* Private variables ---------------------------------------------------------*/
 static float prev_pit;
@@ -68,7 +69,21 @@ void gimbal_control_task(void *argument) {
 		start_time = xTaskGetTickCount();
 
 		if (gimbal_ctrl_data.enabled) {
-			if (gimbal_ctrl_data.imu_mode) {
+			if (pid_tuner_is_active()) {
+				/* Bench PID auto-tune run in progress (see pid_tuner_task.h):
+				 * drive yaw_motor.rpm_pid with the test gains/step instead of
+				 * the normal joystick/aimbot/IMU control for the duration of
+				 * the run. turn_ang mirrors the same "actual angle moved
+				 * since last tick" computation yaw_control() uses. */
+				float turn_ang = imu_heading.yaw - prev_yaw;
+				while (turn_ang > PI) {
+					turn_ang -= 2 * PI;
+				}
+				while (turn_ang < -PI) {
+					turn_ang += 2 * PI;
+				}
+				pid_tuner_step(&yaw_motor, turn_ang);
+			} else if (gimbal_ctrl_data.imu_mode) {
 				gimbal_control(&pitch_motor, &yaw_motor);
 			} else {
 				gimbal_angle_control(&pitch_motor, &yaw_motor);

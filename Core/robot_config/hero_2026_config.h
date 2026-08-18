@@ -398,6 +398,15 @@
 #define YAWRPM_INT_MAX			5000
 #define YAW_MAX_CURRENT			20000
 
+/* Bench-only: lets a host script (tools/pid_tune) drive step-response tests
+ * of yaw_motor.rpm_pid over USB and log the results, without needing the
+ * ST-Link probe attached (see Core/Tasks/Inc/pid_tuner_task.h). While armed,
+ * an incoming test-command packet takes over yaw control from the normal
+ * joystick/aimbot/IMU path for the duration of the test. Uncomment only for
+ * bench tuning sessions - make sure this is commented back out for any
+ * build that goes on the field. */
+#define PID_AUTOTUNE_ENABLE
+
 #else
 
 #define DM_YAW_KP				5

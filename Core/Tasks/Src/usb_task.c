@@ -6,6 +6,7 @@
  */
 #include "board_lib.h"
 #include "usb_task.h"
+#include "pid_tuner_task.h"
 #include "task.h"
 #include "usbd_cdc_if.h"
 #include <string.h>
@@ -209,6 +210,17 @@ static void usb_handle_packet(uint8_t id, const uint8_t *payload, uint16_t len)
             }
             break;
 
+        case ID_PID_TEST_CMD:
+            if (len == sizeof(pidTestCmdPacket))
+            {
+                pidTestCmdPacket* pkt = (pidTestCmdPacket*)payload;
+                if (IS_RELIABLE(*pkt))
+                {
+                    pid_tuner_handle_cmd(pkt);
+                }
+            }
+            break;
+
         default:
             break;
     }
@@ -270,6 +282,26 @@ void UsbParserTask(void *argument)
             last_gimbal_send_tick = tick;
         }
 
+        // Drain any buffered PID-tuner telemetry (see pid_tuner_task.c).
+        // Capped per iteration so a full ring doesn't monopolize the loop;
+        // production is ~250Hz and this loop runs at least every ~1ms, so
+        // a small cap here still drains faster than samples are produced.
+        {
+            pidTelemPacket sample;
+            for (uint8_t i = 0; i < 8 && pid_tuner_pop_sample(&sample); i++)
+            {
+                MAKE_RELIABLE(sample);
+                USB_Send_Raw(ID_PID_TELEM, &sample, sizeof(sample));
+            }
+
+            pidTestDonePacket done;
+            if (pid_tuner_pop_done(&done))
+            {
+                MAKE_RELIABLE(done);
+                USB_Send_Raw(ID_PID_TEST_DONE, &done, sizeof(done));
+            }
+        }
+
         // Process all available data in one go for lowest latency
         uint32_t avail = usb_rb_bytes_available();
         if (avail == 0)
@@ -313,6 +345,7 @@ void UsbParserTask(void *argument)
                         case ID_SURVEIL_COMMAND: payload_len = sizeof(surveilCommandPacket); break;
                         case ID_AIM_COMMAND: payload_len = sizeof(aimCommandPacket); break;
                         case ID_IS_NAVIGATING: payload_len = sizeof(isNavigatingPacket); break;
+                        case ID_PID_TEST_CMD: payload_len = sizeof(pidTestCmdPacket); break;
                         default:
                             state = STATE_WAIT_PREAMBLE;
                             payload_len = 0;
@@ -341,5 +374,6 @@ void UsbParserTask(void *argument)
 
 void USB_Firmware_Init(void)
 {
+    pid_tuner_init();
     xTaskCreate(UsbParserTask, "UsbParser", 512, NULL, 12, NULL);
 }
